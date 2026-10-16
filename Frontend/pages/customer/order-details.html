@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Order Details | FoodDelivery</title>
+
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/pages/customer/customer.css">
+    <link rel="stylesheet" href="../../assets/css/pages/customer/order-details.css">
+</head>
+
+<body>
+
+    <!-- =====================================================
+         CUSTOMER HEADER
+    ====================================================== -->
+
+    <header class="customer-header">
+
+        <div class="customer-header-container">
+
+            <a href="home.html" class="customer-logo">
+                Food<span>Delivery</span>
+            </a>
+
+            <!-- Delivery Location -->
+            <a href="addresses.html">
+                <button type="button" class="delivery-location">
+                    <span class="location-icon">📍</span>
+
+                    <span class="location-text">
+                        <small>Deliver to</small>
+                        <strong>Select location</strong>
+                    </span>
+                </button>
+            </a>
+
+            <nav class="customer-navigation">
+
+                <a href="home.html">
+                    Home
+                </a>
+
+                <a href="restaurants.html">
+                    Restaurants
+                </a>
+
+                <a href="orders.html" class="active">
+                    Orders
+                </a>
+
+                <a href="profile.html">
+                    Profile
+                </a>
+
+                <a href="../auth/login.html">
+                    Logout
+                </a>
+
+            </nav>
+
+            <button type="button" class="mobile-menu-button" id="mobileMenuButton" aria-label="Open menu">
+                ☰
+            </button>
+
+        </div>
+
+        <nav class="mobile-navigation" id="mobileNavigation">
+
+            <a href="home.html">
+                Home
+            </a>
+
+            <a href="restaurants.html">
+                Restaurants
+            </a>
+
+            <a href="orders.html" class="active">
+                Orders
+            </a>
+
+            <a href="profile.html">
+                Profile
+            </a>
+
+            <a href="../auth/login.html">
+                Logout
+            </a>
+
+        </nav>
+
+    </header>
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
+
+    <main class="order-details-page">
+
+        <div class="order-details-container">
+
+            <!-- Back -->
+            <a href="orders.html" class="order-back-link">
+                ← Back to Orders
+            </a>
+
+
+            <!-- Page Header -->
+            <section class="order-details-header">
+
+                <div>
+
+                    <span class="order-details-label">
+                        Order Details
+                    </span>
+
+                    <h1>
+                        Order #FD-1004
+                    </h1>
+
+                    <p>
+                        Ordered today
+                    </p>
+
+                </div>
+
+                <span class="order-status status-preparing">
+                    Preparing
+                </span>
+
+            </section>
+
+
+            <!-- =================================================
+                 ORDER CONTENT
+            ================================================== -->
+
+            <div class="order-details-layout">
+
+
+                <!-- =================================================
+                     LEFT COLUMN
+                ================================================== -->
+
+                <div class="order-details-main">
+
+
+                    <!-- Order Progress -->
+                    <section class="order-details-card">
+
+                        <div class="order-card-header">
+
+                            <div>
+                                <h2>Order Status</h2>
+
+                                <p>
+                                    Your order is being prepared by the restaurant.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="order-timeline">
+
+
+                            <!-- Step 1 -->
+
+                            <div class="timeline-step completed">
+
+                                <div class="timeline-icon">
+                                    ✓
+                                </div>
+
+                                <div class="timeline-content">
+
+                                    <strong>
+                                        Order Placed
+                                    </strong>
+
+                                    <span>
+                                        Your order has been received
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Step 2 -->
+
+                            <div class="timeline-step completed">
+
+                                <div class="timeline-icon">
+                                    ✓
+                                </div>
+
+                                <div class="timeline-content">
+
+                                    <strong>
+                                        Confirmed
+                                    </strong>
+
+                                    <span>
+                                        Restaurant confirmed your order
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Step 3 -->
+
+                            <div class="timeline-step current">
+
+                                <div class="timeline-icon">
+                                    3
+                                </div>
+
+                                <div class="timeline-content">
+
+                                    <strong>
+                                        Preparing
+                                    </strong>
+
+                                    <span>
+                                        Your food is being prepared
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Step 4 -->
+
+                            <div class="timeline-step">
+
+                                <div class="timeline-icon">
+                                    4
+                                </div>
+
+                                <div class="timeline-content">
+
+                                    <strong>
+                                        Out for Delivery
+                                    </strong>
+
+                                    <span>
+                                        Rider will pick up your order
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Step 5 -->
+
+                            <div class="timeline-step">
+
+                                <div class="timeline-icon">
+                                    5
+                                </div>
+
+                                <div class="timeline-content">
+
+                                    <strong>
+                                        Delivered
+                                    </strong>
+
+                                    <span>
+                                        Order delivered to you
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- Restaurant -->
+                    <section class="order-details-card">
+
+                        <div class="order-card-header">
+
+                            <h2>
+                                Restaurant
+                            </h2>
+
+                        </div>
+
+
+                        <div class="restaurant-order-info">
+
+                            <div class="restaurant-order-avatar">
+                                MK
+                            </div>
+
+                            <div class="restaurant-order-details">
+
+                                <h3>
+                                    Mama's Kitchen
+                                </h3>
+
+                                <p>
+                                    African Food • Fast Food
+                                </p>
+
+                                <div class="restaurant-order-rating">
+                                    ★ 4.8
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- Order Items -->
+                    <section class="order-details-card">
+
+                        <div class="order-card-header">
+
+                            <h2>
+                                Order Items
+                            </h2>
+
+                        </div>
+
+
+                        <div class="order-detail-items">
+
+
+                            <!-- Item 1 -->
+
+                            <div class="order-detail-item">
+
+                                <div class="order-item-image">
+                                    GC
+                                </div>
+
+                                <div class="order-item-info">
+
+                                    <h3>
+                                        Grilled Chicken
+                                    </h3>
+
+                                    <p>
+                                        Quantity: 1
+                                    </p>
+
+                                </div>
+
+                                <div class="order-item-price">
+                                    KSh 650
+                                </div>
+
+                            </div>
+
+
+                            <!-- Item 2 -->
+
+                            <div class="order-detail-item">
+
+                                <div class="order-item-image">
+                                    BS
+                                </div>
+
+                                <div class="order-item-info">
+
+                                    <h3>
+                                        Beef Stew
+                                    </h3>
+
+                                    <p>
+                                        Quantity: 1
+                                    </p>
+
+                                </div>
+
+                                <div class="order-item-price">
+                                    KSh 550
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- Delivery Information -->
+                    <section class="order-details-card">
+
+                        <div class="order-card-header">
+
+                            <h2>
+                                Delivery Information
+                            </h2>
+
+                        </div>
+
+
+                        <div class="delivery-info-grid">
+
+                            <div class="delivery-info-item">
+
+                                <span class="info-label">
+                                    Delivery Address
+                                </span>
+
+                                <strong>
+                                    Your selected delivery address
+                                </strong>
+
+                            </div>
+
+
+                            <div class="delivery-info-item">
+
+                                <span class="info-label">
+                                    Estimated Delivery
+                                </span>
+
+                                <strong>
+                                    20–30 minutes
+                                </strong>
+
+                            </div>
+
+
+                            <div class="delivery-info-item">
+
+                                <span class="info-label">
+                                    Payment Method
+                                </span>
+
+                                <strong>
+                                    M-Pesa
+                                </strong>
+
+                            </div>
+
+
+                            <div class="delivery-info-item">
+
+                                <span class="info-label">
+                                    Order Number
+                                </span>
+
+                                <strong>
+                                    #FD-1004
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- Actions -->
+                    <div class="order-detail-actions">
+
+                        <a href="orders.html" class="secondary-action-button">
+                            Back to Orders
+                        </a>
+
+                    </div>
+
+
+                    <div class="order-action-message" id="orderActionMessage" role="status" aria-live="polite"></div>
+
+                </div>
+
+
+                <!-- =================================================
+                     RIGHT COLUMN
+                ================================================== -->
+
+                <aside class="order-details-sidebar">
+
+
+                    <!-- Order Summary -->
+
+                    <section class="order-details-card summary-card">
+
+                        <div class="order-card-header">
+
+                            <h2>
+                                Order Summary
+                            </h2>
+
+                        </div>
+
+
+                        <div class="summary-restaurant">
+
+                            <strong>
+                                Mama's Kitchen
+                            </strong>
+
+                            <span>
+                                Order #FD-1004
+                            </span>
+
+                        </div>
+
+
+                        <div class="summary-items">
+
+                            <div class="summary-row">
+
+                                <span>
+                                    Grilled Chicken × 1
+                                </span>
+
+                                <strong>
+                                    KSh 650
+                                </strong>
+
+                            </div>
+
+
+                            <div class="summary-row">
+
+                                <span>
+                                    Beef Stew × 1
+                                </span>
+
+                                <strong>
+                                    KSh 550
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="summary-divider"></div>
+
+
+                        <div class="summary-row">
+
+                            <span>
+                                Subtotal
+                            </span>
+
+                            <strong>
+                                KSh 1,200
+                            </strong>
+
+                        </div>
+
+
+                        <div class="summary-row">
+
+                            <span>
+                                Delivery Fee
+                            </span>
+
+                            <strong>
+                                KSh 100
+                            </strong>
+
+                        </div>
+
+
+                        <div class="summary-divider"></div>
+
+
+                        <div class="summary-total">
+
+                            <span>
+                                Total
+                            </span>
+
+                            <strong>
+                                KSh 1,300
+                            </strong>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- Delivery Estimate -->
+
+                    <section class="order-details-card delivery-estimate-card">
+
+                        <div class="estimate-icon">
+                            🛵
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                Estimated Delivery
+                            </h3>
+
+                            <strong>
+                                20–30 minutes
+                            </strong>
+
+                            <p>
+                                We'll keep you updated as your order progresses.
+                            </p>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- Payment -->
+
+                    <section class="order-details-card payment-card">
+
+                        <div class="order-card-header">
+
+                            <h2>
+                                Payment
+                            </h2>
+
+                        </div>
+
+
+                        <div class="payment-info">
+
+                            <div class="payment-method-icon">
+                                M
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    M-Pesa
+                                </strong>
+
+                                <span>
+                                    Payment method
+                                </span>
+
+                            </div>
+
+                            <span class="payment-status">
+                                Pending
+                            </span>
+
+                        </div>
+
+                    </section>
+
+                </aside>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- =====================================================
+         CUSTOMER FOOTER
+    ====================================================== -->
+
+    <footer class="customer-footer">
+
+        <div class="customer-footer-container">
+
+            <div class="footer-brand">
+
+                <a href="home.html" class="customer-logo">
+                    Food<span>Delivery</span>
+                </a>
+
+                <p>
+                    Delicious food delivered straight to your door.
+                </p>
+
+            </div>
+
+
+            <div class="footer-links">
+
+                <a href="home.html">
+                    Home
+                </a>
+
+                <a href="restaurants.html">
+                    Restaurants
+                </a>
+
+                <a href="orders.html">
+                    Orders
+                </a>
+
+                <a href="profile.html">
+                    Profile
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <p>
+                &copy; 2026 FoodDelivery. All rights reserved.
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <!-- JavaScript -->
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/customer/order-details.js"></script>
+
+</body>
+
+</html>

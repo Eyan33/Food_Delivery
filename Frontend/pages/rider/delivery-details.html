@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Delivery Details | FoodDelivery</title>
+
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/pages/rider/delivery-details.css">
+    <link rel="stylesheet" href="../../assets/css/pages/rider/dashboard.css">
+</head>
+
+<body>
+
+    <!-- =========================================
+         RIDER SIDEBAR
+    ========================================== -->
+
+    <aside class="rider-sidebar">
+
+        <div class="rider-sidebar-header">
+            <a href="dashboard.html" class="rider-logo">
+                Food<span>Delivery</span>
+            </a>
+        </div>
+
+
+        <div class="rider-profile">
+
+            <div class="rider-profile-avatar">
+                J
+            </div>
+
+            <div class="rider-profile-info">
+                <strong>John Kamau</strong>
+                <span>Delivery Rider</span>
+            </div>
+
+        </div>
+
+
+        <nav class="rider-navigation">
+
+            <a href="dashboard.html" class="rider-nav-link">
+                <span class="rider-nav-icon">▣</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="orders.html" class="rider-nav-link">
+                <span class="rider-nav-icon">▤</span>
+                <span>Available Orders</span>
+                <span class="rider-nav-badge">4</span>
+            </a>
+
+            <a href="deliveries.html" class="rider-nav-link active">
+                <span class="rider-nav-icon">◈</span>
+                <span>My Deliveries</span>
+            </a>
+
+            <a href="#" class="rider-nav-link">
+                <span class="rider-nav-icon">◆</span>
+                <span>Earnings</span>
+            </a>
+
+            <a href="#" class="rider-nav-link">
+                <span class="rider-nav-icon">◯</span>
+                <span>Profile</span>
+            </a>
+
+            <a href="#" class="rider-nav-link">
+                <span class="rider-nav-icon">⚙</span>
+                <span>Settings</span>
+            </a>
+
+        </nav>
+
+
+        <div class="rider-sidebar-footer">
+
+            <a href="../../index.html" class="rider-nav-link">
+                <span class="rider-nav-icon">↪</span>
+                <span>Logout</span>
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =========================================
+         MAIN
+    ========================================== -->
+
+    <main class="rider-main">
+
+
+        <!-- =========================================
+             TOPBAR
+        ========================================== -->
+
+        <header class="rider-topbar">
+
+            <div class="rider-topbar-left">
+
+                <button type="button" class="rider-mobile-menu-button" id="riderMenuButton" aria-label="Open menu">
+                    ☰
+                </button>
+
+                <div>
+                    <h1>Delivery Details</h1>
+                    <p>View information about this delivery.</p>
+                </div>
+
+            </div>
+
+
+            <div class="rider-topbar-right">
+
+                <div class="rider-status-button online">
+                    <span class="status-dot"></span>
+                    <span>You're Online</span>
+                </div>
+
+
+                <button
+                    type="button"
+                    class="rider-notification-button"
+                    aria-label="Notifications">
+
+                    <span>🔔</span>
+                    <span class="notification-badge">3</span>
+
+                </button>
+
+
+                <div class="rider-topbar-profile">
+
+                    <div class="rider-topbar-avatar">
+                        J
+                    </div>
+
+                    <div class="rider-topbar-profile-info">
+                        <strong>John Kamau</strong>
+                        <span>Delivery Rider</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================================
+             CONTENT
+        ========================================== -->
+
+        <section class="rider-content">
+
+
+            <!-- BACK BUTTON -->
+
+            <div class="delivery-details-back">
+
+                <a href="deliveries.html">
+                    ← Back to My Deliveries
+                </a>
+
+            </div>
+
+
+            <!-- PAGE HEADER -->
+
+            <div class="delivery-details-header">
+
+                <div>
+
+                    <span class="delivery-details-order-number">
+                        Order #FD-1048
+                    </span>
+
+                    <h2>
+                        Delivery Details
+                    </h2>
+
+                    <p>
+                        Complete information for your current delivery.
+                    </p>
+
+                </div>
+
+
+                <span class="delivery-details-status">
+                    In Progress
+                </span>
+
+            </div>
+
+
+            <!-- =========================================
+                 DELIVERY PROGRESS
+            ========================================== -->
+
+            <div class="delivery-details-card">
+
+                <div class="delivery-card-header">
+
+                    <div>
+                        <h3>Delivery Progress</h3>
+                        <p>Current delivery status</p>
+                    </div>
+
+                </div>
+
+
+                <div class="delivery-progress">
+
+                    <div class="delivery-progress-step completed">
+
+                        <div class="delivery-progress-icon">
+                            ✓
+                        </div>
+
+                        <div>
+                            <strong>Order Accepted</strong>
+                            <span>11:42 AM</span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="delivery-progress-line completed"></div>
+
+
+                    <div class="delivery-progress-step completed">
+
+                        <div class="delivery-progress-icon">
+                            ✓
+                        </div>
+
+                        <div>
+                            <strong>Picked Up</strong>
+                            <span>11:51 AM</span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="delivery-progress-line completed"></div>
+
+
+                    <div class="delivery-progress-step current">
+
+                        <div class="delivery-progress-icon">
+                            3
+                        </div>
+
+                        <div>
+                            <strong>On the Way</strong>
+                            <span>Current</span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="delivery-progress-line"></div>
+
+
+                    <div class="delivery-progress-step">
+
+                        <div class="delivery-progress-icon">
+                            4
+                        </div>
+
+                        <div>
+                            <strong>Delivered</strong>
+                            <span>Pending</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================================
+                 RESTAURANT + CUSTOMER
+            ========================================== -->
+
+            <div class="delivery-details-grid">
+
+
+                <!-- PICKUP -->
+
+                <div class="delivery-details-card">
+
+                    <div class="delivery-card-header">
+
+                        <div>
+                            <h3>Pickup Location</h3>
+                            <p>Restaurant information</p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="delivery-location">
+
+                        <div class="delivery-location-icon">
+                            ◈
+                        </div>
+
+                        <div>
+
+                            <span class="delivery-location-label">
+                                RESTAURANT
+                            </span>
+
+                            <strong>
+                                Artcaffe
+                            </strong>
+
+                            <p>
+                                Waiyaki Way, Nairobi
+                            </p>
+
+                            <span class="delivery-location-note">
+                                Order ready for delivery
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CUSTOMER -->
+
+                <div class="delivery-details-card">
+
+                    <div class="delivery-card-header">
+
+                        <div>
+                            <h3>Delivery Location</h3>
+                            <p>Customer information</p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="delivery-location">
+
+                        <div class="delivery-location-icon customer">
+                            ◯
+                        </div>
+
+                        <div>
+
+                            <span class="delivery-location-label">
+                                CUSTOMER
+                            </span>
+
+                            <strong>
+                                David Otieno
+                            </strong>
+
+                            <p>
+                                Westlands, Nairobi
+                            </p>
+
+                            <span class="delivery-location-note">
+                                Customer waiting for delivery
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================================
+                 ORDER INFORMATION
+            ========================================== -->
+
+            <div class="delivery-details-card">
+
+                <div class="delivery-card-header">
+
+                    <div>
+                        <h3>Order Information</h3>
+                        <p>Items included in this order</p>
+                    </div>
+
+                </div>
+
+
+                <div class="delivery-order-items">
+
+
+                    <div class="delivery-order-item">
+
+                        <div class="delivery-food-image">
+                            🍔
+                        </div>
+
+                        <div class="delivery-food-info">
+
+                            <strong>
+                                Beef Burger
+                            </strong>
+
+                            <span>
+                                Quantity: 1
+                            </span>
+
+                        </div>
+
+                        <strong class="delivery-food-price">
+                            KSh 450
+                        </strong>
+
+                    </div>
+
+
+                    <div class="delivery-order-item">
+
+                        <div class="delivery-food-image">
+                            🍟
+                        </div>
+
+                        <div class="delivery-food-info">
+
+                            <strong>
+                                French Fries
+                            </strong>
+
+                            <span>
+                                Quantity: 1
+                            </span>
+
+                        </div>
+
+                        <strong class="delivery-food-price">
+                            KSh 300
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="delivery-order-summary">
+
+                    <div>
+                        <span>Subtotal</span>
+                        <strong>KSh 750</strong>
+                    </div>
+
+                    <div>
+                        <span>Delivery Fee</span>
+                        <strong>KSh 100</strong>
+                    </div>
+
+                    <div class="total">
+                        <span>Total</span>
+                        <strong>KSh 850</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================================
+                 DELIVERY INFORMATION
+            ========================================== -->
+
+            <div class="delivery-details-card">
+
+                <div class="delivery-card-header">
+
+                    <div>
+                        <h3>Delivery Information</h3>
+                        <p>Important information for this delivery</p>
+                    </div>
+
+                </div>
+
+
+                <div class="delivery-information-grid">
+
+                    <div class="delivery-information-item">
+
+                        <span>
+                            ORDER NUMBER
+                        </span>
+
+                        <strong>
+                            #FD-1048
+                        </strong>
+
+                    </div>
+
+
+                    <div class="delivery-information-item">
+
+                        <span>
+                            ORDER TIME
+                        </span>
+
+                        <strong>
+                            11:35 AM
+                        </strong>
+
+                    </div>
+
+
+                    <div class="delivery-information-item">
+
+                        <span>
+                            PAYMENT
+                        </span>
+
+                        <strong>
+                            Cashless
+                        </strong>
+
+                    </div>
+
+
+                    <div class="delivery-information-item">
+
+                        <span>
+                            ITEMS
+                        </span>
+
+                        <strong>
+                            2 Items
+                        </strong>
+
+                    </div>
+
+
+                    <div class="delivery-information-item">
+
+                        <span>
+                            DISTANCE
+                        </span>
+
+                        <strong>
+                            2.1 km
+                        </strong>
+
+                    </div>
+
+
+                    <div class="delivery-information-item">
+
+                        <span>
+                            ESTIMATED TIME
+                        </span>
+
+                        <strong>
+                            12 min
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================================
+                 DELIVERY NOTES
+            ========================================== -->
+
+            <div class="delivery-details-card">
+
+                <div class="delivery-card-header">
+
+                    <div>
+                        <h3>Delivery Notes</h3>
+                        <p>Instructions from the customer</p>
+                    </div>
+
+                </div>
+
+
+                <div class="delivery-note">
+
+                    <span class="delivery-note-icon">
+                        !
+                    </span>
+
+                    <p>
+                        Please call when you arrive. The customer will
+                        meet you at the main entrance.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================================
+                 ACTIONS
+            ========================================== -->
+
+            <div class="delivery-details-actions">
+
+                <a
+                    href="deliveries.html"
+                    class="rider-secondary-button">
+
+                    Back to Deliveries
+
+                </a>
+
+
+                <button
+                    type="button"
+                    class="rider-primary-button">
+
+                    Mark as Delivered
+
+                </button>
+
+            </div>
+
+
+        </section>
+
+    </main>
+
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/main.js"></script>
+</body>
+
+</html>

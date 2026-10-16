@@ -1,0 +1,2287 @@
+const pool = require("../../config/database");
+
+const ORDER_FILTER_TIME_ZONE =
+    process.env.DASHBOARD_TIME_ZONE || "Africa/Nairobi";
+
+const ORDER_STATUS_VALUES = [
+    "pending",
+    "confirmed",
+    "preparing",
+    "ready",
+    "out_for_delivery",
+    "delivered",
+    "cancelled",
+];
+
+const ADMIN_ORDER_TRANSITIONS = {
+    pending: ["confirmed", "cancelled"],
+    confirmed: ["preparing", "cancelled"],
+    preparing: ["ready", "cancelled"],
+    ready: ["out_for_delivery", "cancelled"],
+    out_for_delivery: ["delivered", "cancelled"],
+    delivered: [],
+    cancelled: [],
+};
+
+function apiError(message, statusCode = 400) {
+    const error = new Error(message);
+    error.statusCode = statusCode;
+    return error;
+}
+
+function parsePositiveInteger(value, label) {
+    if (value === undefined || value === null || value === "") {
+        return null;
+    }
+
+    const text = String(value).trim();
+
+    if (!/^[1-9][0-9]*$/.test(text)) {
+        throw apiError(`${label} must be a positive integer`);
+    }
+
+    return text;
+}
+
+function parseOrderFilterDate(value, label) {
+    if (value === undefined || value === null || value === "") {
+        return null;
+    }
+
+    const text = String(value).trim();
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+        throw apiError(
+            `${label} must be a valid date in YYYY-MM-DD format`,
+        );
+    }
+
+    const parsed = new Date(`${text}T00:00:00Z`);
+
+    if (
+        Number.isNaN(parsed.getTime()) ||
+        parsed.toISOString().slice(0, 10) !== text
+    ) {
+        throw apiError(
+            `${label} must be a valid date in YYYY-MM-DD format`,
+        );
+    }
+
+    return text;
+}
+
+function validateAdminReason(reason, required = false) {
+    if (reason === undefined || reason === null) {
+        if (required) {
+            throw apiError("Reason is required");
+        }
+
+        return null;
+    }
+
+    const text = String(reason).trim();
+
+    if (!text) {
+        if (required) {
+            throw apiError("Reason is required");
+        }
+
+        return null;
+    }
+
+    if (text.length > 500) {
+        throw apiError("Reason cannot exceed 500 characters");
+    }
+
+    return text;
+}
+
+function generateOrderNumber() {
+    const now = new Date();
+
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+
+    const random = Math.floor(Math.random() * 1000)
+        .toString()
+        .padStart(3, "0");
+
+    return `FD-${year}${month}${day}-${hours}${minutes}${seconds}-${random}`;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Customer - Get Orders
+|--------------------------------------------------------------------------
+*/
+
+async function getCustomerOrders(customerId) {
+    const result = await pool.query(
+        `
+        SELECT
+            o.id,
+            o.order_number,
+            o.customer_id,
+            o.restaurant_id,
+            o.address_id,
+            o.status,
+            o.delivery_address,
+            o.delivery_city,
+            o.recipient_name,
+            o.recipient_phone,
+            o.delivery_instructions,
+            o.subtotal,
+            o.delivery_fee,
+            o.discount,
+            o.total_amount,
+            o.notes,
+            o.placed_at,
+            o.confirmed_at,
+            o.preparing_at,
+            o.ready_at,
+            o.out_for_delivery_at,
+            o.delivered_at,
+            o.cancelled_at,
+            o.created_at,
+            o.updated_at,
+            r.name AS restaurant_name,
+            r.logo_url AS restaurant_logo
+        FROM orders o
+        JOIN restaurants r
+            ON r.id = o.restaurant_id
+        WHERE o.customer_id = $1
+        ORDER BY o.created_at DESC
+        `,
+        [customerId],
+    );
+
+    return result.rows;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Customer - Get One Order
+|--------------------------------------------------------------------------
+*/
+
+async function getOrderById(orderId, customerId) {
+    const orderResult = await pool.query(
+        `
+        SELECT
+            o.id,
+            o.order_number,
+            o.customer_id,
+            o.restaurant_id,
+            o.address_id,
+            o.rider_id,
+            o.status,
+            o.delivery_address,
+            o.delivery_city,
+            o.recipient_name,
+            o.recipient_phone,
+            o.delivery_instructions,
+            o.subtotal,
+            o.delivery_fee,
+            o.discount,
+            o.total_amount,
+            o.notes,
+            o.placed_at,
+            o.confirmed_at,
+            o.preparing_at,
+            o.ready_at,
+            o.out_for_delivery_at,
+            o.delivered_at,
+            o.cancelled_at,
+            o.created_at,
+            o.updated_at,
+            r.name AS restaurant_name,
+            r.logo_url AS restaurant_logo
+        FROM orders o
+        JOIN restaurants r
+            ON r.id = o.restaurant_id
+        WHERE o.id = $1
+          AND o.customer_id = $2
+        LIMIT 1
+        `,
+        [orderId, customerId],
+    );
+
+    if (orderResult.rows.length === 0) {
+        return null;
+    }
+
+    const order = orderResult.rows[0];
+
+    const itemsResult = await pool.query(
+        `
+        SELECT
+            oi.id,
+            oi.order_id,
+            oi.food_id,
+            oi.food_name,
+            oi.quantity,
+            oi.unit_price,
+            oi.subtotal,
+            oi.created_at,
+            f.image_url
+        FROM order_items oi
+        LEFT JOIN foods f
+            ON f.id = oi.food_id
+        WHERE oi.order_id = $1
+        ORDER BY oi.id ASC
+        `,
+        [order.id],
+    );
+
+    order.items = itemsResult.rows;
+
+    return order;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Customer - Create Order
+|--------------------------------------------------------------------------
+*/
+
+async function createOrder(customerId, data) {
+    const {
+        restaurant_id,
+        delivery_address,
+        delivery_city,
+        recipient_name,
+        delivery_phone,
+        delivery_instructions,
+        notes,
+        items,
+    } = data;
+
+    if (!restaurant_id) {
+        throw new Error("Restaurant ID is required");
+    }
+
+    if (!delivery_address) {
+        throw new Error("Delivery address is required");
+    }
+
+    if (!delivery_city) {
+        throw new Error("Delivery city is required");
+    }
+
+    if (!recipient_name) {
+        throw new Error("Recipient name is required");
+    }
+
+    if (!delivery_phone) {
+        throw new Error("Delivery phone is required");
+    }
+
+    if (!Array.isArray(items) || items.length === 0) {
+        throw new Error("At least one food item is required");
+    }
+
+    const client = await pool.connect();
+
+    try {
+        await client.query("BEGIN");
+
+        const restaurantResult = await client.query(
+            `
+            SELECT
+                id,
+                name,
+                is_open,
+                is_active,
+                delivery_fee,
+                minimum_order
+            FROM restaurants
+            WHERE id = $1
+            LIMIT 1
+            `,
+            [restaurant_id],
+        );
+
+        if (restaurantResult.rows.length === 0) {
+            throw new Error("Restaurant not found");
+        }
+
+        const restaurant = restaurantResult.rows[0];
+
+        if (!restaurant.is_active) {
+            throw new Error("Restaurant is currently unavailable");
+        }
+
+        if (!restaurant.is_open) {
+            throw new Error("Restaurant is currently closed");
+        }
+
+        const requestedFoodIds = items.map((item) => item.food_id);
+
+        const foodsResult = await client.query(
+            `
+            SELECT
+                id,
+                restaurant_id,
+                name,
+                price,
+                is_available,
+                is_active
+            FROM foods
+            WHERE id = ANY($1::bigint[])
+            `,
+            [requestedFoodIds],
+        );
+
+        const foods = foodsResult.rows;
+
+        if (foods.length !== requestedFoodIds.length) {
+            throw new Error("One or more food items were not found");
+        }
+
+        let subtotal = 0;
+        const orderItems = [];
+
+        for (const requestedItem of items) {
+            const food = foods.find(
+                (item) =>
+                    String(item.id) === String(requestedItem.food_id),
+            );
+
+            if (!food) {
+                throw new Error(
+                    `Food item ${requestedItem.food_id} was not found`,
+                );
+            }
+
+            if (
+                String(food.restaurant_id) !==
+                String(restaurant_id)
+            ) {
+                throw new Error(
+                    `${food.name} does not belong to this restaurant`,
+                );
+            }
+
+            if (!food.is_active) {
+                throw new Error(`${food.name} is no longer available`);
+            }
+
+            if (!food.is_available) {
+                throw new Error(`${food.name} is currently unavailable`);
+            }
+
+            const quantity = Number(requestedItem.quantity);
+
+            if (!Number.isInteger(quantity) || quantity <= 0) {
+                throw new Error(
+                    `Invalid quantity for ${food.name}`,
+                );
+            }
+
+            const unitPrice = Number(food.price);
+            const itemSubtotal = unitPrice * quantity;
+
+            subtotal += itemSubtotal;
+
+            orderItems.push({
+                food_id: food.id,
+                food_name: food.name,
+                quantity,
+                unit_price: unitPrice,
+                subtotal: itemSubtotal,
+            });
+        }
+
+        const deliveryFee = Number(restaurant.delivery_fee || 0);
+        const discount = 0;
+        const totalAmount = subtotal + deliveryFee - discount;
+
+        const minimumOrder = Number(
+            restaurant.minimum_order || 0,
+        );
+
+        if (subtotal < minimumOrder) {
+            throw new Error(
+                `Minimum order amount is ${minimumOrder.toFixed(2)}`,
+            );
+        }
+
+        const orderNumber = generateOrderNumber();
+
+        const orderResult = await client.query(
+            `
+            INSERT INTO orders (
+                order_number,
+                customer_id,
+                restaurant_id,
+                status,
+                delivery_address,
+                delivery_city,
+                recipient_name,
+                recipient_phone,
+                delivery_instructions,
+                subtotal,
+                delivery_fee,
+                discount,
+                total_amount,
+                notes,
+                placed_at
+            )
+            VALUES (
+                $1,
+                $2,
+                $3,
+                'pending',
+                $4,
+                $5,
+                $6,
+                $7,
+                $8,
+                $9,
+                $10,
+                $11,
+                $12,
+                $13,
+                CURRENT_TIMESTAMP
+            )
+            RETURNING *
+            `,
+            [
+                orderNumber,
+                customerId,
+                restaurant_id,
+                delivery_address,
+                delivery_city,
+                recipient_name,
+                delivery_phone,
+                delivery_instructions || null,
+                subtotal,
+                deliveryFee,
+                discount,
+                totalAmount,
+                notes || null,
+            ],
+        );
+
+        const order = orderResult.rows[0];
+
+        for (const item of orderItems) {
+            await client.query(
+                `
+                INSERT INTO order_items (
+                    order_id,
+                    food_id,
+                    food_name,
+                    quantity,
+                    unit_price,
+                    subtotal
+                )
+                VALUES (
+                    $1,
+                    $2,
+                    $3,
+                    $4,
+                    $5,
+                    $6
+                )
+                `,
+                [
+                    order.id,
+                    item.food_id,
+                    item.food_name,
+                    item.quantity,
+                    item.unit_price,
+                    item.subtotal,
+                ],
+            );
+        }
+
+        await client.query("COMMIT");
+
+        return getOrderById(order.id, customerId);
+    } catch (error) {
+        await client.query("ROLLBACK").catch(() => {});
+        throw error;
+    } finally {
+        client.release();
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Restaurant - Get Orders
+|--------------------------------------------------------------------------
+*/
+
+async function getRestaurantOrders(ownerId) {
+    const restaurantResult = await pool.query(
+        `
+        SELECT
+            id,
+            name
+        FROM restaurants
+        WHERE owner_id = $1
+          AND is_active = TRUE
+        LIMIT 1
+        `,
+        [ownerId],
+    );
+
+    if (restaurantResult.rows.length === 0) {
+        throw new Error("Restaurant profile not found");
+    }
+
+    const restaurant = restaurantResult.rows[0];
+
+    const result = await pool.query(
+        `
+        SELECT
+            o.id,
+            o.order_number,
+            o.customer_id,
+            o.restaurant_id,
+            o.rider_id,
+            o.address_id,
+            o.status,
+            o.delivery_address,
+            o.delivery_city,
+            o.recipient_name,
+            o.recipient_phone,
+            o.delivery_instructions,
+            o.subtotal,
+            o.delivery_fee,
+            o.discount,
+            o.total_amount,
+            o.notes,
+            o.placed_at,
+            o.confirmed_at,
+            o.preparing_at,
+            o.ready_at,
+            o.out_for_delivery_at,
+            o.delivered_at,
+            o.cancelled_at,
+            o.created_at,
+            o.updated_at,
+            u.first_name AS customer_first_name,
+            u.last_name AS customer_last_name,
+            u.email AS customer_email,
+            u.phone AS customer_phone
+        FROM orders o
+        JOIN users u
+            ON u.id = o.customer_id
+        WHERE o.restaurant_id = $1
+        ORDER BY o.created_at DESC
+        `,
+        [restaurant.id],
+    );
+
+    return result.rows;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Restaurant - Get One Order
+|--------------------------------------------------------------------------
+*/
+
+async function getRestaurantOrder(orderId, ownerId) {
+    const restaurantResult = await pool.query(
+        `
+        SELECT
+            id,
+            name
+        FROM restaurants
+        WHERE owner_id = $1
+          AND is_active = TRUE
+        LIMIT 1
+        `,
+        [ownerId],
+    );
+
+    if (restaurantResult.rows.length === 0) {
+        throw new Error("Restaurant profile not found");
+    }
+
+    const restaurant = restaurantResult.rows[0];
+
+    const orderResult = await pool.query(
+        `
+        SELECT
+            o.id,
+            o.order_number,
+            o.customer_id,
+            o.restaurant_id,
+            o.rider_id,
+            o.address_id,
+            o.status,
+            o.delivery_address,
+            o.delivery_city,
+            o.recipient_name,
+            o.recipient_phone,
+            o.delivery_instructions,
+            o.subtotal,
+            o.delivery_fee,
+            o.discount,
+            o.total_amount,
+            o.notes,
+            o.placed_at,
+            o.confirmed_at,
+            o.preparing_at,
+            o.ready_at,
+            o.out_for_delivery_at,
+            o.delivered_at,
+            o.cancelled_at,
+            o.created_at,
+            o.updated_at,
+            u.first_name AS customer_first_name,
+            u.last_name AS customer_last_name,
+            u.email AS customer_email,
+            u.phone AS customer_phone,
+            r.name AS restaurant_name,
+            r.logo_url AS restaurant_logo
+        FROM orders o
+        JOIN users u
+            ON u.id = o.customer_id
+        JOIN restaurants r
+            ON r.id = o.restaurant_id
+        WHERE o.id = $1
+          AND o.restaurant_id = $2
+        LIMIT 1
+        `,
+        [orderId, restaurant.id],
+    );
+
+    if (orderResult.rows.length === 0) {
+        return null;
+    }
+
+    const order = orderResult.rows[0];
+
+    const itemsResult = await pool.query(
+        `
+        SELECT
+            oi.id,
+            oi.order_id,
+            oi.food_id,
+            oi.food_name,
+            oi.quantity,
+            oi.unit_price,
+            oi.subtotal,
+            oi.created_at,
+            f.image_url
+        FROM order_items oi
+        LEFT JOIN foods f
+            ON f.id = oi.food_id
+        WHERE oi.order_id = $1
+        ORDER BY oi.id ASC
+        `,
+        [order.id],
+    );
+
+    order.items = itemsResult.rows;
+
+    return order;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Restaurant - Update Order Status
+|--------------------------------------------------------------------------
+*/
+
+async function updateOrderStatus(orderId, ownerId, newStatus) {
+    const restaurantResult = await pool.query(
+        `
+        SELECT
+            id,
+            name
+        FROM restaurants
+        WHERE owner_id = $1
+          AND is_active = TRUE
+        LIMIT 1
+        `,
+        [ownerId],
+    );
+
+    if (restaurantResult.rows.length === 0) {
+        throw new Error("Restaurant profile not found");
+    }
+
+    const restaurant = restaurantResult.rows[0];
+
+    const allowedStatuses = [
+        "confirmed",
+        "preparing",
+        "ready",
+    ];
+
+    if (!allowedStatuses.includes(newStatus)) {
+        throw new Error("Invalid order status");
+    }
+
+    const currentOrderResult = await pool.query(
+        `
+        SELECT
+            id,
+            status
+        FROM orders
+        WHERE id = $1
+          AND restaurant_id = $2
+        LIMIT 1
+        `,
+        [orderId, restaurant.id],
+    );
+
+    if (currentOrderResult.rows.length === 0) {
+        throw new Error("Order not found");
+    }
+
+    const currentStatus =
+        currentOrderResult.rows[0].status;
+
+    const validTransitions = {
+        pending: ["confirmed"],
+        confirmed: ["preparing"],
+        preparing: ["ready"],
+        ready: [],
+    };
+
+    if (
+        !validTransitions[currentStatus] ||
+        !validTransitions[currentStatus].includes(newStatus)
+    ) {
+        throw new Error(
+            `Cannot change order status from ${currentStatus} to ${newStatus}`,
+        );
+    }
+
+    const timestampMap = {
+        confirmed: "confirmed_at",
+        preparing: "preparing_at",
+        ready: "ready_at",
+    };
+
+    const timestampColumn = timestampMap[newStatus];
+
+    const result = await pool.query(
+        `
+        UPDATE orders
+        SET
+            status = $1,
+            ${timestampColumn} = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $2
+          AND restaurant_id = $3
+        RETURNING *
+        `,
+        [newStatus, orderId, restaurant.id],
+    );
+
+    return result.rows[0];
+}
+
+/*
+|--------------------------------------------------------------------------
+| Admin - Get All Orders
+|--------------------------------------------------------------------------
+*/
+
+async function getAllOrders(options = {}) {
+    const search = String(options.search ?? "").trim();
+
+    const status = String(options.status ?? "")
+        .trim()
+        .toLowerCase();
+
+    const restaurantId = parsePositiveInteger(
+        options.restaurantId,
+        "restaurant_id",
+    );
+
+    const customerId = parsePositiveInteger(
+        options.customerId,
+        "customer_id",
+    );
+
+    const dateFrom = parseOrderFilterDate(
+        options.dateFrom,
+        "date_from",
+    );
+
+    const dateTo = parseOrderFilterDate(
+        options.dateTo,
+        "date_to",
+    );
+
+    if (
+        status &&
+        !ORDER_STATUS_VALUES.includes(status)
+    ) {
+        throw apiError(
+            `Invalid status. Use one of: ${ORDER_STATUS_VALUES.join(", ")}`,
+        );
+    }
+
+    if (dateFrom && dateTo && dateFrom > dateTo) {
+        throw apiError(
+            "date_from cannot be after date_to",
+        );
+    }
+
+    const requestedLimit = Number.parseInt(
+        options.limit,
+        10,
+    );
+
+    const requestedPage = Number.parseInt(
+        options.page,
+        10,
+    );
+
+    const limit =
+        Number.isInteger(requestedLimit) &&
+        requestedLimit > 0
+            ? Math.min(requestedLimit, 100)
+            : 6;
+
+    const page =
+        Number.isInteger(requestedPage) &&
+        requestedPage > 0
+            ? requestedPage
+            : 1;
+
+    const offset = (page - 1) * limit;
+
+    const values = [];
+    const conditions = [];
+
+    if (search) {
+        const escapedSearch = search.replace(
+            /[\\%_]/g,
+            "\\$&",
+        );
+
+        values.push(`%${escapedSearch}%`);
+
+        const placeholder = `$${values.length}`;
+
+        conditions.push(`
+            (
+                o.order_number ILIKE ${placeholder}
+                ESCAPE '\\'
+                OR CONCAT(
+                    u.first_name,
+                    ' ',
+                    u.last_name
+                ) ILIKE ${placeholder}
+                ESCAPE '\\'
+                OR u.email ILIKE ${placeholder}
+                ESCAPE '\\'
+                OR COALESCE(
+                    u.phone,
+                    ''
+                ) ILIKE ${placeholder}
+                ESCAPE '\\'
+                OR r.name ILIKE ${placeholder}
+                ESCAPE '\\'
+                OR COALESCE(
+                    o.recipient_name,
+                    ''
+                ) ILIKE ${placeholder}
+                ESCAPE '\\'
+                OR COALESCE(
+                    o.recipient_phone,
+                    ''
+                ) ILIKE ${placeholder}
+                ESCAPE '\\'
+            )
+        `);
+    }
+
+    if (status) {
+        values.push(status);
+
+        conditions.push(
+            `o.status = $${values.length}`,
+        );
+    }
+
+    if (restaurantId) {
+        values.push(restaurantId);
+
+        conditions.push(
+            `o.restaurant_id = $${values.length}`,
+        );
+    }
+
+    if (customerId) {
+        values.push(customerId);
+
+        conditions.push(
+            `o.customer_id = $${values.length}`,
+        );
+    }
+
+    if (dateFrom) {
+        values.push(dateFrom);
+
+        conditions.push(
+            `o.placed_at >= $${values.length}::date`,
+        );
+    }
+
+    if (dateTo) {
+        values.push(dateTo);
+
+        conditions.push(
+            `o.placed_at < ($${values.length}::date + 1)`,
+        );
+    }
+
+    const filter =
+        conditions.length > 0
+            ? conditions.join(" AND ")
+            : "TRUE";
+
+    const client = await pool.connect();
+
+    try {
+        await client.query("BEGIN READ ONLY");
+
+        await client.query(
+            "SELECT set_config('TimeZone', $1, true)",
+            [ORDER_FILTER_TIME_ZONE],
+        );
+
+        const statsResult = await client.query(
+            `
+            SELECT
+
+                COUNT(*)::int
+                    AS total,
+
+                COUNT(*) FILTER (
+                    WHERE o.status = 'pending'
+                )::int
+                    AS pending,
+
+                COUNT(*) FILTER (
+                    WHERE o.status = 'confirmed'
+                )::int
+                    AS confirmed,
+
+                COUNT(*) FILTER (
+                    WHERE o.status = 'preparing'
+                )::int
+                    AS preparing,
+
+                COUNT(*) FILTER (
+                    WHERE o.status = 'ready'
+                )::int
+                    AS ready,
+
+                COUNT(*) FILTER (
+                    WHERE o.status = 'out_for_delivery'
+                )::int
+                    AS out_for_delivery,
+
+                COUNT(*) FILTER (
+                    WHERE o.status = 'delivered'
+                )::int
+                    AS delivered,
+
+                COUNT(*) FILTER (
+                    WHERE o.status = 'cancelled'
+                )::int
+                    AS cancelled,
+
+                COUNT(*) FILTER (
+                    WHERE o.status IN (
+                        'confirmed',
+                        'preparing',
+                        'ready',
+                        'out_for_delivery'
+                    )
+                )::int
+                    AS in_progress,
+
+                COUNT(*) FILTER (
+                    WHERE ${filter}
+                )::int
+                    AS filtered
+
+            FROM orders o
+
+            JOIN users u
+                ON u.id = o.customer_id
+
+            JOIN restaurants r
+                ON r.id = o.restaurant_id
+            `,
+            values,
+        );
+
+        const dataResult = await client.query(
+            `
+            SELECT
+
+                o.id,
+                o.order_number,
+
+                o.customer_id,
+                o.restaurant_id,
+                o.rider_id,
+
+                o.status,
+
+                o.delivery_address,
+                o.delivery_city,
+
+                o.recipient_name,
+                o.recipient_phone,
+
+                o.delivery_instructions,
+
+                o.subtotal,
+                o.delivery_fee,
+                o.discount,
+                o.total_amount,
+
+                o.notes,
+
+                o.placed_at,
+                o.confirmed_at,
+                o.preparing_at,
+                o.ready_at,
+                o.out_for_delivery_at,
+                o.delivered_at,
+                o.cancelled_at,
+
+                o.created_at,
+                o.updated_at,
+
+                u.first_name
+                    AS customer_first_name,
+
+                u.last_name
+                    AS customer_last_name,
+
+                u.email
+                    AS customer_email,
+
+                u.phone
+                    AS customer_phone,
+
+                r.name
+                    AS restaurant_name,
+
+                rider.first_name
+                    AS rider_first_name,
+
+                rider.last_name
+                    AS rider_last_name,
+
+                (
+                    SELECT COUNT(*)::int
+                    FROM order_items oi
+                    WHERE oi.order_id = o.id
+                )
+                    AS item_count
+
+            FROM orders o
+
+            JOIN users u
+                ON u.id = o.customer_id
+
+            JOIN restaurants r
+                ON r.id = o.restaurant_id
+
+            LEFT JOIN users rider
+                ON rider.id = o.rider_id
+
+            WHERE ${filter}
+
+            ORDER BY
+                o.created_at DESC,
+                o.id DESC
+
+            LIMIT $${values.length + 1}
+
+            OFFSET $${values.length + 2}
+            `,
+            [
+                ...values,
+                limit,
+                offset,
+            ],
+        );
+
+        await client.query("COMMIT");
+
+        const stats = statsResult.rows[0];
+
+        return {
+            orders: dataResult.rows,
+
+            pagination: {
+                page,
+                limit,
+                totalItems: Number(stats.filtered),
+                totalPages: Math.max(
+                    1,
+                    Math.ceil(
+                        Number(stats.filtered) / limit,
+                    ),
+                ),
+            },
+
+            statistics: {
+                total: Number(stats.total),
+                pending: Number(stats.pending),
+                confirmed: Number(stats.confirmed),
+                preparing: Number(stats.preparing),
+                ready: Number(stats.ready),
+                outForDelivery: Number(
+                    stats.out_for_delivery,
+                ),
+                inProgress: Number(stats.in_progress),
+                delivered: Number(stats.delivered),
+                cancelled: Number(stats.cancelled),
+            },
+        };
+    } catch (error) {
+        await client.query("ROLLBACK").catch(() => {});
+        throw error;
+    } finally {
+        client.release();
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Admin - Get One Order
+|--------------------------------------------------------------------------
+*/
+
+async function getOrderByIdForAdmin(orderId) {
+    const validOrderId = parsePositiveInteger(
+        orderId,
+        "Order ID",
+    );
+
+    const orderResult = await pool.query(
+        `
+        SELECT
+
+            o.*,
+
+            u.first_name
+                AS customer_first_name,
+
+            u.last_name
+                AS customer_last_name,
+
+            u.email
+                AS customer_email,
+
+            u.phone
+                AS customer_phone,
+
+            r.name
+                AS restaurant_name,
+
+            r.logo_url
+                AS restaurant_logo,
+
+            rider.first_name
+                AS rider_first_name,
+
+            rider.last_name
+                AS rider_last_name,
+
+            rider.phone
+                AS rider_phone
+
+        FROM orders o
+
+        JOIN users u
+            ON u.id = o.customer_id
+
+        JOIN restaurants r
+            ON r.id = o.restaurant_id
+
+        LEFT JOIN users rider
+            ON rider.id = o.rider_id
+
+        WHERE o.id = $1
+
+        LIMIT 1
+        `,
+        [validOrderId],
+    );
+
+    if (orderResult.rows.length === 0) {
+        return null;
+    }
+
+    const order = orderResult.rows[0];
+
+    const itemsResult = await pool.query(
+        `
+        SELECT
+            oi.id,
+            oi.order_id,
+            oi.food_id,
+            oi.food_name,
+            oi.quantity,
+            oi.unit_price,
+            oi.subtotal,
+            oi.created_at,
+            f.image_url
+        FROM order_items oi
+        LEFT JOIN foods f
+            ON f.id = oi.food_id
+        WHERE oi.order_id = $1
+        ORDER BY oi.id ASC
+        `,
+        [order.id],
+    );
+
+    order.items = itemsResult.rows;
+
+    return order;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Admin - Status Update
+|--------------------------------------------------------------------------
+*/
+
+async function adminUpdateOrderStatus(
+    orderId,
+    newStatus,
+    adminId,
+    reason = null,
+) {
+    const validOrderId = parsePositiveInteger(
+        orderId,
+        "Order ID",
+    );
+
+    const status = String(newStatus || "")
+        .trim()
+        .toLowerCase();
+
+    const normalizedReason = validateAdminReason(
+        reason,
+        false,
+    );
+
+    if (!ORDER_STATUS_VALUES.includes(status)) {
+        throw apiError("Invalid order status");
+    }
+
+    const client = await pool.connect();
+
+    try {
+        await client.query("BEGIN");
+
+        const currentOrderResult =
+            await client.query(
+                `
+                SELECT
+                    id,
+                    status
+                FROM orders
+                WHERE id = $1
+                FOR UPDATE
+                `,
+                [validOrderId],
+            );
+
+        if (currentOrderResult.rows.length === 0) {
+            throw apiError("Order not found", 404);
+        }
+
+        const currentStatus =
+            currentOrderResult.rows[0].status;
+
+        if (currentStatus === status) {
+            throw apiError(
+                `Order is already ${status}`,
+            );
+        }
+
+        const allowedTransitions =
+            ADMIN_ORDER_TRANSITIONS[currentStatus];
+
+        if (
+            !allowedTransitions ||
+            !allowedTransitions.includes(status)
+        ) {
+            throw apiError(
+                `Cannot change order status from ${currentStatus} to ${status}`,
+            );
+        }
+
+        const timestampMap = {
+            confirmed: "confirmed_at",
+            preparing: "preparing_at",
+            ready: "ready_at",
+            out_for_delivery:
+                "out_for_delivery_at",
+            delivered: "delivered_at",
+            cancelled: "cancelled_at",
+        };
+
+        const timestampColumn =
+            timestampMap[status];
+
+        const timestampSql = timestampColumn
+            ? `, ${timestampColumn} = CURRENT_TIMESTAMP`
+            : "";
+
+        const result = await client.query(
+            `
+            UPDATE orders
+            SET
+                status = $1
+                ${timestampSql},
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $2
+            RETURNING *
+            `,
+            [status, validOrderId],
+        );
+
+        if (result.rows.length === 0) {
+            throw apiError(
+                "Order could not be updated",
+                409,
+            );
+        }
+
+        const updatedOrder = result.rows[0];
+
+        updatedOrder.admin_action = {
+            admin_id: adminId ?? null,
+            reason: normalizedReason,
+        };
+
+        await client.query("COMMIT");
+
+        return updatedOrder;
+    } catch (error) {
+        await client.query("ROLLBACK").catch(() => {});
+        throw error;
+    } finally {
+        client.release();
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Admin - Cancel Order
+|--------------------------------------------------------------------------
+*/
+
+async function adminCancelOrder(
+    orderId,
+    adminId,
+    reason,
+) {
+    const validOrderId = parsePositiveInteger(
+        orderId,
+        "Order ID",
+    );
+
+    const normalizedReason =
+        validateAdminReason(reason, true);
+
+    const client = await pool.connect();
+
+    try {
+        await client.query("BEGIN");
+
+        const currentOrderResult =
+            await client.query(
+                `
+                SELECT
+                    id,
+                    status
+                FROM orders
+                WHERE id = $1
+                FOR UPDATE
+                `,
+                [validOrderId],
+            );
+
+        if (currentOrderResult.rows.length === 0) {
+            throw apiError("Order not found", 404);
+        }
+
+        const currentStatus =
+            currentOrderResult.rows[0].status;
+
+        if (currentStatus === "delivered") {
+            throw apiError(
+                "Delivered orders cannot be cancelled",
+            );
+        }
+
+        if (currentStatus === "cancelled") {
+            throw apiError(
+                "Order is already cancelled",
+            );
+        }
+
+        const cancellableStatuses = [
+            "pending",
+            "confirmed",
+            "preparing",
+            "ready",
+            "out_for_delivery",
+        ];
+
+        if (
+            !cancellableStatuses.includes(
+                currentStatus,
+            )
+        ) {
+            throw apiError(
+                `Order cannot be cancelled from ${currentStatus} status`,
+            );
+        }
+
+        const result = await client.query(
+            `
+            UPDATE orders
+            SET
+                status = 'cancelled',
+                cancelled_at = CURRENT_TIMESTAMP,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $1
+            RETURNING *
+            `,
+            [validOrderId],
+        );
+
+        if (result.rows.length === 0) {
+            throw apiError(
+                "Order could not be cancelled",
+                409,
+            );
+        }
+
+        const cancelledOrder = result.rows[0];
+
+        cancelledOrder.admin_action = {
+            admin_id: adminId ?? null,
+            reason: normalizedReason,
+        };
+
+        await client.query("COMMIT");
+
+        return cancelledOrder;
+    } catch (error) {
+        await client.query("ROLLBACK").catch(() => {});
+        throw error;
+    } finally {
+        client.release();
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Admin - Quick Order Summary
+|--------------------------------------------------------------------------
+*/
+
+async function getAdminOrderSummary() {
+    const client = await pool.connect();
+
+    try {
+        await client.query(
+            "SELECT set_config('TimeZone', $1, true)",
+            [ORDER_FILTER_TIME_ZONE],
+        );
+
+        const result = await client.query(
+            `
+            SELECT
+
+                COUNT(*) FILTER (
+                    WHERE
+                        o.placed_at >= CURRENT_DATE
+                        AND o.placed_at < CURRENT_DATE + 1
+                        AND o.status = 'pending'
+                )::int AS pending,
+
+                COUNT(*) FILTER (
+                    WHERE
+                        o.placed_at >= CURRENT_DATE
+                        AND o.placed_at < CURRENT_DATE + 1
+                        AND o.status = 'preparing'
+                )::int AS preparing,
+
+                COUNT(*) FILTER (
+                    WHERE
+                        o.placed_at >= CURRENT_DATE
+                        AND o.placed_at < CURRENT_DATE + 1
+                        AND o.status = 'out_for_delivery'
+                )::int AS out_for_delivery,
+
+                COUNT(*) FILTER (
+                    WHERE
+                        o.placed_at >= CURRENT_DATE
+                        AND o.placed_at < CURRENT_DATE + 1
+                        AND o.status = 'delivered'
+                )::int AS delivered,
+
+                COUNT(*) FILTER (
+                    WHERE
+                        o.placed_at >= CURRENT_DATE
+                        AND o.placed_at < CURRENT_DATE + 1
+                )::int AS total_today,
+
+                COALESCE(
+                    SUM(
+                        CASE
+                            WHEN
+                                o.placed_at >= CURRENT_DATE
+                                AND o.placed_at < CURRENT_DATE + 1
+                                AND o.status <> 'cancelled'
+                            THEN o.total_amount
+                            ELSE 0
+                        END
+                    ),
+                    0
+                ) AS today_revenue,
+
+                COALESCE(
+                    SUM(
+                        CASE
+                            WHEN
+                                o.placed_at >= CURRENT_DATE - 1
+                                AND o.placed_at < CURRENT_DATE
+                                AND o.status <> 'cancelled'
+                            THEN o.total_amount
+                            ELSE 0
+                        END
+                    ),
+                    0
+                ) AS yesterday_revenue
+
+            FROM orders o
+            `,
+        );
+
+        const row = result.rows[0];
+
+        const todayRevenue =
+            Number(row.today_revenue || 0);
+
+        const yesterdayRevenue =
+            Number(row.yesterday_revenue || 0);
+
+        const change =
+            yesterdayRevenue === 0
+                ? todayRevenue === 0
+                    ? 0
+                    : 100
+                : (
+                      ((todayRevenue -
+                          yesterdayRevenue) /
+                          yesterdayRevenue) *
+                      100
+                  );
+
+        return {
+            todayStatus: {
+                pending: Number(row.pending || 0),
+                preparing: Number(row.preparing || 0),
+                delivery: Number(
+                    row.out_for_delivery || 0,
+                ),
+                delivered: Number(
+                    row.delivered || 0,
+                ),
+            },
+
+            revenue: {
+                today: todayRevenue,
+                yesterday: yesterdayRevenue,
+                change: Number(change.toFixed(1)),
+                target: 45000,
+            },
+
+            totalToday: Number(row.total_today || 0),
+        };
+    } finally {
+        client.release();
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Admin - Form Options
+|--------------------------------------------------------------------------
+*/
+
+async function getAdminOrderFormOptions(
+    restaurantId = null,
+) {
+    const validRestaurantId =
+        restaurantId === null ||
+        restaurantId === undefined ||
+        restaurantId === ""
+            ? null
+            : parsePositiveInteger(
+                  restaurantId,
+                  "restaurant_id",
+              );
+
+    const [
+        customersResult,
+        restaurantsResult,
+        ridersResult,
+    ] = await Promise.all([
+        pool.query(
+            `
+            SELECT
+                id,
+                first_name,
+                last_name,
+                email,
+                phone
+            FROM users
+            WHERE role = 'customer'
+              AND is_active = TRUE
+            ORDER BY created_at DESC
+            LIMIT 500
+            `,
+        ),
+
+        pool.query(
+            `
+            SELECT
+                id,
+                name,
+                city,
+                is_open,
+                delivery_fee,
+                minimum_order
+            FROM restaurants
+            WHERE is_active = TRUE
+            ORDER BY name ASC
+            LIMIT 500
+            `,
+        ),
+
+        pool.query(
+            `
+            SELECT
+                id,
+                first_name,
+                last_name,
+                phone
+            FROM users
+            WHERE role = 'rider'
+              AND is_active = TRUE
+            ORDER BY first_name ASC, last_name ASC
+            LIMIT 500
+            `,
+        ),
+    ]);
+
+    let foods = [];
+
+    if (validRestaurantId) {
+        const foodsResult = await pool.query(
+            `
+            SELECT
+                id,
+                restaurant_id,
+                category_id,
+                name,
+                description,
+                price,
+                image_url,
+                is_available,
+                is_active
+            FROM foods
+            WHERE restaurant_id = $1
+              AND is_active = TRUE
+              AND is_available = TRUE
+            ORDER BY name ASC
+            LIMIT 500
+            `,
+            [validRestaurantId],
+        );
+
+        foods = foodsResult.rows;
+    }
+
+    return {
+        customers: customersResult.rows,
+        restaurants: restaurantsResult.rows,
+        riders: ridersResult.rows,
+        foods,
+    };
+}
+
+/*
+|--------------------------------------------------------------------------
+| Admin - Create Order
+|--------------------------------------------------------------------------
+*/
+
+async function createAdminOrder(data, adminId) {
+    const {
+        customer_id,
+        restaurant_id,
+        rider_id,
+        delivery_address,
+        delivery_city,
+        recipient_name,
+        recipient_phone,
+        delivery_instructions,
+        notes,
+        items,
+    } = data || {};
+
+    const customerId =
+        parsePositiveInteger(
+            customer_id,
+            "customer_id",
+        );
+
+    const restaurantId =
+        parsePositiveInteger(
+            restaurant_id,
+            "restaurant_id",
+        );
+
+    const riderId =
+        rider_id === null ||
+        rider_id === undefined ||
+        rider_id === ""
+            ? null
+            : parsePositiveInteger(
+                  rider_id,
+                  "rider_id",
+              );
+
+    if (!customerId) {
+        throw apiError("Customer is required");
+    }
+
+    if (!restaurantId) {
+        throw apiError("Restaurant is required");
+    }
+
+    if (
+        !delivery_address ||
+        !String(delivery_address).trim()
+    ) {
+        throw apiError(
+            "Delivery address is required",
+        );
+    }
+
+    if (
+        !delivery_city ||
+        !String(delivery_city).trim()
+    ) {
+        throw apiError(
+            "Delivery city is required",
+        );
+    }
+
+    if (
+        !recipient_name ||
+        !String(recipient_name).trim()
+    ) {
+        throw apiError(
+            "Recipient name is required",
+        );
+    }
+
+    if (
+        !recipient_phone ||
+        !String(recipient_phone).trim()
+    ) {
+        throw apiError(
+            "Recipient phone is required",
+        );
+    }
+
+    if (!Array.isArray(items) || items.length === 0) {
+        throw apiError(
+            "At least one food item is required",
+        );
+    }
+
+    /*
+     * Combine duplicate food IDs into one line.
+     */
+
+    const combinedItems = new Map();
+
+    for (const item of items) {
+        const foodId =
+            parsePositiveInteger(
+                item?.food_id,
+                "food_id",
+            );
+
+        const quantity = Number(
+            item?.quantity,
+        );
+
+        if (!foodId) {
+            throw apiError(
+                "Every order item must have a valid food_id",
+            );
+        }
+
+        if (
+            !Number.isInteger(quantity) ||
+            quantity <= 0
+        ) {
+            throw apiError(
+                `Invalid quantity for food ${foodId}`,
+            );
+        }
+
+        combinedItems.set(
+            String(foodId),
+            (combinedItems.get(
+                String(foodId),
+            ) || 0) + quantity,
+        );
+    }
+
+    const normalizedItems =
+        Array.from(
+            combinedItems.entries(),
+        ).map(([foodId, quantity]) => ({
+            food_id: foodId,
+            quantity,
+        }));
+
+    const client = await pool.connect();
+
+    try {
+        await client.query("BEGIN");
+
+        /*
+         * Verify customer.
+         */
+
+        const customerResult =
+            await client.query(
+                `
+                SELECT
+                    id,
+                    first_name,
+                    last_name,
+                    email,
+                    phone
+                FROM users
+                WHERE id = $1
+                  AND role = 'customer'
+                  AND is_active = TRUE
+                LIMIT 1
+                `,
+                [customerId],
+            );
+
+        if (customerResult.rows.length === 0) {
+            throw apiError(
+                "Customer not found or inactive",
+            );
+        }
+
+        /*
+         * Verify restaurant.
+         */
+
+        const restaurantResult =
+            await client.query(
+                `
+                SELECT
+                    id,
+                    name,
+                    is_open,
+                    is_active,
+                    delivery_fee,
+                    minimum_order
+                FROM restaurants
+                WHERE id = $1
+                LIMIT 1
+                `,
+                [restaurantId],
+            );
+
+        if (restaurantResult.rows.length === 0) {
+            throw apiError(
+                "Restaurant not found",
+            );
+        }
+
+        const restaurant =
+            restaurantResult.rows[0];
+
+        if (!restaurant.is_active) {
+            throw apiError(
+                "Restaurant is inactive",
+            );
+        }
+
+        if (!restaurant.is_open) {
+            throw apiError(
+                "Restaurant is currently closed",
+            );
+        }
+
+        /*
+         * Verify rider when supplied.
+         */
+
+        if (riderId) {
+            const riderResult =
+                await client.query(
+                    `
+                    SELECT
+                        id,
+                        first_name,
+                        last_name,
+                        phone
+                    FROM users
+                    WHERE id = $1
+                      AND role = 'rider'
+                      AND is_active = TRUE
+                    LIMIT 1
+                    `,
+                    [riderId],
+                );
+
+            if (riderResult.rows.length === 0) {
+                throw apiError(
+                    "Rider not found or inactive",
+                );
+            }
+        }
+
+        /*
+         * Fetch foods belonging to the restaurant.
+         */
+
+        const foodIds =
+            normalizedItems.map(
+                (item) => item.food_id,
+            );
+
+        const foodsResult =
+            await client.query(
+                `
+                SELECT
+                    id,
+                    restaurant_id,
+                    name,
+                    price,
+                    is_available,
+                    is_active
+                FROM foods
+                WHERE id = ANY($1::bigint[])
+                `,
+                [foodIds],
+            );
+
+        const foods = foodsResult.rows;
+
+        if (
+            foods.length !==
+            normalizedItems.length
+        ) {
+            throw apiError(
+                "One or more selected foods were not found",
+            );
+        }
+
+        let subtotal = 0;
+
+        const orderItems = [];
+
+        for (const requestedItem of normalizedItems) {
+            const food = foods.find(
+                (item) =>
+                    String(item.id) ===
+                    String(
+                        requestedItem.food_id,
+                    ),
+            );
+
+            if (!food) {
+                throw apiError(
+                    `Food ${requestedItem.food_id} was not found`,
+                );
+            }
+
+            if (
+                String(food.restaurant_id) !==
+                String(restaurantId)
+            ) {
+                throw apiError(
+                    `${food.name} does not belong to the selected restaurant`,
+                );
+            }
+
+            if (!food.is_active) {
+                throw apiError(
+                    `${food.name} is inactive`,
+                );
+            }
+
+            if (!food.is_available) {
+                throw apiError(
+                    `${food.name} is currently unavailable`,
+                );
+            }
+
+            const unitPrice =
+                Number(food.price);
+
+            const quantity =
+                Number(requestedItem.quantity);
+
+            const itemSubtotal =
+                unitPrice * quantity;
+
+            subtotal += itemSubtotal;
+
+            orderItems.push({
+                food_id: food.id,
+                food_name: food.name,
+                quantity,
+                unit_price: unitPrice,
+                subtotal: itemSubtotal,
+            });
+        }
+
+        const deliveryFee =
+            Number(
+                restaurant.delivery_fee || 0,
+            );
+
+        const discount = 0;
+
+        const totalAmount =
+            subtotal +
+            deliveryFee -
+            discount;
+
+        const minimumOrder =
+            Number(
+                restaurant.minimum_order ||
+                    0,
+            );
+
+        if (subtotal < minimumOrder) {
+            throw apiError(
+                `Minimum order amount is ${minimumOrder.toFixed(2)}`,
+            );
+        }
+
+        const orderNumber =
+            generateOrderNumber();
+
+        const orderResult =
+            await client.query(
+                `
+                INSERT INTO orders (
+                    order_number,
+                    customer_id,
+                    restaurant_id,
+                    rider_id,
+                    status,
+                    delivery_address,
+                    delivery_city,
+                    recipient_name,
+                    recipient_phone,
+                    delivery_instructions,
+                    subtotal,
+                    delivery_fee,
+                    discount,
+                    total_amount,
+                    notes,
+                    placed_at
+                )
+                VALUES (
+                    $1,
+                    $2,
+                    $3,
+                    $4,
+                    'pending',
+                    $5,
+                    $6,
+                    $7,
+                    $8,
+                    $9,
+                    $10,
+                    $11,
+                    $12,
+                    $13,
+                    $14,
+                    CURRENT_TIMESTAMP
+                )
+                RETURNING id
+                `,
+                [
+                    orderNumber,
+                    customerId,
+                    restaurantId,
+                    riderId,
+                    String(
+                        delivery_address,
+                    ).trim(),
+                    String(
+                        delivery_city,
+                    ).trim(),
+                    String(
+                        recipient_name,
+                    ).trim(),
+                    String(
+                        recipient_phone,
+                    ).trim(),
+                    delivery_instructions
+                        ? String(
+                              delivery_instructions,
+                          ).trim()
+                        : null,
+                    subtotal,
+                    deliveryFee,
+                    discount,
+                    totalAmount,
+                    notes
+                        ? String(notes).trim()
+                        : null,
+                ],
+            );
+
+        const orderId =
+            orderResult.rows[0].id;
+
+        for (const item of orderItems) {
+            await client.query(
+                `
+                INSERT INTO order_items (
+                    order_id,
+                    food_id,
+                    food_name,
+                    quantity,
+                    unit_price,
+                    subtotal
+                )
+                VALUES (
+                    $1,
+                    $2,
+                    $3,
+                    $4,
+                    $5,
+                    $6
+                )
+                `,
+                [
+                    orderId,
+                    item.food_id,
+                    item.food_name,
+                    item.quantity,
+                    item.unit_price,
+                    item.subtotal,
+                ],
+            );
+        }
+
+        await client.query("COMMIT");
+
+        const createdOrder =
+            await getOrderByIdForAdmin(
+                orderId,
+            );
+
+        if (createdOrder) {
+            createdOrder.admin_action = {
+                admin_id: adminId ?? null,
+                action: "create",
+            };
+        }
+
+        return createdOrder;
+    } catch (error) {
+        await client.query("ROLLBACK").catch(() => {});
+        throw error;
+    } finally {
+        client.release();
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Customer - Cancel Own Order
+|--------------------------------------------------------------------------
+*/
+
+async function cancelOrder(orderId, customerId) {
+    const result = await pool.query(
+        `
+        UPDATE orders
+        SET
+            status = 'cancelled',
+            cancelled_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1
+          AND customer_id = $2
+          AND status IN (
+              'pending',
+              'confirmed'
+          )
+        RETURNING *
+        `,
+        [orderId, customerId],
+    );
+
+    if (result.rows.length === 0) {
+        throw new Error(
+            "Order not found or cannot be cancelled",
+        );
+    }
+
+    return result.rows[0];
+}
+
+module.exports = {
+    getCustomerOrders,
+    getOrderById,
+    createOrder,
+    cancelOrder,
+
+    getRestaurantOrders,
+    getRestaurantOrder,
+    updateOrderStatus,
+
+    getAllOrders,
+    getOrderByIdForAdmin,
+    adminUpdateOrderStatus,
+    adminCancelOrder,
+
+    getAdminOrderSummary,
+    getAdminOrderFormOptions,
+    createAdminOrder,
+};

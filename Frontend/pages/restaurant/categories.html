@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Categories | FoodDelivery</title>
+
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="../../assets/css/style.css">
+
+    <!-- Restaurant CSS -->
+    <link rel="stylesheet" href="../../assets/css/pages/restaurant/restaurant.css">
+
+    <!-- Categories CSS -->
+    <link rel="stylesheet" href="../../assets/css/pages/restaurant/categories.css">
+</head>
+
+<body>
+
+    <!-- =====================================================
+         RESTAURANT DASHBOARD
+    ====================================================== -->
+
+    <div class="restaurant-dashboard">
+
+        <!-- =================================================
+             SIDEBAR
+        ================================================== -->
+
+        <aside class="restaurant-sidebar" id="restaurantSidebar">
+
+            <!-- Logo -->
+            <div class="restaurant-sidebar-header">
+
+                <a href="dashboard.html" class="restaurant-logo">
+                    Food<span>Delivery</span>
+                </a>
+
+            </div>
+
+
+            <!-- Restaurant Profile -->
+            <div class="restaurant-profile-mini">
+
+                <div class="restaurant-avatar">
+                    MK
+                </div>
+
+                <div class="restaurant-profile-info">
+
+                    <strong>Mama's Kitchen</strong>
+
+                    <span>Restaurant</span>
+
+                </div>
+
+            </div>
+
+
+            <!-- Navigation -->
+            <nav class="restaurant-navigation">
+
+                <p class="restaurant-nav-title">
+                    MAIN MENU
+                </p>
+
+
+                <a href="dashboard.html" class="restaurant-nav-link">
+
+                    <span class="nav-icon">▦</span>
+
+                    <span>Dashboard</span>
+
+                </a>
+
+
+                <a href="orders.html" class="restaurant-nav-link">
+
+                    <span class="nav-icon">🛍</span>
+
+                    <span>Orders</span>
+
+                    <span class="nav-badge">
+                        5
+                    </span>
+
+                </a>
+
+
+                <a href="menu.html" class="restaurant-nav-link">
+
+                    <span class="nav-icon">☷</span>
+
+                    <span>Menu</span>
+
+                </a>
+
+
+                <a href="categories.html" class="restaurant-nav-link active">
+
+                    <span class="nav-icon">▤</span>
+
+                    <span>Categories</span>
+
+                </a>
+
+
+                <p class="restaurant-nav-title">
+                    BUSINESS
+                </p>
+
+
+                <a href="earnings.html" class="restaurant-nav-link">
+
+                    <span class="nav-icon">▥</span>
+
+                    <span>Earnings</span>
+
+                </a>
+
+
+                <a href="restaurant-profile.html" class="restaurant-nav-link">
+
+                    <span class="nav-icon">◉</span>
+
+                    <span>Restaurant Profile</span>
+
+                </a>
+
+
+                <a href="settings.html" class="restaurant-nav-link">
+
+                    <span class="nav-icon">⚙</span>
+
+                    <span>Settings</span>
+
+                </a>
+
+            </nav>
+
+
+            <!-- Sidebar Bottom -->
+            <div class="restaurant-sidebar-bottom">
+
+                <a href="../../auth/login.html" class="restaurant-nav-link logout-link">
+
+                    <span class="nav-icon">↪</span>
+
+                    <span>Logout</span>
+
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =================================================
+             MAIN CONTENT
+        ================================================== -->
+
+        <main class="restaurant-main">
+
+            <!-- =================================================
+                 TOPBAR
+            ================================================== -->
+
+            <header class="restaurant-topbar">
+
+                <div class="restaurant-topbar-left">
+
+                    <button type="button" class="restaurant-menu-button" id="restaurantMenuButton"
+                        aria-label="Open menu">
+
+                        ☰
+
+                    </button>
+
+
+                    <div class="restaurant-page-heading">
+
+                        <h1>
+                            Categories
+                        </h1>
+
+                        <p>
+                            Organize your menu items into categories.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="restaurant-topbar-right">
+
+                    <!-- Restaurant Status -->
+                    <button type="button" class="restaurant-status" id="restaurantStatusButton">
+
+                        <span class="status-dot"></span>
+
+                        <span class="status-text">
+
+                            <small>
+                                Restaurant Status
+                            </small>
+
+                            <strong id="restaurantStatusText">
+                                Open
+                            </strong>
+
+                        </span>
+
+                    </button>
+
+
+                    <!-- Notifications -->
+                    <button type="button" class="restaurant-notification-button" aria-label="Notifications">
+
+                        <span>♧</span>
+
+                        <span class="notification-badge">
+                            3
+                        </span>
+
+                    </button>
+
+
+                    <!-- Profile -->
+                    <button type="button" class="restaurant-topbar-profile">
+
+                        <span class="topbar-avatar">
+                            MK
+                        </span>
+
+                        <span class="topbar-profile-text">
+
+                            <strong>
+                                Mama's Kitchen
+                            </strong>
+
+                            <small>
+                                Restaurant
+                            </small>
+
+                        </span>
+
+                        <span class="profile-arrow">
+                            ⌄
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </header>
+
+
+            <!-- =================================================
+                 PAGE CONTENT
+            ================================================== -->
+
+            <section class="restaurant-dashboard-content">
+
+                <!-- PAGE HEADER -->
+                <div class="categories-page-header">
+
+                    <div>
+
+                        <h2>
+                            Food Categories
+                        </h2>
+
+                        <p>
+                            Create and manage the categories used to organize your menu.
+                        </p>
+
+                    </div>
+
+
+                    <button type="button" class="category-primary-button" id="addCategoryButton">
+
+                        <span>+</span>
+
+                        Add Category
+
+                    </button>
+
+                </div>
+
+
+                <!-- =================================================
+                     CATEGORY SUMMARY
+                ================================================== -->
+
+                <div class="category-summary-grid">
+
+                    <div class="category-summary-card">
+
+                        <div class="category-summary-icon">
+                            ▤
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Total Categories
+                            </span>
+
+                            <strong>
+                                8
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="category-summary-card">
+
+                        <div class="category-summary-icon">
+                            ☷
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Menu Items
+                            </span>
+
+                            <strong>
+                                32
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="category-summary-card">
+
+                        <div class="category-summary-icon">
+                            ✓
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Active Categories
+                            </span>
+
+                            <strong>
+                                7
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="category-summary-card">
+
+                        <div class="category-summary-icon">
+                            ○
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Empty Categories
+                            </span>
+
+                            <strong>
+                                1
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     CATEGORY TOOLBAR
+                ================================================== -->
+
+                <div class="category-toolbar">
+
+                    <div class="category-search">
+
+                        <span class="category-search-icon">
+                            ⌕
+                        </span>
+
+                        <input type="search" id="categorySearch" placeholder="Search categories..."
+                            aria-label="Search categories">
+
+                    </div>
+
+
+                    <select id="categoryStatusFilter" class="category-filter">
+
+                        <option value="all">
+                            All Categories
+                        </option>
+
+                        <option value="active">
+                            Active
+                        </option>
+
+                        <option value="inactive">
+                            Inactive
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- =================================================
+                     CATEGORY LIST
+                ================================================== -->
+
+                <div class="categories-card">
+
+                    <div class="categories-card-header">
+
+                        <div>
+
+                            <h3>
+                                Categories
+                            </h3>
+
+                            <p>
+                                Manage your menu categories.
+                            </p>
+
+                        </div>
+
+                        <span class="category-count">
+                            8 Categories
+                        </span>
+
+                    </div>
+
+
+                    <div class="categories-table-wrapper">
+
+                        <table class="categories-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Category
+                                    </th>
+
+                                    <th>
+                                        Description
+                                    </th>
+
+                                    <th>
+                                        Menu Items
+                                    </th>
+
+                                    <th>
+                                        Status
+                                    </th>
+
+                                    <th>
+                                        Created
+                                    </th>
+
+                                    <th>
+                                        Actions
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                <!-- CATEGORY 1 -->
+                                <tr>
+
+                                    <td>
+
+                                        <div class="category-name">
+
+                                            <div class="category-icon">
+                                                GC
+                                            </div>
+
+                                            <div>
+
+                                                <strong>
+                                                    Chicken
+                                                </strong>
+
+                                                <span>
+                                                    CAT-001
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        Chicken meals and dishes
+                                    </td>
+
+                                    <td>
+                                        <strong>8</strong>
+                                    </td>
+
+                                    <td>
+
+                                        <span class="category-status active">
+                                            Active
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+                                        Sep 01, 2026
+                                    </td>
+
+                                    <td>
+
+                                        <div class="category-actions">
+
+                                            <button type="button" class="category-action-button edit"
+                                                title="Edit category">
+
+                                                ✎
+
+                                            </button>
+
+                                            <button type="button" class="category-action-button delete"
+                                                title="Delete category">
+
+                                                ×
+
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+
+                                <!-- CATEGORY 2 -->
+                                <tr>
+
+                                    <td>
+
+                                        <div class="category-name">
+
+                                            <div class="category-icon">
+                                                BF
+                                            </div>
+
+                                            <div>
+
+                                                <strong>
+                                                    Beef
+                                                </strong>
+
+                                                <span>
+                                                    CAT-002
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        Beef meals and dishes
+                                    </td>
+
+                                    <td>
+                                        <strong>5</strong>
+                                    </td>
+
+                                    <td>
+
+                                        <span class="category-status active">
+                                            Active
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+                                        Sep 01, 2026
+                                    </td>
+
+                                    <td>
+
+                                        <div class="category-actions">
+
+                                            <button type="button" class="category-action-button edit">
+
+                                                ✎
+
+                                            </button>
+
+                                            <button type="button" class="category-action-button delete">
+
+                                                ×
+
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+
+                                <!-- CATEGORY 3 -->
+                                <tr>
+
+                                    <td>
+
+                                        <div class="category-name">
+
+                                            <div class="category-icon">
+                                                RG
+                                            </div>
+
+                                            <div>
+
+                                                <strong>
+                                                    Rice & Grains
+                                                </strong>
+
+                                                <span>
+                                                    CAT-003
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        Rice, grains and side dishes
+                                    </td>
+
+                                    <td>
+                                        <strong>4</strong>
+                                    </td>
+
+                                    <td>
+
+                                        <span class="category-status active">
+                                            Active
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+                                        Sep 02, 2026
+                                    </td>
+
+                                    <td>
+
+                                        <div class="category-actions">
+
+                                            <button type="button" class="category-action-button edit">
+
+                                                ✎
+
+                                            </button>
+
+                                            <button type="button" class="category-action-button delete">
+
+                                                ×
+
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+
+                                <!-- CATEGORY 4 -->
+                                <tr>
+
+                                    <td>
+
+                                        <div class="category-name">
+
+                                            <div class="category-icon">
+                                                BW
+                                            </div>
+
+                                            <div>
+
+                                                <strong>
+                                                    Burgers & Wraps
+                                                </strong>
+
+                                                <span>
+                                                    CAT-004
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        Burgers, wraps and sandwiches
+                                    </td>
+
+                                    <td>
+                                        <strong>6</strong>
+                                    </td>
+
+                                    <td>
+
+                                        <span class="category-status active">
+                                            Active
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+                                        Sep 03, 2026
+                                    </td>
+
+                                    <td>
+
+                                        <div class="category-actions">
+
+                                            <button type="button" class="category-action-button edit">
+
+                                                ✎
+
+                                            </button>
+
+                                            <button type="button" class="category-action-button delete">
+
+                                                ×
+
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+
+                                <!-- CATEGORY 5 -->
+                                <tr>
+
+                                    <td>
+
+                                        <div class="category-name">
+
+                                            <div class="category-icon">
+                                                VD
+                                            </div>
+
+                                            <div>
+
+                                                <strong>
+                                                    Vegetables
+                                                </strong>
+
+                                                <span>
+                                                    CAT-005
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        Vegetable meals and sides
+                                    </td>
+
+                                    <td>
+                                        <strong>3</strong>
+                                    </td>
+
+                                    <td>
+
+                                        <span class="category-status active">
+                                            Active
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+                                        Sep 03, 2026
+                                    </td>
+
+                                    <td>
+
+                                        <div class="category-actions">
+
+                                            <button type="button" class="category-action-button edit">
+
+                                                ✎
+
+                                            </button>
+
+                                            <button type="button" class="category-action-button delete">
+
+                                                ×
+
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+
+                                <!-- CATEGORY 6 -->
+                                <tr>
+
+                                    <td>
+
+                                        <div class="category-name">
+
+                                            <div class="category-icon">
+                                                DR
+                                            </div>
+
+                                            <div>
+
+                                                <strong>
+                                                    Drinks
+                                                </strong>
+
+                                                <span>
+                                                    CAT-006
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        Soft drinks and beverages
+                                    </td>
+
+                                    <td>
+                                        <strong>4</strong>
+                                    </td>
+
+                                    <td>
+
+                                        <span class="category-status active">
+                                            Active
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+                                        Sep 04, 2026
+                                    </td>
+
+                                    <td>
+
+                                        <div class="category-actions">
+
+                                            <button type="button" class="category-action-button edit">
+
+                                                ✎
+
+                                            </button>
+
+                                            <button type="button" class="category-action-button delete">
+
+                                                ×
+
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+
+                                <!-- CATEGORY 7 -->
+                                <tr>
+
+                                    <td>
+
+                                        <div class="category-name">
+
+                                            <div class="category-icon">
+                                                DS
+                                            </div>
+
+                                            <div>
+
+                                                <strong>
+                                                    Desserts
+                                                </strong>
+
+                                                <span>
+                                                    CAT-007
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        Cakes, desserts and sweets
+                                    </td>
+
+                                    <td>
+                                        <strong>2</strong>
+                                    </td>
+
+                                    <td>
+
+                                        <span class="category-status active">
+                                            Active
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+                                        Sep 05, 2026
+                                    </td>
+
+                                    <td>
+
+                                        <div class="category-actions">
+
+                                            <button type="button" class="category-action-button edit">
+
+                                                ✎
+
+                                            </button>
+
+                                            <button type="button" class="category-action-button delete">
+
+                                                ×
+
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+
+                                <!-- CATEGORY 8 -->
+                                <tr>
+
+                                    <td>
+
+                                        <div class="category-name">
+
+                                            <div class="category-icon">
+                                                PS
+                                            </div>
+
+                                            <div>
+
+                                                <strong>
+                                                    Pizza
+                                                </strong>
+
+                                                <span>
+                                                    CAT-008
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+                                        Pizza and specialty pizzas
+                                    </td>
+
+                                    <td>
+                                        <strong>0</strong>
+                                    </td>
+
+                                    <td>
+
+                                        <span class="category-status inactive">
+                                            Inactive
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+                                        Sep 06, 2026
+                                    </td>
+
+                                    <td>
+
+                                        <div class="category-actions">
+
+                                            <button type="button" class="category-action-button edit">
+
+                                                ✎
+
+                                            </button>
+
+                                            <button type="button" class="category-action-button delete">
+
+                                                ×
+
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     MESSAGE
+                ================================================== -->
+
+                <div class="category-message" id="categoryMessage" role="alert" aria-live="polite">
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <!-- =====================================================
+     CATEGORY FORM MODAL
+====================================================== -->
+
+    <div class="category-modal" id="categoryModal">
+
+        <div class="category-modal-content">
+
+            <div class="category-modal-header">
+
+                <div>
+                    <h2 id="categoryModalTitle">
+                        Add Category
+                    </h2>
+
+                    <p>
+                        Create or update a menu category.
+                    </p>
+                </div>
+
+                <button type="button" class="category-modal-close" id="closeCategoryModal" aria-label="Close modal">
+
+                    ×
+
+                </button>
+
+            </div>
+
+
+            <form id="categoryForm">
+
+                <div class="category-form-group">
+
+                    <label for="categoryName">
+                        Category Name
+                    </label>
+
+                    <input type="text" id="categoryName" placeholder="e.g. Chicken" maxlength="50" required>
+
+                </div>
+
+
+                <div class="category-form-group">
+
+                    <label for="categoryDescription">
+                        Description
+                    </label>
+
+                    <textarea id="categoryDescription" placeholder="Describe this category..." maxlength="150"
+                        rows="4"></textarea>
+
+                </div>
+
+
+                <div class="category-form-group">
+
+                    <label for="categoryStatus">
+                        Status
+                    </label>
+
+                    <select id="categoryStatus">
+
+                        <option value="active">
+                            Active
+                        </option>
+
+                        <option value="inactive">
+                            Inactive
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="category-modal-actions">
+
+                    <button type="button" class="category-modal-cancel" id="cancelCategoryButton">
+
+                        Cancel
+
+                    </button>
+
+                    <button type="submit" class="category-modal-save">
+
+                        Save Category
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+     DELETE CONFIRMATION MODAL
+====================================================== -->
+
+    <div class="category-modal" id="deleteCategoryModal">
+
+        <div class="category-delete-modal-content">
+
+            <div class="delete-modal-icon">
+                ×
+            </div>
+
+            <h2>
+                Delete Category?
+            </h2>
+
+            <p>
+                Are you sure you want to delete
+                <strong id="deleteCategoryName"></strong>?
+            </p>
+
+            <small>
+                This action cannot be undone.
+            </small>
+
+
+            <div class="category-modal-actions">
+
+                <button type="button" class="category-modal-cancel" id="cancelDeleteCategory">
+
+                    Cancel
+
+                </button>
+
+                <button type="button" class="category-delete-confirm" id="confirmDeleteCategory">
+
+                    Delete Category
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- JavaScript -->
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/auth/auth-api.js"></script> 
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/restaurant/categories.js"></script>
+
+</body>
+
+</html>

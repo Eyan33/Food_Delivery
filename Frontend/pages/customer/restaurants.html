@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Restaurants - FoodDelivery</title>
+
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/pages/customer/customer.css">
+    <link rel="stylesheet" href="../../assets/css/pages/customer/restaurants.css">
+</head>
+
+<body>
+
+    <!-- =========================
+         CUSTOMER HEADER
+    ========================== -->
+    <div class="customer-header-container">
+
+        <!-- Logo -->
+        <a href="home.html" class="customer-logo">
+            Food<span>Delivery</span>
+        </a>
+
+        <!-- Delivery Location -->
+        <a href="addresses.html">
+            <button type="button" class="delivery-location">
+                <span class="location-icon">📍</span>
+
+                <span class="location-text">
+                    <small>Deliver to</small>
+                    <strong>Select location</strong>
+                </span>
+            </button>
+        </a>
+
+
+        <!-- Desktop Navigation -->
+        <nav class="customer-navigation">
+
+            <a href="home.html">
+                Home
+            </a>
+
+            <a href="restaurants.html" class="active">
+                Restaurants
+            </a>
+
+            <a href="orders.html">
+                Orders
+            </a>
+
+            <a href="profile.html">
+                Profile
+            </a>
+
+            <a href="../auth/login.html">
+                Logout
+            </a>
+
+        </nav>
+
+
+        <!-- Mobile Menu -->
+        <button type="button" class="mobile-menu-button" id="mobileMenuButton" aria-label="Open menu">
+            ☰
+        </button>
+
+    </div>
+
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-navigation" id="mobileNavigation">
+
+        <a href="home.html">
+            Home
+        </a>
+
+        <a href="restaurants.html" class="active">
+            Restaurants
+        </a>
+
+        <a href="orders.html">
+            Orders
+        </a>
+
+        <a href="profile.html">
+            Profile
+        </a>
+
+        <a href="../auth/login.html">
+            Logout
+        </a>
+
+    </nav>
+
+    </header>
+
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================== -->
+    <main class="customer-main">
+
+        <!-- =========================
+             PAGE HERO
+        ========================== -->
+        <section class="restaurant-page-hero">
+
+            <div class="restaurant-page-hero-content">
+
+                <span class="hero-label">
+                    Discover restaurants
+                </span>
+
+                <h1>
+                    Find your next meal
+                </h1>
+
+                <p>
+                    Browse restaurants near you and order your
+                    favourite meals.
+                </p>
+
+                <!-- Search -->
+                <form class="food-search restaurant-search" id="restaurantSearchForm">
+
+                    <input type="search" id="restaurantSearch" placeholder="Search restaurants or cuisines..."
+                        autocomplete="off">
+
+                    <button type="submit">
+                        Search
+                    </button>
+
+                </form>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             RESTAURANT CONTENT
+        ========================== -->
+        <section class="customer-section restaurant-discovery">
+
+            <div class="restaurant-discovery-layout">
+
+                <!-- =========================
+                     FILTER SIDEBAR
+                ========================== -->
+
+
+                <!-- =========================
+                     RESTAURANT RESULTS
+                ========================== -->
+                <div class="restaurant-results">
+
+                    <!-- Results Header -->
+                    <div class="restaurant-results-header">
+
+                        <div>
+                            <span class="section-label">
+                                Restaurants
+                            </span>
+
+                            <h2>
+                                Restaurants near you
+                            </h2>
+
+                            <p id="restaurantResultsCount">
+                                6 restaurants available
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <!-- =========================
+                         RESTAURANT GRID
+                    ========================== -->
+                    <div class="restaurant-grid" id="restaurantGrid">
+
+                        <!-- Restaurant 1 -->
+                        <article class="restaurant-card" data-name="Mama's Kitchen"
+                            data-cuisine="African Food Fast Food" data-rating="4.8" data-delivery-time="30"
+                            data-delivery-fee="100">
+
+                            <div class="restaurant-image">
+
+                                <!--- <img src="../../assets/images/restaurants/restaurant-placeholder.jpg"
+                                    alt="Mama's Kitchen"> -->
+
+                                <span class="restaurant-status">
+                                    Open
+                                </span>
+
+                            </div>
+
+                            <div class="restaurant-info">
+
+                                <div class="restaurant-title-row">
+
+                                    <h3>
+                                        Mama's Kitchen
+                                    </h3>
+
+                                    <span class="rating">
+                                        ★ 4.8
+                                    </span>
+
+                                </div>
+
+                                <p class="restaurant-category">
+                                    African Food • Fast Food
+                                </p>
+
+                                <div class="restaurant-meta">
+
+                                    <span>
+                                        20–30 min
+                                    </span>
+
+                                    <span>
+                                        KSh 100 delivery
+                                    </span>
+
+                                </div>
+
+                                <a href="restaurant.html" class="view-restaurant-button">
+                                    View Restaurant
+                                </a>
+
+                            </div>
+
+                        </article>
+
+
+                        <!-- Restaurant 2 -->
+                        <article class="restaurant-card" data-name="Urban Bites" data-cuisine="Burgers Fast Food"
+                            data-rating="4.6" data-delivery-time="35" data-delivery-fee="120">
+
+                            <div class="restaurant-image">
+
+                                <!-- <img src="../../assets/images/restaurants/restaurant-placeholder.jpg" alt="Urban Bites"> -->
+
+                                <span class="restaurant-status">
+                                    Open
+                                </span>
+
+                            </div>
+
+                            <div class="restaurant-info">
+
+                                <div class="restaurant-title-row">
+
+                                    <h3>
+                                        Urban Bites
+                                    </h3>
+
+                                    <span class="rating">
+                                        ★ 4.6
+                                    </span>
+
+                                </div>
+
+                                <p class="restaurant-category">
+                                    Burgers • Fast Food
+                                </p>
+
+                                <div class="restaurant-meta">
+
+                                    <span>
+                                        25–35 min
+                                    </span>
+
+                                    <span>
+                                        KSh 120 delivery
+                                    </span>
+
+                                </div>
+
+                                <a href="restaurant.html" class="view-restaurant-button">
+                                    View Restaurant
+                                </a>
+
+                            </div>
+
+                        </article>
+
+
+                        <!-- Restaurant 3 -->
+                        <article class="restaurant-card" data-name="Pizza House" data-cuisine="Pizza Italian"
+                            data-rating="4.7" data-delivery-time="40" data-delivery-fee="150">
+
+                            <div class="restaurant-image">
+
+                                <!-- <img src="../../assets/images/restaurants/restaurant-placeholder.jpg" alt="Pizza House"> -->
+
+                                <span class="restaurant-status">
+                                    Open
+                                </span>
+
+                            </div>
+
+                            <div class="restaurant-info">
+
+                                <div class="restaurant-title-row">
+
+                                    <h3>
+                                        Pizza House
+                                    </h3>
+
+                                    <span class="rating">
+                                        ★ 4.7
+                                    </span>
+
+                                </div>
+
+                                <p class="restaurant-category">
+                                    Pizza • Italian
+                                </p>
+
+                                <div class="restaurant-meta">
+
+                                    <span>
+                                        25–40 min
+                                    </span>
+
+                                    <span>
+                                        KSh 150 delivery
+                                    </span>
+
+                                </div>
+
+                                <a href="restaurant.html" class="view-restaurant-button">
+                                    View Restaurant
+                                </a>
+
+                            </div>
+
+                        </article>
+
+
+                        <!-- Restaurant 4 -->
+                        <article class="restaurant-card" data-name="Chicken Corner" data-cuisine="Chicken Fast Food"
+                            data-rating="4.5" data-delivery-time="30" data-delivery-fee="100">
+
+                            <div class="restaurant-image">
+
+                                <!-- <img src="../../assets/images/restaurants/restaurant-placeholder.jpg"
+                                    alt="Chicken Corner"> -->
+
+                                <span class="restaurant-status">
+                                    Open
+                                </span>
+
+                            </div>
+
+                            <div class="restaurant-info">
+
+                                <div class="restaurant-title-row">
+
+                                    <h3>
+                                        Chicken Corner
+                                    </h3>
+
+                                    <span class="rating">
+                                        ★ 4.5
+                                    </span>
+
+                                </div>
+
+                                <p class="restaurant-category">
+                                    Chicken • Fast Food
+                                </p>
+
+                                <div class="restaurant-meta">
+
+                                    <span>
+                                        20–30 min
+                                    </span>
+
+                                    <span>
+                                        KSh 100 delivery
+                                    </span>
+
+                                </div>
+
+                                <a href="restaurant.html" class="view-restaurant-button">
+                                    View Restaurant
+                                </a>
+
+                            </div>
+
+                        </article>
+
+
+                        <!-- Restaurant 5 -->
+                        <article class="restaurant-card" data-name="Taste of Africa" data-cuisine="African Food"
+                            data-rating="4.9" data-delivery-time="45" data-delivery-fee="80">
+
+                            <div class="restaurant-image">
+
+                                <!-- <img src="../../assets/images/restaurants/restaurant-placeholder.jpg"
+                                    alt="Taste of Africa"> -->
+
+                                <span class="restaurant-status">
+                                    Open
+                                </span>
+
+                            </div>
+
+                            <div class="restaurant-info">
+
+                                <div class="restaurant-title-row">
+
+                                    <h3>
+                                        Taste of Africa
+                                    </h3>
+
+                                    <span class="rating">
+                                        ★ 4.9
+                                    </span>
+
+                                </div>
+
+                                <p class="restaurant-category">
+                                    African Food
+                                </p>
+
+                                <div class="restaurant-meta">
+
+                                    <span>
+                                        30–45 min
+                                    </span>
+
+                                    <span>
+                                        KSh 80 delivery
+                                    </span>
+
+                                </div>
+
+                                <a href="restaurant.html" class="view-restaurant-button">
+                                    View Restaurant
+                                </a>
+
+                            </div>
+
+                        </article>
+
+
+                        <!-- Restaurant 6 -->
+                        <article class="restaurant-card" data-name="Fresh Bites" data-cuisine="Drinks Fast Food"
+                            data-rating="4.4" data-delivery-time="25" data-delivery-fee="70">
+
+                            <div class="restaurant-image">
+
+                                <!-- <img src="../../assets/images/restaurants/restaurant-placeholder.jpg" alt="Fresh Bites"> -->
+
+                                <span class="restaurant-status">
+                                    Open
+                                </span>
+
+                            </div>
+
+                            <div class="restaurant-info">
+
+                                <div class="restaurant-title-row">
+
+                                    <h3>
+                                        Fresh Bites
+                                    </h3>
+
+                                    <span class="rating">
+                                        ★ 4.4
+                                    </span>
+
+                                </div>
+
+                                <p class="restaurant-category">
+                                    Drinks • Fast Food
+                                </p>
+
+                                <div class="restaurant-meta">
+
+                                    <span>
+                                        15–25 min
+                                    </span>
+
+                                    <span>
+                                        KSh 70 delivery
+                                    </span>
+
+                                </div>
+
+                                <a href="restaurant.html" class="view-restaurant-button">
+                                    View Restaurant
+                                </a>
+
+                            </div>
+
+                        </article>
+
+                    </div>
+
+
+                    <!-- No Results -->
+                    <div class="no-results" id="noRestaurantsMessage" hidden>
+
+                        <h3>
+                            No restaurants found
+                        </h3>
+
+                        <p>
+                            Try changing your search or filters.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         FLOATING CART
+    ========================== -->
+    <a href="cart.html" class="floating-cart" aria-label="View cart">
+
+        <span class="cart-icon">
+            🛒
+        </span>
+
+        <span class="cart-count" id="cartCount">
+            0
+        </span>
+
+    </a>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+    <footer class="footer">
+
+        <div class="container">
+
+            <p>
+                &copy; 2026 FoodDelivery. All rights reserved.
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <!-- JavaScript -->
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/customer/restaurants.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Payments | FoodDelivery</title>
+
+    <link rel="stylesheet" href="../../assets/css/style.css" />
+    <link rel="stylesheet" href="../../assets/css/pages/admin/payments.css" />
+    <link rel="stylesheet" href="../../assets/css/pages/admin/dashboard.css" />
+</head>
+
+<body>
+    <!-- =========================
+         ADMIN SIDEBAR
+    ========================== -->
+
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="admin-sidebar-header">
+            <a href="dashboard.html" class="admin-logo">
+                Food<span>Delivery</span>
+            </a>
+
+            <button type="button" id="adminCloseMenuButton" class="admin-close-menu-button" aria-label="Close menu">
+                ×
+            </button>
+
+        </div>
+
+        <div class="admin-profile">
+            <div class="admin-profile-avatar">A</div>
+
+            <div class="admin-profile-info">
+                <strong>Admin User</strong>
+                <span>Administrator</span>
+            </div>
+        </div>
+
+        <nav class="admin-navigation">
+            <a href="dashboard.html" class="admin-nav-link">
+                <span class="admin-nav-icon">▣</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="orders.html" class="admin-nav-link">
+                <span class="admin-nav-icon">▤</span>
+                <span>Orders</span>
+                <span class="admin-nav-badge">12</span>
+            </a>
+
+            <a href="customers.html" class="admin-nav-link">
+                <span class="admin-nav-icon">◯</span>
+                <span>Customers</span>
+            </a>
+
+            <a href="restaurants.html" class="admin-nav-link">
+                <span class="admin-nav-icon">▦</span>
+                <span>Restaurants</span>
+            </a>
+
+            <a href="riders.html" class="admin-nav-link">
+                <span class="admin-nav-icon">◈</span>
+                <span>Riders</span>
+            </a>
+
+            <a href="payments.html" class="admin-nav-link active">
+                <span class="admin-nav-icon">KSh</span>
+                <span>Payments</span>
+            </a>
+
+            <a href="reports.html" class="admin-nav-link">
+                <span class="admin-nav-icon">▥</span>
+                <span>Reports</span>
+            </a>
+
+            <a href="settings.html" class="admin-nav-link">
+                <span class="admin-nav-icon">⚙</span>
+                <span>Settings</span>
+            </a>
+        </nav>
+
+        <div class="admin-sidebar-footer">
+            <a href="../../index.html" class="admin-nav-link">
+                <span class="admin-nav-icon">↪</span>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- =========================
+         MAIN AREA
+    ========================== -->
+
+    <main class="admin-main">
+        <!-- =========================
+             TOPBAR
+        ========================== -->
+
+        <header class="admin-topbar">
+            <div class="admin-topbar-left">
+                <button type="button" class="admin-mobile-menu-button" id="adminMenuButton" aria-label="Open menu">
+                    ☰
+                </button>
+
+                <div>
+                    <h1>Payments</h1>
+
+                    <p>Monitor and manage platform payments.</p>
+                </div>
+            </div>
+
+            <div class="admin-topbar-right">
+                <button type="button" class="admin-notification-button" aria-label="Notifications">
+                    <span>🔔</span>
+
+                    <span class="admin-notification-badge"> 5 </span>
+                </button>
+
+                <div class="admin-topbar-profile">
+                    <div class="admin-topbar-avatar">A</div>
+
+                    <div class="admin-topbar-profile-info">
+                        <strong>Admin User</strong>
+
+                        <span>Administrator</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- =========================
+             PAGE CONTENT
+        ========================== -->
+
+        <section class="admin-content">
+            <!-- =========================
+                 PAGE HEADER
+            ========================== -->
+
+            <div class="admin-page-header">
+                <div>
+                    <h2>Payment Management</h2>
+
+                    <p>Track customer payments, refunds and transactions.</p>
+                </div>
+
+                <div class="admin-page-actions">
+                    <button type="button" class="admin-secondary-button">
+                        Export Payments
+                    </button>
+
+                    <button type="button" class="admin-primary-button">
+                        + Record Payment
+                    </button>
+                </div>
+            </div>
+
+            <!-- =========================
+                 PAYMENT STATISTICS
+            ========================== -->
+
+            <div class="admin-stats-grid">
+                <!-- TOTAL REVENUE -->
+
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon">KSh</div>
+
+                    <div class="admin-stat-content">
+                        <span>Total Revenue</span>
+
+                        <strong> KSh 2.48M </strong>
+                    </div>
+                </div>
+
+                <!-- TODAY'S PAYMENTS -->
+
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon">↑</div>
+
+                    <div class="admin-stat-content">
+                        <span>Today's Payments</span>
+
+                        <strong> KSh 84.6K </strong>
+                    </div>
+                </div>
+
+                <!-- PENDING PAYMENTS -->
+
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon">◷</div>
+
+                    <div class="admin-stat-content">
+                        <span>Pending Payments</span>
+
+                        <strong> KSh 18.4K </strong>
+                    </div>
+                </div>
+
+                <!-- REFUNDS -->
+
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon">↩</div>
+
+                    <div class="admin-stat-content">
+                        <span>Refunds</span>
+
+                        <strong> KSh 12.8K </strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================
+                 PAYMENT TABLE CARD
+            ========================== -->
+
+            <div class="admin-content-card admin-payments-card">
+                <!-- CARD HEADER -->
+
+                <div class="admin-card-header">
+                    <div>
+                        <h3>All Transactions</h3>
+
+                        <p>View and manage customer payment transactions.</p>
+                    </div>
+
+                    <div class="admin-payment-tools">
+                        <!-- SEARCH -->
+
+                        <div class="admin-search">
+                            <span>⌕</span>
+
+                            <input type="search" placeholder="Search transactions..."
+                                aria-label="Search transactions" />
+                        </div>
+
+                        <!-- FILTER -->
+
+                        <button type="button" class="admin-filter-button">
+                            ☷ Filter
+                        </button>
+                    </div>
+                </div>
+
+                <!-- =========================
+                     PAYMENT TABS
+                ========================== -->
+
+                <div class="admin-payment-tabs">
+                    <a href="#" class="admin-payment-tab active"> All </a>
+
+                    <a href="#" class="admin-payment-tab"> Completed </a>
+
+                    <a href="#" class="admin-payment-tab"> Pending </a>
+
+                    <a href="#" class="admin-payment-tab"> Failed </a>
+
+                    <a href="#" class="admin-payment-tab"> Refunded </a>
+                </div>
+
+                <!-- =========================
+                     PAYMENT TABLE
+                ========================== -->
+
+                <div class="admin-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Transaction</th>
+
+                                <th>Customer</th>
+
+                                <th>Order</th>
+
+                                <th>Method</th>
+
+                                <th>Amount</th>
+
+                                <th>Date</th>
+
+                                <th>Status</th>
+
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <!-- PAYMENT 1 -->
+
+                            <tr>
+                                <td>
+                                    <div class="admin-payment">
+                                        <div class="admin-payment-icon">KSh</div>
+
+                                        <div class="admin-payment-info">
+                                            <strong> TXN-10001 </strong>
+
+                                            <span> M-Pesa </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>John Kamau</td>
+
+                                <td>#ORD-1001</td>
+
+                                <td>
+                                    <span class="admin-payment-method"> M-Pesa </span>
+                                </td>
+
+                                <td>
+                                    <strong class="admin-amount"> KSh 2,450 </strong>
+                                </td>
+
+                                <td>17 Sep 2026</td>
+
+                                <td>
+                                    <span class="admin-status success"> Completed </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-table-actions">
+                                        <button type="button" class="admin-table-action" aria-label="View payment">
+                                            ◉
+                                        </button>
+
+                                        <button type="button" class="admin-table-action" aria-label="Download receipt">
+                                            ↓
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- PAYMENT 2 -->
+
+                            <tr>
+                                <td>
+                                    <div class="admin-payment">
+                                        <div class="admin-payment-icon">KSh</div>
+
+                                        <div class="admin-payment-info">
+                                            <strong> TXN-10002 </strong>
+
+                                            <span> M-Pesa </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>Mary Wanjiku</td>
+
+                                <td>#ORD-1002</td>
+
+                                <td>
+                                    <span class="admin-payment-method"> M-Pesa </span>
+                                </td>
+
+                                <td>
+                                    <strong class="admin-amount"> KSh 1,850 </strong>
+                                </td>
+
+                                <td>17 Sep 2026</td>
+
+                                <td>
+                                    <span class="admin-status success"> Completed </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-table-actions">
+                                        <button type="button" class="admin-table-action" aria-label="View payment">
+                                            ◉
+                                        </button>
+
+                                        <button type="button" class="admin-table-action" aria-label="Download receipt">
+                                            ↓
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- PAYMENT 3 -->
+
+                            <tr>
+                                <td>
+                                    <div class="admin-payment">
+                                        <div class="admin-payment-icon">KSh</div>
+
+                                        <div class="admin-payment-info">
+                                            <strong> TXN-10003 </strong>
+
+                                            <span> Card </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>Peter Mwangi</td>
+
+                                <td>#ORD-1003</td>
+
+                                <td>
+                                    <span class="admin-payment-method"> Card </span>
+                                </td>
+
+                                <td>
+                                    <strong class="admin-amount"> KSh 3,200 </strong>
+                                </td>
+
+                                <td>17 Sep 2026</td>
+
+                                <td>
+                                    <span class="admin-status warning"> Pending </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-table-actions">
+                                        <button type="button" class="admin-table-action" aria-label="View payment">
+                                            ◉
+                                        </button>
+
+                                        <button type="button" class="admin-table-action" aria-label="Download receipt">
+                                            ↓
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- PAYMENT 4 -->
+
+                            <tr>
+                                <td>
+                                    <div class="admin-payment">
+                                        <div class="admin-payment-icon">KSh</div>
+
+                                        <div class="admin-payment-info">
+                                            <strong> TXN-10004 </strong>
+
+                                            <span> M-Pesa </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>Alice Njeri</td>
+
+                                <td>#ORD-1004</td>
+
+                                <td>
+                                    <span class="admin-payment-method"> M-Pesa </span>
+                                </td>
+
+                                <td>
+                                    <strong class="admin-amount"> KSh 980 </strong>
+                                </td>
+
+                                <td>16 Sep 2026</td>
+
+                                <td>
+                                    <span class="admin-status danger"> Failed </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-table-actions">
+                                        <button type="button" class="admin-table-action" aria-label="View payment">
+                                            ◉
+                                        </button>
+
+                                        <button type="button" class="admin-table-action" aria-label="Download receipt">
+                                            ↓
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- PAYMENT 5 -->
+
+                            <tr>
+                                <td>
+                                    <div class="admin-payment">
+                                        <div class="admin-payment-icon">KSh</div>
+
+                                        <div class="admin-payment-info">
+                                            <strong> TXN-10005 </strong>
+
+                                            <span> M-Pesa </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>Daniel Otieno</td>
+
+                                <td>#ORD-1005</td>
+
+                                <td>
+                                    <span class="admin-payment-method"> M-Pesa </span>
+                                </td>
+
+                                <td>
+                                    <strong class="admin-amount"> KSh 1,650 </strong>
+                                </td>
+
+                                <td>16 Sep 2026</td>
+
+                                <td>
+                                    <span class="admin-status info"> Refunded </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-table-actions">
+                                        <button type="button" class="admin-table-action" aria-label="View payment">
+                                            ◉
+                                        </button>
+
+                                        <button type="button" class="admin-table-action" aria-label="Download receipt">
+                                            ↓
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- PAYMENT 6 -->
+
+                            <tr>
+                                <td>
+                                    <div class="admin-payment">
+                                        <div class="admin-payment-icon">KSh</div>
+
+                                        <div class="admin-payment-info">
+                                            <strong> TXN-10006 </strong>
+
+                                            <span> Card </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>Brian Kariuki</td>
+
+                                <td>#ORD-1006</td>
+
+                                <td>
+                                    <span class="admin-payment-method"> Card </span>
+                                </td>
+
+                                <td>
+                                    <strong class="admin-amount"> KSh 2,750 </strong>
+                                </td>
+
+                                <td>15 Sep 2026</td>
+
+                                <td>
+                                    <span class="admin-status success"> Completed </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-table-actions">
+                                        <button type="button" class="admin-table-action" aria-label="View payment">
+                                            ◉
+                                        </button>
+
+                                        <button type="button" class="admin-table-action" aria-label="Download receipt">
+                                            ↓
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- =========================
+                     TABLE FOOTER
+                ========================== -->
+
+                <div class="admin-table-footer">
+                    <p>Showing 1–6 of 1,248 transactions</p>
+
+                    <div class="admin-pagination">
+                        <button type="button" disabled>‹</button>
+
+                        <button type="button" class="active">1</button>
+
+                        <button type="button">2</button>
+
+                        <button type="button">3</button>
+
+                        <button type="button">4</button>
+
+                        <button type="button">5</button>
+
+                        <button type="button">›</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================
+                 BOTTOM GRID
+            ========================== -->
+
+            <div class="admin-bottom-grid">
+                <!-- PAYMENT METHODS -->
+
+                <div class="admin-content-card">
+                    <div class="admin-card-header">
+                        <div>
+                            <h3>Payment Methods</h3>
+
+                            <p>Transaction distribution by payment method.</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-summary-list">
+                        <div class="admin-summary-item">
+                            <div>
+                                <div class="admin-summary-icon">KSh</div>
+
+                                <strong>M-Pesa</strong>
+                            </div>
+
+                            <span class="total"> 78% </span>
+                        </div>
+
+                        <div class="admin-summary-item">
+                            <div>
+                                <div class="admin-summary-icon">💳</div>
+
+                                <strong>Card</strong>
+                            </div>
+
+                            <span class="total"> 17% </span>
+                        </div>
+
+                        <div class="admin-summary-item">
+                            <div>
+                                <div class="admin-summary-icon">💵</div>
+
+                                <strong>Cash</strong>
+                            </div>
+
+                            <span class="total"> 5% </span>
+                        </div>
+
+                        <div class="admin-summary-item">
+                            <div>
+                                <div class="admin-summary-icon">✓</div>
+
+                                <strong>Successful Payments</strong>
+                            </div>
+
+                            <span class="success"> 96.2% </span>
+                        </div>
+
+                        <div class="admin-summary-item">
+                            <div>
+                                <div class="admin-summary-icon">!</div>
+
+                                <strong>Failed Payments</strong>
+                            </div>
+
+                            <span class="danger"> 1.8% </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAYMENT PERFORMANCE -->
+
+                <div class="admin-content-card">
+                    <div class="admin-card-header">
+                        <div>
+                            <h3>Payment Performance</h3>
+
+                            <p>Current payment processing performance.</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-payment-performance">
+                        <div class="admin-performance-item">
+                            <div class="admin-performance-header">
+                                <span> Payment Success Rate </span>
+
+                                <strong> 96.2% </strong>
+                            </div>
+
+                            <div class="admin-progress">
+                                <div class="admin-progress-bar">
+                                    <div class="admin-progress-value" style="width: 96.2%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="admin-performance-item">
+                            <div class="admin-performance-header">
+                                <span> M-Pesa Success Rate </span>
+
+                                <strong> 98.1% </strong>
+                            </div>
+
+                            <div class="admin-progress">
+                                <div class="admin-progress-bar">
+                                    <div class="admin-progress-value" style="width: 98.1%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="admin-performance-item">
+                            <div class="admin-performance-header">
+                                <span> Card Success Rate </span>
+
+                                <strong> 93.7% </strong>
+                            </div>
+
+                            <div class="admin-progress">
+                                <div class="admin-progress-bar">
+                                    <div class="admin-progress-value" style="width: 93.7%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-spending-footer">
+                        <span> Transactions today </span>
+
+                        <strong> 186 </strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================
+                 MESSAGE
+            ========================== -->
+
+            <div class="admin-message" id="adminMessage" role="alert" aria-live="polite"></div>
+        </section>
+    </main>
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================== -->
+
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/auth/auth-api.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/admin/payments.js"></script>
+</body>
+
+</html>

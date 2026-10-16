@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Mama's Kitchen - FoodDelivery</title>
+
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+  <link rel="stylesheet" href="../../assets/css/pages/customer/customer.css" />
+  <link rel="stylesheet" href="../../assets/css/pages/customer/restaurant.css" />
+</head>
+
+<body>
+  <!-- =========================
+         CUSTOMER HEADER
+    ========================== -->
+  <div class="customer-header-container">
+
+    <!-- Logo -->
+    <a href="home.html" class="customer-logo">
+      Food<span>Delivery</span>
+    </a>
+
+    <!-- Delivery Location -->
+    <a href="addresses.html">
+      <button type="button" class="delivery-location">
+        <span class="location-icon">📍</span>
+
+        <span class="location-text">
+          <small>Deliver to</small>
+          <strong>Select location</strong>
+        </span>
+      </button>
+    </a>
+
+
+    <!-- Desktop Navigation -->
+    <nav class="customer-navigation">
+
+      <a href="home.html">
+        Home
+      </a>
+
+      <a href="restaurants.html">
+        Restaurants
+      </a>
+
+      <a href="orders.html">
+        Orders
+      </a>
+
+      <a href="profile.html">
+        Profile
+      </a>
+
+      <a href="../auth/login.html">
+        Logout
+      </a>
+
+    </nav>
+
+
+    <!-- Mobile Menu -->
+    <button type="button" class="mobile-menu-button" id="mobileMenuButton" aria-label="Open menu">
+      ☰
+    </button>
+
+  </div>
+
+
+  <!-- Mobile Navigation -->
+  <nav class="mobile-navigation" id="mobileNavigation">
+
+    <a href="home.html">
+      Home
+    </a>
+
+    <a href="restaurants.html">
+      Restaurants
+    </a>
+
+    <a href="orders.html">
+      Orders
+    </a>
+
+    <a href="profile.html">
+      Profile
+    </a>
+
+    <a href="../auth/login.html">
+      Logout
+    </a>
+
+  </nav>
+
+  </header>
+
+  <!-- =========================
+         MAIN CONTENT
+    ========================== -->
+  <main class="customer-main">
+    <!-- =========================
+             RESTAURANT HERO
+        ========================== -->
+    <section class="restaurant-details-hero">
+      <div class="restaurant-details-container">
+        <!-- Back -->
+        <a href="restaurants.html" class="back-link">
+          ← Back to restaurants
+        </a>
+
+        <!-- Restaurant Information -->
+        <div class="restaurant-details-card">
+          <!-- Restaurant Image -->
+          <div class="restaurant-details-image">
+            <img src="../../assets/images/restaurants/restaurant-placeholder.jpg" alt="Mama's Kitchen"
+              id="restaurantImage" />
+
+            <span class="restaurant-status" id="restaurantStatus">
+              Open
+            </span>
+          </div>
+
+          <!-- Restaurant Info -->
+          <div class="restaurant-details-info">
+            <span class="section-label"> African Food </span>
+
+            <h1 id="restaurantName">Mama's Kitchen</h1>
+
+            <p class="restaurant-description" id="restaurantDescription">
+              Delicious African meals and fast food prepared fresh for you.
+            </p>
+
+            <!-- Rating -->
+            <div class="restaurant-rating">
+              <span class="rating-stars"> ★ </span>
+
+              <strong id="restaurantRating"> 4.8 </strong>
+
+              <span> rating </span>
+            </div>
+
+            <!-- Restaurant Meta -->
+            <div class="restaurant-details-meta">
+              <div class="meta-item">
+                <span class="meta-label"> Delivery </span>
+
+                <strong> KSh 100 </strong>
+              </div>
+
+              <div class="meta-item">
+                <span class="meta-label"> Delivery time </span>
+
+                <strong> 20–30 min </strong>
+              </div>
+
+              <div class="meta-item">
+                <span class="meta-label"> Minimum order </span>
+
+                <strong> KSh 200 </strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================
+             MENU
+        ========================== -->
+    <section class="customer-section restaurant-menu-section">
+      <div class="restaurant-menu-container">
+        <!-- Menu Header -->
+        <div class="menu-header">
+          <div>
+            <span class="section-label"> Our menu </span>
+
+            <h2>What would you like?</h2>
+          </div>
+
+          <!-- Menu Search -->
+          <form class="menu-search" id="menuSearchForm">
+            <input type="search" id="menuSearch" placeholder="Search menu..." autocomplete="off" />
+
+            <button type="submit">Search</button>
+          </form>
+        </div>
+
+        <!-- =========================
+                     MENU CATEGORIES
+                ========================== -->
+        <div class="menu-categories" id="menuCategories">
+          <button type="button" class="menu-category active" data-category="all">
+            All
+          </button>
+
+          <button type="button" class="menu-category" data-category="chicken">
+            Chicken
+          </button>
+
+          <button type="button" class="menu-category" data-category="beef">
+            Beef
+          </button>
+
+          <button type="button" class="menu-category" data-category="vegetarian">
+            Vegetarian
+          </button>
+
+          <button type="button" class="menu-category" data-category="drinks">
+            Drinks
+          </button>
+        </div>
+
+        <!-- =========================
+                     MENU GRID
+                ========================== -->
+        <div class="menu-food-grid" id="menuFoodGrid">
+          <!-- Food Item 1 -->
+          <article class="menu-food-card" data-food-name="Grilled Chicken" data-category="chicken">
+            <div class="menu-food-image">
+              <img src="../../assets/images/food/food-placeholder.jpg" alt="Grilled Chicken" />
+            </div>
+
+            <div class="menu-food-info">
+              <h3>Grilled Chicken</h3>
+
+              <p>
+                Tender grilled chicken served with fries and fresh vegetables.
+              </p>
+
+              <div class="menu-food-bottom">
+                <strong> KSh 650 </strong>
+
+                <button type="button" class="add-food-button" data-food-id="1">
+                  Add
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Food Item 2 -->
+          <article class="menu-food-card" data-food-name="Beef Stew" data-category="beef">
+            <div class="menu-food-image">
+              <img src="../../assets/images/food/food-placeholder.jpg" alt="Beef Stew" />
+            </div>
+
+            <div class="menu-food-info">
+              <h3>Beef Stew</h3>
+
+              <p>Slow-cooked beef stew served with rice and vegetables.</p>
+
+              <div class="menu-food-bottom">
+                <strong> KSh 550 </strong>
+
+                <button type="button" class="add-food-button" data-food-id="2">
+                  Add
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Food Item 3 -->
+          <article class="menu-food-card" data-food-name="Vegetable Rice" data-category="vegetarian">
+            <div class="menu-food-image">
+              <img src="../../assets/images/food/food-placeholder.jpg" alt="Vegetable Rice" />
+            </div>
+
+            <div class="menu-food-info">
+              <h3>Vegetable Rice</h3>
+
+              <p>Flavoured rice served with fresh seasonal vegetables.</p>
+
+              <div class="menu-food-bottom">
+                <strong> KSh 400 </strong>
+
+                <button type="button" class="add-food-button" data-food-id="3">
+                  Add
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Food Item 4 -->
+          <article class="menu-food-card" data-food-name="Chicken Wings" data-category="chicken">
+            <div class="menu-food-image">
+              <img src="../../assets/images/food/food-placeholder.jpg" alt="Chicken Wings" />
+            </div>
+
+            <div class="menu-food-info">
+              <h3>Chicken Wings</h3>
+
+              <p>
+                Crispy chicken wings served with our special dipping sauce.
+              </p>
+
+              <div class="menu-food-bottom">
+                <strong> KSh 500 </strong>
+
+                <button type="button" class="add-food-button" data-food-id="4">
+                  Add
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Food Item 5 -->
+          <article class="menu-food-card" data-food-name="Beef Pilau" data-category="beef">
+            <div class="menu-food-image">
+              <img src="../../assets/images/food/food-placeholder.jpg" alt="Beef Pilau" />
+            </div>
+
+            <div class="menu-food-info">
+              <h3>Beef Pilau</h3>
+
+              <p>Fragrant spiced rice cooked with tender beef.</p>
+
+              <div class="menu-food-bottom">
+                <strong> KSh 600 </strong>
+
+                <button type="button" class="add-food-button" data-food-id="5">
+                  Add
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Food Item 6 -->
+          <article class="menu-food-card" data-food-name="Fresh Juice" data-category="drinks">
+            <div class="menu-food-image">
+              <img src="../../assets/images/food/food-placeholder.jpg" alt="Fresh Juice" />
+            </div>
+
+            <div class="menu-food-info">
+              <h3>Fresh Juice</h3>
+
+              <p>Freshly prepared seasonal fruit juice.</p>
+
+              <div class="menu-food-bottom">
+                <strong> KSh 200 </strong>
+
+                <button type="button" class="add-food-button" data-food-id="6">
+                  Add
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- No Menu Results -->
+        <div class="no-results" id="noMenuResults" hidden>
+          <h3>No food found</h3>
+
+          <p>Try another search or menu category.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =========================
+         FLOATING CART
+    ========================== -->
+  <a href="cart.html" class="floating-cart" aria-label="View cart">
+    <span class="cart-icon"> 🛒 </span>
+
+    <span class="cart-count" id="cartCount"> 0 </span>
+  </a>
+
+  <!-- =========================
+         FOOTER
+    ========================== -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 FoodDelivery. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/main.js"></script>
+  <script src="../../assets/js/customer/restaurant.js"></script>
+</body>
+
+</html>

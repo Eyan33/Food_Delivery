@@ -1,0 +1,940 @@
+/* =========================================================
+   ADMIN REPORTS PAGE
+   ========================================================= */
+
+/* =========================================================
+   COLOR SYSTEM
+   ========================================================= */
+
+:root {
+    --admin-primary: #ff6b35;
+    --admin-primary-hover: #e85a28;
+    --admin-primary-light: #fff1eb;
+
+    --admin-secondary: #374151;
+    --admin-secondary-hover: #1f2937;
+
+    --admin-text: #111827;
+    --admin-text-secondary: #4b5563;
+    --admin-text-muted: #6b7280;
+
+    --admin-border: #e5e7eb;
+    --admin-background: #f8fafc;
+    --admin-white: #ffffff;
+
+    --admin-success: #16a34a;
+    --admin-success-light: #dcfce7;
+
+    --admin-warning: #f59e0b;
+    --admin-warning-light: #fef3c7;
+
+    --admin-danger: #dc2626;
+    --admin-danger-light: #fee2e2;
+
+    --admin-info: #2563eb;
+    --admin-info-light: #dbeafe;
+}
+
+.admin-content-card{
+    padding: 10px;
+}
+
+/* =========================================================
+   REPORT FILTER CARD
+   ========================================================= */
+
+.admin-reports-filter-card {
+    margin: 13px;
+}
+
+/* =========================================================
+   REPORT FILTERS
+   ========================================================= */
+
+.admin-report-filters {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(140px, 1fr)) auto;
+    gap: 16px;
+    align-items: end;
+    margin-top: 20px;
+}
+
+.admin-report-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.admin-report-filter label {
+    display: block;
+    color: var(--admin-text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.admin-report-filter select,
+.admin-report-filter input {
+    width: 100%;
+    height: 44px;
+    padding: 0 13px;
+
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+
+    background: var(--admin-white);
+    color: var(--admin-text);
+
+    font-family: inherit;
+    font-size: 13px;
+
+    outline: none;
+    box-sizing: border-box;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.admin-report-filter select {
+    cursor: pointer;
+}
+
+.admin-report-filter select:hover,
+.admin-report-filter input:hover {
+    border-color: #d1d5db;
+}
+
+.admin-report-filter select:focus,
+.admin-report-filter input:focus {
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.12);
+}
+
+/* =========================================================
+   REPORT FILTER BUTTON
+   ========================================================= */
+
+.admin-report-filter-button {
+    display: flex;
+    align-items: flex-end;
+}
+
+.admin-report-filter-button .admin-primary-button {
+    height: 44px;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   PRIMARY BUTTON
+   ========================================================= */
+
+.admin-primary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+    padding: 0 18px;
+
+    border: 1px solid var(--admin-primary);
+    border-radius: 8px;
+
+    background: var(--admin-primary);
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+    text-decoration: none;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.15s ease;
+}
+
+.admin-primary-button:hover {
+    background: var(--admin-primary-hover);
+    border-color: var(--admin-primary-hover);
+
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.22);
+
+    transform: translateY(-1px);
+}
+
+.admin-primary-button:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.admin-primary-button:focus-visible {
+    outline: none;
+    box-shadow:
+        0 0 0 3px rgba(255, 107, 53, 0.15),
+        0 4px 12px rgba(255, 107, 53, 0.18);
+}
+
+/* =========================================================
+   SECONDARY BUTTON
+   ========================================================= */
+
+.admin-secondary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+    padding: 0 18px;
+
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+
+    background: var(--admin-white);
+    color: var(--admin-text);
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+    text-decoration: none;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.15s ease;
+}
+
+.admin-secondary-button:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    color: var(--admin-secondary);
+
+    box-shadow: 0 3px 10px rgba(17, 24, 39, 0.08);
+
+    transform: translateY(-1px);
+}
+
+.admin-secondary-button:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.admin-secondary-button:focus-visible {
+    outline: none;
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.12);
+}
+
+/* =========================================================
+   PAGE ACTIONS
+   ========================================================= */
+
+.admin-page-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* =========================================================
+   REPORT STATISTICS
+   ========================================================= */
+
+.admin-report-positive {
+    display: block;
+    margin-top: 5px;
+
+    color: var(--admin-success);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+/* =========================================================
+   MAIN REPORT GRID
+   ========================================================= */
+
+.admin-reports-revenue-card,
+.admin-order-breakdown-card {
+    min-width: 0;
+}
+
+/* =========================================================
+   REPORT CHART
+   ========================================================= */
+
+.admin-report-chart {
+    display: flex;
+
+    width: 100%;
+    min-height: 310px;
+
+    margin-top: 25px;
+
+    box-sizing: border-box;
+}
+
+.admin-report-y-axis {
+    width: 70px;
+    flex-shrink: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    padding: 0 12px 34px 0;
+
+    text-align: right;
+
+    color: var(--admin-text-muted);
+    font-size: 11px;
+    line-height: 1;
+}
+
+.admin-report-chart-area {
+    position: relative;
+
+    flex: 1;
+    min-width: 0;
+    height: 310px;
+
+    padding-bottom: 34px;
+
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   CHART GRID LINES
+   ========================================================= */
+
+.admin-report-grid-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+
+    height: 0;
+
+    border-top: 1px dashed #e5e7eb;
+}
+
+.admin-report-grid-line:nth-child(1) {
+    top: 0;
+}
+
+.admin-report-grid-line:nth-child(2) {
+    top: 20%;
+}
+
+.admin-report-grid-line:nth-child(3) {
+    top: 40%;
+}
+
+.admin-report-grid-line:nth-child(4) {
+    top: 60%;
+}
+
+.admin-report-grid-line:nth-child(5) {
+    top: 80%;
+}
+
+/* =========================================================
+   REPORT CHART BARS
+   ========================================================= */
+
+.admin-report-bars {
+    position: absolute;
+
+    top: 0;
+    right: 0;
+    bottom: 34px;
+    left: 0;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+
+    gap: 12px;
+}
+
+.admin-report-bar-column {
+    position: relative;
+
+    height: 100%;
+    flex: 1;
+
+    max-width: 65px;
+    min-width: 20px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 8px;
+}
+
+.admin-report-bar {
+    width: 100%;
+    min-height: 10px;
+
+    border-radius: 6px 6px 0 0;
+
+    background: var(--admin-primary);
+
+    transition:
+        height 0.3s ease,
+        opacity 0.2s ease,
+        background 0.2s ease;
+}
+
+.admin-report-bar:hover {
+    background: var(--admin-primary-hover);
+    opacity: 0.9;
+}
+
+.admin-report-bar-column span {
+    display: block;
+
+    color: var(--admin-text-muted);
+    font-size: 11px;
+    line-height: 1;
+
+    white-space: nowrap;
+}
+
+/* =========================================================
+   ORDER BREAKDOWN
+   ========================================================= */
+
+.admin-report-status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+
+    margin-top: 24px;
+}
+
+.admin-report-status-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+}
+
+.admin-report-status-info {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+    min-width: 0;
+
+    color: var(--admin-text-secondary);
+    font-size: 14px;
+}
+
+/* =========================================================
+   STATUS DOTS
+   ========================================================= */
+
+.admin-report-status-info .admin-status-dot {
+    width: 9px;
+    height: 9px;
+
+    flex-shrink: 0;
+
+    display: inline-block;
+
+    border-radius: 50%;
+}
+
+.admin-report-status-info .admin-status-dot.success {
+    background: var(--admin-success);
+}
+
+.admin-report-status-info .admin-status-dot.warning {
+    background: var(--admin-warning);
+}
+
+.admin-report-status-info .admin-status-dot.danger {
+    background: var(--admin-danger);
+}
+
+.admin-report-status-info .admin-status-dot.total {
+    background: var(--admin-info);
+}
+
+.admin-report-status-item > strong {
+    flex-shrink: 0;
+
+    color: var(--admin-text);
+    font-size: 14px;
+}
+
+/* =========================================================
+   REPORT TOTAL
+   ========================================================= */
+
+.admin-report-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-top: 24px;
+    padding-top: 18px;
+
+    border-top: 1px solid var(--admin-border);
+}
+
+.admin-report-total span {
+    color: var(--admin-text-muted);
+    font-size: 13px;
+}
+
+.admin-report-total strong {
+    color: var(--admin-text);
+    font-size: 18px;
+}
+
+/* =========================================================
+   RESTAURANT RANKING
+   ========================================================= */
+
+.admin-report-ranking-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.admin-report-ranking-item {
+    display: grid;
+
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+.admin-ranking-number {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: var(--admin-primary-light);
+    color: var(--admin-primary);
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.admin-ranking-info {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+.admin-ranking-info strong {
+    overflow: hidden;
+
+    color: var(--admin-text);
+    font-size: 14px;
+    font-weight: 600;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-ranking-info span {
+    overflow: hidden;
+
+    color: var(--admin-text-muted);
+    font-size: 12px;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-ranking-value {
+    color: var(--admin-primary);
+    font-size: 13px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+/* =========================================================
+   CUSTOMER SUMMARY
+   ========================================================= */
+
+.admin-summary-item small {
+    margin-left: auto;
+
+    color: var(--admin-text-muted);
+    font-size: 12px;
+
+    white-space: nowrap;
+}
+
+.admin-summary-item small.admin-report-positive {
+    color: var(--admin-success);
+}
+
+.admin-summary-icon.success {
+    color: var(--admin-success);
+}
+
+.admin-summary-icon.warning {
+    color: var(--admin-warning);
+}
+
+.admin-summary-icon.total {
+    color: var(--admin-info);
+}
+
+/* =========================================================
+   PAYMENT PERFORMANCE CARD
+   ========================================================= */
+
+.admin-report-payment-card {
+    margin-top: 24px;
+}
+
+.admin-report-payment-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    gap: 24px;
+
+    margin-top: 24px;
+}
+
+.admin-report-payment-item {
+    min-width: 0;
+
+    padding: 18px;
+
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+
+    background: var(--admin-white);
+
+    box-sizing: border-box;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.admin-report-payment-item:hover {
+    border-color: #d1d5db;
+
+    box-shadow: 0 6px 18px rgba(17, 24, 39, 0.06);
+
+    transform: translateY(-2px);
+}
+
+.admin-report-payment-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 15px;
+}
+
+.admin-report-payment-header > div {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+.admin-report-payment-header strong {
+    color: var(--admin-text);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.admin-report-payment-header span {
+    color: var(--admin-text-muted);
+    font-size: 12px;
+
+    white-space: nowrap;
+}
+
+.admin-report-payment-header > strong {
+    flex-shrink: 0;
+    color: var(--admin-primary);
+}
+
+/* =========================================================
+   PAYMENT PROGRESS BAR
+   ========================================================= */
+
+.admin-report-progress {
+    width: 100%;
+    height: 8px;
+
+    margin: 18px 0;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+
+    background: #f3f4f6;
+}
+
+.admin-report-progress-bar {
+    height: 100%;
+
+    border-radius: inherit;
+
+    background: var(--admin-primary);
+
+    transition: width 0.3s ease;
+}
+
+/* =========================================================
+   PAYMENT FOOTER
+   ========================================================= */
+
+.admin-report-payment-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+}
+
+.admin-report-payment-footer span {
+    color: var(--admin-text-muted);
+    font-size: 12px;
+}
+
+.admin-report-payment-footer strong {
+    color: var(--admin-text);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   CARD LINKS
+   ========================================================= */
+
+.admin-card-link {
+    color: var(--admin-primary);
+    font-size: 13px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition: color 0.2s ease;
+}
+
+.admin-card-link:hover {
+    color: var(--admin-primary-hover);
+    text-decoration: underline;
+}
+
+/* =========================================================
+   REPORT MESSAGE
+   ========================================================= */
+
+.admin-message {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   LARGE TABLET / SMALL DESKTOP
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+    .admin-report-filters {
+        grid-template-columns: repeat(2, minmax(150px, 1fr));
+    }
+
+    .admin-report-filter-button {
+        align-items: stretch;
+    }
+
+    .admin-report-filter-button .admin-primary-button {
+        width: 100%;
+    }
+
+    .admin-report-payment-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .admin-report-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-report-chart {
+        min-height: 280px;
+    }
+
+    .admin-report-chart-area {
+        height: 280px;
+    }
+
+    .admin-report-payment-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .admin-report-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-report-filter-button {
+        width: 100%;
+    }
+
+    .admin-report-filter-button .admin-primary-button {
+        width: 100%;
+    }
+
+    /* -----------------------------------------
+       Page Actions
+    ----------------------------------------- */
+
+    .admin-page-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .admin-page-actions button {
+        width: 100%;
+    }
+
+    /* -----------------------------------------
+       Chart
+    ----------------------------------------- */
+
+    .admin-report-chart {
+        min-height: 240px;
+    }
+
+    .admin-report-chart-area {
+        height: 240px;
+    }
+
+    .admin-report-y-axis {
+        width: 55px;
+        padding-right: 8px;
+
+        font-size: 10px;
+    }
+
+    .admin-report-bars {
+        gap: 5px;
+    }
+
+    .admin-report-bar-column {
+        max-width: 40px;
+    }
+
+    .admin-report-bar-column span {
+        font-size: 10px;
+    }
+
+    /* -----------------------------------------
+       Restaurant Ranking
+    ----------------------------------------- */
+
+    .admin-report-ranking-item {
+        grid-template-columns: 30px minmax(0, 1fr);
+    }
+
+    .admin-ranking-value {
+        grid-column: 2;
+
+        justify-self: start;
+
+        margin-top: -5px;
+    }
+
+    /* -----------------------------------------
+       Payment Cards
+    ----------------------------------------- */
+
+    .admin-report-payment-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .admin-report-payment-item {
+        padding: 15px;
+    }
+}
+
+/* =========================================================
+   VERY SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 400px) {
+
+    .admin-report-chart {
+        min-height: 220px;
+    }
+
+    .admin-report-chart-area {
+        height: 220px;
+    }
+
+    .admin-report-y-axis {
+        width: 48px;
+        font-size: 9px;
+    }
+
+    .admin-report-bars {
+        gap: 3px;
+    }
+
+    .admin-report-bar-column {
+        max-width: 32px;
+    }
+
+    .admin-report-status-list {
+        gap: 15px;
+    }
+
+    .admin-report-status-info {
+        font-size: 13px;
+    }
+}

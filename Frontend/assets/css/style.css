@@ -1,0 +1,930 @@
+/* =========================================
+   GLOBAL VARIABLES
+========================================= */
+
+:root {
+    --primary: #ff5a1f;
+    --primary-dark: #e64a16;
+
+    --background: #fffaf7;
+    --white: #ffffff;
+
+    --text: #171717;
+    --text-light: #666666;
+
+    --border: #eeeeee;
+
+    --container-width: 1200px;
+
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+    --radius: 12px;
+}
+
+
+/* =========================================
+   RESET
+========================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--background);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.header {
+    width: 100%;
+    height: 76px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 6%;
+
+    background: var(--white);
+
+    border-bottom: 1px solid var(--border);
+
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+
+/* Logo */
+
+.logo {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+
+.logo span {
+    color: var(--primary);
+}
+
+
+/* Navigation */
+
+.navigation {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+
+.navigation a {
+    font-size: 15px;
+    font-weight: 600;
+
+    color: var(--text);
+
+    transition: 0.2s ease;
+}
+
+
+.navigation a:hover {
+    color: var(--primary);
+}
+
+
+.navigation .nav-button {
+    padding: 11px 20px;
+
+    background: var(--primary);
+    color: var(--white);
+
+    border-radius: 8px;
+}
+
+
+.navigation .nav-button:hover {
+    background: var(--primary-dark);
+    color: var(--white);
+}
+
+
+/* =========================================
+   HERO
+========================================= */
+
+.hero {
+    min-height: 620px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 80px 6%;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255, 250, 247, 0.98) 0%,
+            rgba(255, 250, 247, 0.90) 45%,
+            rgba(255, 250, 247, 0.30) 100%
+        );
+}
+
+
+.hero-content {
+    width: 100%;
+    max-width: var(--container-width);
+
+    margin: 0 auto;
+}
+
+
+.hero h1 {
+    max-width: 700px;
+
+    font-size: clamp(42px, 6vw, 72px);
+
+    line-height: 1.05;
+
+    letter-spacing: -2px;
+
+    margin-bottom: 25px;
+}
+
+
+.hero h1 span {
+    display: block;
+
+    color: var(--primary);
+}
+
+
+.hero p {
+    max-width: 580px;
+
+    font-size: 18px;
+
+    color: var(--text-light);
+
+    margin-bottom: 35px;
+}
+
+
+/* =========================================
+   HERO BUTTONS
+========================================= */
+
+.hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    flex-wrap: wrap;
+}
+
+
+.primary-button,
+.secondary-button {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 48px;
+
+    padding: 0 24px;
+
+    border-radius: 8px;
+
+    font-size: 15px;
+    font-weight: 700;
+
+    transition: 0.2s ease;
+}
+
+
+.primary-button {
+    background: var(--primary);
+    color: var(--white);
+}
+
+
+.primary-button:hover {
+    background: var(--primary-dark);
+
+    transform: translateY(-2px);
+}
+
+
+.secondary-button {
+    background: var(--white);
+
+    color: var(--text);
+
+    border: 1px solid var(--border);
+}
+
+
+.secondary-button:hover {
+    border-color: var(--primary);
+
+    color: var(--primary);
+}
+
+
+/* =========================================
+   FEATURES SECTION
+========================================= */
+
+.features {
+    padding: 90px 6%;
+
+    background: var(--white);
+}
+
+
+.section-heading {
+    max-width: var(--container-width);
+
+    margin: 0 auto 50px;
+
+    text-align: center;
+}
+
+
+.section-heading h2 {
+    font-size: 36px;
+
+    margin-bottom: 10px;
+
+    letter-spacing: -1px;
+}
+
+
+.section-heading p {
+    color: var(--text-light);
+
+    font-size: 16px;
+}
+
+
+/* =========================================
+   FEATURE GRID
+========================================= */
+
+.feature-grid {
+    width: 100%;
+    max-width: var(--container-width);
+
+    margin: 0 auto;
+
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 25px;
+}
+
+
+/* =========================================
+   FEATURE CARD
+========================================= */
+
+.feature-card {
+    padding: 35px 30px;
+
+    background: var(--white);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+
+    transition: 0.2s ease;
+}
+
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+
+.feature-icon {
+    width: 50px;
+    height: 50px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 22px;
+
+    border-radius: 10px;
+
+    background: #fff0e9;
+
+    color: var(--primary);
+
+    font-size: 14px;
+
+    font-weight: 800;
+}
+
+
+.feature-card h3 {
+    font-size: 20px;
+
+    margin-bottom: 10px;
+}
+
+
+.feature-card p {
+    color: var(--text-light);
+
+    font-size: 15px;
+
+    line-height: 1.7;
+}
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.footer {
+    padding: 25px 6%;
+
+    background: #171717;
+
+    color: #aaaaaa;
+
+    text-align: center;
+
+    font-size: 14px;
+}
+
+
+/* =========================================
+   RESPONSIVE DESIGN
+========================================= */
+
+@media (max-width: 900px) {
+
+    .hero {
+        min-height: 540px;
+
+        padding-top: 70px;
+        padding-bottom: 70px;
+    }
+
+
+    .hero h1 {
+        font-size: 52px;
+    }
+
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    /* Header */
+
+    .header {
+        height: 68px;
+
+        padding: 0 5%;
+    }
+
+
+    .logo {
+        font-size: 20px;
+    }
+
+
+    .navigation {
+        gap: 12px;
+    }
+
+
+    .navigation a {
+        font-size: 14px;
+    }
+
+
+    .navigation .nav-button {
+        padding: 9px 14px;
+    }
+
+
+    /* Hero */
+
+    .hero {
+        min-height: 500px;
+
+        padding: 60px 5%;
+    }
+
+
+    .hero h1 {
+        font-size: 42px;
+
+        letter-spacing: -1.5px;
+    }
+
+
+    .hero p {
+        font-size: 16px;
+    }
+
+
+    /* Buttons */
+
+    .hero-actions {
+        width: 100%;
+
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+
+    .primary-button,
+    .secondary-button {
+        width: 100%;
+    }
+
+
+    /* Features */
+
+    .features {
+        padding: 65px 5%;
+    }
+
+
+    .section-heading h2 {
+        font-size: 30px;
+    }
+
+
+    .feature-card {
+        padding: 28px 24px;
+    }
+
+
+    /* Footer */
+
+    .footer {
+        padding: 22px 5%;
+    }
+
+}
+
+
+/*========= !!!!!!! =============*/
+
+/* =========================================
+   AUTHENTICATION PAGES
+========================================= */
+
+.auth-page {
+    min-height: calc(100vh - 76px - 64px);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 60px 6%;
+}
+
+
+/* =========================================
+   AUTH CARD
+========================================= */
+
+.auth-card {
+    width: 100%;
+    max-width: 460px;
+
+    padding: 40px;
+
+    background: var(--white);
+
+    border: 1px solid var(--border);
+
+    border-radius: 16px;
+
+    box-shadow: var(--shadow);
+}
+
+
+/* =========================================
+   AUTH HEADER
+========================================= */
+
+.auth-header {
+    margin-bottom: 30px;
+
+    text-align: center;
+}
+
+
+.auth-header h1 {
+    margin-bottom: 8px;
+
+    font-size: 32px;
+
+    line-height: 1.2;
+
+    letter-spacing: -0.8px;
+}
+
+
+.auth-header p {
+    color: var(--text-light);
+
+    font-size: 15px;
+}
+
+
+/* =========================================
+   AUTH FORM
+========================================= */
+
+.auth-form {
+    width: 100%;
+}
+
+
+.form-group {
+    margin-bottom: 22px;
+}
+
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    color: var(--text);
+}
+
+
+/* =========================================
+   INPUTS
+========================================= */
+
+.form-group input {
+    width: 100%;
+
+    height: 48px;
+
+    padding: 0 14px;
+
+    border: 1px solid #dcdcdc;
+
+    border-radius: 8px;
+
+    outline: none;
+
+    background: var(--white);
+
+    color: var(--text);
+
+    font-size: 15px;
+
+    transition: 0.2s ease;
+}
+
+
+.form-group input::placeholder {
+    color: #999999;
+}
+
+
+.form-group input:hover {
+    border-color: #c5c5c5;
+}
+
+
+.form-group input:focus {
+    border-color: var(--primary);
+
+    box-shadow: 0 0 0 3px rgba(255, 90, 31, 0.12);
+}
+
+
+/* =========================================
+   PASSWORD LABEL
+========================================= */
+
+.password-label {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 8px;
+}
+
+
+.password-label label {
+    margin-bottom: 0;
+}
+
+
+.password-label a {
+    color: var(--primary);
+
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+
+.password-label a:hover {
+    color: var(--primary-dark);
+}
+
+
+/* =========================================
+   FORM OPTIONS
+========================================= */
+
+.form-options {
+    display: flex;
+
+    align-items: center;
+
+    margin-bottom: 24px;
+}
+
+
+.checkbox-label {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    color: var(--text-light);
+
+    font-size: 14px;
+
+    cursor: pointer;
+}
+
+
+.checkbox-label input {
+    width: 16px;
+    height: 16px;
+
+    accent-color: var(--primary);
+
+    cursor: pointer;
+}
+
+
+/* =========================================
+   FORM MESSAGE
+========================================= */
+
+.form-message {
+    display: none;
+
+    margin-bottom: 18px;
+
+    padding: 11px 13px;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+}
+
+
+.form-message.error {
+    display: block;
+
+    background: #fff1f1;
+
+    color: #c62828;
+
+    border: 1px solid #ffd5d5;
+}
+
+
+.form-message.success {
+    display: block;
+
+    background: #effbf3;
+
+    color: #218838;
+
+    border: 1px solid #ccebd5;
+}
+
+
+/* =========================================
+   AUTH BUTTON
+========================================= */
+
+.auth-button {
+    width: 100%;
+
+    height: 50px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: var(--primary);
+
+    color: var(--white);
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+
+.auth-button:hover {
+    background: var(--primary-dark);
+
+    transform: translateY(-1px);
+}
+
+
+.auth-button:active {
+    transform: translateY(0);
+}
+
+
+.auth-button:disabled {
+    opacity: 0.7;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+/* =========================================
+   AUTH FOOTER
+========================================= */
+
+.auth-footer {
+    margin-top: 25px;
+
+    padding-top: 22px;
+
+    border-top: 1px solid var(--border);
+
+    text-align: center;
+}
+
+
+.auth-footer p {
+    color: var(--text-light);
+
+    font-size: 14px;
+}
+
+
+.auth-footer a {
+    color: var(--primary);
+
+    font-weight: 700;
+}
+
+
+.auth-footer a:hover {
+    color: var(--primary-dark);
+}
+
+
+/* =========================================
+   AUTH HEADER RESPONSIVE
+========================================= */
+
+.header .navigation span {
+    color: var(--text-light);
+
+    font-size: 14px;
+}
+
+
+/* =========================================
+   AUTH MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+    .auth-page {
+        min-height: calc(100vh - 68px - 64px);
+
+        padding: 40px 5%;
+    }
+
+
+    .auth-card {
+        padding: 30px 22px;
+
+        border-radius: 12px;
+
+        box-shadow: none;
+    }
+
+
+    .auth-header h1 {
+        font-size: 28px;
+    }
+
+
+    .header .navigation span {
+        display: none;
+    }
+
+
+    .password-label {
+        align-items: flex-start;
+    }
+
+}
+
+/*========= !!!!!!! =============*/
+
+
+/* =========================================
+   REGISTER PAGE
+========================================= */
+
+.auth-card {
+    max-width: 500px;
+}
+
+
+/* Phone input */
+
+input[type="tel"] {
+    letter-spacing: 0.3px;
+}
+
+
+/* Terms text */
+
+.checkbox-label span {
+    line-height: 1.5;
+}
+
+
+/* Mobile */
+
+@media (max-width: 600px) {
+
+    .auth-card {
+        max-width: 100%;
+    }
+
+}

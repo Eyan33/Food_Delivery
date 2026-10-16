@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Restaurants | FoodDelivery</title>
+
+    <link rel="stylesheet" href="../../assets/css/style.css" />
+    <link rel="stylesheet" href="../../assets/css/pages/admin/restaurants.css" />
+    <link rel="stylesheet" href="../../assets/css/pages/admin/dashboard.css" />
+</head>
+
+<body>
+
+    <!-- =========================
+         ADMIN SIDEBAR
+    ========================== -->
+
+    <aside class="admin-sidebar" id="adminSidebar">
+
+        <div class="admin-sidebar-header">
+
+            <a href="dashboard.html" class="admin-logo">
+                Food<span>Delivery</span>
+            </a>
+
+            <button
+                type="button"
+                id="adminCloseMenuButton"
+                class="admin-close-menu-button"
+                aria-label="Close menu"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <div class="admin-profile">
+
+            <div class="admin-profile-avatar">A</div>
+
+            <div class="admin-profile-info">
+                <strong>Admin User</strong>
+                <span>Administrator</span>
+            </div>
+
+        </div>
+
+        <nav class="admin-navigation">
+
+            <a href="dashboard.html" class="admin-nav-link">
+                <span class="admin-nav-icon">▣</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="orders.html" class="admin-nav-link">
+                <span class="admin-nav-icon">▤</span>
+                <span>Orders</span>
+                <span class="admin-nav-badge">12</span>
+            </a>
+
+            <a href="customers.html" class="admin-nav-link">
+                <span class="admin-nav-icon">◯</span>
+                <span>Customers</span>
+            </a>
+
+            <a href="restaurants.html" class="admin-nav-link active">
+                <span class="admin-nav-icon">▦</span>
+                <span>Restaurants</span>
+            </a>
+
+            <a href="riders.html" class="admin-nav-link">
+                <span class="admin-nav-icon">◈</span>
+                <span>Riders</span>
+            </a>
+
+            <a href="payments.html" class="admin-nav-link">
+                <span class="admin-nav-icon">KSh</span>
+                <span>Payments</span>
+            </a>
+
+            <a href="reports.html" class="admin-nav-link">
+                <span class="admin-nav-icon">▥</span>
+                <span>Reports</span>
+            </a>
+
+            <a href="settings.html" class="admin-nav-link">
+                <span class="admin-nav-icon">⚙</span>
+                <span>Settings</span>
+            </a>
+
+        </nav>
+
+        <div class="admin-sidebar-footer">
+
+            <a href="../../index.html" class="admin-nav-link">
+                <span class="admin-nav-icon">↪</span>
+                <span>Logout</span>
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =========================
+         MAIN AREA
+    ========================== -->
+
+    <main class="admin-main">
+
+        <!-- =========================
+             TOPBAR
+        ========================== -->
+
+        <header class="admin-topbar">
+
+            <div class="admin-topbar-left">
+
+                <button
+                    type="button"
+                    class="admin-mobile-menu-button"
+                    id="adminMenuButton"
+                    aria-label="Open menu"
+                >
+                    ☰
+                </button>
+
+                <div>
+                    <h1>Restaurants</h1>
+                    <p>Manage restaurants registered on your platform.</p>
+                </div>
+
+            </div>
+
+            <div class="admin-topbar-right">
+
+                <button
+                    type="button"
+                    class="admin-notification-button"
+                    aria-label="Notifications"
+                >
+                    <span>🔔</span>
+                    <span class="admin-notification-badge">5</span>
+                </button>
+
+                <div class="admin-topbar-profile">
+
+                    <div class="admin-topbar-avatar">A</div>
+
+                    <div class="admin-topbar-profile-info">
+                        <strong>Admin User</strong>
+                        <span>Administrator</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================
+             PAGE CONTENT
+        ========================== -->
+
+        <section class="admin-content">
+
+            <!-- =========================
+                 PAGE HEADER
+            ========================== -->
+
+            <div class="admin-page-header">
+
+                <div>
+                    <h2>Restaurant Management</h2>
+                    <p>View, approve and manage restaurants on the platform.</p>
+                </div>
+
+                <div class="admin-page-actions">
+
+                    <button
+                        type="button"
+                        class="admin-secondary-button"
+                        id="exportRestaurantsButton"
+                    >
+                        Export Restaurants
+                    </button>
+
+                    <button
+                        type="button"
+                        class="admin-primary-button"
+                        id="addRestaurantButton"
+                    >
+                        + Add Restaurant
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 RESTAURANT STATISTICS
+            ========================== -->
+
+            <div class="admin-stats-grid">
+
+                <div class="admin-stat-card">
+
+                    <div class="admin-stat-icon">▦</div>
+
+                    <div class="admin-stat-content">
+                        <span>Total Restaurants</span>
+                        <strong id="restaurantTotalStat">0</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="admin-stat-card">
+
+                    <div class="admin-stat-icon">✓</div>
+
+                    <div class="admin-stat-content">
+                        <span>Active Restaurants</span>
+                        <strong id="restaurantActiveStat">0</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="admin-stat-card">
+
+                    <div class="admin-stat-icon">◷</div>
+
+                    <div class="admin-stat-content">
+                        <span>Pending Approval</span>
+                        <strong id="restaurantPendingStat">0</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="admin-stat-card">
+
+                    <div class="admin-stat-icon">★</div>
+
+                    <div class="admin-stat-content">
+                        <span>Top Rated</span>
+                        <strong id="restaurantTopRatedStat">0</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 RESTAURANT TABLE CARD
+            ========================== -->
+
+            <div class="admin-content-card admin-restaurants-card">
+
+                <div class="admin-card-header">
+
+                    <div>
+                        <h3>All Restaurants</h3>
+                        <p>Manage restaurant accounts and information.</p>
+                    </div>
+
+                    <div class="admin-restaurant-tools">
+
+                        <div class="admin-search">
+
+                            <span>⌕</span>
+
+                            <input
+                                id="restaurantSearch"
+                                name="restaurantSearch"
+                                type="search"
+                                placeholder="Search restaurants..."
+                                aria-label="Search restaurants"
+                                autocomplete="off"
+                            />
+
+                        </div>
+
+                        <button
+                            type="button"
+                            class="admin-filter-button"
+                            id="restaurantFilterButton"
+                            aria-expanded="false"
+                            aria-controls="restaurantFilterPanel"
+                        >
+                            ☷ Filter
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     FILTER PANEL
+                ========================== -->
+
+                <div
+                    id="restaurantFilterPanel"
+                    hidden
+                    style="padding: 18px 20px; border-bottom: 1px solid #eee;"
+                >
+
+                    <div
+                        style="
+                            display:grid;
+                            grid-template-columns:repeat(2,minmax(180px,1fr));
+                            gap:16px;
+                            align-items:end;
+                        "
+                    >
+
+                        <div class="admin-form-field">
+
+                            <label for="restaurantOpenFilter">
+                                Opening status
+                            </label>
+
+                            <select
+                                id="restaurantOpenFilter"
+                                name="restaurantOpenFilter"
+                            >
+                                <option value="all">All</option>
+                                <option value="open">Open</option>
+                                <option value="closed">Closed</option>
+                            </select>
+
+                        </div>
+
+
+                        <div class="admin-form-field">
+
+                            <label for="restaurantApprovalFilter">
+                                Approval status
+                            </label>
+
+                            <select
+                                id="restaurantApprovalFilter"
+                                name="restaurantApprovalFilter"
+                            >
+                                <option value="all">All</option>
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        style="
+                            display:flex;
+                            justify-content:flex-end;
+                            gap:10px;
+                            margin-top:16px;
+                        "
+                    >
+
+                        <button
+                            type="button"
+                            class="admin-secondary-button"
+                            id="resetRestaurantFiltersButton"
+                        >
+                            Reset
+                        </button>
+
+                        <button
+                            type="button"
+                            class="admin-primary-button"
+                            id="applyRestaurantFiltersButton"
+                        >
+                            Apply Filters
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     FILTER TABS
+                ========================== -->
+
+                <div class="admin-restaurant-tabs">
+
+                    <a
+                        href="#"
+                        class="admin-restaurant-tab active"
+                        data-filter="all"
+                    >
+                        All
+                    </a>
+
+                    <a
+                        href="#"
+                        class="admin-restaurant-tab"
+                        data-filter="active"
+                    >
+                        Active
+                    </a>
+
+                    <a
+                        href="#"
+                        class="admin-restaurant-tab"
+                        data-filter="pending"
+                    >
+                        Pending
+                    </a>
+
+                    <a
+                        href="#"
+                        class="admin-restaurant-tab"
+                        data-filter="suspended"
+                    >
+                        Suspended
+                    </a>
+
+                </div>
+
+
+                <!-- =========================
+                     RESTAURANT TABLE
+                ========================== -->
+
+                <div class="admin-table-wrapper">
+
+                    <table class="admin-table">
+
+                        <thead>
+
+                            <tr>
+                                <th>Restaurant</th>
+                                <th>Owner</th>
+                                <th>Location</th>
+                                <th>Orders</th>
+                                <th>Rating</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="restaurantTableBody">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- =========================
+                     TABLE FOOTER
+                ========================== -->
+
+                <div class="admin-table-footer">
+
+                    <p id="restaurantShowingText">
+                        Showing 0–0 of 0 restaurants
+                    </p>
+
+                    <div
+                        class="admin-pagination"
+                        id="restaurantPagination"
+                    >
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 BOTTOM INFORMATION
+            ========================== -->
+
+            <div class="admin-bottom-grid">
+
+                <!-- RESTAURANT OPERATIONS -->
+
+                <div class="admin-content-card">
+
+                    <div class="admin-card-header">
+
+                        <div>
+                            <h3>Restaurant Operations</h3>
+                            <p>Current restaurant platform status.</p>
+                        </div>
+
+                    </div>
+
+                    <div class="admin-summary-list">
+
+                        <div class="admin-summary-item">
+                            <div>
+                                <div class="admin-summary-icon">✓</div>
+                                <strong>Active Restaurants</strong>
+                            </div>
+
+                            <span
+                                class="total"
+                                id="restaurantSummaryActive"
+                            >
+                                0
+                            </span>
+                        </div>
+
+
+                        <div class="admin-summary-item">
+                            <div>
+                                <div class="admin-summary-icon">●</div>
+                                <strong>Open Now</strong>
+                            </div>
+
+                            <span
+                                class="total"
+                                id="restaurantSummaryOpen"
+                            >
+                                0
+                            </span>
+                        </div>
+
+
+                        <div class="admin-summary-item">
+                            <div>
+                                <div class="admin-summary-icon">◷</div>
+                                <strong>Pending Approval</strong>
+                            </div>
+
+                            <span
+                                class="total"
+                                id="restaurantSummaryPending"
+                            >
+                                0
+                            </span>
+                        </div>
+
+
+                        <div class="admin-summary-item">
+                            <div>
+                                <div class="admin-summary-icon">×</div>
+                                <strong>Rejected</strong>
+                            </div>
+
+                            <span
+                                class="total"
+                                id="restaurantSummaryRejected"
+                            >
+                                0
+                            </span>
+                        </div>
+
+
+                        <div class="admin-summary-item">
+                            <div>
+                                <div class="admin-summary-icon">○</div>
+                                <strong>Inactive</strong>
+                            </div>
+
+                            <span
+                                class="total"
+                                id="restaurantSummaryInactive"
+                            >
+                                0
+                            </span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- RESTAURANT PERFORMANCE -->
+
+                <div class="admin-content-card">
+
+                    <div class="admin-card-header">
+
+                        <div>
+                            <h3>Restaurant Performance</h3>
+                            <p>Current platform restaurant performance.</p>
+                        </div>
+
+                    </div>
+
+                    <div class="admin-restaurant-performance">
+
+
+                        <div class="admin-performance-item">
+
+                            <div class="admin-performance-header">
+                                <span>Active Restaurants</span>
+                                <strong id="restaurantActiveRate">
+                                    0%
+                                </strong>
+                            </div>
+
+                            <div class="admin-progress">
+
+                                <div class="admin-progress-bar">
+
+                                    <div
+                                        class="admin-progress-value"
+                                        id="restaurantActiveProgress"
+                                        style="width:0%"
+                                    ></div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="admin-performance-item">
+
+                            <div class="admin-performance-header">
+                                <span>Approval Rate</span>
+                                <strong id="restaurantApprovalRate">
+                                    0%
+                                </strong>
+                            </div>
+
+                            <div class="admin-progress">
+
+                                <div class="admin-progress-bar">
+
+                                    <div
+                                        class="admin-progress-value"
+                                        id="restaurantApprovalProgress"
+                                        style="width:0%"
+                                    ></div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="admin-performance-item">
+
+                            <div class="admin-performance-header">
+                                <span>Average Rating</span>
+                                <strong id="restaurantAverageRating">
+                                    0 / 5
+                                </strong>
+                            </div>
+
+                            <div class="admin-progress">
+
+                                <div class="admin-progress-bar">
+
+                                    <div
+                                        class="admin-progress-value"
+                                        id="restaurantRatingProgress"
+                                        style="width:0%"
+                                    ></div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="admin-spending-footer">
+
+                        <span>Restaurants added this month</span>
+
+                        <strong id="restaurantAddedThisMonth">
+                            +0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 MESSAGE
+            ========================== -->
+
+            <div
+                class="admin-message"
+                id="adminMessage"
+                role="alert"
+                aria-live="polite"
+            ></div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================== -->
+
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/auth/auth-api.js"></script>
+    <script src="../../assets/js/admin/restaurant.js"></script>
+
+</body>
+
+</html>

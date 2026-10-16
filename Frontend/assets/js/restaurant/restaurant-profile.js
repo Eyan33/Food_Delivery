@@ -1,0 +1,656 @@
+/* =========================================================
+   RESTAURANT PROFILE
+   FoodDelivery — Backend Integration
+   ========================================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+    "use strict";
+
+    const API_BASE = (window.FOOD_DELIVERY_API_BASE || document.querySelector('meta[name="api-base-url"]')?.content?.trim() || "http://localhost:5000/api").replace(/\/+$/, "");
+
+    const $ = (id) => document.getElementById(id);
+
+    const profileForm = $("restaurantProfileForm");
+    const locationForm = $("restaurantLocationForm");
+
+    const restaurantNameInput = $("restaurantName");
+    const restaurantDescriptionInput = $("restaurantDescription");
+    const restaurantPhoneInput = $("restaurantPhone");
+    const restaurantEmailInput = $("restaurantEmail");
+
+    const restaurantAddressInput = $("restaurantAddress");
+    const restaurantCityInput = $("restaurantCity");
+
+    const restaurantOpeningTimeInput = $("restaurantOpeningTime");
+    const restaurantClosingTimeInput = $("restaurantClosingTime");
+
+    const minimumOrderInput = $("minimumOrder");
+    const deliveryFeeInput = $("deliveryFee");
+
+    const restaurantStatusButton = $("restaurantStatusButton");
+    const restaurantStatusText = $("restaurantStatusText");
+
+    const saveHoursButton = $("saveHoursButton");
+    const saveDeliveryButton = $("saveDeliveryButton");
+
+    const profileMessage = $("profileMessage");
+
+    const profileAvatar = document.querySelector(".profile-large-avatar");
+    const overviewAvatar = document.querySelector(".profile-large-avatar");
+    const topbarAvatar = document.querySelector(".topbar-avatar");
+
+    const profileFields = [
+        restaurantNameInput,
+        restaurantDescriptionInput,
+        restaurantPhoneInput,
+        restaurantEmailInput,
+        restaurantAddressInput,
+        restaurantCityInput,
+        restaurantOpeningTimeInput,
+        restaurantClosingTimeInput,
+        minimumOrderInput,
+        deliveryFeeInput
+    ].filter(Boolean);
+
+    let restaurant = null;
+    let restaurantIsOpen = false;
+    let saving = false;
+    let originalValues = {};
+
+    /*
+    |--------------------------------------------------------------------------
+    | AUTHENTICATED API REQUEST
+    |--------------------------------------------------------------------------
+    */
+
+    async function apiRequest(path, options = {}) {
+        const token =
+            localStorage.getItem("foodDeliveryAccessToken") ||
+            sessionStorage.getItem("foodDeliveryAccessToken");
+
+        if (!token) {
+            throw new Error("Your session has expired. Please log in again.");
+        }
+
+        const headers = {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+            ...(options.body ? { "Content-Type": "application/json" } : {}),
+            ...(options.headers || {})
+        };
+
+        const response = await fetch(`${API_BASE}${path}`, {
+            ...options,
+            headers
+        });
+
+        let result;
+
+        try {
+            result = await response.json();
+        } catch {
+            throw new Error("The server returned an invalid response.");
+        }
+
+        if (!response.ok || result.success === false) {
+            throw new Error(
+                result.message || `Request failed (${response.status}).`
+            );
+        }
+
+        return result;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD RESTAURANT PROFILE
+    |--------------------------------------------------------------------------
+    */
+
+    async function loadProfile() {
+        showMessage("Loading your restaurant profile...", "info");
+
+        try {
+            const result = await apiRequest("/restaurants/owner/me");
+
+            restaurant = result.data?.restaurant;
+
+            if (!restaurant) {
+                throw new Error("The restaurant profile was not returned.");
+            }
+
+            populateProfile(restaurant);
+            storeOriginalValues();
+            updateRestaurantStatusUI();
+
+            hideMessage();
+        } catch (error) {
+            console.error("Loading restaurant profile failed:", error);
+            showMessage(error.message, "error");
+        }
+    }
+
+    function populateProfile(data) {
+        setValue(restaurantNameInput, data.name);
+        setValue(restaurantDescriptionInput, data.description);
+        setValue(restaurantPhoneInput, data.phone);
+        setValue(restaurantEmailInput, data.email);
+
+        setValue(restaurantAddressInput, data.address);
+        setValue(restaurantCityInput, data.city);
+
+        setTimeValue(restaurantOpeningTimeInput, data.opening_time);
+        setTimeValue(restaurantClosingTimeInput, data.closing_time);
+
+        setValue(minimumOrderInput, data.minimum_order);
+        setValue(deliveryFeeInput, data.delivery_fee);
+
+        restaurantIsOpen = data.is_open === true;
+
+        updateRestaurantName(data.name);
+        updateRestaurantStatusUI();
+
+        /*
+         * These fields are not persisted by the current backend:
+         * restaurantCategory, restaurantCounty, restaurantLandmark,
+         * deliveryRadius and estimatedDelivery.
+         *
+         * Do not overwrite them with invented database values.
+         */
+    }
+
+    function setValue(element, value) {
+        if (!element) return;
+
+        element.value = value === null || value === undefined
+            ? ""
+            : String(value);
+    }
+
+    function setTimeValue(element, value) {
+        if (!element || !value) return;
+
+        // PostgreSQL TIME values may be returned as HH:MM:SS.
+        element.value = String(value).slice(0, 5);
+    }
+
+    function storeOriginalValues() {
+        originalValues = {};
+
+        profileFields.forEach((field) => {
+            originalValues[field.id] = field.value;
+        });
+    }
+
+    function restoreOriginalValues() {
+        profileFields.forEach((field) => {
+            if (Object.prototype.hasOwnProperty.call(
+                originalValues,
+                field.id
+            )) {
+                field.value = originalValues[field.id];
+            }
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SAVE RESTAURANT INFORMATION
+    |--------------------------------------------------------------------------
+    */
+
+    profileForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        if (!validateContactInformation()) return;
+
+        await saveRestaurant({
+            name: getValue(restaurantNameInput),
+            description: getValue(restaurantDescriptionInput),
+            phone: getValue(restaurantPhoneInput),
+            email: getValue(restaurantEmailInput)
+        }, "Restaurant information saved successfully.");
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | SAVE LOCATION
+    |--------------------------------------------------------------------------
+    */
+
+    locationForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const address = getValue(restaurantAddressInput);
+        const city = getValue(restaurantCityInput);
+
+        if (address.length < 3) {
+            showMessage("Please enter a valid street address.", "error");
+            restaurantAddressInput?.focus();
+            return;
+        }
+
+        if (city.length < 2) {
+            showMessage("Please enter a valid city.", "error");
+            restaurantCityInput?.focus();
+            return;
+        }
+
+        await saveRestaurant({
+            address,
+            city
+        }, "Restaurant location saved successfully.");
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | SAVE OPERATING HOURS
+    |--------------------------------------------------------------------------
+    |
+    | The backend currently stores one opening_time and closing_time pair,
+    | not a separate schedule for each day of the week.
+    |
+    | Save the two supported time inputs if they exist on this page.
+    |--------------------------------------------------------------------------
+    */
+
+    saveHoursButton?.addEventListener("click", async () => {
+        if (!restaurantOpeningTimeInput || !restaurantClosingTimeInput) {
+            showMessage(
+                "The page does not have the opening and closing time fields required by the backend.",
+                "error"
+            );
+            return;
+        }
+
+        const openingTime = restaurantOpeningTimeInput.value;
+        const closingTime = restaurantClosingTimeInput.value;
+
+        if (!openingTime || !closingTime) {
+            showMessage("Please select both opening and closing times.", "error");
+            return;
+        }
+
+        if (openingTime === closingTime) {
+            showMessage(
+                "Opening and closing times cannot be identical.",
+                "error"
+            );
+            return;
+        }
+
+        await saveRestaurant({
+            opening_time: openingTime,
+            closing_time: closingTime
+        }, "Operating hours saved successfully.");
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | SAVE DELIVERY SETTINGS
+    |--------------------------------------------------------------------------
+    */
+
+    saveDeliveryButton?.addEventListener("click", async () => {
+        const minimumOrder = Number(minimumOrderInput?.value);
+        const deliveryFee = Number(deliveryFeeInput?.value);
+
+        if (!Number.isFinite(minimumOrder) || minimumOrder < 0) {
+            showMessage("Minimum order must be zero or greater.", "error");
+            minimumOrderInput?.focus();
+            return;
+        }
+
+        if (!Number.isFinite(deliveryFee) || deliveryFee < 0) {
+            showMessage("Delivery fee must be zero or greater.", "error");
+            deliveryFeeInput?.focus();
+            return;
+        }
+
+        await saveRestaurant({
+            minimum_order: minimumOrder,
+            delivery_fee: deliveryFee
+        }, "Delivery settings saved successfully.");
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | COMMON SAVE FUNCTION
+    |--------------------------------------------------------------------------
+    */
+
+    async function saveRestaurant(payload, successMessage) {
+        if (saving) return;
+
+        saving = true;
+
+        const buttons = [
+            ...document.querySelectorAll(
+                "#restaurantProfileForm button, " +
+                "#restaurantLocationForm button, " +
+                "#saveHoursButton, #saveDeliveryButton"
+            )
+        ];
+
+        const previousDisabledStates = buttons.map(
+            (button) => button.disabled
+        );
+
+        buttons.forEach((button) => {
+            button.disabled = true;
+        });
+
+        try {
+            const result = await apiRequest("/restaurants/owner/me", {
+                method: "PUT",
+                body: JSON.stringify(payload)
+            });
+
+            restaurant = result.data?.restaurant || {
+                ...(restaurant || {}),
+                ...payload
+            };
+
+            /*
+             * Reload from the backend after saving so that the page
+             * reflects the persisted database values.
+             */
+            const reloadResult = await apiRequest("/restaurants/owner/me");
+
+            if (reloadResult.data?.restaurant) {
+                restaurant = reloadResult.data.restaurant;
+            }
+
+            populateProfile(restaurant);
+            storeOriginalValues();
+
+            showMessage(successMessage, "success");
+        } catch (error) {
+            console.error("Saving restaurant profile failed:", error);
+            showMessage(error.message, "error");
+        } finally {
+            saving = false;
+
+            buttons.forEach((button, index) => {
+                button.disabled = previousDisabledStates[index];
+            });
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDATION
+    |--------------------------------------------------------------------------
+    */
+
+    function validateContactInformation() {
+        const name = getValue(restaurantNameInput);
+        const email = getValue(restaurantEmailInput);
+        const phone = getValue(restaurantPhoneInput);
+
+        if (name.length < 2) {
+            showMessage(
+                "Restaurant name must contain at least 2 characters.",
+                "error"
+            );
+            restaurantNameInput?.focus();
+            return false;
+        }
+
+        if (email && !isValidEmail(email)) {
+            showMessage("Please enter a valid email address.", "error");
+            restaurantEmailInput?.focus();
+            return false;
+        }
+
+        if (phone && phone.replace(/\D/g, "").length < 9) {
+            showMessage("Please enter a valid phone number.", "error");
+            restaurantPhoneInput?.focus();
+            return false;
+        }
+
+        return true;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | OPEN / CLOSED STATUS
+    |--------------------------------------------------------------------------
+    */
+
+    restaurantStatusButton?.addEventListener("click", async () => {
+        if (!restaurant) {
+            showMessage("Load your restaurant profile before changing status.", "error");
+            return;
+        }
+
+        const newStatus = !restaurantIsOpen;
+
+        restaurantStatusButton.disabled = true;
+
+        try {
+            const result = await apiRequest("/restaurants/owner/status", {
+                method: "PATCH",
+                body: JSON.stringify({
+                    is_open: newStatus
+                })
+            });
+
+            if (result.data?.restaurant) {
+                restaurant = {
+                    ...restaurant,
+                    ...result.data.restaurant
+                };
+            }
+
+            restaurantIsOpen = newStatus;
+            updateRestaurantStatusUI();
+
+            showMessage(
+                newStatus
+                    ? "Your restaurant is now open."
+                    : "Your restaurant is now closed.",
+                "success"
+            );
+        } catch (error) {
+            console.error("Updating restaurant status failed:", error);
+            showMessage(error.message, "error");
+        } finally {
+            restaurantStatusButton.disabled = false;
+        }
+    });
+
+    function updateRestaurantStatusUI() {
+        if (!restaurantStatusButton) return;
+
+        const statusDot = restaurantStatusButton.querySelector(".status-dot");
+
+        restaurantStatusButton.classList.toggle("open", restaurantIsOpen);
+        restaurantStatusButton.classList.toggle("closed", !restaurantIsOpen);
+
+        statusDot?.classList.toggle("open", restaurantIsOpen);
+        statusDot?.classList.toggle("closed", !restaurantIsOpen);
+
+        if (restaurantStatusText) {
+            restaurantStatusText.textContent = restaurantIsOpen
+                ? "Open"
+                : "Closed";
+        }
+
+        const hoursStatus = document.querySelector(".profile-hours-status");
+
+        if (hoursStatus) {
+            hoursStatus.textContent = restaurantIsOpen
+                ? "Currently Open"
+                : "Currently Closed";
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE RESTAURANT NAME AND AVATAR
+    |--------------------------------------------------------------------------
+    */
+
+    function updateRestaurantName(name) {
+        if (!name) return;
+
+        document.querySelectorAll(
+            ".restaurant-profile-info strong, " +
+            ".topbar-profile-text strong, " +
+            ".profile-overview-info h2"
+        ).forEach((element) => {
+            element.textContent = name;
+        });
+
+        const initials = getInitials(name);
+
+        if (profileAvatar) profileAvatar.textContent = initials;
+        if (overviewAvatar) overviewAvatar.textContent = initials;
+        if (topbarAvatar) topbarAvatar.textContent = initials;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CANCEL BUTTONS
+    |--------------------------------------------------------------------------
+    */
+
+    profileForm?.querySelector('button[type="reset"]')
+        ?.addEventListener("click", (event) => {
+            event.preventDefault();
+            restoreOriginalValues();
+            hideMessage();
+        });
+
+    locationForm?.querySelector('button[type="reset"]')
+        ?.addEventListener("click", (event) => {
+            event.preventDefault();
+            restoreOriginalValues();
+            hideMessage();
+        });
+
+    /*
+    |--------------------------------------------------------------------------
+    | WARN ABOUT FEATURES NOT YET SUPPORTED BY BACKEND
+    |--------------------------------------------------------------------------
+    */
+
+    const categoryInput = $("restaurantCategory");
+
+    categoryInput?.addEventListener("change", () => {
+        showMessage(
+            "Restaurant category is not currently stored by the backend. This selection will not be saved.",
+            "info"
+        );
+    });
+
+    $("restaurantCounty")?.addEventListener("change", () => {
+        showMessage(
+            "County is not currently stored by the backend. The supported location fields are address and city.",
+            "info"
+        );
+    });
+
+    $("restaurantLandmark")?.addEventListener("change", () => {
+        showMessage(
+            "Landmark is not currently stored by the backend.",
+            "info"
+        );
+    });
+
+    $("deliveryRadius")?.addEventListener("change", () => {
+        showMessage(
+            "Delivery radius is not currently stored by the backend.",
+            "info"
+        );
+    });
+
+    $("estimatedDelivery")?.addEventListener("change", () => {
+        showMessage(
+            "Estimated delivery time is not currently stored by the backend.",
+            "info"
+        );
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | SIDEBAR
+    |--------------------------------------------------------------------------
+    */
+
+    $("restaurantMenuButton")?.addEventListener("click", () => {
+        $("restaurantSidebar")?.classList.toggle("active");
+    });
+
+    document.addEventListener("click", (event) => {
+        const sidebar = $("restaurantSidebar");
+        const menuButton = $("restaurantMenuButton");
+
+        if (
+            sidebar &&
+            menuButton &&
+            !sidebar.contains(event.target) &&
+            !menuButton.contains(event.target)
+        ) {
+            sidebar.classList.remove("active");
+        }
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | HELPERS
+    |--------------------------------------------------------------------------
+    */
+
+    function getValue(element) {
+        return element ? element.value.trim() : "";
+    }
+
+    function isValidEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function getInitials(name) {
+        const words = String(name || "").trim().split(/\s+/).filter(Boolean);
+
+        if (words.length === 0) return "R";
+
+        if (words.length === 1) {
+            return words[0].slice(0, 2).toUpperCase();
+        }
+
+        return (words[0][0] + words[1][0]).toUpperCase();
+    }
+
+    function showMessage(message, type = "info") {
+        if (!profileMessage) {
+            console.info(message);
+            return;
+        }
+
+        profileMessage.textContent = message;
+        profileMessage.className = `profile-message show ${type}`;
+
+        clearTimeout(showMessage.timer);
+
+        showMessage.timer = setTimeout(() => {
+            hideMessage();
+        }, 5000);
+    }
+
+    function hideMessage() {
+        if (!profileMessage) return;
+
+        profileMessage.className = "profile-message";
+        profileMessage.textContent = "";
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | START
+    |--------------------------------------------------------------------------
+    */
+
+    loadProfile();
+});

@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Admin Dashboard | FoodDelivery</title>
+
+    <link rel="stylesheet" href="../../assets/css/style.css" />
+    <link rel="stylesheet" href="../../assets/css/pages/admin/dashboard.css" />
+</head>
+
+<body>
+    <!-- =========================
+         ADMIN SIDEBAR
+    ========================== -->
+
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="admin-sidebar-header">
+            <a href="dashboard.html" class="admin-logo">
+                Food<span>Delivery</span>
+            </a>
+
+            <button type="button" id="adminCloseMenuButton" class="admin-close-menu-button" aria-label="Close menu">
+                ×
+            </button>
+        </div>
+
+        <!-- ADMIN PROFILE -->
+
+        <div class="admin-profile">
+            <div class="admin-profile-avatar">A</div>
+
+            <div class="admin-profile-info">
+                <strong> Admin User </strong>
+
+                <span> Administrator </span>
+            </div>
+        </div>
+
+        <!-- NAVIGATION -->
+
+        <nav class="admin-navigation">
+            <a href="dashboard.html" class="admin-nav-link active">
+                <span class="admin-nav-icon"> ▣ </span>
+
+                <span> Dashboard </span>
+            </a>
+
+            <a href="orders.html" class="admin-nav-link">
+                <span class="admin-nav-icon"> ▤ </span>
+
+                <span> Orders </span>
+
+                <span class="admin-nav-badge"> 12 </span>
+            </a>
+
+            <a href="customers.html" class="admin-nav-link">
+                <span class="admin-nav-icon"> ◯ </span>
+
+                <span> Customers </span>
+            </a>
+
+            <a href="restaurants.html" class="admin-nav-link">
+                <span class="admin-nav-icon"> ▦ </span>
+
+                <span> Restaurants </span>
+            </a>
+
+            <a href="riders.html" class="admin-nav-link">
+                <span class="admin-nav-icon"> ◈ </span>
+
+                <span> Riders </span>
+            </a>
+
+            <a href="payments.html" class="admin-nav-link">
+                <span class="admin-nav-icon"> KSh </span>
+
+                <span> Payments </span>
+            </a>
+
+            <a href="reports.html" class="admin-nav-link">
+                <span class="admin-nav-icon"> ▥ </span>
+
+                <span> Reports </span>
+            </a>
+
+            <a href="settings.html" class="admin-nav-link">
+                <span class="admin-nav-icon"> ⚙ </span>
+
+                <span> Settings </span>
+            </a>
+        </nav>
+
+        <!-- SIDEBAR FOOTER -->
+
+        <div class="admin-sidebar-footer">
+            <a href="../../index.html" class="admin-nav-link">
+                <span class="admin-nav-icon"> ↪ </span>
+
+                <span> Logout </span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- =========================
+         MAIN AREA
+    ========================== -->
+
+    <main class="admin-main">
+        <!-- =========================
+             TOPBAR
+        ========================== -->
+
+        <header class="admin-topbar">
+            <div class="admin-topbar-left">
+                <button type="button" class="admin-mobile-menu-button" id="adminMenuButton" aria-label="Open menu">
+                    ☰
+                </button>
+
+                <div>
+                    <h1>Admin Dashboard</h1>
+
+                    <p>Manage your food delivery platform.</p>
+                </div>
+            </div>
+
+            <div class="admin-topbar-right">
+                <!-- NOTIFICATIONS -->
+
+                <button type="button" class="admin-notification-button" aria-label="Notifications">
+                    <span> 🔔 </span>
+
+                    <span class="admin-notification-badge"> 5 </span>
+                </button>
+
+                <!-- ADMIN PROFILE -->
+
+                <div class="admin-topbar-profile">
+                    <div class="admin-topbar-avatar">A</div>
+
+                    <div class="admin-topbar-profile-info">
+                        <strong> Admin User </strong>
+
+                        <span> Administrator </span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- =========================
+             CONTENT
+        ========================== -->
+
+        <section class="admin-content">
+            <!-- PAGE HEADER -->
+
+            <div class="admin-page-header">
+                <div>
+                    <h2>Dashboard Overview</h2>
+
+                    <p>Monitor your platform activity and performance.</p>
+                </div>
+
+                <div class="admin-date">
+                    <span> Today </span>
+
+                    <strong> 17 September 2026 </strong>
+                </div>
+            </div>
+
+            <!-- =========================
+                 STAT CARDS
+            ========================== -->
+
+            <div class="admin-stats-grid">
+                <!-- TOTAL ORDERS -->
+
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon orders">▤</div>
+
+                    <div class="admin-stat-content">
+                        <span> Total Orders </span>
+
+                        <strong> 1,284 </strong>
+
+                        <small> <b>+12.5%</b> from last month </small>
+                    </div>
+                </div>
+
+                <!-- TOTAL REVENUE -->
+
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon revenue">KSh</div>
+
+                    <div class="admin-stat-content">
+                        <span> Total Revenue </span>
+
+                        <strong> KSh 842,650 </strong>
+
+                        <small> <b>+8.4%</b> from last month </small>
+                    </div>
+                </div>
+
+                <!-- CUSTOMERS -->
+
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon customers">◯</div>
+
+                    <div class="admin-stat-content">
+                        <span> Customers </span>
+
+                        <strong> 3,842 </strong>
+
+                        <small> <b>+156</b> new this month </small>
+                    </div>
+                </div>
+
+                <!-- RESTAURANTS -->
+
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon restaurants">▦</div>
+
+                    <div class="admin-stat-content">
+                        <span> Restaurants </span>
+
+                        <strong> 126 </strong>
+
+                        <small> <b>+8</b> new this month </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================
+                 MAIN DASHBOARD GRID
+            ========================== -->
+
+            <div class="admin-dashboard-grid">
+                <!-- =========================
+                     REVENUE OVERVIEW
+                ========================== -->
+
+                <div class="admin-content-card admin-revenue-card">
+                    <div class="admin-card-header">
+                        <div>
+                            <h3>Revenue Overview</h3>
+
+                            <p>Revenue performance over the past week.</p>
+                        </div>
+
+                        <select class="admin-period-select">
+                            <option>Last 7 Days</option>
+
+                            <option>Last 30 Days</option>
+
+                            <option>Last 3 Months</option>
+                        </select>
+                    </div>
+
+                    <!-- CHART -->
+
+                    <div class="admin-chart">
+                        <!-- Y AXIS -->
+
+                        <div class="admin-chart-y-axis">
+                            <span> 200K </span>
+
+                            <span> 150K </span>
+
+                            <span> 100K </span>
+
+                            <span> 50K </span>
+
+                            <span> 0 </span>
+                        </div>
+
+                        <!-- CHART AREA -->
+
+                        <div class="admin-chart-area">
+                            <div class="admin-chart-grid">
+                                <div class="admin-chart-grid-line"></div>
+
+                                <div class="admin-chart-grid-line"></div>
+
+                                <div class="admin-chart-grid-line"></div>
+
+                                <div class="admin-chart-grid-line"></div>
+
+                                <div class="admin-chart-grid-line"></div>
+                            </div>
+
+                            <div class="admin-chart-bars">
+                                <div class="admin-bar-column">
+                                    <div class="admin-bar" style="height: 48%"></div>
+
+                                    <span> Mon </span>
+                                </div>
+
+                                <div class="admin-bar-column">
+                                    <div class="admin-bar" style="height: 62%"></div>
+
+                                    <span> Tue </span>
+                                </div>
+
+                                <div class="admin-bar-column">
+                                    <div class="admin-bar" style="height: 55%"></div>
+
+                                    <span> Wed </span>
+                                </div>
+
+                                <div class="admin-bar-column">
+                                    <div class="admin-bar" style="height: 72%"></div>
+
+                                    <span> Thu </span>
+                                </div>
+
+                                <div class="admin-bar-column">
+                                    <div class="admin-bar" style="height: 66%"></div>
+
+                                    <span> Fri </span>
+                                </div>
+
+                                <div class="admin-bar-column">
+                                    <div class="admin-bar" style="height: 84%"></div>
+
+                                    <span> Sat </span>
+                                </div>
+
+                                <div class="admin-bar-column">
+                                    <div class="admin-bar" style="height: 76%"></div>
+
+                                    <span> Sun </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- =========================
+                     ORDER STATUS
+                ========================== -->
+
+                <div class="admin-content-card">
+                    <div class="admin-card-header">
+                        <div>
+                            <h3>Order Status</h3>
+
+                            <p>Current order distribution.</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-order-status">
+                        <!-- TOTAL -->
+
+                        <div class="admin-status-total">
+                            <strong> 1,284 </strong>
+
+                            <span> Total Orders </span>
+                        </div>
+
+                        <!-- STATUS ITEMS -->
+
+                        <div class="admin-status-list">
+                            <div class="admin-status-item">
+                                <div class="admin-status-label">
+                                    <span class="admin-status-dot pending"></span>
+
+                                    <span> Pending </span>
+                                </div>
+
+                                <strong> 124 </strong>
+                            </div>
+
+                            <div class="admin-status-item">
+                                <div class="admin-status-label">
+                                    <span class="admin-status-dot preparing"></span>
+
+                                    <span> Preparing </span>
+                                </div>
+
+                                <strong> 86 </strong>
+                            </div>
+
+                            <div class="admin-status-item">
+                                <div class="admin-status-label">
+                                    <span class="admin-status-dot delivery"></span>
+
+                                    <span> Out for Delivery </span>
+                                </div>
+
+                                <strong> 42 </strong>
+                            </div>
+
+                            <div class="admin-status-item">
+                                <div class="admin-status-label">
+                                    <span class="admin-status-dot completed"></span>
+
+                                    <span> Completed </span>
+                                </div>
+
+                                <strong> 1,018 </strong>
+                            </div>
+
+                            <div class="admin-status-item">
+                                <div class="admin-status-label">
+                                    <span class="admin-status-dot cancelled"></span>
+
+                                    <span> Cancelled </span>
+                                </div>
+
+                                <strong> 14 </strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================
+                 SECOND GRID
+            ========================== -->
+
+            <div class="admin-bottom-grid">
+                <!-- =========================
+                     RECENT ORDERS
+                ========================== -->
+
+                <div class="admin-content-card">
+                    <div class="admin-card-header">
+                        <div>
+                            <h3>Recent Orders</h3>
+
+                            <p>Latest orders placed on the platform.</p>
+                        </div>
+
+                        <a href="orders.html" class="admin-card-link"> View All </a>
+                    </div>
+
+                    <div class="admin-table-wrapper">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Order</th>
+
+                                    <th>Customer</th>
+
+                                    <th>Restaurant</th>
+
+                                    <th>Amount</th>
+
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr>
+                                    <td>#FD-1058</td>
+
+                                    <td>David Otieno</td>
+
+                                    <td>Artcaffe</td>
+
+                                    <td>KSh 1,250</td>
+
+                                    <td>
+                                        <span class="admin-status preparing"> Preparing </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>#FD-1057</td>
+
+                                    <td>Sarah Wanjiku</td>
+
+                                    <td>Java House</td>
+
+                                    <td>KSh 980</td>
+
+                                    <td>
+                                        <span class="admin-status delivery">
+                                            Out for Delivery
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>#FD-1056</td>
+
+                                    <td>Brian Mwangi</td>
+
+                                    <td>KFC</td>
+
+                                    <td>KSh 1,480</td>
+
+                                    <td>
+                                        <span class="admin-status completed"> Completed </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>#FD-1055</td>
+
+                                    <td>Mary Njeri</td>
+
+                                    <td>Chicken Inn</td>
+
+                                    <td>KSh 760</td>
+
+                                    <td>
+                                        <span class="admin-status pending"> Pending </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>#FD-1054</td>
+
+                                    <td>Kevin Kariuki</td>
+
+                                    <td>Mama Oliech</td>
+
+                                    <td>KSh 1,120</td>
+
+                                    <td>
+                                        <span class="admin-status completed"> Completed </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- =========================
+                     PLATFORM SUMMARY
+                ========================== -->
+
+                <div class="admin-content-card">
+                    <div class="admin-card-header">
+                        <div>
+                            <h3>Platform Summary</h3>
+
+                            <p>Current platform statistics.</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-summary-list">
+                        <div class="admin-summary-item">
+                            <span> Active Riders </span>
+
+                            <strong> 38 </strong>
+                        </div>
+
+                        <div class="admin-summary-item">
+                            <span> Online Riders </span>
+
+                            <strong class="success"> 24 </strong>
+                        </div>
+
+                        <div class="admin-summary-item">
+                            <span> Active Restaurants </span>
+
+                            <strong> 112 </strong>
+                        </div>
+
+                        <div class="admin-summary-item">
+                            <span> Pending Approvals </span>
+
+                            <strong class="warning"> 9 </strong>
+                        </div>
+
+                        <div class="admin-summary-item">
+                            <span> Open Support Tickets </span>
+
+                            <strong class="danger"> 6 </strong>
+                        </div>
+
+                        <div class="admin-summary-item total">
+                            <span> Today's Revenue </span>
+
+                            <strong> KSh 128,450 </strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================
+                 QUICK ACTIONS
+            ========================== -->
+
+            <div class="admin-content-card admin-quick-actions-card">
+                <div class="admin-card-header">
+                    <div>
+                        <h3>Quick Actions</h3>
+
+                        <p>Frequently used administration tools.</p>
+                    </div>
+                </div>
+
+                <div class="admin-quick-actions">
+                    <a href="orders.html" class="admin-action">
+                        <span class="admin-action-icon"> ▤ </span>
+
+                        <span>
+                            <strong> Manage Orders </strong>
+
+                            <small> View and manage orders </small>
+                        </span>
+                    </a>
+
+                    <a href="restaurants.html" class="admin-action">
+                        <span class="admin-action-icon"> ▦ </span>
+
+                        <span>
+                            <strong> Restaurants </strong>
+
+                            <small> Manage restaurant accounts </small>
+                        </span>
+                    </a>
+
+                    <a href="riders.html" class="admin-action">
+                        <span class="admin-action-icon"> ◈ </span>
+
+                        <span>
+                            <strong> Manage Riders </strong>
+
+                            <small> Manage delivery riders </small>
+                        </span>
+                    </a>
+
+                    <a href="reports.html" class="admin-action">
+                        <span class="admin-action-icon"> ▥ </span>
+
+                        <span>
+                            <strong> Reports </strong>
+
+                            <small> View platform reports </small>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/auth/auth-api.js"></script>
+    <script src="../../assets/js/admin/dashboard.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Checkout - FoodDelivery</title>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/pages/customer/customer.css">
+    <link rel="stylesheet" href="../../assets/css/pages/customer/checkout.css">
+</head>
+
+<body>
+    <!-- ================= HEADER ================= -->
+    <header class="customer-header">
+
+        <div class="customer-header-container">
+
+            <!-- Logo -->
+            <a href="home.html" class="customer-logo">
+                Food<span>Delivery</span>
+            </a>
+
+            <!-- Delivery Location -->
+            <a href="addresses.html">
+                <button type="button" class="delivery-location">
+                    <span class="location-icon">📍</span>
+
+                    <span class="location-text">
+                        <small>Deliver to</small>
+                        <strong>Select location</strong>
+                    </span>
+                </button>
+            </a>
+
+
+            <!-- Desktop Navigation -->
+            <nav class="customer-navigation">
+
+                <a href="home.html">
+                    Home
+                </a>
+
+                <a href="restaurants.html">
+                    Restaurants
+                </a>
+
+                <a href="orders.html">
+                    Orders
+                </a>
+
+                <a href="profile.html">
+                    Profile
+                </a>
+
+                <a href="../auth/login.html">
+                    Logout
+                </a>
+
+            </nav>
+
+
+            <!-- Mobile Menu -->
+            <button type="button" class="mobile-menu-button" id="mobileMenuButton" aria-label="Open menu">
+                ☰
+            </button>
+
+        </div>
+
+
+        <!-- Mobile Navigation -->
+        <nav class="mobile-navigation" id="mobileNavigation">
+
+            <a href="home.html">
+                Home
+            </a>
+
+            <a href="restaurants.html">
+                Restaurants
+            </a>
+
+            <a href="orders.html">
+                Orders
+            </a>
+
+            <a href="profile.html">
+                Profile
+            </a>
+
+            <a href="../auth/login.html">
+                Logout
+            </a>
+
+        </nav>
+
+    </header>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="checkout-page">
+        <div class="checkout-container">
+            <!-- Page Header -->
+            <div class="checkout-page-header">
+                <a href="cart.html" class="back-link"> ← Back to Cart </a>
+
+                <h1>Checkout</h1>
+
+                <p>Complete your delivery information and place your order.</p>
+            </div>
+
+            <!-- Checkout Layout -->
+            <div class="checkout-layout">
+                <!-- ================= LEFT COLUMN ================= -->
+                <div class="checkout-main">
+                    <!-- Delivery Information -->
+                    <section class="checkout-card">
+                        <div class="checkout-card-header">
+                            <div>
+                                <h2>Delivery Information</h2>
+
+                                <p>Where should we deliver your order?</p>
+                            </div>
+                        </div>
+
+                        <form id="checkoutForm">
+                            <!-- Full Name -->
+                            <div class="form-group">
+                                <label for="fullName"> Full Name </label>
+
+                                <input type="text" id="fullName" name="fullName" placeholder="Enter your full name"
+                                    autocomplete="name" required />
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="form-group">
+                                <label for="phone"> Phone Number </label>
+
+                                <input type="tel" id="phone" name="phone" placeholder="e.g. 0712345678"
+                                    autocomplete="tel" required />
+                            </div>
+
+                            <!-- Address -->
+                            <div class="form-group">
+                                <label for="address"> Delivery Address </label>
+
+                                <textarea id="address" name="address" rows="3" placeholder="Enter your delivery address"
+                                    required></textarea>
+                            </div>
+
+                            <!-- City / Area -->
+                            <div class="form-group">
+                                <label for="area"> City / Area </label>
+
+                                <input type="text" id="area" name="area" placeholder="e.g. Nyeri Town" required />
+                            </div>
+
+                            <!-- Delivery Notes -->
+                            <div class="form-group">
+                                <label for="deliveryNotes">
+                                    Delivery Notes
+                                    <span class="optional"> Optional </span>
+                                </label>
+
+                                <textarea id="deliveryNotes" name="deliveryNotes" rows="3"
+                                    placeholder="Any instructions for the rider?"></textarea>
+                            </div>
+                        </form>
+                    </section>
+
+                    <!-- Payment Method -->
+                    <section class="checkout-card">
+                        <div class="checkout-card-header">
+                            <div>
+                                <h2>Payment Method</h2>
+
+                                <p>Choose how you want to pay for your order.</p>
+                            </div>
+                        </div>
+
+                        <div class="payment-methods">
+                            <!-- M-Pesa -->
+                            <label class="payment-option">
+                                <input type="radio" name="paymentMethod" value="mpesa" disabled />
+
+                                <span class="payment-option-content">
+                                    <span class="payment-icon"> M </span>
+
+                                    <span class="payment-details">
+                                        <strong> M-Pesa </strong>
+
+                                        <small> Not available yet </small>
+                                    </span>
+                                </span>
+                            </label>
+
+                            <!-- Cash -->
+                            <label class="payment-option">
+                                <input type="radio" name="paymentMethod" value="cash" checked />
+
+                                <span class="payment-option-content">
+                                    <span class="payment-icon"> KSh </span>
+
+                                    <span class="payment-details">
+                                        <strong> Cash on Delivery </strong>
+
+                                        <small> Pay when your order arrives </small>
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+                    </section>
+
+                    <!-- Order Confirmation -->
+                    <section class="checkout-card">
+                        <div class="checkout-card-header">
+                            <div>
+                                <h2>Order Confirmation</h2>
+
+                                <p>Review your information before placing the order.</p>
+                            </div>
+                        </div>
+
+                        <label class="confirmation-checkbox">
+                            <input type="checkbox" id="confirmOrder" required />
+
+                            <span>
+                                I confirm that my delivery information is correct and I want
+                                to place this order.
+                            </span>
+                        </label>
+
+                        <!-- Message -->
+                        <div id="checkoutMessage" class="checkout-message" role="alert"></div>
+
+                        <!-- Place Order -->
+                        <button type="submit" form="checkoutForm" id="placeOrderButton" class="place-order-button">
+                            Place Order
+                        </button>
+                    </section>
+                </div>
+
+                <!-- ================= RIGHT COLUMN ================= -->
+                <aside class="checkout-sidebar">
+                    <!-- Order Summary -->
+                    <section class="order-summary-card">
+                        <div class="order-summary-header">
+                            <h2>Your Order</h2>
+
+                            <a href="cart.html"> Edit </a>
+                        </div>
+
+                        <!-- Restaurant -->
+                        <div class="checkout-restaurant">
+                            <div class="checkout-restaurant-image">MK</div>
+
+                            <div>
+                                <strong> Mama's Kitchen </strong>
+
+                                <span> African Food • Fast Food </span>
+                            </div>
+                        </div>
+
+                        <!-- Items -->
+                        <div class="checkout-items">
+                            <!-- Item -->
+                            <div class="checkout-item">
+                                <div class="checkout-item-quantity">1x</div>
+
+                                <div class="checkout-item-info">
+                                    <strong> Grilled Chicken </strong>
+
+                                    <span> KSh 650 </span>
+                                </div>
+
+                                <strong class="checkout-item-price"> KSh 650 </strong>
+                            </div>
+
+                            <!-- Item -->
+                            <div class="checkout-item">
+                                <div class="checkout-item-quantity">1x</div>
+
+                                <div class="checkout-item-info">
+                                    <strong> Beef Stew </strong>
+
+                                    <span> KSh 550 </span>
+                                </div>
+
+                                <strong class="checkout-item-price"> KSh 550 </strong>
+                            </div>
+                        </div>
+
+                        <!-- Summary Calculations -->
+                        <div class="summary-calculations">
+                            <div class="summary-row">
+                                <span> Subtotal </span>
+
+                                <strong> KSh 1,200 </strong>
+                            </div>
+
+                            <div class="summary-row">
+                                <span> Delivery Fee </span>
+
+                                <strong> KSh 100 </strong>
+                            </div>
+                        </div>
+
+                        <!-- Total -->
+                        <div class="summary-total">
+                            <span> Total </span>
+
+                            <strong> KSh 1,300 </strong>
+                        </div>
+
+                        <!-- Payment Note -->
+                        <div class="checkout-payment-note">
+                            <strong> Payment </strong>
+
+                            <span>
+                                Your selected payment method will be used when the order is
+                                placed.
+                            </span>
+                        </div>
+                    </section>
+
+                    <!-- Delivery Estimate -->
+                    <section class="delivery-estimate-card">
+                        <div class="estimate-icon">🚴</div>
+
+                        <div>
+                            <strong> Estimated Delivery </strong>
+
+                            <span> 20–30 minutes </span>
+                        </div>
+                    </section>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 FoodDelivery. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Checkout JavaScript -->
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/main.js"></script> 
+    <script src="../../assets/js/customer/checkout.js"></script>
+</body>
+
+</html>

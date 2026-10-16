@@ -1,0 +1,593 @@
+ /* =========================================================
+    PROFILE PAGE
+ ========================================================= */
+
+.profile-page {
+    min-height: 100vh;
+    padding: 45px 20px 70px;
+    background: var(--background);
+}
+
+.profile-container {
+    width: 100%;
+    max-width: var(--container-width);
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.profile-page-header {
+    margin-bottom: 30px;
+}
+
+.profile-label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.profile-page-header h1 {
+    margin: 0 0 7px;
+    color: var(--text);
+    font-size: 30px;
+    line-height: 1.2;
+}
+
+.profile-page-header p {
+    margin: 0;
+    color: var(--text-light);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   PROFILE LAYOUT
+========================================================= */
+
+.profile-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    align-items: start;
+    gap: 25px;
+}
+
+.profile-main {
+    min-width: 0;
+}
+
+.profile-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+
+/* =========================================================
+   PROFILE CARD
+========================================================= */
+
+.profile-card {
+    margin-bottom: 20px;
+    padding: 25px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.profile-sidebar .profile-card {
+    margin-bottom: 0;
+}
+
+.profile-card-header {
+    margin-bottom: 25px;
+}
+
+.profile-card-header h2 {
+    margin: 0 0 5px;
+    color: var(--text);
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.profile-card-header p {
+    margin: 0;
+    color: var(--text-light);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   PROFILE FORM
+========================================================= */
+
+.profile-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 18px;
+}
+
+.profile-form-group label {
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.profile-form-group input {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 13px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-form-group input::placeholder {
+    color: #a3a3a3;
+}
+
+.profile-form-group input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(255, 90, 31, 0.08);
+}
+
+
+/* =========================================================
+   FORM ACTIONS
+========================================================= */
+
+.profile-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 5px;
+}
+
+.profile-primary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 10px 18px;
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    background: var(--primary);
+    color: var(--white);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.profile-primary-button:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+
+/* =========================================================
+   PROFILE MESSAGE
+========================================================= */
+
+.profile-message {
+    min-height: 20px;
+    margin-top: 12px;
+    font-size: 12px;
+}
+
+.profile-message.success {
+    color: #16a34a;
+}
+
+.profile-message.error {
+    color: #dc2626;
+}
+
+
+/* =========================================================
+   PROFILE SUMMARY
+========================================================= */
+
+.profile-summary-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 25px;
+    text-align: center;
+}
+
+.profile-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 15px;
+    border-radius: 50%;
+    background: #fff0ea;
+    color: var(--primary);
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.profile-summary-card h2 {
+    margin: 0 0 6px;
+    color: var(--text);
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.profile-summary-card p {
+    margin: 0 0 10px;
+    color: var(--text-light);
+    font-size: 12px;
+}
+
+.member-since {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 15px;
+    background: #f7f7f7;
+    color: var(--text-light);
+    font-size: 10px;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   ACCOUNT ACTIONS
+========================================================= */
+
+.account-action-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.account-action {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border);
+    color: inherit;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.account-action:first-child {
+    padding-top: 0;
+}
+
+.account-action:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.account-action-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    border-radius: 9px;
+    background: #fff4ef;
+    color: var(--primary);
+    font-size: 16px;
+}
+
+.account-action-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 4px;
+}
+
+.account-action-content strong {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.account-action-content span {
+    color: var(--text-light);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.account-action-arrow {
+    color: #999999;
+    font-size: 17px;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.account-action:hover .account-action-arrow {
+    color: var(--primary);
+    transform: translateX(3px);
+}
+
+.account-action:hover .account-action-content strong {
+    color: var(--primary);
+}
+
+
+/* =========================================================
+   DANGER ACTION
+========================================================= */
+
+.account-action-danger .account-action-icon {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.account-action-danger:hover .account-action-content strong {
+    color: #dc2626;
+}
+
+.account-action-danger:hover .account-action-arrow {
+    color: #dc2626;
+}
+
+
+/* =========================================================
+   QUICK LINKS
+========================================================= */
+
+.quick-links-card .profile-card-header {
+    margin-bottom: 10px;
+}
+
+.quick-links {
+    display: flex;
+    flex-direction: column;
+}
+
+.quick-links a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.quick-links a:first-child {
+    padding-top: 5px;
+}
+
+.quick-links a:last-child {
+    padding-bottom: 5px;
+    border-bottom: none;
+}
+
+.quick-links a span:last-child {
+    color: #999999;
+    font-size: 15px;
+    transition: 0.2s ease;
+}
+
+.quick-links a:hover {
+    color: var(--primary);
+}
+
+.quick-links a:hover span:last-child {
+    color: var(--primary);
+    transform: translateX(3px);
+}
+
+
+/* =========================================================
+   HELP CARD
+========================================================= */
+
+.profile-help-card {
+    text-align: center;
+}
+
+.profile-help-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: #fff0ea;
+    color: var(--primary);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.profile-help-card h3 {
+    margin: 0 0 7px;
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.profile-help-card p {
+    margin: 0 0 18px;
+    color: var(--text-light);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.profile-secondary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 9px 17px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.profile-secondary-button:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+
+/* =========================================================
+   RESPONSIVE — 1000px
+========================================================= */
+
+@media (max-width: 1000px) {
+
+    .profile-layout {
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 20px;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — 800px
+========================================================= */
+
+@media (max-width: 800px) {
+
+    .profile-page {
+        padding: 35px 18px 55px;
+    }
+
+    .profile-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-sidebar {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+    }
+
+    .profile-summary-card {
+        grid-column: 1 / -1;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — 650px
+========================================================= */
+
+@media (max-width: 650px) {
+
+    .profile-page {
+        padding: 30px 15px 45px;
+    }
+
+    .profile-page-header h1 {
+        font-size: 25px;
+    }
+
+    .profile-layout {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .profile-sidebar {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .profile-card {
+        padding: 20px;
+        margin-bottom: 15px;
+    }
+
+    .profile-form-actions {
+        justify-content: stretch;
+    }
+
+    .profile-primary-button {
+        width: 100%;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — 400px
+========================================================= */
+
+@media (max-width: 400px) {
+
+    .profile-page {
+        padding: 25px 12px 40px;
+    }
+
+    .profile-page-header h1 {
+        font-size: 22px;
+    }
+
+    .profile-page-header p {
+        font-size: 12px;
+    }
+
+    .profile-card {
+        padding: 17px;
+    }
+
+    .profile-avatar {
+        width: 70px;
+        height: 70px;
+        font-size: 24px;
+    }
+
+    .profile-summary-card h2 {
+        font-size: 16px;
+    }
+
+    .profile-form-group input {
+        min-height: 42px;
+        font-size: 12px;
+    }
+
+    .account-action {
+        gap: 10px;
+    }
+
+    .account-action-icon {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+
+    .account-action-content span {
+        font-size: 10px;
+    }
+
+}

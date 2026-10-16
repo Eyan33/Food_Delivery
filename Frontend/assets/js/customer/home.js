@@ -1,0 +1,432 @@
+/* =========================================================
+   CUSTOMER HOME PAGE
+   Loads restaurants and food from the public API.
+   ========================================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+    "use strict";
+
+    const API_BASE = (window.FOOD_DELIVERY_API_BASE || document.querySelector('meta[name="api-base-url"]')?.content?.trim() || "http://localhost:5000/api").replace(/\/+$/, "");
+
+    const restaurantGrid = document.getElementById("restaurantGrid");
+    const foodGrid = document.getElementById("foodGrid");
+    const usernameElement = document.getElementById("username");
+    const cartCountElement = document.getElementById("cartCount");
+
+    const RESTAURANT_PLACEHOLDER =
+        "../../assets/images/restaurants/restaurant-placeholder.jpg";
+
+    const FOOD_PLACEHOLDER =
+        "../../assets/images/food/food-placeholder.jpg";
+
+
+    // Personalized customer greeting
+const greeting = document.getElementById("customerGreeting");
+
+if (greeting) {
+    const savedUser =
+        localStorage.getItem("foodDeliveryUser") ||
+        sessionStorage.getItem("foodDeliveryUser");
+
+    let user = {};
+
+    try {
+        user = savedUser ? JSON.parse(savedUser) : {};
+    } catch (error) {
+        console.error("Could not read saved customer details:", error);
+    }
+
+    const username =
+        user.first_name ||
+        user.username ||
+        user.name ||
+        "there";
+
+    greeting.textContent = `${username}, what are you`;
+}    
+
+    /* ---------------------------------------------------------
+       GENERAL HELPERS
+       --------------------------------------------------------- */
+
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, (character) => {
+            const entities = {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;",
+            };
+
+            return entities[character];
+        });
+    }
+
+    function formatKES(value) {
+        const amount = Number(value);
+
+        if (!Number.isFinite(amount)) {
+            return "Price unavailable";
+        }
+
+        return `KSh ${amount.toLocaleString("en-KE", {
+            maximumFractionDigits: 2,
+        })}`;
+    }
+
+    function getImageUrl(url, fallback) {
+        const imageUrl = String(url ?? "").trim();
+
+        if (!imageUrl) {
+            return fallback;
+        }
+
+        // Permit relative project URLs and normal HTTP(S) image URLs.
+        if (
+            imageUrl.startsWith("/") ||
+            imageUrl.startsWith("./") ||
+            imageUrl.startsWith("../")
+        ) {
+            return imageUrl;
+        }
+
+        try {
+            const parsed = new URL(imageUrl, window.location.href);
+
+            if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+                return parsed.href;
+            }
+        } catch (error) {
+            // Use the fallback for invalid image URLs.
+        }
+
+        return fallback;
+    }
+
+    function showMessage(container, message, type = "info") {
+        if (!container) return;
+
+        container.innerHTML = `
+            <p class="home-message home-message-${escapeHTML(type)}">
+                ${escapeHTML(message)}
+            </p>
+        `;
+    }
+
+    async function fetchPublicData(endpoint) {
+        const response = await fetch(`${API_BASE}${endpoint}`, {
+            method: "GET",
+            headers: {
+                Accept: "application/json",
+            },
+        });
+
+        let result;
+
+        try {
+            result = await response.json();
+        } catch (error) {
+            throw new Error("The server returned an invalid response.");
+        }
+
+        if (!response.ok || result.success === false) {
+            throw new Error(
+                result.message || `Request failed (${response.status}).`
+            );
+        }
+
+        return result.data || {};
+    }
+
+    /* ---------------------------------------------------------
+       CUSTOMER GREETING
+       --------------------------------------------------------- */
+
+    function setCustomerGreeting() {
+        if (!usernameElement) return;
+
+        // Use a stored user profile only if one is available.
+        // The homepage does not assume a specific login storage format.
+        const possibleKeys = [
+            "user",
+            "currentUser",
+            "customer",
+            "userData",
+        ];
+
+        let storedUser = null;
+
+        for (const key of possibleKeys) {
+            const rawValue =
+                localStorage.getItem(key) ||
+                sessionStorage.getItem(key);
+
+            if (!rawValue) continue;
+
+            try {
+                const parsed = JSON.parse(rawValue);
+
+                if (parsed && typeof parsed === "object") {
+                    storedUser = parsed.user || parsed.data?.user || parsed;
+                    break;
+                }
+            } catch (error) {
+                // Ignore non-JSON values such as token strings.
+            }
+        }
+
+        const firstName =
+            storedUser?.first_name ||
+            storedUser?.firstName ||
+            storedUser?.name ||
+            "";
+
+        usernameElement.textContent = firstName
+            ? `${firstName}, `
+            : "";
+    }
+
+    /* ---------------------------------------------------------
+       RESTAURANTS
+       --------------------------------------------------------- */
+
+    function renderRestaurants(restaurants) {
+        if (!restaurantGrid) return;
+
+        const availableRestaurants = restaurants.filter((restaurant) => {
+            // Do not advertise restaurants that are inactive.
+            return restaurant && restaurant.is_active !== false;
+        });
+
+        if (availableRestaurants.length === 0) {
+            showMessage(
+                restaurantGrid,
+                "No restaurants are available right now."
+            );
+            return;
+        }
+
+        restaurantGrid.innerHTML = availableRestaurants
+            .slice(0, 6)
+            .map((restaurant) => {
+                const name = restaurant.name || "Restaurant";
+                const isOpen = restaurant.is_open === true;
+                const rating = Number(restaurant.average_rating);
+                const deliveryFee = Number(restaurant.delivery_fee);
+
+                const ratingText = Number.isFinite(rating)
+                    ? `★ ${rating.toFixed(1)}`
+                    : "No ratings";
+
+                const deliveryText = Number.isFinite(deliveryFee)
+                    ? `${formatKES(deliveryFee)} delivery`
+                    : "Delivery fee unavailable";
+
+                const location = [
+                    restaurant.city,
+                    restaurant.address,
+                ]
+                    .filter(Boolean)
+                    .join(" · ");
+
+                const imageUrl = getImageUrl(
+                    restaurant.logo_url || restaurant.cover_image_url,
+                    RESTAURANT_PLACEHOLDER
+                );
+
+                return `
+                    <article class="restaurant-card">
+                        <div class="restaurant-image">
+                            <img
+                                src="${escapeHTML(imageUrl)}"
+                                alt="${escapeHTML(name)}"
+                                loading="lazy"
+                                onerror="this.onerror=null;this.src='${RESTAURANT_PLACEHOLDER}'"
+                            >
+
+                            <span class="restaurant-status">
+                                ${isOpen ? "Open" : "Closed"}
+                            </span>
+                        </div>
+
+                        <div class="restaurant-info">
+                            <div class="restaurant-title">
+                                <h3>${escapeHTML(name)}</h3>
+                                <span class="rating">
+                                    ${escapeHTML(ratingText)}
+                                </span>
+                            </div>
+
+                            <p class="restaurant-category">
+                                ${escapeHTML(location || restaurant.description || "Restaurant")}
+                            </p>
+
+                            <div class="restaurant-meta">
+                                <span>${escapeHTML(deliveryText)}</span>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            })
+            .join("");
+    }
+
+    async function loadRestaurants() {
+        if (!restaurantGrid) return;
+
+        showMessage(restaurantGrid, "Loading restaurants...");
+
+        try {
+            const data = await fetchPublicData("/restaurants");
+            const restaurants = Array.isArray(data.restaurants)
+                ? data.restaurants
+                : [];
+
+            renderRestaurants(restaurants);
+        } catch (error) {
+            console.error("Customer homepage: failed to load restaurants:", error);
+
+            showMessage(
+                restaurantGrid,
+                "We couldn't load restaurants. Please check that the backend is running and try again.",
+                "error"
+            );
+        }
+    }
+
+    /* ---------------------------------------------------------
+       FOOD
+       --------------------------------------------------------- */
+
+    function renderFoods(foods) {
+        if (!foodGrid) return;
+
+        // Only show food currently marked available.
+        const availableFoods = foods.filter((food) => {
+            return food && food.is_available === true;
+        });
+
+        if (availableFoods.length === 0) {
+            showMessage(
+                foodGrid,
+                "No meals are available right now."
+            );
+            return;
+        }
+
+        foodGrid.innerHTML = availableFoods
+            .slice(0, 6)
+            .map((food) => {
+                const name = food.name || "Food item";
+                const restaurantName =
+                    food.restaurant_name || "Restaurant";
+                const description =
+                    food.description || "A delicious meal to enjoy.";
+
+                const imageUrl = getImageUrl(
+                    food.image_url,
+                    FOOD_PLACEHOLDER
+                );
+
+                return `
+                    <article class="food-card">
+                        <div class="food-image">
+                            <img
+                                src="${escapeHTML(imageUrl)}"
+                                alt="${escapeHTML(name)}"
+                                loading="lazy"
+                                onerror="this.onerror=null;this.src='${FOOD_PLACEHOLDER}'"
+                            >
+
+                            ${
+                                food.is_featured
+                                    ? '<span class="food-featured-label">Featured</span>'
+                                    : ""
+                            }
+                        </div>
+
+                        <div class="food-info">
+                            <p class="food-restaurant">
+                                ${escapeHTML(restaurantName)}
+                            </p>
+
+                            <h3>${escapeHTML(name)}</h3>
+
+                            <p class="food-description">
+                                ${escapeHTML(description)}
+                            </p>
+
+                            <div class="food-bottom">
+                                <strong>${escapeHTML(formatKES(food.price))}</strong>
+
+                                <button
+                                    type="button"
+                                    class="add-food-button"
+                                    data-food-id="${escapeHTML(food.id)}"
+                                    aria-label="Add ${escapeHTML(name)} to cart"
+                                    title="Cart integration will be connected next"
+                                >+</button>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            })
+            .join("");
+    }
+
+    async function loadFoods() {
+        if (!foodGrid) return;
+
+        showMessage(foodGrid, "Loading meals...");
+
+        try {
+            const data = await fetchPublicData("/foods");
+            const foods = Array.isArray(data.foods) ? data.foods : [];
+
+            renderFoods(foods);
+        } catch (error) {
+            console.error("Customer homepage: failed to load foods:", error);
+
+            showMessage(
+                foodGrid,
+                "We couldn't load meals. Please check that the backend is running and try again.",
+                "error"
+            );
+        }
+    }
+
+    /* ---------------------------------------------------------
+       MOBILE NAVIGATION
+       --------------------------------------------------------- */
+
+    const mobileMenuButton =
+        document.getElementById("mobileMenuButton");
+
+    const mobileNavigation =
+        document.getElementById("mobileNavigation");
+
+    if (mobileMenuButton && mobileNavigation) {
+        mobileMenuButton.addEventListener("click", () => {
+            const isExpanded =
+                mobileMenuButton.getAttribute("aria-expanded") === "true";
+
+            mobileMenuButton.setAttribute(
+                "aria-expanded",
+                String(!isExpanded)
+            );
+
+            mobileNavigation.classList.toggle("active", !isExpanded);
+        });
+    }
+
+    /* ---------------------------------------------------------
+       INITIALIZE HOMEPAGE
+       --------------------------------------------------------- */
+
+    setCustomerGreeting();
+
+    // Load both sections independently so one failure doesn't hide the other.
+    loadRestaurants();
+    loadFoods();
+});

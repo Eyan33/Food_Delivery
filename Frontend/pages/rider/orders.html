@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Available Orders | FoodDelivery</title>
+
+    <link rel="stylesheet" href="../../assets/css/style.css" />
+    <link rel="stylesheet" href="../../assets/css/pages/rider/orders.css" />
+    <link rel="stylesheet" href="../../assets/css/pages/rider/dashboard.css" />
+</head>
+
+<body>
+    <!-- =====================================================
+         RIDER SIDEBAR
+    ====================================================== -->
+
+    <aside class="rider-sidebar" id="riderSidebar">
+        <div class="rider-sidebar-header">
+            <a href="dashboard.html" class="rider-logo">
+                Food<span>Delivery</span>
+            </a>
+
+            
+        </div>
+
+        <!-- RIDER PROFILE -->
+
+        <div class="rider-profile">
+            <div class="rider-profile-avatar">J</div>
+
+            <div class="rider-profile-info">
+                <strong>John Kamau</strong>
+
+                <span>Delivery Rider</span>
+            </div>
+        </div>
+
+        <!-- NAVIGATION -->
+
+        <nav class="rider-navigation">
+            <a href="dashboard.html" class="rider-nav-link">
+                <span class="rider-nav-icon">▣</span>
+
+                <span>Dashboard</span>
+            </a>
+
+            <a href="orders.html" class="rider-nav-link active">
+                <span class="rider-nav-icon">▤</span>
+
+                <span>Available Orders</span>
+
+                <span class="rider-nav-badge"> 4 </span>
+            </a>
+
+            <a href="deliveries.html" class="rider-nav-link">
+                <span class="rider-nav-icon">◈</span>
+
+                <span>My Deliveries</span>
+            </a>
+
+            <a href="earnings.html" class="rider-nav-link">
+                <span class="rider-nav-icon">◆</span>
+
+                <span>Earnings</span>
+            </a>
+
+            <a href="profile.html" class="rider-nav-link">
+                <span class="rider-nav-icon">◯</span>
+
+                <span>Profile</span>
+            </a>
+        </nav>
+
+        <!-- SIDEBAR FOOTER -->
+
+        <div class="rider-sidebar-footer">
+            <a href="../../index.html" class="rider-nav-link">
+                <span class="rider-nav-icon">↪</span>
+
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- =====================================================
+         MAIN AREA
+    ====================================================== -->
+
+    <main class="rider-main">
+        <!-- =================================================
+             TOPBAR
+        ================================================== -->
+
+        <header class="rider-topbar">
+            <div class="rider-topbar-left">
+                <button type="button" class="rider-mobile-menu-button" id="riderMenuButton" aria-label="Open menu">
+                    ☰
+                </button>
+
+                <div>
+                    <h1>Available Orders</h1>
+
+                    <p>Find and accept delivery orders near you.</p>
+                </div>
+            </div>
+
+            <div class="rider-topbar-right">
+                <!-- ONLINE STATUS -->
+
+                <button type="button" class="rider-status-button online" id="riderStatusButton">
+                    <span class="status-dot"></span>
+
+                    <span id="riderStatusText"> You're Online </span>
+                </button>
+
+                <!-- NOTIFICATIONS -->
+
+                <button type="button" class="rider-notification-button" aria-label="Notifications">
+                    <span>🔔</span>
+
+                    <span class="notification-badge"> 3 </span>
+                </button>
+
+                <!-- PROFILE -->
+
+                <div class="rider-topbar-profile">
+                    <div class="rider-topbar-avatar">J</div>
+
+                    <div class="rider-topbar-profile-info">
+                        <strong>John Kamau</strong>
+
+                        <span>Delivery Rider</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- =================================================
+             CONTENT
+        ================================================== -->
+
+        <section class="rider-content">
+            <!-- PAGE HEADER -->
+
+            <div class="rider-page-header">
+                <div>
+                    <h2>Available Orders</h2>
+
+                    <p>Choose an order that fits your current location and route.</p>
+                </div>
+            </div>
+
+            <!-- =================================================
+                 ORDER SUMMARY
+            ================================================== -->
+
+            <div class="rider-order-summary-grid">
+                <div class="rider-summary-card">
+                    <div class="rider-summary-card-icon">▤</div>
+
+                    <div>
+                        <span>Available Orders</span>
+
+                        <strong>4</strong>
+                    </div>
+                </div>
+
+                <div class="rider-summary-card">
+                    <div class="rider-summary-card-icon">◈</div>
+
+                    <div>
+                        <span>Nearest Order</span>
+
+                        <strong>1.8 km</strong>
+                    </div>
+                </div>
+
+                <div class="rider-summary-card">
+                    <div class="rider-summary-card-icon">KSh</div>
+
+                    <div>
+                        <span>Highest Order</span>
+
+                        <strong>KSh 1,850</strong>
+                    </div>
+                </div>
+
+                <div class="rider-summary-card">
+                    <div class="rider-summary-card-icon">●</div>
+
+                    <div>
+                        <span>Current Status</span>
+
+                        <strong>Online</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =================================================
+                 FILTER BAR
+            ================================================== -->
+
+            <div class="rider-order-toolbar">
+                <div class="rider-order-search">
+                    <span class="rider-search-icon"> ⌕ </span>
+
+                    <input type="search" id="orderSearch" placeholder="Search restaurant or order number..."
+                        aria-label="Search orders" />
+                </div>
+
+                <div class="rider-order-filters">
+                    <select id="distanceFilter" class="rider-filter-select" aria-label="Filter by distance">
+                        <option value="all">All Distances</option>
+
+                        <option value="1">Within 1 km</option>
+
+                        <option value="3">Within 3 km</option>
+
+                        <option value="5">Within 5 km</option>
+                    </select>
+
+                    <select id="earningFilter" class="rider-filter-select" aria-label="Filter by earnings">
+                        <option value="all">All Earnings</option>
+
+                        <option value="500">KSh 500+</option>
+
+                        <option value="1000">KSh 1,000+</option>
+
+                        <option value="1500">KSh 1,500+</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- =================================================
+                 AVAILABLE ORDERS
+            ================================================== -->
+
+            <div class="rider-orders-container">
+                <!-- ORDER 1 -->
+
+                <article class="rider-available-order" data-distance="1.8" data-amount="920">
+                    <div class="rider-available-order-header">
+                        <div class="rider-order-restaurant">
+                            <div class="rider-order-icon">◈</div>
+
+                            <div>
+                                <span class="rider-order-number"> Order #FD-1051 </span>
+
+                                <h3>Chicken Inn</h3>
+
+                                <small> 1.8 km away </small>
+                            </div>
+                        </div>
+
+                        <div class="rider-order-earning">
+                            <span> Order Value </span>
+
+                            <strong> KSh 920 </strong>
+                        </div>
+                    </div>
+
+                    <div class="rider-available-order-body">
+                        <div class="rider-order-location">
+                            <span class="location-label"> PICKUP </span>
+
+                            <strong> Chicken Inn </strong>
+
+                            <p>Kimathi Street, Nairobi</p>
+                        </div>
+
+                        <div class="rider-route-arrow">→</div>
+
+                        <div class="rider-order-location">
+                            <span class="location-label"> DELIVERY </span>
+
+                            <strong> Brian Mwangi </strong>
+
+                            <p>Kilimani, Nairobi</p>
+                        </div>
+                    </div>
+
+                    <div class="rider-available-order-footer">
+                        <div class="rider-order-meta">
+                            <span> ● 2 items </span>
+
+                            <span> ● Cashless </span>
+
+                            <span> ● Est. 25 min </span>
+                        </div>
+
+                        <div class="rider-order-actions">
+                            <button type="button" class="rider-secondary-button view-order-button">
+                                View Details
+                            </button>
+
+                            <button type="button" class="rider-primary-button accept-order-button">
+                                Accept Order
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ORDER 2 -->
+
+                <article class="rider-available-order" data-distance="2.4" data-amount="1250">
+                    <div class="rider-available-order-header">
+                        <div class="rider-order-restaurant">
+                            <div class="rider-order-icon">◈</div>
+
+                            <div>
+                                <span class="rider-order-number"> Order #FD-1052 </span>
+
+                                <h3>Java House</h3>
+
+                                <small> 2.4 km away </small>
+                            </div>
+                        </div>
+
+                        <div class="rider-order-earning">
+                            <span> Order Value </span>
+
+                            <strong> KSh 1,250 </strong>
+                        </div>
+                    </div>
+
+                    <div class="rider-available-order-body">
+                        <div class="rider-order-location">
+                            <span class="location-label"> PICKUP </span>
+
+                            <strong> Java House </strong>
+
+                            <p>Koinange Street, Nairobi</p>
+                        </div>
+
+                        <div class="rider-route-arrow">→</div>
+
+                        <div class="rider-order-location">
+                            <span class="location-label"> DELIVERY </span>
+
+                            <strong> Mary Njeri </strong>
+
+                            <p>Lavington, Nairobi</p>
+                        </div>
+                    </div>
+
+                    <div class="rider-available-order-footer">
+                        <div class="rider-order-meta">
+                            <span> ● 3 items </span>
+
+                            <span> ● Cashless </span>
+
+                            <span> ● Est. 30 min </span>
+                        </div>
+
+                        <div class="rider-order-actions">
+                            <button type="button" class="rider-secondary-button view-order-button">
+                                View Details
+                            </button>
+
+                            <button type="button" class="rider-primary-button accept-order-button">
+                                Accept Order
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ORDER 3 -->
+
+                <article class="rider-available-order" data-distance="3.1" data-amount="760">
+                    <div class="rider-available-order-header">
+                        <div class="rider-order-restaurant">
+                            <div class="rider-order-icon">◈</div>
+
+                            <div>
+                                <span class="rider-order-number"> Order #FD-1054 </span>
+
+                                <h3>Mama Oliech</h3>
+
+                                <small> 3.1 km away </small>
+                            </div>
+                        </div>
+
+                        <div class="rider-order-earning">
+                            <span> Order Value </span>
+
+                            <strong> KSh 760 </strong>
+                        </div>
+                    </div>
+
+                    <div class="rider-available-order-body">
+                        <div class="rider-order-location">
+                            <span class="location-label"> PICKUP </span>
+
+                            <strong> Mama Oliech </strong>
+
+                            <p>Dagoretti Road, Nairobi</p>
+                        </div>
+
+                        <div class="rider-route-arrow">→</div>
+
+                        <div class="rider-order-location">
+                            <span class="location-label"> DELIVERY </span>
+
+                            <strong> Peter Kamau </strong>
+
+                            <p>Kilimani, Nairobi</p>
+                        </div>
+                    </div>
+
+                    <div class="rider-available-order-footer">
+                        <div class="rider-order-meta">
+                            <span> ● 1 item </span>
+
+                            <span> ● Cashless </span>
+
+                            <span> ● Est. 22 min </span>
+                        </div>
+
+                        <div class="rider-order-actions">
+                            <button type="button" class="rider-secondary-button view-order-button">
+                                View Details
+                            </button>
+
+                            <button type="button" class="rider-primary-button accept-order-button">
+                                Accept Order
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- ORDER 4 -->
+
+                <article class="rider-available-order" data-distance="4.2" data-amount="1850">
+                    <div class="rider-available-order-header">
+                        <div class="rider-order-restaurant">
+                            <div class="rider-order-icon">◈</div>
+
+                            <div>
+                                <span class="rider-order-number"> Order #FD-1056 </span>
+
+                                <h3>Mama's Kitchen</h3>
+
+                                <small> 4.2 km away </small>
+                            </div>
+                        </div>
+
+                        <div class="rider-order-earning">
+                            <span> Order Value </span>
+
+                            <strong> KSh 1,850 </strong>
+                        </div>
+                    </div>
+
+                    <div class="rider-available-order-body">
+                        <div class="rider-order-location">
+                            <span class="location-label"> PICKUP </span>
+
+                            <strong> Mama's Kitchen </strong>
+
+                            <p>Kimathi Street, Nairobi</p>
+                        </div>
+
+                        <div class="rider-route-arrow">→</div>
+
+                        <div class="rider-order-location">
+                            <span class="location-label"> DELIVERY </span>
+
+                            <strong> Sarah Wanjiku </strong>
+
+                            <p>Kilimani, Nairobi</p>
+                        </div>
+                    </div>
+
+                    <div class="rider-available-order-footer">
+                        <div class="rider-order-meta">
+                            <span> ● 4 items </span>
+
+                            <span> ● Cashless </span>
+
+                            <span> ● Est. 35 min </span>
+                        </div>
+
+                        <div class="rider-order-actions">
+                            <button type="button" class="rider-secondary-button view-order-button">
+                                View Details
+                            </button>
+
+                            <button type="button" class="rider-primary-button accept-order-button">
+                                Accept Order
+                            </button>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <!-- =================================================
+                 EMPTY STATE
+            ================================================== -->
+
+            <div class="rider-empty-orders" id="riderEmptyOrders" hidden>
+                <div class="rider-empty-orders-icon">▤</div>
+
+                <h3>No Orders Found</h3>
+
+                <p>No available orders match your current filters.</p>
+
+                <button type="button" class="rider-secondary-button" id="clearOrderFilters">
+                    Clear Filters
+                </button>
+            </div>
+
+            <!-- =================================================
+                 MESSAGE
+            ================================================== -->
+
+            <div class="rider-message" id="riderMessage" role="alert" aria-live="polite"></div>
+        </section>
+    </main>
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/rider/orders.js"></script>
+</body>
+
+</html>

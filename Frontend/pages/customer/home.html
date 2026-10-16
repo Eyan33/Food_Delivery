@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <meta name="description" content="Discover restaurants and food near you" />
+
+  <title>Home | Food Delivery</title>
+
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+  <link rel="stylesheet" href="../../assets/css/pages/customer/customer.css" />
+</head>
+
+<body>
+  <!-- =========================================
+         CUSTOMER HEADER
+    ========================================== -->
+  <header class="customer-header">
+    <div class="customer-header-container">
+      <!-- Logo -->
+      <a href="home.html" class="customer-logo">
+        Food<span>Delivery</span>
+      </a>
+
+      <!-- Delivery Location -->
+      <a href="addresses.html">
+        <button type="button" class="delivery-location">
+          <span class="location-icon">📍</span>
+
+          <span class="location-text">
+            <small>Deliver to</small>
+            <strong>Select location</strong>
+          </span>
+        </button>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="customer-navigation">
+        <a href="home.html" class="active"> Home </a>
+
+        <a href="restaurants.html"> Restaurants </a>
+
+        <a href="orders.html"> Orders </a>
+
+        <a href="profile.html"> Profile </a>
+
+        <a href="../auth/login.html"> Logout </a>
+      </nav>
+
+      <!-- Mobile Menu -->
+      <button type="button" class="mobile-menu-button" id="mobileMenuButton" aria-label="Open menu">
+        ☰
+      </button>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-navigation" id="mobileNavigation">
+      <a href="home.html" class="active"> Home </a>
+
+      <a href="restaurants.html"> Restaurants </a>
+
+      <a href="orders.html"> Orders </a>
+
+      <a href="profile.html"> Profile </a>
+
+      <a href="../auth/login.html"> Logout </a>
+    </nav>
+  </header>
+
+  <!-- =========================================
+         MAIN
+    ========================================== -->
+
+  <main class="customer-main">
+    <!-- =====================================
+             HERO
+        ====================================== -->
+
+    <section class="customer-hero">
+      <div class="customer-hero-content">
+        <div class="hero-text">
+          <p class="hero-label">Food delivered to your door</p>
+
+          <h1>
+    <span id="customerGreeting">What are you</span>
+    <span>craving today?</span>
+</h1>
+
+          <p class="hero-description">
+            Discover delicious meals from restaurants near you and get them
+            delivered wherever you are.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================
+             PROMOTION
+        ====================================== -->
+
+    <section class="customer-promotion">
+      <div class="promotion-content">
+        <p class="promotion-label">Special offer</p>
+
+        <h2>Get your first delivery with us.</h2>
+
+        <p>Discover great meals from restaurants around you.</p>
+
+        <a href="restaurants.html" class="promotion-button">
+          Explore Restaurants
+        </a>
+      </div>
+    </section>
+
+    <!-- =====================================
+             POPULAR RESTAURANTS
+        ====================================== -->
+
+    <section class="customer-section">
+      <div class="section-header">
+        <div>
+          <p class="section-label">Nearby</p>
+
+          <h2>Popular restaurants</h2>
+        </div>
+
+        <a href="restaurants.html" class="view-all"> View all </a>
+      </div>
+
+      <div class="restaurant-grid" id="restaurantGrid" aria-live="polite">
+  <p class="home-loading">Loading restaurants...</p>
+</div>
+    </section>
+
+    <!-- =====================================
+             POPULAR FOOD
+        ====================================== -->
+
+    <section class="customer-section">
+      <div class="section-header">
+        <div>
+          <p class="section-label">Recommended</p>
+
+          <h2>Popular near you</h2>
+        </div>
+      </div>
+
+      <div class="food-grid" id="foodGrid" aria-live="polite">
+  <p class="home-loading">Loading meals...</p>
+</div>
+    </section>
+  </main>
+
+  <!-- =========================================
+         FLOATING CART
+    ========================================== -->
+
+  <a href="cart.html" class="floating-cart" id="floatingCart">
+    <span class="cart-icon"> 🛒 </span>
+
+    <span class="cart-text"> View Cart </span>
+
+    <span class="cart-count" id="cartCount"> 0 </span>
+  </a>
+
+  <!-- =========================================
+         FOOTER
+    ========================================== -->
+
+  <footer class="footer">
+    <p>&copy; 2026 Food Delivery. All rights reserved.</p>
+  </footer>
+
+  <!-- =========================================
+         JAVASCRIPT
+    ========================================== -->
+
+  <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/main.js"></script>
+  <script src="../../assets/js/customer/home.js"></script>
+</body>
+
+</html>

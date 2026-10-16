@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>My Addresses | FoodDelivery</title>
+
+    <link rel="stylesheet" href="../../assets/css/style.css" />
+    <link rel="stylesheet" href="../../assets/css/pages/customer/customer.css" />
+    <link rel="stylesheet" href="../../assets/css/pages/customer/addresses.css" />
+</head>
+
+<body>
+    <!-- =====================================================
+         CUSTOMER HEADER
+    ====================================================== -->
+
+    <header class="customer-header">
+        <div class="customer-header-container">
+            <a href="home.html" class="customer-logo">
+                Food<span>Delivery</span>
+            </a>
+
+            <a href="addresses.html">
+                <button type="button" class="delivery-location">
+                    <span class="location-icon">📍</span>
+
+                    <span class="location-text">
+                        <small>Deliver to</small>
+                        <strong>Select location</strong>
+                    </span>
+                </button>
+            </a>
+
+            <nav class="customer-navigation">
+                <a href="home.html"> Home </a>
+
+                <a href="restaurants.html"> Restaurants </a>
+
+                <a href="orders.html"> Orders </a>
+
+                <a href="profile.html"> Profile </a>
+
+                <a href="../auth/login.html"> Logout </a>
+            </nav>
+
+            <button type="button" class="mobile-menu-button" id="mobileMenuButton" aria-label="Open menu">
+                ☰
+            </button>
+        </div>
+
+        <!-- Mobile Navigation -->
+
+        <nav class="mobile-navigation" id="mobileNavigation">
+            <a href="home.html"> Home </a>
+
+            <a href="restaurants.html"> Restaurants </a>
+
+            <a href="orders.html"> Orders </a>
+
+            <a href="profile.html" class="active"> Profile </a>
+
+            <a href="../auth/login.html"> Logout </a>
+        </nav>
+    </header>
+
+    <!-- =====================================================
+         ADDRESSES PAGE
+    ====================================================== -->
+
+    <main class="addresses-page">
+        <div class="addresses-container">
+            <!-- Page Header -->
+
+            <section class="addresses-page-header">
+                <div>
+                    <span class="addresses-label"> Delivery </span>
+
+                    <h1>My Addresses</h1>
+
+                    <p>Manage your saved delivery addresses.</p>
+                </div>
+
+                <button type="button" class="add-address-button" id="addAddressButton">
+                    + Add New Address
+                </button>
+            </section>
+
+            <!-- =================================================
+                 ADDRESS CONTENT
+            ================================================== -->
+
+            <div class="addresses-layout">
+                <!-- Saved Addresses -->
+
+                <section class="addresses-card">
+                    <div class="addresses-card-header">
+                        <div>
+                            <h2>Saved Addresses</h2>
+
+                            <p>Choose where you want your orders delivered.</p>
+                        </div>
+
+                        <span id="addressCount"> 2 Addresses </span>
+                    </div>
+
+                    <div class="address-list" id="addressList">
+                        <!-- =================================================
+                             DEFAULT ADDRESS
+                        ================================================== -->
+
+                        <article class="address-item default-address" data-address-id="1">
+                            <div class="address-item-top">
+                                <div class="address-type">
+                                    <div class="address-icon">🏠</div>
+
+                                    <div>
+                                        <h3>Home</h3>
+
+                                        <span class="default-badge"> Default </span>
+                                    </div>
+                                </div>
+
+                                <div class="address-actions">
+                                    <button type="button" class="address-action-button edit-address-button"
+                                        data-address-id="1">
+                                        Edit
+                                    </button>
+
+                                    <button type="button" class="address-action-button delete-address-button"
+                                        data-address-id="1">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="address-details">
+                                <strong> Eyan </strong>
+
+                                <p>Your saved delivery address</p>
+
+                                <p>Nairobi, Kenya</p>
+
+                                <span> Phone: +254 700 000 000 </span>
+                            </div>
+
+                            <div class="address-item-footer">
+                                <button type="button" class="set-default-button" data-address-id="1" disabled>
+                                    ✓ Default Address
+                                </button>
+                            </div>
+                        </article>
+
+                        <!-- =================================================
+                             SECOND ADDRESS
+                        ================================================== -->
+
+                        <article class="address-item" data-address-id="2">
+                            <div class="address-item-top">
+                                <div class="address-type">
+                                    <div class="address-icon">💼</div>
+
+                                    <div>
+                                        <h3>Work</h3>
+                                    </div>
+                                </div>
+
+                                <div class="address-actions">
+                                    <button type="button" class="address-action-button edit-address-button"
+                                        data-address-id="2">
+                                        Edit
+                                    </button>
+
+                                    <button type="button" class="address-action-button delete-address-button"
+                                        data-address-id="2">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="address-details">
+                                <strong> Eyan </strong>
+
+                                <p>Your work delivery address</p>
+
+                                <p>Nairobi, Kenya</p>
+
+                                <span> Phone: +254 700 000 000 </span>
+                            </div>
+
+                            <div class="address-item-footer">
+                                <button type="button" class="set-default-button" data-address-id="2">
+                                    Set as Default
+                                </button>
+                            </div>
+                        </article>
+                    </div>
+
+                    <!-- Empty State -->
+
+                    <div class="empty-addresses" id="emptyAddresses" hidden>
+                        <div class="empty-address-icon">📍</div>
+
+                        <h3>No Saved Addresses</h3>
+
+                        <p>Add a delivery address to make checkout faster.</p>
+
+                        <button type="button" class="add-address-button" id="emptyAddAddressButton">
+                            Add Address
+                        </button>
+                    </div>
+
+                    <div class="address-message" id="addressMessage" role="status" aria-live="polite"></div>
+                </section>
+
+                <!-- =================================================
+                     SIDEBAR
+                ================================================== -->
+
+                <aside class="addresses-sidebar">
+                    <!-- Address Information -->
+
+                    <section class="addresses-card address-info-card">
+                        <div class="address-info-icon">📍</div>
+
+                        <h2>Delivery Addresses</h2>
+
+                        <p>
+                            Save your frequently used locations so you can order faster.
+                        </p>
+
+                        <ul>
+                            <li>Add your home address</li>
+
+                            <li>Add your work address</li>
+
+                            <li>Choose a default address</li>
+
+                            <li>Update addresses whenever needed</li>
+                        </ul>
+                    </section>
+
+                    <!-- Quick Link -->
+
+                    <section class="addresses-card">
+                        <div class="addresses-card-header">
+                            <h2>Account</h2>
+                        </div>
+
+                        <a href="profile.html" class="address-profile-link">
+                            ← Back to Profile
+                        </a>
+                    </section>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <!-- =====================================================
+         ADD / EDIT ADDRESS MODAL
+    ====================================================== -->
+
+    <div class="address-modal" id="addressModal" hidden>
+        <div class="address-modal-overlay" id="addressModalOverlay"></div>
+
+        <div class="address-modal-content" role="dialog" aria-modal="true" aria-labelledby="addressModalTitle">
+            <div class="address-modal-header">
+                <div>
+                    <span class="addresses-label"> Delivery </span>
+
+                    <h2 id="addressModalTitle">Add New Address</h2>
+                </div>
+
+                <button type="button" class="close-modal-button" id="closeAddressModal" aria-label="Close">
+                    ×
+                </button>
+            </div>
+
+            <form id="addressForm">
+                <!-- Address Type -->
+
+                <div class="address-form-group">
+                    <label for="addressType"> Address Type </label>
+
+                    <select id="addressType" name="addressType" required>
+                        <option value="Home">Home</option>
+
+                        <option value="Work">Work</option>
+
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <!-- Full Name -->
+
+                <div class="address-form-group">
+                    <label for="addressFullName"> Full Name </label>
+
+                    <input type="text" id="addressFullName" name="fullName" placeholder="Enter full name" required />
+                </div>
+
+                <!-- Phone -->
+
+                <div class="address-form-group">
+                    <label for="addressPhone"> Phone Number </label>
+
+                    <input type="tel" id="addressPhone" name="phone" placeholder="+254 700 000 000" required />
+                </div>
+
+                <!-- Address -->
+
+                <div class="address-form-group">
+                    <label for="addressLine"> Delivery Address </label>
+
+                    <textarea id="addressLine" name="address" rows="3" placeholder="Enter your delivery address"
+                        required></textarea>
+                </div>
+
+                <!-- City -->
+
+                <div class="address-form-group">
+                    <label for="addressCity"> City / Area </label>
+
+                    <input type="text" id="addressCity" name="city" placeholder="e.g. Nairobi" required />
+                </div>
+
+                <!-- Instructions -->
+
+                <div class="address-form-group">
+                    <label for="addressInstructions">
+                        Delivery Instructions
+                        <span>(Optional)</span>
+                    </label>
+
+                    <textarea id="addressInstructions" name="instructions" rows="2"
+                        placeholder="e.g. Call when you arrive"></textarea>
+                </div>
+
+                <!-- Default -->
+
+                <label class="default-address-checkbox">
+                    <input type="checkbox" id="setDefaultAddress" name="setDefault" />
+
+                    <span> Set this as my default delivery address </span>
+                </label>
+
+                <!-- Modal Actions -->
+
+                <div class="address-modal-actions">
+                    <button type="button" class="cancel-address-button" id="cancelAddressButton">
+                        Cancel
+                    </button>
+
+                    <button type="submit" class="save-address-button">
+                        Save Address
+                    </button>
+                </div>
+
+                <div class="address-form-message" id="addressFormMessage" role="status" aria-live="polite"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- =====================================================
+         CUSTOMER FOOTER
+    ====================================================== -->
+
+    <footer class="customer-footer">
+        <div class="customer-footer-container">
+            <div class="footer-brand">
+                <a href="home.html" class="customer-logo">
+                    Food<span>Delivery</span>
+                </a>
+
+                <p>Delicious food delivered straight to your door.</p>
+            </div>
+
+            <div class="footer-links">
+                <a href="home.html"> Home </a>
+
+                <a href="restaurants.html"> Restaurants </a>
+
+                <a href="orders.html"> Orders </a>
+
+                <a href="profile.html"> Profile </a>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 FoodDelivery. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/customer/addresses.js"></script>
+</body>
+
+</html>

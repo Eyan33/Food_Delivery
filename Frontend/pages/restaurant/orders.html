@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Orders | Mama's Kitchen | FoodDelivery</title>
+
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="../../assets/css/style.css">
+
+    <!-- Restaurant CSS -->
+    <link rel="stylesheet" href="../../assets/css/pages/restaurant/restaurant.css">
+    <link rel="stylesheet" href="../../assets/css/pages/restaurant/orders.css">
+</head>
+
+<body>
+
+    <div class="restaurant-dashboard">
+
+        <!-- =====================================================
+             SIDEBAR
+        ====================================================== -->
+
+        <aside class="restaurant-sidebar" id="restaurantSidebar">
+
+            <!-- Logo -->
+            <div class="restaurant-sidebar-header">
+                <a href="dashboard.html" class="restaurant-logo">
+                    Food<span>Delivery</span>
+                </a>
+            </div>
+
+            <!-- Restaurant Information -->
+            <div class="restaurant-profile-mini">
+
+                <div class="restaurant-avatar">
+                    MK
+                </div>
+
+                <div class="restaurant-profile-info">
+                    <strong>Mama's Kitchen</strong>
+                    <span>Restaurant</span>
+                </div>
+
+            </div>
+
+            <!-- Navigation -->
+            <nav class="restaurant-navigation">
+
+                <p class="restaurant-nav-title">MAIN MENU</p>
+
+                <a href="dashboard.html" class="restaurant-nav-link">
+                    <span class="nav-icon">▦</span>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="orders.html" class="restaurant-nav-link active">
+                    <span class="nav-icon">🛍</span>
+                    <span>Orders</span>
+                    <span class="nav-badge">5</span>
+                </a>
+
+                <a href="menu.html" class="restaurant-nav-link">
+                    <span class="nav-icon">☷</span>
+                    <span>Menu</span>
+                </a>
+
+                <a href="categories.html" class="restaurant-nav-link">
+                    <span class="nav-icon">▤</span>
+                    <span>Categories</span>
+                </a>
+
+                <p class="restaurant-nav-title">BUSINESS</p>
+
+                <a href="earnings.html" class="restaurant-nav-link">
+                    <span class="nav-icon">▥</span>
+                    <span>Earnings</span>
+                </a>
+
+                <a href="restaurant-profile.html" class="restaurant-nav-link">
+                    <span class="nav-icon">◉</span>
+                    <span>Restaurant Profile</span>
+                </a>
+
+                <a href="settings.html" class="restaurant-nav-link">
+                    <span class="nav-icon">⚙</span>
+                    <span>Settings</span>
+                </a>
+
+            </nav>
+
+            <!-- Sidebar Bottom -->
+            <div class="restaurant-sidebar-bottom">
+
+                <a href="../../pages/auth/login.html" class="restaurant-nav-link logout-link">
+                    <span class="nav-icon">↪</span>
+                    <span>Logout</span>
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =====================================================
+             MAIN CONTENT
+        ====================================================== -->
+
+        <main class="restaurant-main">
+
+
+            <!-- =================================================
+                 TOP BAR
+            ================================================== -->
+
+            <header class="restaurant-topbar">
+
+                <div class="restaurant-topbar-left">
+
+                    <button type="button" class="restaurant-menu-button" id="restaurantMenuButton"
+                        aria-label="Open menu">
+                        ☰
+                    </button>
+
+                    <div class="restaurant-page-heading">
+
+                        <h1>Orders</h1>
+
+                        <p>
+                            Manage your customer orders
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="restaurant-topbar-right">
+
+                    <!-- Restaurant Status -->
+
+                    <button type="button" class="restaurant-status" id="restaurantStatusButton">
+
+                        <span class="status-dot"></span>
+
+                        <span class="status-text">
+
+                            <small>Restaurant Status</small>
+
+                            <strong id="restaurantStatusText">
+                                Open
+                            </strong>
+
+                        </span>
+
+                    </button>
+
+
+                    <!-- Notifications -->
+
+                    <button type="button" class="restaurant-notification-button" aria-label="Notifications">
+
+                        <span>♧</span>
+
+                        <span class="notification-badge">
+                            3
+                        </span>
+
+                    </button>
+
+
+                    <!-- Profile -->
+
+                    <button type="button" class="restaurant-topbar-profile">
+
+                        <span class="topbar-avatar">
+                            MK
+                        </span>
+
+                        <span class="topbar-profile-text">
+
+                            <strong>Mama's Kitchen</strong>
+
+                            <small>Restaurant</small>
+
+                        </span>
+
+                        <span class="profile-arrow">
+                            ⌄
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </header>
+
+
+            <!-- =================================================
+                 ORDERS CONTENT
+            ================================================== -->
+
+            <section class="restaurant-dashboard-content">
+
+
+                <!-- =================================================
+                     PAGE HEADER
+                ================================================== -->
+
+                <div class="restaurant-welcome">
+
+                    <div>
+
+                        <h2>
+                            Orders
+                        </h2>
+
+                        <p>
+                            View and manage orders placed by your customers.
+                        </p>
+
+                    </div>
+
+                    <div class="dashboard-date">
+
+                        <span>
+                            Today
+                        </span>
+
+                        <strong>
+                            September 12, 2026
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     ORDER STATISTICS
+                ================================================== -->
+
+                <div class="restaurant-statistics">
+
+
+                    <!-- Total Orders -->
+
+                    <div class="restaurant-stat-card">
+
+                        <div class="stat-card-top">
+
+                            <div class="stat-icon orders-icon">
+                                🛍
+                            </div>
+
+                            <span class="stat-change positive">
+                                +12%
+                            </span>
+
+                        </div>
+
+                        <div class="stat-card-content">
+
+                            <span>
+                                Today's Orders
+                            </span>
+
+                            <strong>
+                                24
+                            </strong>
+
+                            <small>
+                                Compared to yesterday
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Pending -->
+
+                    <div class="restaurant-stat-card">
+
+                        <div class="stat-card-top">
+
+                            <div class="stat-icon pending-icon">
+                                ⏱
+                            </div>
+
+                            <span class="stat-change warning">
+                                Attention
+                            </span>
+
+                        </div>
+
+                        <div class="stat-card-content">
+
+                            <span>
+                                Pending Orders
+                            </span>
+
+                            <strong>
+                                5
+                            </strong>
+
+                            <small>
+                                Waiting for action
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Preparing -->
+
+                    <div class="restaurant-stat-card">
+
+                        <div class="stat-card-top">
+
+                            <div class="stat-icon revenue-icon">
+                                ◷
+                            </div>
+
+                            <span class="stat-change neutral">
+                                Active
+                            </span>
+
+                        </div>
+
+                        <div class="stat-card-content">
+
+                            <span>
+                                Preparing
+                            </span>
+
+                            <strong>
+                                4
+                            </strong>
+
+                            <small>
+                                Currently in kitchen
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Completed -->
+
+                    <div class="restaurant-stat-card">
+
+                        <div class="stat-card-top">
+
+                            <div class="stat-icon menu-icon">
+                                ✓
+                            </div>
+
+                            <span class="stat-change positive">
+                                Today
+                            </span>
+
+                        </div>
+
+                        <div class="stat-card-content">
+
+                            <span>
+                                Completed
+                            </span>
+
+                            <strong>
+                                15
+                            </strong>
+
+                            <small>
+                                Successfully delivered
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     ORDERS CARD
+                ================================================== -->
+
+                <section class="restaurant-dashboard-card restaurant-orders-page-card">
+
+
+                    <!-- Card Header -->
+
+                    <div class="dashboard-card-header">
+
+                        <div>
+
+                            <h3>
+                                All Orders
+                            </h3>
+
+                            <p>
+                                Manage incoming and completed orders
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         SEARCH + FILTERS
+                    ================================================== -->
+
+                    <div class="restaurant-orders-controls">
+
+
+                        <!-- Search -->
+
+                        <div class="restaurant-order-search">
+
+                            <span class="search-icon">
+                                ⌕
+                            </span>
+
+                            <input type="search" id="orderSearch" placeholder="Search order ID or customer..."
+                                autocomplete="off">
+
+                        </div>
+
+
+                        <!-- Status Filter -->
+
+                        <div class="restaurant-order-filter">
+
+                            <label for="orderStatusFilter">
+                                Status
+                            </label>
+
+                            <select id="orderStatusFilter">
+
+                                <option value="all">
+                                    All Orders
+                                </option>
+
+                                <option value="pending">
+                                    Pending
+                                </option>
+
+                                <option value="confirmed">
+                                    Confirmed
+                                </option>
+
+                                <option value="preparing">
+                                    Preparing
+                                </option>
+
+                                <option value="ready">
+                                    Ready
+                                </option>
+
+                                <option value="out-for-delivery">
+                                    Out for Delivery
+                                </option>
+
+                                <option value="delivered">
+                                    Delivered
+                                </option>
+
+                                <option value="cancelled">
+                                    Cancelled
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Date Filter -->
+
+                        <div class="restaurant-order-filter">
+
+                            <label for="orderDateFilter">
+                                Date
+                            </label>
+
+                            <select id="orderDateFilter">
+
+                                <option value="today">
+                                    Today
+                                </option>
+
+                                <option value="yesterday">
+                                    Yesterday
+                                </option>
+
+                                <option value="week">
+                                    This Week
+                                </option>
+
+                                <option value="month">
+                                    This Month
+                                </option>
+
+                                <option value="all">
+                                    All Time
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Clear -->
+
+                        <button type="button" class="restaurant-clear-filter" id="clearOrderFilters">
+
+                            Clear Filters
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         STATUS TABS
+                    ================================================== -->
+
+                    <div class="restaurant-order-tabs">
+
+                        <button type="button" class="restaurant-order-tab active" data-status="all">
+
+                            All
+                            <span>24</span>
+
+                        </button>
+
+                        <button type="button" class="restaurant-order-tab" data-status="pending">
+
+                            Pending
+                            <span>5</span>
+
+                        </button>
+
+                        <button type="button" class="restaurant-order-tab" data-status="preparing">
+
+                            Preparing
+                            <span>4</span>
+
+                        </button>
+
+                        <button type="button" class="restaurant-order-tab" data-status="ready">
+
+                            Ready
+                            <span>2</span>
+
+                        </button>
+
+                        <button type="button" class="restaurant-order-tab" data-status="delivered">
+
+                            Delivered
+                            <span>15</span>
+
+                        </button>
+
+                        <button type="button" class="restaurant-order-tab" data-status="cancelled">
+
+                            Cancelled
+                            <span>2</span>
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         ORDERS TABLE
+                    ================================================== -->
+
+                    <div class="orders-table-wrapper">
+
+                        <table class="restaurant-orders-table restaurant-full-orders-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Order
+                                    </th>
+
+                                    <th>
+                                        Customer
+                                    </th>
+
+                                    <th>
+                                        Items
+                                    </th>
+
+                                    <th>
+                                        Amount
+                                    </th>
+
+                                    <th>
+                                        Payment
+                                    </th>
+
+                                    <th>
+                                        Status
+                                    </th>
+
+                                    <th>
+                                        Time
+                                    </th>
+
+                                    <th>
+                                        Action
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="restaurantOrdersList">
+
+
+                                <!-- =================================================
+                                     ORDER 1
+                                ================================================== -->
+
+                                <tr class="restaurant-order-row" data-status="preparing" data-order-id="FD-1008">
+
+                                    <td>
+
+                                        <strong>
+                                            #FD-1008
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="customer-table-info">
+
+                                            <span class="customer-small-avatar">
+                                                JM
+                                            </span>
+
+                                            <span>
+                                                John Mwangi
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+                                        2 items
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+                                            KSh 1,300
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+                                        M-Pesa
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="order-status preparing">
+                                            Preparing
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+                                        8:45 AM
+                                    </td>
+
+
+                                    <td>
+
+                                        <button type="button" class="order-action-button" data-order-id="FD-1008">
+
+                                            View
+
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+
+
+                                <!-- =================================================
+                                     ORDER 2
+                                ================================================== -->
+
+                                <tr class="restaurant-order-row" data-status="confirmed" data-order-id="FD-1007">
+
+                                    <td>
+
+                                        <strong>
+                                            #FD-1007
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="customer-table-info">
+
+                                            <span class="customer-small-avatar">
+                                                AW
+                                            </span>
+
+                                            <span>
+                                                Anne Wanjiku
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+                                        3 items
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+                                            KSh 2,050
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+                                        M-Pesa
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="order-status confirmed">
+                                            Confirmed
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+                                        8:32 AM
+                                    </td>
+
+
+                                    <td>
+
+                                        <button type="button" class="order-action-button" data-order-id="FD-1007">
+
+                                            View
+
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+
+
+                                <!-- =================================================
+                                     ORDER 3
+                                ================================================== -->
+
+                                <tr class="restaurant-order-row" data-status="ready" data-order-id="FD-1006">
+
+                                    <td>
+
+                                        <strong>
+                                            #FD-1006
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="customer-table-info">
+
+                                            <span class="customer-small-avatar">
+                                                DK
+                                            </span>
+
+                                            <span>
+                                                David Kamau
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+                                        1 item
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+                                            KSh 650
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+                                        Cash
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="order-status ready">
+                                            Ready
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+                                        8:15 AM
+                                    </td>
+
+
+                                    <td>
+
+                                        <button type="button" class="order-action-button" data-order-id="FD-1006">
+
+                                            View
+
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+
+
+                                <!-- =================================================
+                                     ORDER 4
+                                ================================================== -->
+
+                                <tr class="restaurant-order-row" data-status="delivered" data-order-id="FD-1005">
+
+                                    <td>
+
+                                        <strong>
+                                            #FD-1005
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="customer-table-info">
+
+                                            <span class="customer-small-avatar">
+                                                SN
+                                            </span>
+
+                                            <span>
+                                                Sarah Njeri
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+                                        4 items
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+                                            KSh 2,450
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+                                        M-Pesa
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="order-status delivered">
+                                            Delivered
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+                                        7:50 AM
+                                    </td>
+
+
+                                    <td>
+
+                                        <button type="button" class="order-action-button" data-order-id="FD-1005">
+
+                                            View
+
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+
+
+                                <!-- =================================================
+                                     ORDER 5
+                                ================================================== -->
+
+                                <tr class="restaurant-order-row" data-status="cancelled" data-order-id="FD-1004">
+
+                                    <td>
+
+                                        <strong>
+                                            #FD-1004
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="customer-table-info">
+
+                                            <span class="customer-small-avatar">
+                                                EO
+                                            </span>
+
+                                            <span>
+                                                Eric Otieno
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+                                        2 items
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+                                            KSh 1,500
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+                                        M-Pesa
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="order-status cancelled">
+                                            Cancelled
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+                                        7:25 AM
+                                    </td>
+
+
+                                    <td>
+
+                                        <button type="button" class="order-action-button" data-order-id="FD-1004">
+
+                                            View
+
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         NO RESULTS
+                    ================================================== -->
+
+                    <div class="restaurant-no-orders" id="noOrdersMessage" hidden>
+
+                        <div class="no-orders-icon">
+                            🛍
+                        </div>
+
+                        <h3>
+                            No orders found
+                        </h3>
+
+                        <p>
+                            Try changing your search or filter options.
+                        </p>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         PAGINATION
+                    ================================================== -->
+
+                    <div class="restaurant-orders-pagination">
+
+                        <span class="orders-pagination-info">
+                            Showing 1–5 of 24 orders
+                        </span>
+
+                        <div class="orders-pagination-buttons">
+
+                            <button type="button" disabled aria-label="Previous page">
+
+                                ‹
+
+                            </button>
+
+                            <button type="button" class="active">
+
+                                1
+
+                            </button>
+
+                            <button type="button">
+                                2
+                            </button>
+
+                            <button type="button">
+                                3
+                            </button>
+
+                            <button type="button">
+                                4
+                            </button>
+
+                            <button type="button">
+                                5
+                            </button>
+
+                            <button type="button" aria-label="Next page">
+
+                                ›
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     ORDER MESSAGE
+                ================================================== -->
+
+                <div class="restaurant-page-message" id="restaurantOrderMessage" role="status" aria-live="polite"
+                    hidden>
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- =========================================================
+     ORDER DETAILS MODAL
+========================================================== -->
+<div class="restaurant-modal-backdrop"
+     id="orderDetailsModal"
+     hidden>
+
+    <section class="restaurant-order-modal"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="orderModalTitle">
+
+        <header class="restaurant-order-modal-header">
+            <div>
+                <span class="restaurant-modal-eyebrow">ORDER MANAGEMENT</span>
+                <h2 id="orderModalTitle">Order details</h2>
+                <p id="orderModalSubtitle">Loading order details...</p>
+            </div>
+
+            <button type="button"
+                    class="restaurant-modal-close"
+                    id="closeOrderModal"
+                    aria-label="Close order details">
+                &times;
+            </button>
+        </header>
+
+        <div class="restaurant-order-modal-body" id="orderModalBody">
+            <p class="restaurant-modal-loading">Loading order details...</p>
+        </div>
+
+        <footer class="restaurant-order-modal-footer">
+            <span id="orderModalStatus" class="order-status pending">Loading</span>
+
+            <div class="restaurant-modal-actions" id="orderModalActions">
+                <button type="button"
+                        class="restaurant-modal-button secondary"
+                        id="closeOrderModalFooter">
+                    Close
+                </button>
+            </div>
+        </footer>
+
+    </section>
+</div>
+
+
+    <!-- =========================================================
+         RESTAURANT ORDERS JAVASCRIPT
+    ========================================================== -->
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/auth/auth-api.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/restaurant/orders.js"></script>
+
+</body>
+
+</html>

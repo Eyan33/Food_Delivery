@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Profile | FoodDelivery</title>
+
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/pages/customer/customer.css">
+    <link rel="stylesheet" href="../../assets/css/pages/customer/profile.css">
+</head>
+
+<body>
+
+    <!-- =====================================================
+         CUSTOMER HEADER
+    ====================================================== -->
+
+    <header class="customer-header">
+
+        <div class="customer-header-container">
+
+            <a href="home.html" class="customer-logo">
+                Food<span>Delivery</span>
+            </a>
+
+            <!-- Delivery Location -->
+            <a href="addresses.html">
+                <button type="button" class="delivery-location">
+                    <span class="location-icon">📍</span>
+
+                    <span class="location-text">
+                        <small>Deliver to</small>
+                        <strong>Select location</strong>
+                    </span>
+                </button>
+            </a>
+
+            <nav class="customer-navigation">
+
+                <a href="home.html">
+                    Home
+                </a>
+
+                <a href="restaurants.html">
+                    Restaurants
+                </a>
+
+                <a href="orders.html">
+                    Orders
+                </a>
+
+                <a href="profile.html" class="active">
+                    Profile
+                </a>
+
+                <a href="../auth/login.html">
+                    Logout
+                </a>
+
+            </nav>
+
+            <button type="button" class="mobile-menu-button" id="mobileMenuButton" aria-label="Open menu">
+                ☰
+            </button>
+
+        </div>
+
+
+        <!-- Mobile Navigation -->
+
+        <nav class="mobile-navigation" id="mobileNavigation">
+
+            <a href="home.html">
+                Home
+            </a>
+
+            <a href="restaurants.html">
+                Restaurants
+            </a>
+
+            <a href="orders.html">
+                Orders
+            </a>
+
+            <a href="profile.html" class="active">
+                Profile
+            </a>
+
+            <a href="../auth/login.html">
+                Logout
+            </a>
+
+        </nav>
+
+    </header>
+
+
+    <!-- =====================================================
+         PROFILE PAGE
+    ====================================================== -->
+
+    <main class="profile-page">
+
+        <div class="profile-container">
+
+
+            <!-- Page Header -->
+
+            <section class="profile-page-header">
+
+                <div>
+
+                    <span class="profile-label">
+                        Account
+                    </span>
+
+                    <h1>
+                        My Profile
+                    </h1>
+
+                    <p>
+                        Manage your personal information and account settings.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 PROFILE LAYOUT
+            ================================================== -->
+
+            <div class="profile-layout">
+
+
+                <!-- =================================================
+                     LEFT COLUMN
+                ================================================== -->
+
+                <div class="profile-main">
+
+
+                    <!-- Personal Information -->
+
+                    <section class="profile-card">
+
+                        <div class="profile-card-header">
+
+                            <div>
+
+                                <h2>
+                                    Personal Information
+                                </h2>
+
+                                <p>
+                                    Update the information associated with your account.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <form id="profileForm">
+
+
+                            <!-- Full Name -->
+
+                            <div class="profile-form-group">
+
+                                <label for="fullName">
+                                    Full Name
+                                </label>
+
+                                <input type="text" id="fullName" name="fullName" value="Eyan"
+                                    placeholder="Enter your full name" required>
+
+                            </div>
+
+
+                            <!-- Email -->
+
+                            <div class="profile-form-group">
+
+                                <label for="email">
+                                    Email Address
+                                </label>
+
+                                <input type="email" id="email" name="email" value="eyan@example.com"
+                                    placeholder="Enter your email address" required>
+
+                            </div>
+
+
+                            <!-- Phone -->
+
+                            <div class="profile-form-group">
+
+                                <label for="phone">
+                                    Phone Number
+                                </label>
+
+                                <input type="tel" id="phone" name="phone" value="+254 700 000 000"
+                                    placeholder="Enter your phone number" required>
+
+                            </div>
+
+
+                            <!-- Save -->
+
+                            <div class="profile-form-actions">
+
+                                <button type="submit" class="profile-primary-button">
+                                    Save Changes
+                                </button>
+
+                            </div>
+
+                        </form>
+
+
+                        <div id="profileMessage" class="profile-message" role="status" aria-live="polite"></div>
+
+                    </section>
+
+
+                    <!-- =================================================
+                         CHANGE PASSWORD
+                    ================================================== -->
+
+                    <section class="profile-card">
+
+                        <div class="profile-card-header">
+
+                            <div>
+
+                                <h2>
+                                    Change Password
+                                </h2>
+
+                                <p>
+                                    Update your password to keep your account secure.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <form id="passwordForm">
+
+
+                            <!-- Current Password -->
+
+                            <div class="profile-form-group">
+
+                                <label for="currentPassword">
+                                    Current Password
+                                </label>
+
+                                <input type="password" id="currentPassword" name="currentPassword"
+                                    placeholder="Enter your current password" required>
+
+                            </div>
+
+
+                            <!-- New Password -->
+
+                            <div class="profile-form-group">
+
+                                <label for="newPassword">
+                                    New Password
+                                </label>
+
+                                <input type="password" id="newPassword" name="newPassword"
+                                    placeholder="Enter your new password" required>
+
+                            </div>
+
+
+                            <!-- Confirm Password -->
+
+                            <div class="profile-form-group">
+
+                                <label for="confirmPassword">
+                                    Confirm New Password
+                                </label>
+
+                                <input type="password" id="confirmPassword" name="confirmPassword"
+                                    placeholder="Confirm your new password" required>
+
+                            </div>
+
+
+                            <div class="profile-form-actions">
+
+                                <button type="submit" class="profile-primary-button">
+                                    Update Password
+                                </button>
+
+                            </div>
+
+                        </form>
+
+
+                        <div id="passwordMessage" class="profile-message" role="status" aria-live="polite"></div>
+
+                    </section>
+
+
+                    <!-- =================================================
+                         ACCOUNT ACTIONS
+                    ================================================== -->
+
+                    <section class="profile-card account-actions-card">
+
+                        <div class="profile-card-header">
+
+                            <div>
+
+                                <h2>
+                                    Account
+                                </h2>
+
+                                <p>
+                                    Manage your FoodDelivery account.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="account-action-list">
+
+
+                            <!-- Orders -->
+
+                            <a href="orders.html" class="account-action">
+
+                                <div class="account-action-icon">
+                                    📦
+                                </div>
+
+                                <div class="account-action-content">
+
+                                    <strong>
+                                        My Orders
+                                    </strong>
+
+                                    <span>
+                                        View your previous and current orders
+                                    </span>
+
+                                </div>
+
+                                <span class="account-action-arrow">
+                                    →
+                                </span>
+
+                            </a>
+
+
+                            <!-- Addresses -->
+
+                            <a href="addresses.html" class="account-action">
+
+                                <div class="account-action-icon">
+                                    📍
+                                </div>
+
+                                <div class="account-action-content">
+
+                                    <strong>
+                                        My Addresses
+                                    </strong>
+
+                                    <span>
+                                        Manage your delivery addresses
+                                    </span>
+
+                                </div>
+
+                                <span class="account-action-arrow">
+                                    →
+                                </span>
+
+                            </a>
+
+
+                            <!-- Logout -->
+
+                            <a href="../auth/login.html" class="account-action account-action-danger">
+
+                                <div class="account-action-icon">
+                                    ↪
+                                </div>
+
+                                <div class="account-action-content">
+
+                                    <strong>
+                                        Logout
+                                    </strong>
+
+                                    <span>
+                                        Sign out of your FoodDelivery account
+                                    </span>
+
+                                </div>
+
+                                <span class="account-action-arrow">
+                                    →
+                                </span>
+
+                            </a>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+
+                <!-- =================================================
+                     RIGHT SIDEBAR
+                ================================================== -->
+
+                <aside class="profile-sidebar">
+
+
+                    <!-- Profile Summary -->
+
+                    <section class="profile-card profile-summary-card">
+
+                        <div class="profile-avatar">
+                            E
+                        </div>
+
+                        <h2>
+                            Eyan
+                        </h2>
+
+                        <p>
+                            eyan@example.com
+                        </p>
+
+                        <span class="member-since">
+                            FoodDelivery Customer
+                        </span>
+
+                    </section>
+
+
+                    <!-- Quick Links -->
+
+                    <section class="profile-card quick-links-card">
+
+                        <div class="profile-card-header">
+
+                            <h2>
+                                Quick Links
+                            </h2>
+
+                        </div>
+
+
+                        <div class="quick-links">
+
+                            <a href="orders.html">
+                                <span>My Orders</span>
+                                <span>→</span>
+                            </a>
+
+                            <a href="addresses.html">
+                                <span>My Addresses</span>
+                                <span>→</span>
+                            </a>
+
+                            <a href="restaurants.html">
+                                <span>Browse Restaurants</span>
+                                <span>→</span>
+                            </a>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- Help -->
+
+                    <section class="profile-card profile-help-card">
+
+                        <div class="profile-help-icon">
+                            ?
+                        </div>
+
+                        <h3>
+                            Need Help?
+                        </h3>
+
+                        <p>
+                            Contact our support team if you need assistance with your account or orders.
+                        </p>
+
+                        <button type="button" id="contactSupportButton" class="profile-secondary-button">
+                            Contact Support
+                        </button>
+
+                    </section>
+
+                </aside>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- =====================================================
+         CUSTOMER FOOTER
+    ====================================================== -->
+
+    <footer class="customer-footer">
+
+        <div class="customer-footer-container">
+
+            <div class="footer-brand">
+
+                <a href="home.html" class="customer-logo">
+                    Food<span>Delivery</span>
+                </a>
+
+                <p>
+                    Delicious food delivered straight to your door.
+                </p>
+
+            </div>
+
+
+            <div class="footer-links">
+
+                <a href="home.html">
+                    Home
+                </a>
+
+                <a href="restaurants.html">
+                    Restaurants
+                </a>
+
+                <a href="orders.html">
+                    Orders
+                </a>
+
+                <a href="profile.html">
+                    Profile
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <p>
+                &copy; 2026 FoodDelivery. All rights reserved.
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/customer/profile.js"></script>
+
+</body>
+
+</html>

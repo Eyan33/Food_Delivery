@@ -1,0 +1,995 @@
+/* =========================================================
+   RESTAURANT EARNINGS
+   FoodDelivery
+   System Colors:
+   #F8FAFC - Page background
+   #0F172A - Primary text/sidebar
+   #1E40AF - Dark blue
+   #2563EB - Primary blue
+   #FFFFFF - Cards
+   #E2E8F0 - Borders
+   #22C55E - Success
+   #F59E0B - Warning
+   #EF4444 - Error
+   #64748B - Muted text
+   ========================================================= */
+
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.earnings-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.earnings-page-header h2 {
+    margin: 0 0 6px;
+    color: #0F172A;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.earnings-page-header p {
+    margin: 0;
+    color: #64748B;
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   PERIOD SELECTOR
+   ========================================================= */
+
+.earnings-period-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.earnings-period-selector label {
+    color: #64748B;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.earnings-period-selector select {
+    min-width: 150px;
+    padding: 10px 14px;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    background: #FFFFFF;
+    color: #0F172A;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+}
+
+.earnings-period-selector select:focus {
+    border-color: #2563EB;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+
+/* =========================================================
+   EARNINGS SUMMARY
+   ========================================================= */
+
+.earnings-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.earnings-summary-card {
+    padding: 20px;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    background: #FFFFFF;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+.earnings-summary-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.earnings-summary-icon {
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #EFF6FF;
+    color: #2563EB;
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.earnings-summary-icon.revenue {
+    background: #EFF6FF;
+    color: #2563EB;
+}
+
+.earnings-summary-icon.earnings {
+    background: #F0FDF4;
+    color: #22C55E;
+}
+
+.earnings-summary-icon.orders {
+    background: #FFF7ED;
+    color: #F59E0B;
+}
+
+.earnings-summary-icon.average {
+    background: #EEF2FF;
+    color: #6366F1;
+}
+
+.earnings-change {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.earnings-change.positive {
+    color: #22C55E;
+}
+
+.earnings-change.warning {
+    color: #F59E0B;
+}
+
+.earnings-change.neutral {
+    color: #64748B;
+}
+
+.earnings-summary-content span {
+    display: block;
+    margin-bottom: 7px;
+
+    color: #64748B;
+
+    font-size: 13px;
+}
+
+.earnings-summary-content strong {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #0F172A;
+
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.earnings-summary-content small {
+    color: #64748B;
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   MAIN EARNINGS GRID
+   ========================================================= */
+
+.earnings-main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+
+/* =========================================================
+   DASHBOARD CARD
+   ========================================================= */
+
+.earnings-main-grid .restaurant-dashboard-card,
+.earnings-transactions-card,
+.earnings-breakdown-card,
+.earnings-performance-card {
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    background: #FFFFFF;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   CARD HEADER
+   ========================================================= */
+
+.earnings-main-grid .dashboard-card-header,
+.earnings-transactions-card .dashboard-card-header,
+.earnings-breakdown-card .dashboard-card-header,
+.earnings-performance-card .dashboard-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+
+    padding: 20px 22px;
+
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.dashboard-card-header h3 {
+    margin: 0 0 5px;
+
+    color: #0F172A;
+
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.dashboard-card-header p {
+    margin: 0;
+
+    color: #64748B;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   CHART LEGEND
+   ========================================================= */
+
+.chart-legend {
+    display: flex;
+    align-items: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    color: #64748B;
+
+    font-size: 12px;
+}
+
+.legend-dot {
+    width: 9px;
+    height: 9px;
+
+    border-radius: 50%;
+
+    background: #2563EB;
+}
+
+
+/* =========================================================
+   EARNINGS CHART
+   ========================================================= */
+
+.earnings-chart {
+    display: flex;
+    min-height: 320px;
+    padding: 24px;
+}
+
+.chart-y-axis {
+    width: 65px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    padding: 5px 10px 30px 0;
+}
+
+.chart-y-axis span {
+    color: #64748B;
+    font-size: 10px;
+    text-align: right;
+}
+
+.chart-area {
+    position: relative;
+
+    flex: 1;
+
+    min-width: 0;
+    min-height: 260px;
+
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.chart-grid-lines {
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.chart-grid-lines span {
+    display: block;
+
+    width: 100%;
+
+    border-top: 1px dashed #E2E8F0;
+}
+
+.chart-bars {
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+
+    gap: 20px;
+
+    padding: 10px 20px 0;
+}
+
+.chart-bar-column {
+    height: 100%;
+
+    flex: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+.chart-bar {
+    width: 100%;
+    max-width: 55px;
+
+    min-height: 10px;
+
+    border-radius: 6px 6px 0 0;
+
+    background: #2563EB;
+
+    transition: opacity 0.2s ease,
+                transform 0.2s ease;
+}
+
+.chart-bar:hover {
+    opacity: 0.85;
+    transform: translateY(-2px);
+}
+
+.chart-bar-column > span {
+    color: #64748B;
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   PAYOUT CARD
+   ========================================================= */
+
+.payout-card {
+    overflow: hidden;
+}
+
+.payout-status {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    padding: 20px;
+
+    background: #F8FAFC;
+
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.payout-status-icon {
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #F0FDF4;
+    color: #22C55E;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.payout-status span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #64748B;
+
+    font-size: 12px;
+}
+
+.payout-status strong {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #0F172A;
+
+    font-size: 20px;
+}
+
+.payout-status small {
+    color: #64748B;
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   PAYOUT DETAILS
+   ========================================================= */
+
+.payout-details {
+    padding: 10px 22px;
+}
+
+.payout-detail-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 13px 0;
+
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.payout-detail-row:last-child {
+    border-bottom: none;
+}
+
+.payout-detail-row span {
+    color: #64748B;
+    font-size: 12px;
+}
+
+.payout-detail-row strong {
+    color: #0F172A;
+    font-size: 13px;
+}
+
+.payout-detail-row.total {
+    margin-top: 4px;
+    padding-top: 16px;
+    border-top: 1px solid #CBD5E1;
+}
+
+.payout-detail-row.total span {
+    color: #0F172A;
+    font-weight: 600;
+}
+
+.payout-detail-row.total strong {
+    color: #2563EB;
+    font-size: 15px;
+}
+
+
+/* =========================================================
+   PAYOUT BUTTON
+   ========================================================= */
+
+.earnings-payout-button {
+    width: calc(100% - 44px);
+
+    margin: 10px 22px 22px;
+
+    padding: 11px 16px;
+
+    border: 1px solid #2563EB;
+    border-radius: 8px;
+
+    background: #2563EB;
+    color: #FFFFFF;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: background 0.2s ease,
+                border-color 0.2s ease;
+}
+
+.earnings-payout-button:hover {
+    background: #1E40AF;
+    border-color: #1E40AF;
+}
+
+
+/* =========================================================
+   TRANSACTIONS
+   ========================================================= */
+
+.earnings-transactions-card {
+    margin-bottom: 24px;
+}
+
+.earnings-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.earnings-table {
+    width: 100%;
+    min-width: 850px;
+
+    border-collapse: collapse;
+}
+
+.earnings-table th {
+    padding: 14px 20px;
+
+    background: #F8FAFC;
+
+    border-bottom: 1px solid #E2E8F0;
+
+    color: #64748B;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    text-align: left;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.03em;
+}
+
+.earnings-table td {
+    padding: 16px 20px;
+
+    border-bottom: 1px solid #E2E8F0;
+
+    color: #64748B;
+
+    font-size: 13px;
+}
+
+.earnings-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.earnings-table tbody tr:hover {
+    background: #F8FAFC;
+}
+
+
+/* =========================================================
+   TRANSACTION INFO
+   ========================================================= */
+
+.transaction-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.transaction-info > div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.transaction-info strong {
+    color: #0F172A;
+    font-size: 13px;
+}
+
+.transaction-info small {
+    color: #64748B;
+    font-size: 11px;
+}
+
+.transaction-icon {
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+
+    background: #EFF6FF;
+    color: #2563EB;
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.transaction-icon.payout {
+    background: #F0FDF4;
+    color: #22C55E;
+}
+
+
+/* =========================================================
+   TRANSACTION STATUS
+   ========================================================= */
+
+.transaction-status {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 5px 9px;
+
+    border-radius: 20px;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.transaction-status.completed {
+    background: #F0FDF4;
+    color: #22C55E;
+}
+
+.transaction-status.paid {
+    background: #EFF6FF;
+    color: #2563EB;
+}
+
+
+/* =========================================================
+   EXPORT BUTTON
+   ========================================================= */
+
+.earnings-export-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 9px 14px;
+
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+
+    background: #FFFFFF;
+    color: #0F172A;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: background 0.2s ease,
+                border-color 0.2s ease;
+}
+
+.earnings-export-button:hover {
+    background: #F8FAFC;
+    border-color: #CBD5E1;
+}
+
+
+/* =========================================================
+   BREAKDOWN GRID
+   ========================================================= */
+
+.earnings-breakdown-grid {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+
+    gap: 20px;
+
+    margin-bottom: 24px;
+}
+
+
+/* =========================================================
+   REVENUE BREAKDOWN
+   ========================================================= */
+
+.breakdown-list {
+    padding: 10px 22px 20px;
+}
+
+.breakdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 14px 0;
+}
+
+.breakdown-label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.breakdown-label > span:last-child {
+    color: #64748B;
+    font-size: 13px;
+}
+
+.breakdown-item strong {
+    color: #0F172A;
+    font-size: 13px;
+}
+
+.breakdown-indicator {
+    width: 9px;
+    height: 9px;
+
+    border-radius: 50%;
+
+    background: #2563EB;
+}
+
+.breakdown-indicator.orders {
+    background: #2563EB;
+}
+
+.breakdown-indicator.delivery {
+    background: #22C55E;
+}
+
+.breakdown-indicator.promotion {
+    background: #F59E0B;
+}
+
+.breakdown-progress {
+    width: 100%;
+    height: 6px;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+
+    background: #F1F5F9;
+}
+
+.breakdown-progress span {
+    display: block;
+
+    height: 100%;
+
+    border-radius: inherit;
+
+    background: #2563EB;
+}
+
+.breakdown-item:nth-of-type(4) + .breakdown-progress span {
+    background: #22C55E;
+}
+
+.breakdown-item:nth-of-type(7) + .breakdown-progress span {
+    background: #F59E0B;
+}
+
+
+/* =========================================================
+   PERFORMANCE
+   ========================================================= */
+
+.performance-list {
+    padding: 5px 22px 15px;
+}
+
+.performance-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 15px 0;
+
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.performance-row:last-child {
+    border-bottom: none;
+}
+
+.performance-row > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.performance-row span {
+    color: #0F172A;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.performance-row small {
+    color: #64748B;
+    font-size: 11px;
+}
+
+.performance-row strong {
+    color: #0F172A;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.performance-positive {
+    color: #22C55E !important;
+}
+
+.performance-warning {
+    color: #F59E0B !important;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+    .earnings-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .earnings-main-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 900px) {
+
+    .earnings-breakdown-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 768px) {
+
+    .earnings-page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .earnings-period-selector {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .earnings-period-selector select {
+        flex: 1;
+    }
+
+    .earnings-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .earnings-main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .earnings-chart {
+        min-height: 280px;
+        padding: 18px;
+    }
+
+    .chart-bars {
+        gap: 8px;
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .chart-bar {
+        max-width: 40px;
+    }
+
+    .earnings-main-grid .dashboard-card-header,
+    .earnings-transactions-card .dashboard-card-header,
+    .earnings-breakdown-card .dashboard-card-header,
+    .earnings-performance-card .dashboard-card-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    .earnings-page-header h2 {
+        font-size: 21px;
+    }
+
+    .earnings-summary-card {
+        padding: 16px;
+    }
+
+    .earnings-summary-content strong {
+        font-size: 21px;
+    }
+
+    .earnings-period-selector {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .earnings-period-selector select {
+        width: 100%;
+    }
+
+    .earnings-chart {
+        padding: 14px;
+    }
+
+    .chart-y-axis {
+        width: 50px;
+    }
+
+    .chart-y-axis span {
+        font-size: 9px;
+    }
+
+    .chart-bar-column > span {
+        font-size: 9px;
+    }
+
+    .payout-status {
+        padding: 16px;
+    }
+
+    .payout-details {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .earnings-payout-button {
+        width: calc(100% - 32px);
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+
+    .breakdown-list {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .performance-list {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+}

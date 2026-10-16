@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Reports | FoodDelivery Admin</title>
+
+    <!-- =========================
+         GLOBAL STYLES
+    ========================== -->
+    <link rel="stylesheet" href="../../assets/css/style.css" />
+
+    <!-- =========================
+         ADMIN REPORTS STYLES
+    ========================== -->
+    <link rel="stylesheet" href="../../assets/css/pages/admin/dashboard.css" />
+    <link rel="stylesheet" href="../../assets/css/pages/admin/reports.css" />
+</head>
+
+<body>
+    <!-- =========================
+         ADMIN LAYOUT
+    ========================== -->
+    <div class="admin-layout">
+        <!-- =========================
+             ADMIN SIDEBAR
+        ========================== -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <!-- =========================
+                 SIDEBAR HEADER / LOGO
+            ========================== -->
+            <div class="admin-sidebar-header">
+                <a href="dashboard.html" class="admin-logo">
+                    Food<span>Delivery</span>
+                </a>
+
+                <button type="button" id="adminCloseMenuButton" class="admin-close-menu-button" aria-label="Close menu">
+                ×
+            </button>
+
+            </div>
+
+            <!-- =========================
+                 ADMIN PROFILE
+            ========================== -->
+            <div class="admin-profile">
+                <div class="admin-profile-avatar">A</div>
+
+                <div class="admin-profile-info">
+                    <strong>Admin User</strong>
+                    <span>Administrator</span>
+                </div>
+            </div>
+
+            <!-- =========================
+                 ADMIN NAVIGATION
+            ========================== -->
+            <nav class="admin-navigation">
+                <!-- Dashboard -->
+                <a href="dashboard.html" class="admin-nav-link">
+                    <span class="admin-nav-icon">▣</span>
+                    <span>Dashboard</span>
+                </a>
+
+                <!-- Orders -->
+                <a href="orders.html" class="admin-nav-link">
+                    <span class="admin-nav-icon">▤</span>
+                    <span>Orders</span>
+                    <span class="admin-nav-badge">12</span>
+                </a>
+
+                <!-- Customers -->
+                <a href="customers.html" class="admin-nav-link">
+                    <span class="admin-nav-icon">◯</span>
+                    <span>Customers</span>
+                </a>
+
+                <!-- Restaurants -->
+                <a href="restaurants.html" class="admin-nav-link">
+                    <span class="admin-nav-icon">▦</span>
+                    <span>Restaurants</span>
+                </a>
+
+                <!-- Riders -->
+                <a href="riders.html" class="admin-nav-link">
+                    <span class="admin-nav-icon">◈</span>
+                    <span>Riders</span>
+                </a>
+
+                <!-- Payments -->
+                <a href="payments.html" class="admin-nav-link">
+                    <span class="admin-nav-icon">KSh</span>
+                    <span>Payments</span>
+                </a>
+
+                <!-- Reports -->
+                <a href="reports.html" class="admin-nav-link active">
+                    <span class="admin-nav-icon">▥</span>
+                    <span>Reports</span>
+                </a>
+
+                <!-- Settings -->
+                <a href="settings.html" class="admin-nav-link">
+                    <span class="admin-nav-icon">⚙</span>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <!-- =========================
+                 SIDEBAR FOOTER
+            ========================== -->
+            <div class="admin-sidebar-footer">
+                <a href="../../index.html" class="admin-nav-link">
+                    <span class="admin-nav-icon">↪</span>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- =========================
+             ADMIN MAIN CONTENT
+        ========================== -->
+        <main class="admin-main">
+            <!-- =========================
+                 ADMIN TOPBAR
+            ========================== -->
+            <header class="admin-topbar">
+                <!-- Topbar Left -->
+                <div class="admin-topbar-left">
+                    <button type="button" class="admin-mobile-menu-button" id="adminMenuButton" aria-label="Open menu">
+                        ☰
+                    </button>
+
+                    <div>
+                        <h1>Reports</h1>
+                        <p>Analyze your food delivery platform performance.</p>
+                    </div>
+                </div>
+
+                <!-- Topbar Right -->
+                <div class="admin-topbar-right">
+                    <!-- Notifications -->
+                    <button type="button" class="admin-notification-button" aria-label="Notifications">
+                        <span>🔔</span>
+                        <span class="admin-notification-badge">5</span>
+                    </button>
+
+                    <!-- Admin Profile -->
+                    <div class="admin-topbar-profile">
+                        <div class="admin-topbar-avatar">A</div>
+
+                        <div class="admin-topbar-profile-info">
+                            <strong>Admin User</strong>
+                            <span>Administrator</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- =========================
+                 ADMIN CONTENT
+            ========================== -->
+            <div class="admin-content">
+                <!-- =========================
+                     PAGE HEADER
+                ========================== -->
+                <div class="admin-page-header">
+                    <div>
+                        <h2>Platform Reports</h2>
+                        <p>
+                            View revenue, orders, customers and restaurant performance
+                            reports.
+                        </p>
+                    </div>
+
+                    <div class="admin-page-actions">
+                        <button type="button" class="admin-secondary-button">
+                            Export Report
+                        </button>
+
+                        <button type="button" class="admin-primary-button">
+                            Generate Report
+                        </button>
+                    </div>
+                </div>
+
+                <!-- =========================
+                     REPORT FILTERS
+                ========================== -->
+                <section class="admin-content-card admin-reports-filter-card">
+                    <div class="admin-card-header">
+                        <div>
+                            <h3>Report Filters</h3>
+                            <p>Select the period and report type.</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-report-filters">
+                        <!-- Date Range -->
+                        <div class="admin-report-filter">
+                            <label for="reportPeriod"> Date Range </label>
+
+                            <select id="reportPeriod">
+                                <option>Today</option>
+                                <option>Yesterday</option>
+                                <option selected>Last 7 Days</option>
+                                <option>Last 30 Days</option>
+                                <option>This Month</option>
+                                <option>Last Month</option>
+                                <option>This Year</option>
+                            </select>
+                        </div>
+
+                        <!-- Report Type -->
+                        <div class="admin-report-filter">
+                            <label for="reportType"> Report Type </label>
+
+                            <select id="reportType">
+                                <option selected>Overview</option>
+                                <option>Sales Report</option>
+                                <option>Orders Report</option>
+                                <option>Customer Report</option>
+                                <option>Restaurant Report</option>
+                                <option>Rider Report</option>
+                                <option>Payment Report</option>
+                            </select>
+                        </div>
+
+                        <!-- Start Date -->
+                        <div class="admin-report-filter">
+                            <label for="startDate"> Start Date </label>
+
+                            <input type="date" id="startDate" value="2026-09-11" />
+                        </div>
+
+                        <!-- End Date -->
+                        <div class="admin-report-filter">
+                            <label for="endDate"> End Date </label>
+
+                            <input type="date" id="endDate" value="2026-09-17" />
+                        </div>
+
+                        <!-- Apply Button -->
+                        <div class="admin-report-filter-button">
+                            <button type="button" class="admin-primary-button">
+                                Apply Filters
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- =========================
+                     REPORT STATISTICS
+                ========================== -->
+                <section class="admin-stats-grid">
+                    <!-- Total Revenue -->
+                    <div class="admin-stat-card">
+                        <div class="admin-stat-icon">KSh</div>
+
+                        <div class="admin-stat-content">
+                            <span>Total Revenue</span>
+                            <strong>KSh 2.48M</strong>
+                            <small class="admin-report-positive">
+                                +14.8% from previous period
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Total Orders -->
+                    <div class="admin-stat-card">
+                        <div class="admin-stat-icon">▤</div>
+
+                        <div class="admin-stat-content">
+                            <span>Total Orders</span>
+                            <strong>8,426</strong>
+                            <small class="admin-report-positive">
+                                +11.2% from previous period
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Customers -->
+                    <div class="admin-stat-card">
+                        <div class="admin-stat-icon">◯</div>
+
+                        <div class="admin-stat-content">
+                            <span>Active Customers</span>
+                            <strong>3,842</strong>
+                            <small class="admin-report-positive">
+                                +8.6% from previous period
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Average Order -->
+                    <div class="admin-stat-card">
+                        <div class="admin-stat-icon">≈</div>
+
+                        <div class="admin-stat-content">
+                            <span>Average Order</span>
+                            <strong>KSh 1,426</strong>
+                            <small class="admin-report-positive">
+                                +4.3% from previous period
+                            </small>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- =========================
+                     MAIN REPORT GRID
+                ========================== -->
+                <section class="admin-dashboard-grid">
+                    <!-- =========================
+                         REVENUE REPORT
+                    ========================== -->
+                    <div class="admin-content-card admin-reports-revenue-card">
+                        <div class="admin-card-header">
+                            <div>
+                                <h3>Revenue Overview</h3>
+                                <p>Revenue generated during the selected period.</p>
+                            </div>
+
+                            <select class="admin-period-select">
+                                <option selected>Last 7 Days</option>
+                                <option>Last 30 Days</option>
+                                <option>This Month</option>
+                            </select>
+                        </div>
+
+                        <!-- Revenue Chart -->
+                        <div class="admin-report-chart">
+                            <div class="admin-report-y-axis">
+                                <span>KSh 500K</span>
+                                <span>KSh 400K</span>
+                                <span>KSh 300K</span>
+                                <span>KSh 200K</span>
+                                <span>KSh 100K</span>
+                                <span>KSh 0</span>
+                            </div>
+
+                            <div class="admin-report-chart-area">
+                                <div class="admin-report-grid-line"></div>
+                                <div class="admin-report-grid-line"></div>
+                                <div class="admin-report-grid-line"></div>
+                                <div class="admin-report-grid-line"></div>
+                                <div class="admin-report-grid-line"></div>
+
+                                <div class="admin-report-bars">
+                                    <div class="admin-report-bar-column">
+                                        <div class="admin-report-bar" style="height: 58%"></div>
+                                        <span>Mon</span>
+                                    </div>
+
+                                    <div class="admin-report-bar-column">
+                                        <div class="admin-report-bar" style="height: 72%"></div>
+                                        <span>Tue</span>
+                                    </div>
+
+                                    <div class="admin-report-bar-column">
+                                        <div class="admin-report-bar" style="height: 64%"></div>
+                                        <span>Wed</span>
+                                    </div>
+
+                                    <div class="admin-report-bar-column">
+                                        <div class="admin-report-bar" style="height: 81%"></div>
+                                        <span>Thu</span>
+                                    </div>
+
+                                    <div class="admin-report-bar-column">
+                                        <div class="admin-report-bar" style="height: 76%"></div>
+                                        <span>Fri</span>
+                                    </div>
+
+                                    <div class="admin-report-bar-column">
+                                        <div class="admin-report-bar" style="height: 91%"></div>
+                                        <span>Sat</span>
+                                    </div>
+
+                                    <div class="admin-report-bar-column">
+                                        <div class="admin-report-bar" style="height: 86%"></div>
+                                        <span>Sun</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- =========================
+                         ORDER BREAKDOWN
+                    ========================== -->
+                    <div class="admin-content-card admin-order-breakdown-card">
+                        <div class="admin-card-header">
+                            <div>
+                                <h3>Order Breakdown</h3>
+                                <p>Orders by current status.</p>
+                            </div>
+                        </div>
+
+                        <div class="admin-report-status-list">
+                            <div class="admin-report-status-item">
+                                <div class="admin-report-status-info">
+                                    <span class="admin-status-dot success"></span>
+                                    <span>Completed</span>
+                                </div>
+
+                                <strong>6,982</strong>
+                            </div>
+
+                            <div class="admin-report-status-item">
+                                <div class="admin-report-status-info">
+                                    <span class="admin-status-dot warning"></span>
+                                    <span>Pending</span>
+                                </div>
+
+                                <strong>428</strong>
+                            </div>
+
+                            <div class="admin-report-status-item">
+                                <div class="admin-report-status-info">
+                                    <span class="admin-status-dot warning"></span>
+                                    <span>Preparing</span>
+                                </div>
+
+                                <strong>516</strong>
+                            </div>
+
+                            <div class="admin-report-status-item">
+                                <div class="admin-report-status-info">
+                                    <span class="admin-status-dot total"></span>
+                                    <span>Out for Delivery</span>
+                                </div>
+
+                                <strong>312</strong>
+                            </div>
+
+                            <div class="admin-report-status-item">
+                                <div class="admin-report-status-info">
+                                    <span class="admin-status-dot danger"></span>
+                                    <span>Cancelled</span>
+                                </div>
+
+                                <strong>188</strong>
+                            </div>
+                        </div>
+
+                        <div class="admin-report-total">
+                            <span>Total Orders</span>
+                            <strong>8,426</strong>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- =========================
+                     PERFORMANCE REPORTS
+                ========================== -->
+                <section class="admin-bottom-grid">
+                    <!-- =========================
+                         TOP RESTAURANTS
+                    ========================== -->
+                    <div class="admin-content-card">
+                        <div class="admin-card-header">
+                            <div>
+                                <h3>Top Restaurants</h3>
+                                <p>Restaurants generating the most revenue.</p>
+                            </div>
+
+                            <a href="restaurants.html" class="admin-card-link">
+                                View All
+                            </a>
+                        </div>
+
+                        <div class="admin-report-ranking-list">
+                            <div class="admin-report-ranking-item">
+                                <span class="admin-ranking-number"> 1 </span>
+
+                                <div class="admin-ranking-info">
+                                    <strong>Urban Bites</strong>
+                                    <span>1,284 orders</span>
+                                </div>
+
+                                <strong class="admin-ranking-value"> KSh 482K </strong>
+                            </div>
+
+                            <div class="admin-report-ranking-item">
+                                <span class="admin-ranking-number"> 2 </span>
+
+                                <div class="admin-ranking-info">
+                                    <strong>Pizza Palace</strong>
+                                    <span>1,126 orders</span>
+                                </div>
+
+                                <strong class="admin-ranking-value"> KSh 396K </strong>
+                            </div>
+
+                            <div class="admin-report-ranking-item">
+                                <span class="admin-ranking-number"> 3 </span>
+
+                                <div class="admin-ranking-info">
+                                    <strong>Chicken Hub</strong>
+                                    <span>984 orders</span>
+                                </div>
+
+                                <strong class="admin-ranking-value"> KSh 348K </strong>
+                            </div>
+
+                            <div class="admin-report-ranking-item">
+                                <span class="admin-ranking-number"> 4 </span>
+
+                                <div class="admin-ranking-info">
+                                    <strong>Fresh Bowl</strong>
+                                    <span>826 orders</span>
+                                </div>
+
+                                <strong class="admin-ranking-value"> KSh 284K </strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- =========================
+                         CUSTOMER GROWTH
+                    ========================== -->
+                    <div class="admin-content-card">
+                        <div class="admin-card-header">
+                            <div>
+                                <h3>Customer Growth</h3>
+                                <p>Customer activity during the period.</p>
+                            </div>
+                        </div>
+
+                        <div class="admin-summary-list">
+                            <div class="admin-summary-item">
+                                <div class="admin-summary-icon success">+</div>
+
+                                <div>
+                                    <span>New Customers</span>
+                                    <strong>642</strong>
+                                </div>
+
+                                <small class="admin-report-positive"> +12.4% </small>
+                            </div>
+
+                            <div class="admin-summary-item">
+                                <div class="admin-summary-icon total">↻</div>
+
+                                <div>
+                                    <span>Returning Customers</span>
+                                    <strong>2,186</strong>
+                                </div>
+
+                                <small class="admin-report-positive"> +7.8% </small>
+                            </div>
+
+                            <div class="admin-summary-item">
+                                <div class="admin-summary-icon warning">◉</div>
+
+                                <div>
+                                    <span>Inactive Customers</span>
+                                    <strong>1,014</strong>
+                                </div>
+
+                                <small> 3.2% </small>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- =========================
+                     PAYMENT PERFORMANCE
+                ========================== -->
+                <section class="admin-content-card admin-report-payment-card">
+                    <div class="admin-card-header">
+                        <div>
+                            <h3>Payment Method Performance</h3>
+                            <p>Payment distribution across the platform.</p>
+                        </div>
+
+                        <a href="payments.html" class="admin-card-link">
+                            View Payments
+                        </a>
+                    </div>
+
+                    <div class="admin-report-payment-grid">
+                        <!-- M-Pesa -->
+                        <div class="admin-report-payment-item">
+                            <div class="admin-report-payment-header">
+                                <div>
+                                    <strong>M-Pesa</strong>
+                                    <span>6,284 transactions</span>
+                                </div>
+
+                                <strong>74.6%</strong>
+                            </div>
+
+                            <div class="admin-report-progress">
+                                <div class="admin-report-progress-bar" style="width: 74.6%"></div>
+                            </div>
+
+                            <div class="admin-report-payment-footer">
+                                <span>Revenue</span>
+                                <strong>KSh 1.85M</strong>
+                            </div>
+                        </div>
+
+                        <!-- Card -->
+                        <div class="admin-report-payment-item">
+                            <div class="admin-report-payment-header">
+                                <div>
+                                    <strong>Card</strong>
+                                    <span>1,426 transactions</span>
+                                </div>
+
+                                <strong>16.9%</strong>
+                            </div>
+
+                            <div class="admin-report-progress">
+                                <div class="admin-report-progress-bar" style="width: 16.9%"></div>
+                            </div>
+
+                            <div class="admin-report-payment-footer">
+                                <span>Revenue</span>
+                                <strong>KSh 418K</strong>
+                            </div>
+                        </div>
+
+                        <!-- Cash -->
+                        <div class="admin-report-payment-item">
+                            <div class="admin-report-payment-header">
+                                <div>
+                                    <strong>Cash</strong>
+                                    <span>716 transactions</span>
+                                </div>
+
+                                <strong>8.5%</strong>
+                            </div>
+
+                            <div class="admin-report-progress">
+                                <div class="admin-report-progress-bar" style="width: 8.5%"></div>
+                            </div>
+
+                            <div class="admin-report-payment-footer">
+                                <span>Revenue</span>
+                                <strong>KSh 162K</strong>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- =========================
+                     REPORT MESSAGE
+                ========================== -->
+                <div class="admin-message" id="adminMessage" aria-live="polite"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- =========================
+         GLOBAL JAVASCRIPT
+    ========================== -->
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/admin/reports.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Restaurant Dashboard | FoodDelivery</title>
+
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="../../assets/css/style.css">
+
+    <!-- Restaurant Dashboard CSS -->
+    <link rel="stylesheet" href="../../assets/css/pages/restaurant/restaurant.css">
+</head>
+
+<body>
+
+    <!-- =========================
+         RESTAURANT DASHBOARD
+    ========================== -->
+
+    <div class="restaurant-dashboard">
+
+        <!-- =========================
+             SIDEBAR
+        ========================== -->
+
+        <aside class="restaurant-sidebar" id="restaurantSidebar">
+
+            <!-- Logo -->
+            <div class="restaurant-sidebar-header">
+                <a href="dashboard.html" class="restaurant-logo">
+                    Food<span>Delivery</span>
+                </a>
+            </div>
+
+            <!-- Restaurant Information -->
+            <div class="restaurant-profile-mini">
+
+                <div class="restaurant-avatar">
+                    MK
+                </div>
+
+                <div class="restaurant-profile-info">
+                    <strong>Mama's Kitchen</strong>
+                    <span>Restaurant</span>
+                </div>
+
+            </div>
+
+            <!-- Navigation -->
+            <nav class="restaurant-navigation">
+
+                <p class="restaurant-nav-title">MAIN MENU</p>
+
+                <a href="dashboard.html" class="restaurant-nav-link active">
+                    <span class="nav-icon">▦</span>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="orders.html" class="restaurant-nav-link">
+                    <span class="nav-icon">🛍</span>
+                    <span>Orders</span>
+                    <span class="nav-badge">5</span>
+                </a>
+
+                <a href="menu.html" class="restaurant-nav-link">
+                    <span class="nav-icon">☷</span>
+                    <span>Menu</span>
+                </a>
+
+                <a href="categories.html" class="restaurant-nav-link">
+                    <span class="nav-icon">▤</span>
+                    <span>Categories</span>
+                </a>
+
+                <p class="restaurant-nav-title">BUSINESS</p>
+
+                <a href="earnings.html" class="restaurant-nav-link">
+                    <span class="nav-icon">▥</span>
+                    <span>Earnings</span>
+                </a>
+
+                <a href="restaurant-profile.html" class="restaurant-nav-link">
+                    <span class="nav-icon">◉</span>
+                    <span>Restaurant Profile</span>
+                </a>
+
+                <a href="settings.html" class="restaurant-nav-link">
+                    <span class="nav-icon">⚙</span>
+                    <span>Settings</span>
+                </a>
+
+            </nav>
+
+            <!-- Sidebar Bottom -->
+            <div class="restaurant-sidebar-bottom">
+                <a href="../../pages/auth/login.html" class="restaurant-nav-link logout-link">
+                    <span class="nav-icon">↪</span>
+                    <span>Logout</span>
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =========================
+             MAIN CONTENT
+        ========================== -->
+
+        <main class="restaurant-main">
+
+            <!-- =========================
+                 TOP BAR
+            ========================== -->
+
+            <header class="restaurant-topbar">
+
+                <div class="restaurant-topbar-left">
+
+                    <button type="button" class="restaurant-menu-button" id="restaurantMenuButton"
+                        aria-label="Open menu">
+                        ☰
+                    </button>
+
+                    <div class="restaurant-page-heading">
+                        <h1>Dashboard</h1>
+                        <p>Welcome back, Mama's Kitchen</p>
+                    </div>
+
+                </div>
+
+
+                <div class="restaurant-topbar-right">
+
+                    <!-- Restaurant Status -->
+                    <button type="button" class="restaurant-status" id="restaurantStatusButton">
+
+                        <span class="status-dot"></span>
+
+                        <span class="status-text">
+                            <small>Restaurant Status</small>
+                            <strong id="restaurantStatusText">Open</strong>
+                        </span>
+
+                    </button>
+
+
+                    <!-- Notifications -->
+                    <button type="button" class="restaurant-notification-button" aria-label="Notifications">
+
+                        <span>♧</span>
+
+                        <span class="notification-badge">3</span>
+
+                    </button>
+
+
+                    <!-- Profile -->
+                    <button type="button" class="restaurant-topbar-profile">
+
+                        <span class="topbar-avatar">
+                            MK
+                        </span>
+
+                        <span class="topbar-profile-text">
+                            <strong>Mama's Kitchen</strong>
+                            <small>Restaurant</small>
+                        </span>
+
+                        <span class="profile-arrow">⌄</span>
+
+                    </button>
+
+                </div>
+
+            </header>
+
+
+            <!-- =========================
+                 DASHBOARD CONTENT
+            ========================== -->
+
+            <section class="restaurant-dashboard-content">
+
+                <!-- =========================
+                     WELCOME SECTION
+                ========================== -->
+
+                <div class="restaurant-welcome">
+
+                    <div>
+                        <h2>Good morning, Mama's Kitchen</h2>
+                        <p>Here's what's happening with your restaurant today.</p>
+                    </div>
+
+                    <div class="dashboard-date">
+                        <span>Today</span>
+                        <strong>September 12, 2026</strong>
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     STATISTICS
+                ========================== -->
+
+                <div class="restaurant-statistics">
+
+                    <!-- Today's Orders -->
+                    <div class="restaurant-stat-card">
+
+                        <div class="stat-card-top">
+
+                            <div class="stat-icon orders-icon">
+                                🛍
+                            </div>
+
+                            <span class="stat-change positive">
+                                +12%
+                            </span>
+
+                        </div>
+
+                        <div class="stat-card-content">
+
+                            <span>Today's Orders</span>
+
+                            <strong>24</strong>
+
+                            <small>Compared to yesterday</small>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Pending Orders -->
+                    <div class="restaurant-stat-card">
+
+                        <div class="stat-card-top">
+
+                            <div class="stat-icon pending-icon">
+                                ⏱
+                            </div>
+
+                            <span class="stat-change warning">
+                                5 waiting
+                            </span>
+
+                        </div>
+
+                        <div class="stat-card-content">
+
+                            <span>Pending Orders</span>
+
+                            <strong>5</strong>
+
+                            <small>Orders requiring attention</small>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Today's Revenue -->
+                    <div class="restaurant-stat-card">
+
+                        <div class="stat-card-top">
+
+                            <div class="stat-icon revenue-icon">
+                                KSh
+                            </div>
+
+                            <span class="stat-change positive">
+                                +8.5%
+                            </span>
+
+                        </div>
+
+                        <div class="stat-card-content">
+
+                            <span>Today's Revenue</span>
+
+                            <strong>KSh 18,450</strong>
+
+                            <small>Compared to yesterday</small>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Menu Items -->
+                    <div class="restaurant-stat-card">
+
+                        <div class="stat-card-top">
+
+                            <div class="stat-icon menu-icon">
+                                ☷
+                            </div>
+
+                            <span class="stat-change neutral">
+                                Active
+                            </span>
+
+                        </div>
+
+                        <div class="stat-card-content">
+
+                            <span>Menu Items</span>
+
+                            <strong>32</strong>
+
+                            <small>28 available today</small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     DASHBOARD GRID
+                ========================== -->
+
+                <div class="restaurant-dashboard-grid">
+
+
+                    <!-- =========================
+                         RECENT ORDERS
+                    ========================== -->
+
+                    <section class="restaurant-dashboard-card recent-orders-card">
+
+                        <div class="dashboard-card-header">
+
+                            <div>
+                                <h3>Recent Orders</h3>
+                                <p>Your latest customer orders</p>
+                            </div>
+
+                            <a href="#" class="view-all-link">
+                                View All
+                            </a>
+
+                        </div>
+
+
+                        <div class="orders-table-wrapper">
+
+                            <table class="restaurant-orders-table">
+
+                                <thead>
+
+                                    <tr>
+                                        <th>Order</th>
+                                        <th>Customer</th>
+                                        <th>Items</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Time</th>
+                                    </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                    <tr>
+
+                                        <td>
+                                            <strong>#FD-1008</strong>
+                                        </td>
+
+                                        <td>
+                                            <div class="customer-table-info">
+                                                <span class="customer-small-avatar">
+                                                    JM
+                                                </span>
+
+                                                <span>John Mwangi</span>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            2 items
+                                        </td>
+
+                                        <td>
+                                            <strong>KSh 1,300</strong>
+                                        </td>
+
+                                        <td>
+                                            <span class="order-status preparing">
+                                                Preparing
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            8:45 AM
+                                        </td>
+
+                                    </tr>
+
+
+                                    <tr>
+
+                                        <td>
+                                            <strong>#FD-1007</strong>
+                                        </td>
+
+                                        <td>
+                                            <div class="customer-table-info">
+                                                <span class="customer-small-avatar">
+                                                    AW
+                                                </span>
+
+                                                <span>Anne Wanjiku</span>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            3 items
+                                        </td>
+
+                                        <td>
+                                            <strong>KSh 2,050</strong>
+                                        </td>
+
+                                        <td>
+                                            <span class="order-status confirmed">
+                                                Confirmed
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            8:32 AM
+                                        </td>
+
+                                    </tr>
+
+
+                                    <tr>
+
+                                        <td>
+                                            <strong>#FD-1006</strong>
+                                        </td>
+
+                                        <td>
+                                            <div class="customer-table-info">
+                                                <span class="customer-small-avatar">
+                                                    DK
+                                                </span>
+
+                                                <span>David Kamau</span>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            1 item
+                                        </td>
+
+                                        <td>
+                                            <strong>KSh 650</strong>
+                                        </td>
+
+                                        <td>
+                                            <span class="order-status ready">
+                                                Ready
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            8:15 AM
+                                        </td>
+
+                                    </tr>
+
+
+                                    <tr>
+
+                                        <td>
+                                            <strong>#FD-1005</strong>
+                                        </td>
+
+                                        <td>
+                                            <div class="customer-table-info">
+                                                <span class="customer-small-avatar">
+                                                    SN
+                                                </span>
+
+                                                <span>Sarah Njeri</span>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            4 items
+                                        </td>
+
+                                        <td>
+                                            <strong>KSh 2,450</strong>
+                                        </td>
+
+                                        <td>
+                                            <span class="order-status delivered">
+                                                Delivered
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            7:50 AM
+                                        </td>
+
+                                    </tr>
+
+
+                                    <tr>
+
+                                        <td>
+                                            <strong>#FD-1004</strong>
+                                        </td>
+
+                                        <td>
+                                            <div class="customer-table-info">
+                                                <span class="customer-small-avatar">
+                                                    EO
+                                                </span>
+
+                                                <span>Eric Otieno</span>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            2 items
+                                        </td>
+
+                                        <td>
+                                            <strong>KSh 1,500</strong>
+                                        </td>
+
+                                        <td>
+                                            <span class="order-status cancelled">
+                                                Cancelled
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            7:25 AM
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =========================
+                         RESTAURANT STATUS
+                    ========================== -->
+
+                    <section class="restaurant-dashboard-card status-dashboard-card">
+
+                        <div class="dashboard-card-header">
+
+                            <div>
+                                <h3>Restaurant Status</h3>
+                                <p>Manage your availability</p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="restaurant-status-panel">
+
+                            <div class="status-panel-icon">
+                                ✓
+                            </div>
+
+                            <div class="status-panel-content">
+
+                                <strong id="statusPanelTitle">
+                                    Your restaurant is open
+                                </strong>
+
+                                <p id="statusPanelDescription">
+                                    Customers can currently place orders.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <button type="button" class="dashboard-status-button" id="toggleRestaurantStatus">
+
+                            Close Restaurant
+
+                        </button>
+
+
+                        <div class="status-information">
+
+                            <div class="status-info-row">
+
+                                <span>Average preparation time</span>
+
+                                <strong>
+                                    20–30 min
+                                </strong>
+
+                            </div>
+
+                            <div class="status-info-row">
+
+                                <span>Today's opening hours</span>
+
+                                <strong>
+                                    8:00 AM – 10:00 PM
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =========================
+                         POPULAR MENU ITEMS
+                    ========================== -->
+
+                    <section class="restaurant-dashboard-card popular-items-card">
+
+                        <div class="dashboard-card-header">
+
+                            <div>
+                                <h3>Popular Menu Items</h3>
+                                <p>Best performing items today</p>
+                            </div>
+
+                            <a href="#" class="view-all-link">
+                                Manage Menu
+                            </a>
+
+                        </div>
+
+
+                        <div class="popular-items-list">
+
+                            <!-- Item 1 -->
+                            <div class="popular-item">
+
+                                <div class="popular-item-image">
+                                    GC
+                                </div>
+
+                                <div class="popular-item-info">
+
+                                    <strong>
+                                        Grilled Chicken
+                                    </strong>
+
+                                    <span>
+                                        18 orders
+                                    </span>
+
+                                </div>
+
+                                <div class="popular-item-revenue">
+
+                                    <strong>
+                                        KSh 11,700
+                                    </strong>
+
+                                    <small>
+                                        Revenue
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Item 2 -->
+                            <div class="popular-item">
+
+                                <div class="popular-item-image">
+                                    BS
+                                </div>
+
+                                <div class="popular-item-info">
+
+                                    <strong>
+                                        Beef Stew
+                                    </strong>
+
+                                    <span>
+                                        14 orders
+                                    </span>
+
+                                </div>
+
+                                <div class="popular-item-revenue">
+
+                                    <strong>
+                                        KSh 7,700
+                                    </strong>
+
+                                    <small>
+                                        Revenue
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Item 3 -->
+                            <div class="popular-item">
+
+                                <div class="popular-item-image">
+                                    CW
+                                </div>
+
+                                <div class="popular-item-info">
+
+                                    <strong>
+                                        Chicken Wings
+                                    </strong>
+
+                                    <span>
+                                        11 orders
+                                    </span>
+
+                                </div>
+
+                                <div class="popular-item-revenue">
+
+                                    <strong>
+                                        KSh 5,500
+                                    </strong>
+
+                                    <small>
+                                        Revenue
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Item 4 -->
+                            <div class="popular-item">
+
+                                <div class="popular-item-image">
+                                    VR
+                                </div>
+
+                                <div class="popular-item-info">
+
+                                    <strong>
+                                        Vegetable Rice
+                                    </strong>
+
+                                    <span>
+                                        8 orders
+                                    </span>
+
+                                </div>
+
+                                <div class="popular-item-revenue">
+
+                                    <strong>
+                                        KSh 3,200
+                                    </strong>
+
+                                    <small>
+                                        Revenue
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =========================
+                         QUICK ACTIONS
+                    ========================== -->
+
+                    <section class="restaurant-dashboard-card quick-actions-card">
+
+                        <div class="dashboard-card-header">
+
+                            <div>
+                                <h3>Quick Actions</h3>
+                                <p>Common restaurant tasks</p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="quick-actions-grid">
+
+                            <a href="#" class="quick-action">
+
+                                <span class="quick-action-icon">
+                                    +
+                                </span>
+
+                                <span>
+                                    <strong>Add Menu Item</strong>
+                                    <small>Create a new food item</small>
+                                </span>
+
+                            </a>
+
+
+                            <a href="#" class="quick-action">
+
+                                <span class="quick-action-icon">
+                                    🛍
+                                </span>
+
+                                <span>
+                                    <strong>View Orders</strong>
+                                    <small>Manage customer orders</small>
+                                </span>
+
+                            </a>
+
+
+                            <a href="#" class="quick-action">
+
+                                <span class="quick-action-icon">
+                                    ✎
+                                </span>
+
+                                <span>
+                                    <strong>Edit Restaurant</strong>
+                                    <small>Update restaurant details</small>
+                                </span>
+
+                            </a>
+
+
+                            <a href="#" class="quick-action">
+
+                                <span class="quick-action-icon">
+                                    ▥
+                                </span>
+
+                                <span>
+                                    <strong>View Earnings</strong>
+                                    <small>Check your revenue</small>
+                                </span>
+
+                            </a>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <!-- Restaurant Dashboard JavaScript -->
+    <!-- Shared authentication and API helper -->
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/auth/auth-api.js"></script>
+
+    <!-- Existing global JavaScript -->
+    <script src="../../assets/js/main.js"></script>
+
+    <!-- Restaurant Dashboard -->
+    <script src="../../assets/js/restaurant/dashboard.js"></script>
+
+</body>
+
+</html>

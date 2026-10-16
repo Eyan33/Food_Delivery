@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Rider Dashboard | FoodDelivery</title>
+
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/pages/rider/dashboard.css">
+</head>
+
+<body>
+
+    <!-- =========================
+     RIDER SIDEBAR
+========================== -->
+
+    <aside class="rider-sidebar" id="riderSidebar">
+        <div class="rider-sidebar-header">
+            <a href="dashboard.html" class="rider-logo">
+                Food<span>Delivery</span>
+            </a>
+
+        </div>
+
+        <!-- RIDER PROFILE -->
+
+        <div class="rider-profile">
+            <div class="rider-profile-avatar">J</div>
+
+            <div class="rider-profile-info">
+                <strong>John Kamau</strong>
+
+                <span>Delivery Rider</span>
+            </div>
+        </div>
+
+        <!-- NAVIGATION -->
+
+        <nav class="rider-navigation">
+            <a href="dashboard.html" class="rider-nav-link active">
+                <span class="rider-nav-icon">▣</span>
+
+                <span>Dashboard</span>
+            </a>
+
+            <a href="orders.html" class="rider-nav-link">
+                <span class="rider-nav-icon">▤</span>
+
+                <span>Available Orders</span>
+
+                <span class="rider-nav-badge"> 4 </span>
+            </a>
+
+            <a href="deliveries.html" class="rider-nav-link">
+                <span class="rider-nav-icon">◈</span>
+
+                <span>My Deliveries</span>
+            </a>
+
+            <a href="earnings.html" class="rider-nav-link">
+                <span class="rider-nav-icon">◆</span>
+
+                <span>Earnings</span>
+            </a>
+
+            <a href="profile.html" class="rider-nav-link">
+                <span class="rider-nav-icon">◯</span>
+
+                <span>Profile</span>
+            </a>
+
+        </nav>
+
+        <!-- SIDEBAR FOOTER -->
+
+        <div class="rider-sidebar-footer">
+            <a href="../../index.html" class="rider-nav-link">
+                <span class="rider-nav-icon">↪</span>
+
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+
+    <!-- =========================
+         MAIN AREA
+    ========================== -->
+
+    <main class="rider-main">
+
+
+        <!-- =========================
+             TOPBAR
+        ========================== -->
+
+        <header class="rider-topbar">
+
+            <div class="rider-topbar-left">
+
+                <button type="button" class="rider-mobile-menu-button" id="riderMenuButton" aria-label="Open menu">
+
+                    ☰
+
+                </button>
+
+
+                <div>
+
+                    <h1>Rider Dashboard</h1>
+
+                    <p>
+                        Manage your deliveries and track your earnings.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="rider-topbar-right">
+
+
+                <!-- ONLINE STATUS -->
+
+                <button type="button" class="rider-status-button online" id="riderStatusButton">
+
+                    <span class="status-dot"></span>
+
+                    <span id="riderStatusText">
+                        You're Online
+                    </span>
+
+                </button>
+
+
+                <!-- NOTIFICATIONS -->
+
+                <button type="button" class="rider-notification-button" aria-label="Notifications">
+
+                    <span>🔔</span>
+
+                    <span class="notification-badge">
+                        3
+                    </span>
+
+                </button>
+
+
+                <!-- PROFILE -->
+
+                <div class="rider-topbar-profile">
+
+                    <div class="rider-topbar-avatar">
+                        J
+                    </div>
+
+                    <div class="rider-topbar-profile-info">
+
+                        <strong>John Kamau</strong>
+
+                        <span>Delivery Rider</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================
+             CONTENT
+        ========================== -->
+
+        <section class="rider-content">
+
+
+            <!-- PAGE HEADER -->
+
+            <div class="rider-page-header">
+
+                <div>
+
+                    <h2>Good morning, John</h2>
+
+                    <p>
+                        Here's an overview of your delivery activity today.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 STAT CARDS
+            ========================== -->
+
+            <div class="rider-stats-grid">
+
+
+                <!-- TODAY'S DELIVERIES -->
+
+                <div class="rider-stat-card">
+
+                    <div class="rider-stat-icon deliveries">
+                        ◈
+                    </div>
+
+                    <div class="rider-stat-content">
+
+                        <span>Today's Deliveries</span>
+
+                        <strong>8</strong>
+
+                        <small>
+                            <b>+2</b> from yesterday
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- COMPLETED -->
+
+                <div class="rider-stat-card">
+
+                    <div class="rider-stat-icon completed">
+                        ✓
+                    </div>
+
+                    <div class="rider-stat-content">
+
+                        <span>Completed</span>
+
+                        <strong>7</strong>
+
+                        <small>
+                            87.5% completion rate
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- EARNINGS -->
+
+                <div class="rider-stat-card">
+
+                    <div class="rider-stat-icon earnings">
+                        KSh
+                    </div>
+
+                    <div class="rider-stat-content">
+
+                        <span>Today's Earnings</span>
+
+                        <strong>KSh 1,240</strong>
+
+                        <small>
+                            <b>+KSh 180</b> from yesterday
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ACTIVE DELIVERY -->
+
+                <div class="rider-stat-card">
+
+                    <div class="rider-stat-icon active">
+                        ●
+                    </div>
+
+                    <div class="rider-stat-content">
+
+                        <span>Active Delivery</span>
+
+                        <strong>1</strong>
+
+                        <small>
+                            Currently in progress
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 DASHBOARD GRID
+            ========================== -->
+
+            <div class="rider-dashboard-grid">
+
+
+                <!-- =========================
+                     ACTIVE DELIVERY
+                ========================== -->
+
+                <div class="rider-content-card active-delivery-card">
+
+                    <div class="rider-card-header">
+
+                        <div>
+
+                            <h3>Active Delivery</h3>
+
+                            <p>
+                                Your current delivery in progress.
+                            </p>
+
+                        </div>
+
+                        <span class="rider-order-status">
+                            In Progress
+                        </span>
+
+                    </div>
+
+
+                    <div class="rider-delivery-content">
+
+
+                        <!-- ORDER INFO -->
+
+                        <div class="rider-order-header">
+
+                            <div>
+
+                                <span class="rider-order-number">
+                                    Order #FD-1048
+                                </span>
+
+                                <strong>
+                                    KSh 1,850
+                                </strong>
+
+                            </div>
+
+                            <span class="rider-order-time">
+                                12:35 PM
+                            </span>
+
+                        </div>
+
+
+                        <!-- ROUTE -->
+
+                        <div class="rider-route">
+
+
+                            <div class="rider-route-item">
+
+                                <span class="rider-route-dot restaurant"></span>
+
+                                <div>
+
+                                    <small>
+                                        PICKUP
+                                    </small>
+
+                                    <strong>
+                                        Mama's Kitchen
+                                    </strong>
+
+                                    <p>
+                                        Kimathi Street, Nairobi
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="rider-route-line"></div>
+
+
+                            <div class="rider-route-item">
+
+                                <span class="rider-route-dot customer"></span>
+
+                                <div>
+
+                                    <small>
+                                        DELIVERY
+                                    </small>
+
+                                    <strong>
+                                        Sarah Wanjiku
+                                    </strong>
+
+                                    <p>
+                                        Kilimani, Nairobi
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- DELIVERY ACTIONS -->
+
+                        <div class="rider-delivery-actions">
+
+                            <button type="button" class="rider-secondary-button">
+
+                                View Order
+
+                            </button>
+
+                            <button type="button" class="rider-primary-button">
+
+                                Open Navigation
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     AVAILABLE ORDERS
+                ========================== -->
+
+                <div class="rider-content-card">
+
+                    <div class="rider-card-header">
+
+                        <div>
+
+                            <h3>Available Orders</h3>
+
+                            <p>
+                                Orders available for pickup.
+                            </p>
+
+                        </div>
+
+                        <a href="orders.html" class="rider-card-link">
+
+                            View All
+
+                        </a>
+
+                    </div>
+
+
+                    <div class="rider-orders-list">
+
+
+                        <!-- ORDER 1 -->
+
+                        <div class="rider-order-item">
+
+                            <div class="rider-order-item-main">
+
+                                <div class="rider-order-icon">
+                                    ◈
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Order #FD-1051
+                                    </strong>
+
+                                    <span>
+                                        Chicken Inn
+                                    </span>
+
+                                    <small>
+                                        1.8 km away
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="rider-order-item-right">
+
+                                <strong>
+                                    KSh 920
+                                </strong>
+
+                                <button type="button" class="rider-small-button">
+
+                                    Accept
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ORDER 2 -->
+
+                        <div class="rider-order-item">
+
+                            <div class="rider-order-item-main">
+
+                                <div class="rider-order-icon">
+                                    ◈
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Order #FD-1052
+                                    </strong>
+
+                                    <span>
+                                        Java House
+                                    </span>
+
+                                    <small>
+                                        2.4 km away
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="rider-order-item-right">
+
+                                <strong>
+                                    KSh 1,250
+                                </strong>
+
+                                <button type="button" class="rider-small-button">
+
+                                    Accept
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ORDER 3 -->
+
+                        <div class="rider-order-item">
+
+                            <div class="rider-order-item-main">
+
+                                <div class="rider-order-icon">
+                                    ◈
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Order #FD-1054
+                                    </strong>
+
+                                    <span>
+                                        Mama Oliech
+                                    </span>
+
+                                    <small>
+                                        3.1 km away
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="rider-order-item-right">
+
+                                <strong>
+                                    KSh 760
+                                </strong>
+
+                                <button type="button" class="rider-small-button">
+
+                                    Accept
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- =========================
+                 BOTTOM GRID
+            ========================== -->
+
+            <div class="rider-bottom-grid">
+
+
+                <!-- RECENT DELIVERIES -->
+
+                <div class="rider-content-card">
+
+                    <div class="rider-card-header">
+
+                        <div>
+
+                            <h3>Recent Deliveries</h3>
+
+                            <p>
+                                Your latest completed deliveries.
+                            </p>
+
+                        </div>
+
+                        <a href="deliveries.html" class="rider-card-link">
+
+                            View All
+
+                        </a>
+
+                    </div>
+
+
+                    <div class="rider-table-wrapper">
+
+                        <table class="rider-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Order</th>
+
+                                    <th>Restaurant</th>
+
+                                    <th>Amount</th>
+
+                                    <th>Status</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                <tr>
+
+                                    <td>
+                                        #FD-1046
+                                    </td>
+
+                                    <td>
+                                        KFC
+                                    </td>
+
+                                    <td>
+                                        KSh 1,120
+                                    </td>
+
+                                    <td>
+                                        <span class="rider-status completed">
+                                            Completed
+                                        </span>
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+                                        #FD-1042
+                                    </td>
+
+                                    <td>
+                                        Artcaffe
+                                    </td>
+
+                                    <td>
+                                        KSh 840
+                                    </td>
+
+                                    <td>
+                                        <span class="rider-status completed">
+                                            Completed
+                                        </span>
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+
+                                    <td>
+                                        #FD-1038
+                                    </td>
+
+                                    <td>
+                                        Big Square
+                                    </td>
+
+                                    <td>
+                                        KSh 1,450
+                                    </td>
+
+                                    <td>
+                                        <span class="rider-status completed">
+                                            Completed
+                                        </span>
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     TODAY'S SUMMARY
+                ========================== -->
+
+                <div class="rider-content-card">
+
+                    <div class="rider-card-header">
+
+                        <div>
+
+                            <h3>Today's Summary</h3>
+
+                            <p>
+                                Your delivery performance today.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="rider-summary-list">
+
+
+                        <div class="rider-summary-item">
+
+                            <span>
+                                Total Deliveries
+                            </span>
+
+                            <strong>
+                                8
+                            </strong>
+
+                        </div>
+
+
+                        <div class="rider-summary-item">
+
+                            <span>
+                                Completed
+                            </span>
+
+                            <strong>
+                                7
+                            </strong>
+
+                        </div>
+
+
+                        <div class="rider-summary-item">
+
+                            <span>
+                                Cancelled
+                            </span>
+
+                            <strong>
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="rider-summary-item">
+
+                            <span>
+                                Distance Covered
+                            </span>
+
+                            <strong>
+                                24.6 km
+                            </strong>
+
+                        </div>
+
+
+                        <div class="rider-summary-item total">
+
+                            <span>
+                                Total Earnings
+                            </span>
+
+                            <strong>
+                                KSh 1,240
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 MESSAGE
+            ========================== -->
+
+            <div class="rider-message" id="riderMessage" role="alert" aria-live="polite">
+            </div>
+
+
+        </section>
+
+    </main>
+
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/rider/dashboard.js"></script>
+
+</body>
+
+</html>

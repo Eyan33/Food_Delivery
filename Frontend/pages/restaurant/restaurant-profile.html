@@ -1,0 +1,542 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Restaurant Profile | FoodDelivery</title>
+
+  <!-- Global CSS -->
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+
+  <!-- Restaurant CSS -->
+  <link rel="stylesheet" href="../../assets/css/pages/restaurant/restaurant.css" />
+
+  <!-- Restaurant Profile CSS -->
+  <link rel="stylesheet" href="../../assets/css/pages/restaurant/restaurant-profile.css">
+</head>
+
+<body>
+  ```
+  <div class="restaurant-dashboard">
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside class="restaurant-sidebar" id="restaurantSidebar">
+      <div class="restaurant-sidebar-header">
+        <a href="dashboard.html" class="restaurant-logo">
+          Food<span>Delivery</span>
+        </a>
+      </div>
+
+      <div class="restaurant-profile-mini">
+        <div class="restaurant-avatar">MK</div>
+
+        <div class="restaurant-profile-info">
+          <strong>Mama's Kitchen</strong>
+
+          <span>Restaurant</span>
+        </div>
+      </div>
+
+      <nav class="restaurant-navigation">
+        <p class="restaurant-nav-title">MAIN MENU</p>
+
+        <a href="dashboard.html" class="restaurant-nav-link">
+          <span class="nav-icon">▦</span>
+
+          <span>Dashboard</span>
+        </a>
+
+        <a href="orders.html" class="restaurant-nav-link">
+          <span class="nav-icon">🛍</span>
+
+          <span>Orders</span>
+
+          <span class="nav-badge"> 5 </span>
+        </a>
+
+        <a href="menu.html" class="restaurant-nav-link">
+          <span class="nav-icon">☷</span>
+
+          <span>Menu</span>
+        </a>
+
+        <a href="categories.html" class="restaurant-nav-link">
+          <span class="nav-icon">▤</span>
+
+          <span>Categories</span>
+        </a>
+
+        <p class="restaurant-nav-title">BUSINESS</p>
+
+        <a href="earnings.html" class="restaurant-nav-link">
+          <span class="nav-icon">▥</span>
+
+          <span>Earnings</span>
+        </a>
+
+        <a href="restaurant-profile.html" class="restaurant-nav-link active">
+          <span class="nav-icon">◉</span>
+
+          <span>Restaurant Profile</span>
+        </a>
+
+        <a href="settings.html" class="restaurant-nav-link">
+          <span class="nav-icon">⚙</span>
+
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="restaurant-sidebar-bottom">
+        <a href="../../auth/login.html" class="restaurant-nav-link logout-link">
+          <span class="nav-icon">↪</span>
+
+          <span>Logout</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="restaurant-main">
+      <!-- =================================================
+             TOPBAR
+        ================================================== -->
+
+      <header class="restaurant-topbar">
+        <div class="restaurant-topbar-left">
+          <button type="button" class="restaurant-menu-button" id="restaurantMenuButton" aria-label="Open menu">
+            ☰
+          </button>
+
+          <div class="restaurant-page-heading">
+            <h1>Restaurant Profile</h1>
+
+            <p>Manage your restaurant information and business details.</p>
+          </div>
+        </div>
+
+        <div class="restaurant-topbar-right">
+          <button type="button" class="restaurant-status" id="restaurantStatusButton">
+            <span class="status-dot"></span>
+
+            <span class="status-text">
+              <small> Restaurant Status </small>
+
+              <strong id="restaurantStatusText"> Open </strong>
+            </span>
+          </button>
+
+          <button type="button" class="restaurant-notification-button" aria-label="Notifications">
+            <span>♧</span>
+
+            <span class="notification-badge"> 3 </span>
+          </button>
+
+          <button type="button" class="restaurant-topbar-profile">
+            <span class="topbar-avatar"> MK </span>
+
+            <span class="topbar-profile-text">
+              <strong> Mama's Kitchen </strong>
+
+              <small> Restaurant </small>
+            </span>
+
+            <span class="profile-arrow"> ⌄ </span>
+          </button>
+        </div>
+      </header>
+
+      <!-- =================================================
+             PAGE CONTENT
+        ================================================== -->
+
+      <section class="restaurant-dashboard-content">
+        <!-- PAGE HEADER -->
+
+        <div class="profile-page-header">
+          <div>
+            <h2>Restaurant Information</h2>
+
+            <p>Keep your restaurant information up to date.</p>
+          </div>
+        </div>
+
+        <!-- PROFILE OVERVIEW -->
+
+        <section class="restaurant-dashboard-card profile-overview-card">
+          <div class="profile-overview-left">
+            <div class="profile-large-avatar">MK</div>
+
+            <div class="profile-overview-info">
+              <h2>Mama's Kitchen</h2>
+
+              <p>Restaurant ID: REST-001</p>
+
+              <span class="profile-active-status">
+                <span></span>
+                Active Restaurant
+              </span>
+            </div>
+          </div>
+
+          <div class="profile-overview-meta">
+            <div>
+              <span> Member Since </span>
+
+              <strong> September 01, 2026 </strong>
+            </div>
+
+            <div>
+              <span> Total Orders </span>
+
+              <strong> 286 </strong>
+            </div>
+          </div>
+        </section>
+
+        <!-- =================================================
+                 PROFILE GRID
+            ================================================== -->
+
+        <div class="restaurant-profile-grid">
+          <!-- =================================================
+                     RESTAURANT INFORMATION
+                ================================================== -->
+
+          <section class="restaurant-dashboard-card profile-form-card">
+            <div class="dashboard-card-header">
+              <div>
+                <h3>Restaurant Information</h3>
+
+                <p>Basic information about your restaurant.</p>
+              </div>
+            </div>
+
+            <form id="restaurantProfileForm">
+              <div class="profile-form-grid">
+                <div class="profile-form-group">
+                  <label for="restaurantName"> Restaurant Name </label>
+
+                  <input type="text" id="restaurantName" value="Mama's Kitchen" required />
+                </div>
+
+                <div class="profile-form-group">
+                  <label for="restaurantCategory">
+                    Restaurant Category
+                  </label>
+
+                  <select id="restaurantCategory">
+                    <option selected>African Cuisine</option>
+
+                    <option>Fast Food</option>
+
+                    <option>International</option>
+
+                    <option>Bakery</option>
+
+                    <option>Cafe</option>
+                  </select>
+                </div>
+
+                <div class="profile-form-group full-width">
+                  <label for="restaurantDescription"> Description </label>
+
+                  <textarea id="restaurantDescription" rows="4">
+Mama's Kitchen serves delicious home-style meals prepared with fresh ingredients and authentic local flavors.</textarea>
+                </div>
+
+                <div class="profile-form-group">
+                  <label for="restaurantPhone"> Phone Number </label>
+
+                  <input type="tel" id="restaurantPhone" value="+254 712 345 678" />
+                </div>
+
+                <div class="profile-form-group">
+                  <label for="restaurantEmail"> Email Address </label>
+
+                  <input type="email" id="restaurantEmail" value="mamaskitchen@example.com" />
+                </div>
+              </div>
+
+              <div class="profile-form-actions">
+                <button type="reset" class="profile-secondary-button">
+                  Cancel
+                </button>
+
+                <button type="submit" class="profile-primary-button">
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <!-- =================================================
+                     CONTACT & LOCATION
+                ================================================== -->
+
+          <section class="restaurant-dashboard-card profile-form-card">
+            <div class="dashboard-card-header">
+              <div>
+                <h3>Contact & Location</h3>
+
+                <p>Your restaurant contact and location details.</p>
+              </div>
+            </div>
+
+            <form id="restaurantLocationForm">
+              <div class="profile-form-grid">
+                <div class="profile-form-group full-width">
+                  <label for="restaurantAddress"> Street Address </label>
+
+                  <input type="text" id="restaurantAddress" value="Kenyatta Avenue" />
+                </div>
+
+                <div class="profile-form-group">
+                  <label for="restaurantCity"> City </label>
+
+                  <input type="text" id="restaurantCity" value="Nairobi" />
+                </div>
+
+                <div class="profile-form-group">
+                  <label for="restaurantCounty"> County </label>
+
+                  <select id="restaurantCounty">
+                    <option selected>Nairobi</option>
+
+                    <option>Kiambu</option>
+
+                    <option>Machakos</option>
+
+                    <option>Kajiado</option>
+
+                    <option>Nakuru</option>
+                  </select>
+                </div>
+
+                <div class="profile-form-group full-width">
+                  <label for="restaurantLandmark"> Landmark </label>
+
+                  <input type="text" id="restaurantLandmark" value="Near City Market" />
+                </div>
+              </div>
+
+              <div class="profile-form-actions">
+                <button type="reset" class="profile-secondary-button">
+                  Cancel
+                </button>
+
+                <button type="submit" class="profile-primary-button">
+                  Save Location
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+
+        <!-- =================================================
+                 OPERATING INFORMATION
+            ================================================== -->
+
+        <section class="restaurant-dashboard-card operating-hours-card">
+          <div class="dashboard-card-header">
+            <div>
+              <h3>Operating Hours</h3>
+
+              <p>Set the hours when your restaurant accepts orders.</p>
+            </div>
+
+            <span class="profile-hours-status"> Currently Open </span>
+          </div>
+
+          <div class="operating-hours-list">
+            <div class="operating-hours-row">
+              <div class="day-information">
+                <strong> Monday </strong>
+              </div>
+
+              <div class="hours-inputs">
+                <input type="time" value="08:00" />
+
+                <span> to </span>
+
+                <input type="time" value="22:00" />
+              </div>
+            </div>
+
+            <div class="operating-hours-row">
+              <div class="day-information">
+                <strong> Tuesday </strong>
+              </div>
+
+              <div class="hours-inputs">
+                <input type="time" value="08:00" />
+
+                <span> to </span>
+
+                <input type="time" value="22:00" />
+              </div>
+            </div>
+
+            <div class="operating-hours-row">
+              <div class="day-information">
+                <strong> Wednesday </strong>
+              </div>
+
+              <div class="hours-inputs">
+                <input type="time" value="08:00" />
+
+                <span> to </span>
+
+                <input type="time" value="22:00" />
+              </div>
+            </div>
+
+            <div class="operating-hours-row">
+              <div class="day-information">
+                <strong> Thursday </strong>
+              </div>
+
+              <div class="hours-inputs">
+                <input type="time" value="08:00" />
+
+                <span> to </span>
+
+                <input type="time" value="22:00" />
+              </div>
+            </div>
+
+            <div class="operating-hours-row">
+              <div class="day-information">
+                <strong> Friday </strong>
+              </div>
+
+              <div class="hours-inputs">
+                <input type="time" value="08:00" />
+
+                <span> to </span>
+
+                <input type="time" value="23:00" />
+              </div>
+            </div>
+
+            <div class="operating-hours-row">
+              <div class="day-information">
+                <strong> Saturday </strong>
+              </div>
+
+              <div class="hours-inputs">
+                <input type="time" value="09:00" />
+
+                <span> to </span>
+
+                <input type="time" value="23:00" />
+              </div>
+            </div>
+
+            <div class="operating-hours-row">
+              <div class="day-information">
+                <strong> Sunday </strong>
+              </div>
+
+              <div class="hours-inputs">
+                <input type="time" value="09:00" />
+
+                <span> to </span>
+
+                <input type="time" value="21:00" />
+              </div>
+            </div>
+          </div>
+
+          <div class="operating-hours-actions">
+            <button type="button" class="profile-primary-button" id="saveHoursButton">
+              Save Operating Hours
+            </button>
+          </div>
+        </section>
+
+        <!-- =================================================
+                 DELIVERY INFORMATION
+            ================================================== -->
+
+        <section class="restaurant-dashboard-card delivery-settings-card">
+          <div class="dashboard-card-header">
+            <div>
+              <h3>Delivery Information</h3>
+
+              <p>Configure basic delivery information for your restaurant.</p>
+            </div>
+          </div>
+
+          <div class="profile-form-grid">
+            <div class="profile-form-group">
+              <label for="deliveryRadius"> Delivery Radius </label>
+
+              <div class="input-with-unit">
+                <input type="number" id="deliveryRadius" value="10" min="1" />
+
+                <span> KM </span>
+              </div>
+            </div>
+
+            <div class="profile-form-group">
+              <label for="minimumOrder"> Minimum Order </label>
+
+              <div class="input-with-unit">
+                <span> KSh </span>
+
+                <input type="number" id="minimumOrder" value="300" min="0" />
+              </div>
+            </div>
+
+            <div class="profile-form-group">
+              <label for="deliveryFee"> Delivery Fee </label>
+
+              <div class="input-with-unit">
+                <span> KSh </span>
+
+                <input type="number" id="deliveryFee" value="150" min="0" />
+              </div>
+            </div>
+
+            <div class="profile-form-group">
+              <label for="estimatedDelivery"> Estimated Delivery </label>
+
+              <div class="input-with-unit">
+                <input type="number" id="estimatedDelivery" value="35" min="1" />
+
+                <span> min </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-form-actions">
+            <button type="button" class="profile-primary-button" id="saveDeliveryButton">
+              Save Delivery Settings
+            </button>
+          </div>
+        </section>
+
+        <!-- MESSAGE -->
+
+        <div class="profile-message" id="profileMessage" role="alert" aria-live="polite"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- JavaScript -->
+
+  <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/main.js"></script>
+
+  <script src="../../assets/js/restaurant/restaurant-profile.js"></script>
+</body>
+
+</html>

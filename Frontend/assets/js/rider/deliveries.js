@@ -1,0 +1,1324 @@
+
+document.addEventListener("DOMContentLoaded", () => {
+    "use strict";
+
+    // =========================================================
+    // CONFIGURATION
+    // =========================================================
+
+    const API_BASE = (window.FOOD_DELIVERY_API_BASE || document.querySelector('meta[name="api-base-url"]')?.content?.trim() || "http://localhost:5000/api").replace(/\/+$/, "");
+    const TOKEN_KEY = "foodDeliveryAccessToken";
+
+    const elements = {
+        search: document.querySelector(
+            '.rider-delivery-search input[type="search"]'
+        ),
+        filters: document.querySelectorAll(
+            ".rider-delivery-filters .rider-filter-select"
+        ),
+        activeDelivery: document.querySelector(".rider-active-delivery"),
+        historyContainer: document.querySelector(
+            ".rider-deliveries-container"
+        ),
+        emptyState: document.querySelector(".rider-empty-deliveries"),
+        message: document.querySelector(".rider-message"),
+        sidebar: document.getElementById("riderSidebar"),
+        menuButton: document.getElementById("riderMenuButton"),
+        notificationButton: document.querySelector(
+            ".rider-notification-button"
+        ),
+        summaryCards: document.querySelectorAll(".rider-summary-card"),
+        profileNames: document.querySelectorAll(
+            ".rider-profile-info strong, .rider-topbar-profile-info strong"
+        ),
+        profileAvatars: document.querySelectorAll(
+            ".rider-profile-avatar, .rider-topbar-avatar"
+        ),
+        statusButton: document.querySelector(".rider-status-button")
+    };
+
+    let rider = null;
+    let deliveries = [];
+    let loading = false;
+    let messageTimer = null;
+    let currentFilter = "all";
+    let currentDateFilter = "all";
+
+    // =========================================================
+    // API
+    // =========================================================
+
+    function getToken() {
+        return (
+            localStorage.getItem(TOKEN_KEY) ||
+            sessionStorage.getItem(TOKEN_KEY) ||
+            ""
+        );
+    }
+
+    async function apiRequest(path, options = {}) {
+        const token = getToken();
+
+        if (!token) {
+            throw new Error(
+                "Your session is unavailable. Please sign in again."
+            );
+        }
+
+        const headers = {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+            ...(options.body
+                ? { "Content-Type": "application/json" }
+                : {}),
+            ...(options.headers || {})
+        };
+
+        const response = await fetch(`${API_BASE}${path}`, {
+            ...options,
+            headers
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (response.status === 401 || response.status === 403) {
+            throw new Error(
+                result.message ||
+                "Your session is invalid or has expired. Please sign in again."
+            );
+        }
+
+        if (!response.ok || result.success === false) {
+            throw new Error(
+                result.message ||
+                `Request failed with status ${response.status}.`
+            );
+        }
+
+        return result;
+    }
+
+    function getData(result, key) {
+        if (Array.isArray(result?.data?.[key])) {
+            return result.data[key];
+        }
+
+        if (Array.isArray(result?.[key])) {
+            return result[key];
+        }
+
+        if (Array.isArray(result?.data)) {
+            return result.data;
+        }
+
+        return [];
+    }
+
+    // =========================================================
+    // UTILITIES
+    // =========================================================
+
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, character => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[character]);
+    }
+
+    function money(value) {
+        const amount = Number(value);
+
+        if (!Number.isFinite(amount)) {
+            return "KSh 0";
+        }
+
+        return `KSh ${amount.toLocaleString("en-KE", {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        })}`;
+    }
+
+    function getOrderNumber(order) {
+        return order.order_number || `#${order.id}`;
+    }
+
+    function getStatus(order) {
+        return String(order.status || "unknown").toLowerCase();
+    }
+
+    function isActive(order) {
+        return ["ready", "out_for_delivery"].includes(getStatus(order));
+    }
+
+    function isCompleted(order) {
+        return getStatus(order) === "delivered";
+    }
+
+    function isCancelled(order) {
+        return getStatus(order) === "cancelled";
+    }
+
+    function getOrderDate(order) {
+        const value =
+            order.delivered_at ||
+            order.out_for_delivery_at ||
+            order.ready_at ||
+            order.placed_at ||
+            order.created_at;
+
+        if (!value) {
+            return null;
+        }
+
+        const date = new Date(value);
+
+        return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function formatDate(value) {
+        if (!value) {
+            return "Not available";
+        }
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return "Not available";
+        }
+
+        return date.toLocaleString("en-KE", {
+            dateStyle: "medium",
+            timeStyle: "short"
+        });
+    }
+
+    function formatTime(value) {
+        if (!value) {
+            return "Not available";
+        }
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return "Not available";
+        }
+
+        return date.toLocaleTimeString("en-KE", {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    }
+
+    function isSameDay(first, second) {
+        return first.getFullYear() === second.getFullYear() &&
+            first.getMonth() === second.getMonth() &&
+            first.getDate() === second.getDate();
+    }
+
+    function isWithinDateFilter(order) {
+        if (currentDateFilter === "all") {
+            return true;
+        }
+
+        const date = getOrderDate(order);
+
+        if (!date) {
+            return false;
+        }
+
+        const now = new Date();
+
+        if (currentDateFilter === "today") {
+            return isSameDay(date, now);
+        }
+
+        if (currentDateFilter === "week") {
+            const startOfWeek = new Date(now);
+            const day = (now.getDay() + 6) % 7;
+
+            startOfWeek.setDate(now.getDate() - day);
+            startOfWeek.setHours(0, 0, 0, 0);
+
+            return date >= startOfWeek && date <= now;
+        }
+
+        if (currentDateFilter === "month") {
+            return date.getFullYear() === now.getFullYear() &&
+                date.getMonth() === now.getMonth();
+        }
+
+        return true;
+    }
+
+    function showMessage(message, type = "success") {
+        if (!elements.message) {
+            console[type === "error" ? "error" : "log"](message);
+            return;
+        }
+
+        clearTimeout(messageTimer);
+
+        elements.message.textContent = message;
+        elements.message.className = `rider-message show ${type}`;
+        elements.message.style.display = "block";
+
+        messageTimer = setTimeout(() => {
+            elements.message.classList.remove("show");
+            elements.message.style.display = "none";
+        }, 4000);
+    }
+
+    // =========================================================
+    // RIDER PROFILE
+    // =========================================================
+
+    async function loadRiderProfile() {
+        const result = await apiRequest("/riders/me");
+
+        rider = result?.data?.rider || result?.rider || null;
+
+        if (!rider) {
+            throw new Error("Could not load your rider profile.");
+        }
+
+        const name = [
+            rider.first_name,
+            rider.last_name
+        ].filter(Boolean).join(" ") ||
+            rider.full_name ||
+            rider.name ||
+            "Delivery Rider";
+
+        elements.profileNames.forEach(element => {
+            element.textContent = name;
+        });
+
+        const initials = name
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(part => part.charAt(0).toUpperCase())
+            .join("") || "R";
+
+        elements.profileAvatars.forEach(element => {
+            element.textContent = initials;
+        });
+
+        renderOnlineStatus();
+    }
+
+    function renderOnlineStatus() {
+        if (!elements.statusButton || !rider) {
+            return;
+        }
+
+        const availability = String(
+            rider.availability || "offline"
+        ).toLowerCase();
+
+        const online = availability === "available";
+        const onDelivery = availability === "on_delivery";
+
+        elements.statusButton.classList.toggle("online", online);
+        elements.statusButton.classList.toggle("offline", !online);
+
+        const statusText = elements.statusButton.querySelector(
+            "span:not(.status-dot)"
+        );
+
+        if (statusText) {
+            statusText.textContent = onDelivery
+                ? "You're on a delivery"
+                : online
+                    ? "You're Online"
+                    : "You're Offline";
+        }
+
+        elements.statusButton.setAttribute(
+            "aria-label",
+            onDelivery
+                ? "You are currently on a delivery"
+                : online
+                    ? "You are online"
+                    : "You are offline"
+        );
+    }
+
+    // =========================================================
+    // DELIVERIES API
+    // =========================================================
+
+    async function loadDeliveries() {
+        const result = await apiRequest("/riders/my-orders");
+
+        deliveries = getData(result, "orders");
+    }
+
+    async function refreshDeliveries() {
+        if (loading) {
+            return;
+        }
+
+        loading = true;
+
+        if (elements.historyContainer) {
+            elements.historyContainer.setAttribute("aria-busy", "true");
+        }
+
+        try {
+            await loadDeliveries();
+
+            renderActiveDelivery();
+            renderDeliveryHistory();
+            renderSummary();
+        } catch (error) {
+            console.error("Failed to load rider deliveries:", error);
+
+            showMessage(
+                error.message || "Unable to load deliveries.",
+                "error"
+            );
+
+            renderLoadError();
+        } finally {
+            loading = false;
+
+            if (elements.historyContainer) {
+                elements.historyContainer.setAttribute("aria-busy", "false");
+            }
+        }
+    }
+
+    function renderLoadError() {
+        if (elements.historyContainer) {
+            elements.historyContainer.innerHTML = `
+                <div class="rider-empty-deliveries">
+                    <div class="rider-empty-deliveries-icon">!</div>
+                    <h3>Unable to load deliveries</h3>
+                    <p>
+                        Check your connection and try loading your deliveries
+                        again.
+                    </p>
+                    <button type="button"
+                            class="rider-primary-button"
+                            id="retryDeliveries">
+                        Try Again
+                    </button>
+                </div>
+            `;
+
+            document.getElementById("retryDeliveries")
+                ?.addEventListener("click", refreshDeliveries);
+        }
+
+        if (elements.activeDelivery) {
+            elements.activeDelivery.hidden = true;
+        }
+    }
+
+    // =========================================================
+    // FILTERS
+    // =========================================================
+
+    function getFilteredDeliveries() {
+        const search = elements.search?.value.trim().toLowerCase() || "";
+
+        return deliveries.filter(order => {
+            const status = getStatus(order);
+
+            const searchableText = [
+                order.order_number,
+                order.restaurant_name,
+                order.delivery_address,
+                order.delivery_city,
+                order.recipient_name,
+                order.recipient_phone
+            ].filter(Boolean).join(" ").toLowerCase();
+
+            if (search && !searchableText.includes(search)) {
+                return false;
+            }
+
+            if (currentFilter === "active" && !isActive(order)) {
+                return false;
+            }
+
+            if (currentFilter === "completed" && !isCompleted(order)) {
+                return false;
+            }
+
+            if (currentFilter === "cancelled" && !isCancelled(order)) {
+                return false;
+            }
+
+            if (!isWithinDateFilter(order)) {
+                return false;
+            }
+
+            return true;
+        });
+    }
+
+    function clearFilters() {
+        if (elements.search) {
+            elements.search.value = "";
+        }
+
+        currentFilter = "all";
+        currentDateFilter = "all";
+
+        elements.filters.forEach((select, index) => {
+            select.selectedIndex = 0;
+
+            if (index === 0) {
+                select.value = "All Deliveries";
+            } else if (index === 1) {
+                select.value = "All Dates";
+            }
+        });
+
+        renderActiveDelivery();
+        renderDeliveryHistory();
+
+        showMessage("Filters cleared.", "success");
+    }
+
+    function handleFilterChange() {
+        const statusSelect = elements.filters[0];
+        const dateSelect = elements.filters[1];
+
+        const statusValue = statusSelect?.value.toLowerCase() || "all";
+        const dateValue = dateSelect?.value.toLowerCase() || "all";
+
+        currentFilter = statusValue.includes("active")
+            ? "active"
+            : statusValue.includes("completed")
+                ? "completed"
+                : statusValue.includes("cancelled")
+                    ? "cancelled"
+                    : "all";
+
+        currentDateFilter = dateValue.includes("today")
+            ? "today"
+            : dateValue.includes("week")
+                ? "week"
+                : dateValue.includes("month")
+                    ? "month"
+                    : "all";
+
+        renderActiveDelivery();
+        renderDeliveryHistory();
+    }
+
+    // =========================================================
+    // ACTIVE DELIVERY
+    // =========================================================
+
+    function renderActiveDelivery() {
+        const container = elements.activeDelivery;
+
+        if (!container) {
+            return;
+        }
+
+        const activeOrders = getFilteredDeliveries().filter(isActive);
+        const order = activeOrders[0];
+
+        if (!order) {
+            container.hidden = true;
+            container.style.display = "none";
+            return;
+        }
+
+        container.hidden = false;
+        container.style.display = "";
+
+        const status = getStatus(order);
+        const restaurant = escapeHTML(
+            order.restaurant_name || "Restaurant"
+        );
+
+        const pickupAddress = escapeHTML(
+            order.restaurant_address || "Pickup location not provided"
+        );
+
+        const deliveryAddress = escapeHTML(
+            [
+                order.delivery_address,
+                order.delivery_city
+            ].filter(Boolean).join(", ") || "Delivery address not provided"
+        );
+
+        const recipient = escapeHTML(order.recipient_name || "Customer");
+        const orderNumber = escapeHTML(getOrderNumber(order));
+
+        const readyAt = formatTime(order.ready_at);
+        const outForDeliveryAt = formatTime(order.out_for_delivery_at);
+        const deliveredAt = formatTime(order.delivered_at);
+
+        const progress = status === "out_for_delivery"
+            ? `
+                <div class="rider-progress-step completed">
+                    <div class="rider-progress-dot">✓</div>
+                    <div>
+                        <strong>Order Ready</strong>
+                        <span>${escapeHTML(readyAt)}</span>
+                    </div>
+                </div>
+                <div class="rider-progress-line completed"></div>
+                <div class="rider-progress-step completed">
+                    <div class="rider-progress-dot">✓</div>
+                    <div>
+                        <strong>Picked Up</strong>
+                        <span>${escapeHTML(outForDeliveryAt)}</span>
+                    </div>
+                </div>
+                <div class="rider-progress-line completed"></div>
+                <div class="rider-progress-step current">
+                    <div class="rider-progress-dot">3</div>
+                    <div>
+                        <strong>On the Way</strong>
+                        <span>In progress</span>
+                    </div>
+                </div>
+                <div class="rider-progress-line"></div>
+                <div class="rider-progress-step">
+                    <div class="rider-progress-dot">4</div>
+                    <div>
+                        <strong>Delivered</strong>
+                        <span>Pending</span>
+                    </div>
+                </div>
+            `
+            : `
+                <div class="rider-progress-step completed">
+                    <div class="rider-progress-dot">✓</div>
+                    <div>
+                        <strong>Order Ready</strong>
+                        <span>${escapeHTML(readyAt)}</span>
+                    </div>
+                </div>
+                <div class="rider-progress-line completed"></div>
+                <div class="rider-progress-step current">
+                    <div class="rider-progress-dot">2</div>
+                    <div>
+                        <strong>Ready for Pickup</strong>
+                        <span>Waiting for pickup</span>
+                    </div>
+                </div>
+                <div class="rider-progress-line"></div>
+                <div class="rider-progress-step">
+                    <div class="rider-progress-dot">3</div>
+                    <div>
+                        <strong>On the Way</strong>
+                        <span>Pending</span>
+                    </div>
+                </div>
+                <div class="rider-progress-line"></div>
+                <div class="rider-progress-step">
+                    <div class="rider-progress-dot">4</div>
+                    <div>
+                        <strong>Delivered</strong>
+                        <span>Pending</span>
+                    </div>
+                </div>
+            `;
+
+        const actionButton = status === "ready"
+            ? `
+                <button type="button"
+                        class="rider-primary-button"
+                        data-start-delivery="${escapeHTML(order.id)}">
+                    Start Delivery
+                </button>
+            `
+            : `
+                <button type="button"
+                        class="rider-primary-button"
+                        data-mark-delivered="${escapeHTML(order.id)}">
+                    Mark as Delivered
+                </button>
+            `;
+
+        container.innerHTML = `
+            <div class="rider-delivery-header">
+                <div class="rider-delivery-restaurant">
+                    <div class="rider-delivery-icon">◈</div>
+                    <div>
+                        <span class="rider-delivery-order-number">
+                            Order ${orderNumber}
+                        </span>
+                        <h3>${restaurant}</h3>
+                        <small>
+                            ${status === "ready"
+                                ? "Ready for pickup"
+                                : `Picked up at ${escapeHTML(outForDeliveryAt)}`}
+                        </small>
+                    </div>
+                </div>
+
+                <span class="rider-delivery-status active">
+                    ${status === "ready" ? "Ready for Pickup" : "In Progress"}
+                </span>
+            </div>
+
+            <div class="rider-delivery-progress">
+                ${progress}
+            </div>
+
+            <div class="rider-delivery-route">
+                <div class="rider-route-location">
+                    <span class="route-label">PICKUP</span>
+                    <strong>${restaurant}</strong>
+                    <p>${pickupAddress}</p>
+                </div>
+
+                <div class="rider-route-arrow">→</div>
+
+                <div class="rider-route-location">
+                    <span class="route-label">DELIVERY</span>
+                    <strong>${recipient}</strong>
+                    <p>${deliveryAddress}</p>
+                </div>
+            </div>
+
+            <div class="rider-delivery-footer">
+                <div class="rider-delivery-meta">
+                    <span>● ${money(order.total_amount)} order value</span>
+                    <span>● ${escapeHTML(status.replaceAll("_", " "))}</span>
+                </div>
+
+                <div class="rider-delivery-actions">
+                    <button type="button"
+                            class="rider-secondary-button"
+                            data-view-delivery="${escapeHTML(order.id)}">
+                        View Details
+                    </button>
+                    ${actionButton}
+                </div>
+            </div>
+        `;
+
+        container.querySelector("[data-view-delivery]")
+            ?.addEventListener("click", () => viewDeliveryDetails(order));
+
+        container.querySelector("[data-start-delivery]")
+            ?.addEventListener("click", event => {
+                updateDeliveryStatus(
+                    event.currentTarget.dataset.startDelivery,
+                    "out_for_delivery",
+                    event.currentTarget
+                );
+            });
+
+        container.querySelector("[data-mark-delivered]")
+            ?.addEventListener("click", event => {
+                updateDeliveryStatus(
+                    event.currentTarget.dataset.markDelivered,
+                    "delivered",
+                    event.currentTarget
+                );
+            });
+    }
+
+    // =========================================================
+    // DELIVERY HISTORY
+    // =========================================================
+
+    function renderDeliveryHistory() {
+        const container = elements.historyContainer;
+
+        if (!container) {
+            return;
+        }
+
+        const history = getFilteredDeliveries().filter(
+            order => !isActive(order)
+        );
+
+        if (history.length === 0) {
+            container.innerHTML = `
+                <div class="rider-empty-deliveries">
+                    <div class="rider-empty-deliveries-icon">◈</div>
+                    <h3>No Deliveries Found</h3>
+                    <p>
+                        No deliveries match your current search or filters.
+                    </p>
+                    <button type="button"
+                            class="rider-secondary-button"
+                            id="clearDeliveryFilters">
+                        Clear Filters
+                    </button>
+                </div>
+            `;
+
+            container.querySelector("#clearDeliveryFilters")
+                ?.addEventListener("click", clearFilters);
+
+            return;
+        }
+
+        container.innerHTML = history
+            .slice()
+            .sort((a, b) => {
+                const dateA = getOrderDate(a)?.getTime() || 0;
+                const dateB = getOrderDate(b)?.getTime() || 0;
+
+                return dateB - dateA;
+            })
+            .map(renderDeliveryCard)
+            .join("");
+
+        container.querySelectorAll("[data-view-history]")
+            .forEach(button => {
+                button.addEventListener("click", () => {
+                    const order = history.find(
+                        item => String(item.id) === button.dataset.viewHistory
+                    );
+
+                    if (order) {
+                        viewDeliveryDetails(order);
+                    }
+                });
+            });
+    }
+
+    function renderDeliveryCard(order) {
+        const status = getStatus(order);
+        const completed = status === "delivered";
+        const cancelled = status === "cancelled";
+
+        const statusLabel = completed
+            ? "Completed"
+            : cancelled
+                ? "Cancelled"
+                : status.replaceAll("_", " ");
+
+        const pickup = order.restaurant_address ||
+            order.restaurant_name ||
+            "Pickup location";
+
+        const destination = [
+            order.delivery_address,
+            order.delivery_city
+        ].filter(Boolean).join(", ") || "Delivery location";
+
+        const date = order.delivered_at ||
+            order.out_for_delivery_at ||
+            order.ready_at ||
+            order.placed_at;
+
+        return `
+            <article class="rider-delivery-card ${cancelled ? "cancelled" : ""}">
+                <div class="rider-delivery-card-main">
+                    <div class="rider-delivery-icon">◈</div>
+
+                    <div class="rider-delivery-info">
+                        <strong>
+                            Order ${escapeHTML(getOrderNumber(order))}
+                        </strong>
+                        <span>
+                            ${escapeHTML(order.restaurant_name || "Restaurant")}
+                        </span>
+                        <small>
+                            ${escapeHTML(pickup)} → ${escapeHTML(destination)}
+                        </small>
+                    </div>
+                </div>
+
+                <div class="rider-delivery-card-center">
+                    <span class="rider-delivery-card-label">
+                        ${escapeHTML(statusLabel)}
+                    </span>
+                    <strong>${escapeHTML(formatTime(date))}</strong>
+                    <small>${escapeHTML(formatDate(date))}</small>
+                </div>
+
+                <div class="rider-delivery-card-amount">
+                    <strong>${money(order.total_amount)}</strong>
+                    <span class="rider-delivery-status ${
+                        completed ? "completed" : cancelled ? "cancelled" : "active"
+                    }">
+                        ${escapeHTML(statusLabel)}
+                    </span>
+                </div>
+
+                <div class="rider-delivery-card-action">
+                    <button type="button"
+                            class="rider-secondary-button"
+                            data-view-history="${escapeHTML(order.id)}">
+                        View
+                    </button>
+                </div>
+            </article>
+        `;
+    }
+
+    // =========================================================
+    // SUMMARY CARDS
+    // =========================================================
+
+    function renderSummary() {
+        const cards = elements.summaryCards;
+
+        if (!cards.length) {
+            return;
+        }
+
+        const today = new Date();
+
+        const activeCount = deliveries.filter(isActive).length;
+
+        const completedToday = deliveries.filter(order => {
+            if (!isCompleted(order) || !order.delivered_at) {
+                return false;
+            }
+
+            const deliveredDate = new Date(order.delivered_at);
+
+            return !Number.isNaN(deliveredDate.getTime()) &&
+                isSameDay(deliveredDate, today);
+        });
+
+        const firstValue = cards[0]?.querySelector("strong");
+        const secondValue = cards[1]?.querySelector("strong");
+        const thirdValue = cards[2]?.querySelector("strong");
+        const fourthValue = cards[3]?.querySelector("strong");
+
+        if (firstValue) {
+            firstValue.textContent = String(activeCount);
+        }
+
+        if (secondValue) {
+            secondValue.textContent = String(completedToday.length);
+        }
+
+        if (thirdValue) {
+            // This is delivered order value, not rider earnings.
+            const deliveredValue = completedToday.reduce(
+                (total, order) => total + (Number(order.total_amount) || 0),
+                0
+            );
+
+            thirdValue.textContent = money(deliveredValue);
+        }
+
+        if (fourthValue) {
+            const completedCount = deliveries.filter(isCompleted).length;
+            const finishedCount = deliveries.filter(
+                order => isCompleted(order) || isCancelled(order)
+            ).length;
+
+            const successRate = finishedCount
+                ? Math.round((completedCount / finishedCount) * 100)
+                : 0;
+
+            fourthValue.textContent = `${successRate}%`;
+        }
+    }
+
+    // =========================================================
+    // UPDATE DELIVERY STATUS
+    // =========================================================
+
+    async function updateDeliveryStatus(id, newStatus, button) {
+        if (button?.disabled) {
+            return;
+        }
+
+        const actionText = newStatus === "out_for_delivery"
+            ? "start this delivery"
+            : "mark this order as delivered";
+
+        if (!window.confirm(`Are you sure you want to ${actionText}?`)) {
+            return;
+        }
+
+        const originalText = button?.textContent;
+
+        if (button) {
+            button.disabled = true;
+            button.textContent = "Updating...";
+        }
+
+        const endpoint = newStatus === "out_for_delivery"
+            ? `/riders/my-orders/${encodeURIComponent(id)}/out-for-delivery`
+            : `/riders/my-orders/${encodeURIComponent(id)}/delivered`;
+
+        try {
+            await apiRequest(endpoint, {
+                method: "PATCH"
+            });
+
+            showMessage(
+                newStatus === "out_for_delivery"
+                    ? "Delivery started successfully."
+                    : "Order marked as delivered successfully.",
+                "success"
+            );
+
+            await refreshDeliveries();
+        } catch (error) {
+            console.error("Failed to update delivery status:", error);
+            showMessage(error.message, "error");
+
+            if (button) {
+                button.disabled = false;
+                button.textContent = originalText || "Try Again";
+            }
+        }
+    }
+
+    // =========================================================
+    // DELIVERY DETAILS MODAL
+    // =========================================================
+
+    function viewDeliveryDetails(order) {
+        let modal = document.getElementById("riderDeliveryDetailsModal");
+
+        if (!modal) {
+            modal = document.createElement("div");
+            modal.id = "riderDeliveryDetailsModal";
+            modal.className = "rider-delivery-details-overlay";
+            modal.setAttribute("role", "dialog");
+            modal.setAttribute("aria-modal", "true");
+            modal.setAttribute("aria-labelledby", "riderDeliveryDetailsTitle");
+
+            modal.innerHTML = `
+                <div class="rider-delivery-details-modal">
+                    <button type="button"
+                            class="rider-delivery-details-close"
+                            aria-label="Close details">
+                        &times;
+                    </button>
+                    <div id="riderDeliveryDetailsContent"></div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            modal.addEventListener("click", event => {
+                if (event.target === modal) {
+                    closeDetailsModal();
+                }
+            });
+
+            modal.querySelector(".rider-delivery-details-close")
+                .addEventListener("click", closeDetailsModal);
+        }
+
+        const status = getStatus(order);
+        const content = modal.querySelector("#riderDeliveryDetailsContent");
+
+        content.innerHTML = `
+            <h2 id="riderDeliveryDetailsTitle">
+                Order ${escapeHTML(getOrderNumber(order))}
+            </h2>
+
+            <p class="rider-delivery-details-status">
+                ${escapeHTML(status.replaceAll("_", " "))}
+            </p>
+
+            <div class="rider-delivery-details-row">
+                <span>Restaurant</span>
+                <strong>
+                    ${escapeHTML(order.restaurant_name || "Restaurant")}
+                </strong>
+            </div>
+
+            <div class="rider-delivery-details-row">
+                <span>Order value</span>
+                <strong>${money(order.total_amount)}</strong>
+            </div>
+
+            <div class="rider-delivery-details-row">
+                <span>Pickup address</span>
+                <strong>
+                    ${escapeHTML(order.restaurant_address || "Not provided")}
+                </strong>
+            </div>
+
+            <div class="rider-delivery-details-row">
+                <span>Recipient</span>
+                <strong>${escapeHTML(order.recipient_name || "Customer")}</strong>
+            </div>
+
+            <div class="rider-delivery-details-row">
+                <span>Delivery address</span>
+                <strong>
+                    ${escapeHTML([
+                        order.delivery_address,
+                        order.delivery_city
+                    ].filter(Boolean).join(", ") || "Not provided")}
+                </strong>
+            </div>
+
+            <div class="rider-delivery-details-row">
+                <span>Recipient phone</span>
+                <strong>
+                    ${escapeHTML(order.recipient_phone || "Not provided")}
+                </strong>
+            </div>
+
+            <div class="rider-delivery-details-row">
+                <span>Delivery instructions</span>
+                <strong>
+                    ${escapeHTML(order.delivery_instructions || "None")}
+                </strong>
+            </div>
+
+            <div class="rider-delivery-details-row">
+                <span>Placed</span>
+                <strong>${escapeHTML(formatDate(order.placed_at))}</strong>
+            </div>
+
+            <div class="rider-delivery-details-row">
+                <span>Ready at</span>
+                <strong>${escapeHTML(formatDate(order.ready_at))}</strong>
+            </div>
+
+            <div class="rider-delivery-details-row">
+                <span>Out for delivery</span>
+                <strong>
+                    ${escapeHTML(formatDate(order.out_for_delivery_at))}
+                </strong>
+            </div>
+
+            <div class="rider-delivery-details-row">
+                <span>Delivered at</span>
+                <strong>${escapeHTML(formatDate(order.delivered_at))}</strong>
+            </div>
+
+            ${
+                status === "ready"
+                    ? `<button type="button"
+                               class="rider-primary-button rider-details-action"
+                               data-start-delivery="${escapeHTML(order.id)}">
+                           Start Delivery
+                       </button>`
+                    : status === "out_for_delivery"
+                        ? `<button type="button"
+                                   class="rider-primary-button rider-details-action"
+                                   data-mark-delivered="${escapeHTML(order.id)}">
+                               Mark as Delivered
+                           </button>`
+                        : ""
+            }
+        `;
+
+        modal.hidden = false;
+        modal.classList.add("open");
+        document.body.classList.add("rider-modal-open");
+
+        content.querySelector("[data-start-delivery]")
+            ?.addEventListener("click", event => {
+                closeDetailsModal();
+
+                updateDeliveryStatus(
+                    event.currentTarget.dataset.startDelivery,
+                    "out_for_delivery",
+                    event.currentTarget
+                );
+            });
+
+        content.querySelector("[data-mark-delivered]")
+            ?.addEventListener("click", event => {
+                closeDetailsModal();
+
+                updateDeliveryStatus(
+                    event.currentTarget.dataset.markDelivered,
+                    "delivered",
+                    event.currentTarget
+                );
+            });
+    }
+
+    function closeDetailsModal() {
+        const modal = document.getElementById("riderDeliveryDetailsModal");
+
+        if (modal) {
+            modal.classList.remove("open");
+            modal.hidden = true;
+        }
+
+        document.body.classList.remove("rider-modal-open");
+    }
+
+    // =========================================================
+    // SEARCH AND FILTER EVENTS
+    // =========================================================
+
+    elements.search?.addEventListener("input", () => {
+        renderActiveDelivery();
+        renderDeliveryHistory();
+    });
+
+    elements.filters.forEach(select => {
+        select.addEventListener("change", handleFilterChange);
+    });
+
+    elements.emptyState?.querySelector("button")
+        ?.addEventListener("click", clearFilters);
+
+    // =========================================================
+    // MOBILE SIDEBAR
+    // =========================================================
+
+    elements.menuButton?.addEventListener("click", event => {
+        event.stopPropagation();
+        elements.sidebar?.classList.toggle("active");
+    });
+
+    document.addEventListener("click", event => {
+        if (
+            elements.sidebar?.classList.contains("active") &&
+            !elements.sidebar.contains(event.target) &&
+            !elements.menuButton?.contains(event.target)
+        ) {
+            elements.sidebar.classList.remove("active");
+        }
+    });
+
+    elements.sidebar?.querySelectorAll(".rider-nav-link")
+        .forEach(link => {
+            link.addEventListener("click", () => {
+                if (window.innerWidth <= 768) {
+                    elements.sidebar.classList.remove("active");
+                }
+            });
+        });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            closeDetailsModal();
+            elements.sidebar?.classList.remove("active");
+        }
+    });
+
+    // =========================================================
+    // NOTIFICATIONS
+    // =========================================================
+
+    elements.notificationButton?.addEventListener("click", () => {
+        showMessage("Notifications are not connected yet.", "info");
+    });
+
+    // =========================================================
+    // MODAL STYLES
+    // =========================================================
+
+    const modalStyles = document.createElement("style");
+
+    modalStyles.textContent = `
+        .rider-delivery-details-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.55);
+            overflow-y: auto;
+        }
+
+        .rider-delivery-details-overlay.open {
+            display: flex;
+        }
+
+        .rider-delivery-details-modal {
+            position: relative;
+            width: 100%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 28px;
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .rider-delivery-details-modal h2 {
+            margin: 0 36px 8px 0;
+            color: #0f172a;
+            font-size: 22px;
+        }
+
+        .rider-delivery-details-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            border: 0;
+            background: transparent;
+            color: #64748b;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        .rider-delivery-details-status {
+            margin: 0 0 20px;
+            color: #15803d;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .rider-delivery-details-row {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .rider-delivery-details-row span {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .rider-delivery-details-row strong {
+            color: #0f172a;
+            font-size: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .rider-details-action {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        body.rider-modal-open {
+            overflow: hidden;
+        }
+
+        @media (max-width: 520px) {
+            .rider-delivery-details-modal {
+                padding: 22px 18px;
+            }
+        }
+    `;
+
+    document.head.appendChild(modalStyles);
+
+    // =========================================================
+    // INITIALIZE
+    // =========================================================
+
+    async function initialize() {
+        try {
+            await loadRiderProfile();
+            await refreshDeliveries();
+        } catch (error) {
+            console.error("Deliveries initialization failed:", error);
+
+            showMessage(
+                error.message || "Unable to initialize your deliveries.",
+                "error"
+            );
+        }
+    }
+
+    initialize();
+});

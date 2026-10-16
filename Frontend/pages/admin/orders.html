@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Orders | FoodDelivery Admin</title>
+
+    <!-- =========================<script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/admin/dashboard.js"></script>
+         GLOBAL STYLES
+    ========================== -->
+    <link rel="stylesheet" href="../../assets/css/style.css" />
+
+    <!-- =========================
+         ADMIN ORDERS STYLES
+    ========================== -->
+    <link rel="stylesheet" href="../../assets/css/pages/admin/orders.css" />
+    <link rel="stylesheet" href="../../assets/css/pages/admin/dashboard.css" />
+</head>
+
+<body class="admin-orders-page">
+    <!-- =========================================================
+         ADMIN SIDEBAR
+    ========================================================== -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="admin-sidebar-header">
+            <a href="dashboard.html" class="admin-logo">
+                Food<span>Delivery</span>
+            </a>
+
+            <button type="button" id="adminCloseMenuButton" class="admin-close-menu-button" aria-label="Close menu">
+                ×
+            </button>
+
+        </div>
+
+        <!-- ADMIN PROFILE -->
+
+        <div class="admin-profile">
+            <div class="admin-profile-avatar">A</div>
+
+            <div class="admin-profile-info">
+                <strong> Admin User </strong>
+
+                <span> Administrator </span>
+            </div>
+        </div>
+
+        <!-- NAVIGATION -->
+
+        <nav class="admin-navigation">
+            <a href="dashboard.html" class="admin-nav-link">
+                <span class="admin-nav-icon"> ▣ </span>
+
+                <span> Dashboard </span>
+            </a>
+
+            <a href="orders.html" class="admin-nav-link active">
+                <span class="admin-nav-icon"> ▤ </span>
+
+                <span> Orders </span>
+
+                <span class="admin-nav-badge"> 12 </span>
+            </a>
+
+            <a href="customers.html" class="admin-nav-link">
+                <span class="admin-nav-icon"> ◯ </span>
+
+                <span> Customers </span>
+            </a>
+
+            <a href="restaurants.html" class="admin-nav-link">
+                <span class="admin-nav-icon"> ▦ </span>
+
+                <span> Restaurants </span>
+            </a>
+
+            <a href="riders.html" class="admin-nav-link">
+                <span class="admin-nav-icon"> ◈ </span>
+
+                <span> Riders </span>
+            </a>
+
+            <a href="payments.html" class="admin-nav-link">
+                <span class="admin-nav-icon"> KSh </span>
+
+                <span> Payments </span>
+            </a>
+
+            <a href="reports.html" class="admin-nav-link">
+                <span class="admin-nav-icon"> ▥ </span>
+
+                <span> Reports </span>
+            </a>
+
+            <a href="settings.html" class="admin-nav-link">
+                <span class="admin-nav-icon"> ⚙ </span>
+
+                <span> Settings </span>
+            </a>
+        </nav>
+
+        <!-- SIDEBAR FOOTER -->
+
+        <div class="admin-sidebar-footer">
+            <a href="../../index.html" class="admin-nav-link">
+                <span class="admin-nav-icon"> ↪ </span>
+
+                <span> Logout </span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- =========================================================
+         MAIN CONTENT
+    ========================================================== -->
+    <main class="admin-main">
+        <!-- =====================================================
+             TOPBAR
+        ====================================================== -->
+        <header class="admin-topbar">
+            <div class="admin-topbar-left">
+                <button type="button" class="admin-mobile-menu-button" id="adminMenuButton" aria-label="Open menu">
+                    ☰
+                </button>
+
+                <div>
+                    <h1>Orders</h1>
+
+                    <p>Manage your food delivery platform.</p>
+                </div>
+            </div>
+
+            <div class="admin-topbar-right">
+                <!-- NOTIFICATIONS -->
+
+                <button type="button" class="admin-notification-button" aria-label="Notifications">
+                    <span> 🔔 </span>
+
+                    <span class="admin-notification-badge"> 5 </span>
+                </button>
+
+                <!-- ADMIN PROFILE -->
+
+                <div class="admin-topbar-profile">
+                    <div class="admin-topbar-avatar"></div>
+
+                    <div class="admin-topbar-profile-info">
+                        <strong> Admin3 User </strong>
+
+                        <span> Administrator </span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- =====================================================
+             PAGE CONTENT
+        ====================================================== -->
+        <section class="admin-content">
+            <!-- =================================================
+                 PAGE HEADER
+            ================================================== -->
+            <div class="admin-content-header">
+                <div>
+                    <h2>Order Management</h2>
+                    <p>
+                        Monitor orders, track their progress and manage customer
+                        deliveries.
+                    </p>
+                </div>
+
+                <div class="admin-header-actions">
+                    <button type="button" class="admin-secondary-button">
+                        Export Orders
+                    </button>
+
+                    <button type="button" class="admin-primary-button">
+                        + New Order
+                    </button>
+                </div>
+            </div>
+
+            <!-- =================================================
+                 ORDER STATISTICS
+            ================================================== -->
+            <div class="admin-order-stats">
+                <div class="admin-order-stat-card">
+                    <div class="admin-order-stat-icon">▣</div>
+
+                    <div class="admin-order-stat-content">
+                        <span>Total Orders</span>
+                        <strong>1,248</strong>
+                        <small>All time orders</small>
+                    </div>
+                </div>
+
+                <div class="admin-order-stat-card">
+                    <div class="admin-order-stat-icon">◷</div>
+
+                    <div class="admin-order-stat-content">
+                        <span>Pending</span>
+                        <strong>24</strong>
+                        <small>Awaiting processing</small>
+                    </div>
+                </div>
+
+                <div class="admin-order-stat-card">
+                    <div class="admin-order-stat-icon">✓</div>
+
+                    <div class="admin-order-stat-content">
+                        <span>Completed</span>
+                        <strong>1,126</strong>
+                        <small>Successfully delivered</small>
+                    </div>
+                </div>
+
+                <div class="admin-order-stat-card">
+                    <div class="admin-order-stat-icon">!</div>
+
+                    <div class="admin-order-stat-content">
+                        <span>Cancelled</span>
+                        <strong>98</strong>
+                        <small>Cancelled orders</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =================================================
+                 ORDERS CARD
+            ================================================== -->
+            <div class="admin-orders-card">
+                <!-- Orders Card Header -->
+                <div class="admin-orders-card-header">
+                    <div>
+                        <h3>All Orders</h3>
+                        <p>1,248 orders found</p>
+                    </div>
+
+                    <div class="admin-orders-actions">
+                        <div class="admin-search-box">
+                            <span>⌕</span>
+
+                            <input type="search" placeholder="Search orders..." aria-label="Search orders" />
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- =================================================
+                     ORDER FILTERS
+                ================================================== -->
+                <div class="admin-order-filters">
+                    <button type="button" class="admin-filter-tab active">
+                        All Orders
+                        <span>1,248</span>
+                    </button>
+
+                    <button type="button" class="admin-filter-tab">
+                        Pending
+                        <span>24</span>
+                    </button>
+
+                    <button type="button" class="admin-filter-tab">
+                        Preparing
+                        <span>16</span>
+                    </button>
+
+                    <button type="button" class="admin-filter-tab">
+                        Out for Delivery
+                        <span>18</span>
+                    </button>
+
+                    <button type="button" class="admin-filter-tab">
+                        Delivered
+                        <span>1,126</span>
+                    </button>
+
+                    <button type="button" class="admin-filter-tab">
+                        Cancelled
+                        <span>98</span>
+                    </button>
+                </div>
+
+                <!-- =================================================
+                     ORDERS TABLE
+                ================================================== -->
+                <div class="admin-orders-table-wrapper">
+                    <table class="admin-orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order</th>
+                                <th>Customer</th>
+                                <th>Restaurant</th>
+                                <th>Rider</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <!-- Order 1 -->
+                            <tr>
+                                <td>
+                                    <div class="admin-order-number">
+                                        <strong>#FD-10248</strong>
+                                        <span>3 items</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="admin-customer">
+                                        <div class="admin-customer-avatar">JK</div>
+
+                                        <div>
+                                            <strong>John Kamau</strong>
+                                            <span>0712 345 678</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="admin-restaurant-name"> Java House </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-rider">
+                                        <strong>Peter Mwangi</strong>
+                                        <span>Rider #204</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <strong class="admin-order-amount"> KSh 2,450 </strong>
+                                </td>
+
+                                <td>
+                                    <span class="admin-status delivered"> Delivered </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-order-date">
+                                        <strong>Today</strong>
+                                        <span>10:42 AM</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <button type="button" class="admin-view-button">
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Order 2 -->
+                            <tr>
+                                <td>
+                                    <div class="admin-order-number">
+                                        <strong>#FD-10247</strong>
+                                        <span>2 items</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="admin-customer">
+                                        <div class="admin-customer-avatar">AM</div>
+
+                                        <div>
+                                            <strong>Anne Mwende</strong>
+                                            <span>0723 456 789</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="admin-restaurant-name"> KFC </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-rider">
+                                        <strong>Brian Otieno</strong>
+                                        <span>Rider #187</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <strong class="admin-order-amount"> KSh 1,850 </strong>
+                                </td>
+
+                                <td>
+                                    <span class="admin-status out-delivery">
+                                        Out for Delivery
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-order-date">
+                                        <strong>Today</strong>
+                                        <span>10:18 AM</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <button type="button" class="admin-view-button">
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Order 3 -->
+                            <tr>
+                                <td>
+                                    <div class="admin-order-number">
+                                        <strong>#FD-10246</strong>
+                                        <span>4 items</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="admin-customer">
+                                        <div class="admin-customer-avatar">DO</div>
+
+                                        <div>
+                                            <strong>David Otieno</strong>
+                                            <span>0701 567 890</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="admin-restaurant-name"> Artcaffe </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-rider">
+                                        <strong>John Kamau</strong>
+                                        <span>Rider #221</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <strong class="admin-order-amount"> KSh 3,200 </strong>
+                                </td>
+
+                                <td>
+                                    <span class="admin-status preparing"> Preparing </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-order-date">
+                                        <strong>Today</strong>
+                                        <span>9:56 AM</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <button type="button" class="admin-view-button">
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Order 4 -->
+                            <tr>
+                                <td>
+                                    <div class="admin-order-number">
+                                        <strong>#FD-10245</strong>
+                                        <span>1 item</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="admin-customer">
+                                        <div class="admin-customer-avatar">EW</div>
+
+                                        <div>
+                                            <strong>Esther Wanjiku</strong>
+                                            <span>0798 234 567</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="admin-restaurant-name"> Mama Oliech </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-rider">
+                                        <strong>Michael Kariuki</strong>
+                                        <span>Rider #198</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <strong class="admin-order-amount"> KSh 980 </strong>
+                                </td>
+
+                                <td>
+                                    <span class="admin-status pending"> Pending </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-order-date">
+                                        <strong>Today</strong>
+                                        <span>9:41 AM</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <button type="button" class="admin-view-button">
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Order 5 -->
+                            <tr>
+                                <td>
+                                    <div class="admin-order-number">
+                                        <strong>#FD-10244</strong>
+                                        <span>3 items</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="admin-customer">
+                                        <div class="admin-customer-avatar">PM</div>
+
+                                        <div>
+                                            <strong>Paul Maina</strong>
+                                            <span>0745 678 901</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="admin-restaurant-name"> Big Square </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-rider">
+                                        <strong>Samuel Njoroge</strong>
+                                        <span>Rider #176</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <strong class="admin-order-amount"> KSh 2,750 </strong>
+                                </td>
+
+                                <td>
+                                    <span class="admin-status cancelled"> Cancelled </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-order-date">
+                                        <strong>Today</strong>
+                                        <span>9:12 AM</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <button type="button" class="admin-view-button">
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Order 6 -->
+                            <tr>
+                                <td>
+                                    <div class="admin-order-number">
+                                        <strong>#FD-10243</strong>
+                                        <span>2 items</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="admin-customer">
+                                        <div class="admin-customer-avatar">NM</div>
+
+                                        <div>
+                                            <strong>Naomi Muthoni</strong>
+                                            <span>0722 890 123</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="admin-restaurant-name"> Pizza Inn </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-rider">
+                                        <strong>David Kiptoo</strong>
+                                        <span>Rider #193</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <strong class="admin-order-amount"> KSh 1,650 </strong>
+                                </td>
+
+                                <td>
+                                    <span class="admin-status delivered"> Delivered </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-order-date">
+                                        <strong>Yesterday</strong>
+                                        <span>8:35 PM</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <button type="button" class="admin-view-button">
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- =================================================
+                     TABLE FOOTER / PAGINATION
+                ================================================== -->
+                <div class="admin-orders-footer">
+                    <p>Showing <strong>1–6</strong> of <strong>1,248</strong> orders</p>
+
+                    <div class="admin-pagination">
+                        <button type="button" class="admin-pagination-button disabled" disabled>
+                            ‹
+                        </button>
+
+                        <button type="button" class="admin-pagination-button active">
+                            1
+                        </button>
+
+                        <button type="button" class="admin-pagination-button">2</button>
+
+                        <button type="button" class="admin-pagination-button">3</button>
+
+                        <span class="admin-pagination-dots"> ... </span>
+
+                        <button type="button" class="admin-pagination-button">208</button>
+
+                        <button type="button" class="admin-pagination-button">›</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =================================================
+                 QUICK ORDER SUMMARY
+            ================================================== -->
+            <div class="admin-order-summary-grid">
+                <!-- Today's Orders -->
+                <div class="admin-summary-card">
+                    <div class="admin-summary-header">
+                        <div>
+                            <h3>Today's Orders</h3>
+                            <p>Order status overview</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-summary-list">
+                        <div class="admin-summary-item">
+                            <div class="admin-summary-label">
+                                <span class="summary-dot pending-dot"></span>
+                                Pending
+                            </div>
+
+                            <strong>24</strong>
+                        </div>
+
+                        <div class="admin-summary-item">
+                            <div class="admin-summary-label">
+                                <span class="summary-dot preparing-dot"></span>
+                                Preparing
+                            </div>
+
+                            <strong>16</strong>
+                        </div>
+
+                        <div class="admin-summary-item">
+                            <div class="admin-summary-label">
+                                <span class="summary-dot delivery-dot"></span>
+                                Out for Delivery
+                            </div>
+
+                            <strong>18</strong>
+                        </div>
+
+                        <div class="admin-summary-item">
+                            <div class="admin-summary-label">
+                                <span class="summary-dot delivered-dot"></span>
+                                Delivered
+                            </div>
+
+                            <strong>72</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Revenue -->
+                <div class="admin-summary-card">
+                    <div class="admin-summary-header">
+                        <div>
+                            <h3>Order Revenue</h3>
+                            <p>Today's order revenue</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-revenue-summary">
+                        <strong>KSh 34,850</strong>
+
+                        <span class="admin-revenue-positive">
+                            +12.8% from yesterday
+                        </span>
+                    </div>
+
+                    <div class="admin-revenue-bar">
+                        <span style="width: 76%"></span>
+                    </div>
+
+                    <div class="admin-revenue-footer">
+                        <span>Daily target</span>
+                        <strong>KSh 45,000</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =================================================
+                 MESSAGE AREA
+            ================================================== -->
+            <div class="admin-message" id="adminMessage" role="alert" aria-live="polite"></div>
+        </section>
+    </main>
+
+    <!-- CREATE ORDER MODAL -->
+    <div class="admin-modal" id="createOrderModal" aria-hidden="true">
+        <div class="admin-modal-overlay"></div>
+
+        <section class="admin-modal-content" role="dialog" aria-modal="true" aria-labelledby="createOrderTitle">
+            <div class="admin-modal-header">
+                <div>
+                    <p class="admin-modal-eyebrow">
+                        ORDER MANAGEMENT
+                    </p>
+
+                    <h2 id="createOrderTitle">
+                        Create New Order
+                    </h2>
+
+                    <p>
+                        Loading order form...
+                    </p>
+                </div>
+
+                <button type="button" class="admin-modal-close" aria-label="Close modal">
+                    ×
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <!-- =========================================================
+         OPTIONAL MAIN JS
+    ========================================================== -->
+    <script src="../../assets/js/auth/auth-api.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/admin/orders.js"></script>
+
+</body>
+
+</html>

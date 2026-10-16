@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Orders - FoodDelivery</title>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="../../assets/css/style.css">
+
+    <!-- Customer CSS -->
+    <link rel="stylesheet" href="../../assets/css/pages/customer/customer.css">
+
+    <!-- Orders CSS -->
+    <link rel="stylesheet" href="../../assets/css/pages/customer/orders.css">
+</head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+    <header class="customer-header">
+
+        <div class="customer-header-container">
+
+            <!-- Logo -->
+            <a href="home.html" class="customer-logo">
+                Food<span>Delivery</span>
+            </a>
+
+            <!-- Delivery Location -->
+            <a href="addresses.html">
+                <button type="button" class="delivery-location">
+                    <span class="location-icon">📍</span>
+
+                    <span class="location-text">
+                        <small>Deliver to</small>
+                        <strong>Select location</strong>
+                    </span>
+                </button>
+            </a>
+
+
+            <!-- Desktop Navigation -->
+            <nav class="customer-navigation">
+
+                <a href="home.html">
+                    Home
+                </a>
+
+                <a href="restaurants.html">
+                    Restaurants
+                </a>
+
+                <a href="orders.html" class="active">
+                    Orders
+                </a>
+
+                <a href="profile.html">
+                    Profile
+                </a>
+
+                <a href="../auth/login.html">
+                    Logout
+                </a>
+
+            </nav>
+
+
+            <!-- Mobile Menu -->
+            <button type="button" class="mobile-menu-button" id="mobileMenuButton" aria-label="Open menu">
+                ☰
+            </button>
+
+        </div>
+
+
+        <!-- Mobile Navigation -->
+        <nav class="mobile-navigation" id="mobileNavigation">
+
+            <a href="home.html">
+                Home
+            </a>
+
+            <a href="restaurants.html">
+                Restaurants
+            </a>
+
+            <a href="orders.html" class="active">
+                Orders
+            </a>
+
+            <a href="profile.html">
+                Profile
+            </a>
+
+            <a href="../auth/login.html">
+                Logout
+            </a>
+
+        </nav>
+
+    </header>
+
+
+    <!-- ================= MAIN ================= -->
+    <main class="orders-page">
+
+        <div class="orders-container">
+
+            <!-- Page Header -->
+            <div class="orders-page-header">
+
+                <div>
+                    <h1>My Orders</h1>
+
+                    <p>
+                        View and track your previous and current orders.
+                    </p>
+                </div>
+
+                <a href="restaurants.html" class="browse-food-button">
+                    Browse Food
+                </a>
+
+            </div>
+
+
+            <!-- ================= ORDER FILTERS ================= -->
+            <section class="orders-filters">
+
+                <button type="button" class="order-filter active" data-status="all">
+                    All Orders
+                </button>
+
+                <button type="button" class="order-filter" data-status="active">
+                    Active
+                </button>
+
+                <button type="button" class="order-filter" data-status="delivered">
+                    Delivered
+                </button>
+
+                <button type="button" class="order-filter" data-status="cancelled">
+                    Cancelled
+                </button>
+
+            </section>
+
+
+            <!-- ================= ORDERS LIST ================= -->
+            <section class="orders-section">
+
+                <!-- Orders Count -->
+                <div class="orders-section-header">
+
+                    <h2>
+                        Recent Orders
+                    </h2>
+
+                    <span id="ordersCount">
+                        4 orders
+                    </span>
+
+                </div>
+
+
+                <div class="orders-list" id="ordersList">
+
+
+                    <!-- ================= ORDER 1 ================= -->
+                    <article class="order-card" data-status="active">
+
+                        <!-- Order Header -->
+                        <div class="order-card-header">
+
+                            <div class="order-restaurant">
+
+                                <div class="restaurant-avatar">
+                                    MK
+                                </div>
+
+                                <div>
+
+                                    <h3>
+                                        Mama's Kitchen
+                                    </h3>
+
+                                    <span>
+                                        Order #FD-1004
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <span class="order-status status-preparing">
+                                Preparing
+                            </span>
+
+                        </div>
+
+
+                        <!-- Order Body -->
+                        <div class="order-card-body">
+
+                            <div class="order-items">
+
+                                <div class="order-item">
+
+                                    <div class="order-item-quantity">
+                                        1x
+                                    </div>
+
+                                    <div class="order-item-info">
+                                        <strong>
+                                            Grilled Chicken
+                                        </strong>
+
+                                        <span>
+                                            KSh 650
+                                        </span>
+                                    </div>
+
+                                </div>
+
+
+                                <div class="order-item">
+
+                                    <div class="order-item-quantity">
+                                        1x
+                                    </div>
+
+                                    <div class="order-item-info">
+                                        <strong>
+                                            Beef Stew
+                                        </strong>
+
+                                        <span>
+                                            KSh 550
+                                        </span>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="order-total">
+
+                                <span>
+                                    Total
+                                </span>
+
+                                <strong>
+                                    KSh 1,300
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Order Footer -->
+                        <div class="order-card-footer">
+
+                            <div class="order-date">
+                                Ordered today
+                            </div>
+
+                            <a href="order-details.html?id=FD-1004" class="view-order-button">
+                                View Order
+                            </a>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- ================= ORDER 2 ================= -->
+                    <article class="order-card" data-status="delivered">
+
+                        <div class="order-card-header">
+
+                            <div class="order-restaurant">
+
+                                <div class="restaurant-avatar">
+                                    UB
+                                </div>
+
+                                <div>
+
+                                    <h3>
+                                        Urban Bites
+                                    </h3>
+
+                                    <span>
+                                        Order #FD-1003
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <span class="order-status status-delivered">
+                                Delivered
+                            </span>
+
+                        </div>
+
+
+                        <div class="order-card-body">
+
+                            <div class="order-items">
+
+                                <div class="order-item">
+
+                                    <div class="order-item-quantity">
+                                        1x
+                                    </div>
+
+                                    <div class="order-item-info">
+
+                                        <strong>
+                                            Classic Beef Burger
+                                        </strong>
+
+                                        <span>
+                                            KSh 450
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="order-item">
+
+                                    <div class="order-item-quantity">
+                                        1x
+                                    </div>
+
+                                    <div class="order-item-info">
+
+                                        <strong>
+                                            French Fries
+                                        </strong>
+
+                                        <span>
+                                            KSh 250
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="order-total">
+
+                                <span>
+                                    Total
+                                </span>
+
+                                <strong>
+                                    KSh 820
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="order-card-footer">
+
+                            <div class="order-date">
+                                September 8, 2026
+                            </div>
+
+                            <a href="order-details.html?id=FD-1003" class="view-order-button">
+                                View Order
+                            </a>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- ================= ORDER 3 ================= -->
+                    <article class="order-card" data-status="delivered">
+
+                        <div class="order-card-header">
+
+                            <div class="order-restaurant">
+
+                                <div class="restaurant-avatar">
+                                    PH
+                                </div>
+
+                                <div>
+
+                                    <h3>
+                                        Pizza House
+                                    </h3>
+
+                                    <span>
+                                        Order #FD-1002
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <span class="order-status status-delivered">
+                                Delivered
+                            </span>
+
+                        </div>
+
+
+                        <div class="order-card-body">
+
+                            <div class="order-items">
+
+                                <div class="order-item">
+
+                                    <div class="order-item-quantity">
+                                        1x
+                                    </div>
+
+                                    <div class="order-item-info">
+
+                                        <strong>
+                                            Chicken Pizza
+                                        </strong>
+
+                                        <span>
+                                            KSh 800
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="order-total">
+
+                                <span>
+                                    Total
+                                </span>
+
+                                <strong>
+                                    KSh 950
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="order-card-footer">
+
+                            <div class="order-date">
+                                September 5, 2026
+                            </div>
+
+                            <a href="order-details.html?id=FD-1002" class="view-order-button">
+                                View Order
+                            </a>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- ================= ORDER 4 ================= -->
+                    <article class="order-card" data-status="cancelled">
+
+                        <div class="order-card-header">
+
+                            <div class="order-restaurant">
+
+                                <div class="restaurant-avatar">
+                                    CB
+                                </div>
+
+                                <div>
+
+                                    <h3>
+                                        Chicken Corner
+                                    </h3>
+
+                                    <span>
+                                        Order #FD-1001
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <span class="order-status status-cancelled">
+                                Cancelled
+                            </span>
+
+                        </div>
+
+
+                        <div class="order-card-body">
+
+                            <div class="order-items">
+
+                                <div class="order-item">
+
+                                    <div class="order-item-quantity">
+                                        2x
+                                    </div>
+
+                                    <div class="order-item-info">
+
+                                        <strong>
+                                            Chicken Wings
+                                        </strong>
+
+                                        <span>
+                                            KSh 500 each
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="order-total">
+
+                                <span>
+                                    Total
+                                </span>
+
+                                <strong>
+                                    KSh 1,100
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="order-card-footer">
+
+                            <div class="order-date">
+                                September 2, 2026
+                            </div>
+
+                            <a href="order-details.html?id=FD-1001" class="view-order-button">
+                                View Order
+                            </a>
+
+                        </div>
+
+                    </article>
+
+
+                </div>
+
+
+                <!-- No Orders -->
+                <div class="no-orders" id="noOrders" style="display: none;">
+
+                    <div class="no-orders-icon">
+                        🛍
+                    </div>
+
+                    <h3>
+                        No orders found
+                    </h3>
+
+                    <p>
+                        You don't have any orders in this category yet.
+                    </p>
+
+                    <a href="restaurants.html" class="browse-food-button">
+                        Browse Restaurants
+                    </a>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="customer-footer">
+
+        <div class="customer-footer-container">
+
+            <div class="footer-brand">
+
+                <a href="home.html" class="customer-logo">
+                    Food<span>Delivery</span>
+                </a>
+
+                <p>
+                    Delicious food delivered straight to your door.
+                </p>
+
+            </div>
+
+
+            <div class="footer-links">
+
+                <a href="home.html">
+                    Home
+                </a>
+
+                <a href="restaurants.html">
+                    Restaurants
+                </a>
+
+                <a href="orders.html">
+                    Orders
+                </a>
+
+                <a href="profile.html">
+                    Profile
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <p>
+                &copy; 2026 FoodDelivery. All rights reserved.
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <!-- Orders JavaScript -->
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/customer/orders.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Your Cart - FoodDelivery</title>
+
+    <link rel="stylesheet" href="../../assets/css/style.css" />
+    <link rel="stylesheet" href="../../assets/css/pages/customer/customer.css" />
+    <link rel="stylesheet" href="../../assets/css/pages/customer/cart.css" />
+</head>
+
+<body>
+    <!-- =========================
+         CUSTOMER HEADER
+    ========================== -->
+    <header class="customer-header">
+
+        <div class="customer-header-container">
+
+            <!-- Logo -->
+            <a href="home.html" class="customer-logo">
+                Food<span>Delivery</span>
+            </a>
+
+            <!-- Delivery Location -->
+            <a href="addresses.html">
+                <button type="button" class="delivery-location">
+                    <span class="location-icon">📍</span>
+
+                    <span class="location-text">
+                        <small>Deliver to</small>
+                        <strong>Select location</strong>
+                    </span>
+                </button>
+            </a>
+
+
+            <!-- Desktop Navigation -->
+            <nav class="customer-navigation">
+
+                <a href="home.html">
+                    Home
+                </a>
+
+                <a href="restaurants.html">
+                    Restaurants
+                </a>
+
+                <a href="orders.html">
+                    Orders
+                </a>
+
+                <a href="profile.html">
+                    Profile
+                </a>
+
+                <a href="../auth/login.html">
+                    Logout
+                </a>
+
+            </nav>
+
+
+            <!-- Mobile Menu -->
+            <button type="button" class="mobile-menu-button" id="mobileMenuButton" aria-label="Open menu">
+                ☰
+            </button>
+
+        </div>
+
+
+        <!-- Mobile Navigation -->
+        <nav class="mobile-navigation" id="mobileNavigation">
+
+            <a href="home.html">
+                Home
+            </a>
+
+            <a href="restaurants.html">
+                Restaurants
+            </a>
+
+            <a href="orders.html">
+                Orders
+            </a>
+
+            <a href="profile.html">
+                Profile
+            </a>
+
+            <a href="../auth/login.html">
+                Logout
+            </a>
+
+        </nav>
+
+    </header>
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================== -->
+    <main class="customer-main cart-page">
+        <section class="cart-section">
+            <div class="cart-container">
+                <!-- =========================
+                     PAGE HEADER
+                ========================== -->
+                <div class="cart-page-header">
+                    <a href="restaurants.html" class="back-link">
+                        ← Continue shopping
+                    </a>
+
+                    <span class="section-label"> Your order </span>
+
+                    <h1>Your Cart</h1>
+
+                    <p>Review your items before proceeding to checkout.</p>
+                </div>
+
+                <!-- =========================
+                     CART CONTENT
+                ========================== -->
+                <div class="cart-layout">
+                    <!-- =========================
+                         CART ITEMS
+                    ========================== -->
+                    <section class="cart-items-section">
+                        <div class="cart-restaurant-header">
+                            <div>
+                                <span class="restaurant-label"> Restaurant </span>
+
+                                <h2>Mama's Kitchen</h2>
+                            </div>
+
+                            <span class="restaurant-status cart-status"> Open </span>
+                        </div>
+
+                        <!-- Cart Items -->
+                        <div class="cart-items" id="cartItems">
+                            <!-- Cart Item 1 -->
+                            <article class="cart-item" data-food-id="1" data-price="650">
+                                <div class="cart-item-image">
+                                    <img src="../../assets/images/food/food-placeholder.jpg" alt="Grilled Chicken" />
+                                </div>
+
+                                <div class="cart-item-info">
+                                    <h3>Grilled Chicken</h3>
+
+                                    <p>
+                                        Tender grilled chicken served with fries and fresh
+                                        vegetables.
+                                    </p>
+
+                                    <strong class="cart-item-price"> KSh 650 </strong>
+                                </div>
+
+                                <div class="cart-item-actions">
+                                    <div class="quantity-control">
+                                        <button type="button" class="quantity-button decrease-quantity"
+                                            data-action="decrease" aria-label="Decrease quantity">
+                                            −
+                                        </button>
+
+                                        <span class="quantity"> 1 </span>
+
+                                        <button type="button" class="quantity-button increase-quantity"
+                                            data-action="increase" aria-label="Increase quantity">
+                                            +
+                                        </button>
+                                    </div>
+
+                                    <button type="button" class="remove-item-button">
+                                        Remove
+                                    </button>
+                                </div>
+                            </article>
+
+                            <!-- Cart Item 2 -->
+                            <article class="cart-item" data-food-id="2" data-price="550">
+                                <div class="cart-item-image">
+                                    <img src="../../assets/images/food/food-placeholder.jpg" alt="Beef Stew" />
+                                </div>
+
+                                <div class="cart-item-info">
+                                    <h3>Beef Stew</h3>
+
+                                    <p>
+                                        Slow-cooked beef stew served with rice and vegetables.
+                                    </p>
+
+                                    <strong class="cart-item-price"> KSh 550 </strong>
+                                </div>
+
+                                <div class="cart-item-actions">
+                                    <div class="quantity-control">
+                                        <button type="button" class="quantity-button decrease-quantity"
+                                            data-action="decrease" aria-label="Decrease quantity">
+                                            −
+                                        </button>
+
+                                        <span class="quantity"> 1 </span>
+
+                                        <button type="button" class="quantity-button increase-quantity"
+                                            data-action="increase" aria-label="Increase quantity">
+                                            +
+                                        </button>
+                                    </div>
+
+                                    <button type="button" class="remove-item-button">
+                                        Remove
+                                    </button>
+                                </div>
+                            </article>
+                        </div>
+
+                        <!-- Empty Cart -->
+                        <div class="empty-cart" id="emptyCart" hidden>
+                            <div class="empty-cart-icon">🛒</div>
+
+                            <h2>Your cart is empty</h2>
+
+                            <p>Add some delicious food to your cart to get started.</p>
+
+                            <a href="restaurants.html" class="cart-primary-button">
+                                Browse Restaurants
+                            </a>
+                        </div>
+                    </section>
+
+                    <!-- =========================
+                         ORDER SUMMARY
+                    ========================== -->
+                    <aside class="cart-summary">
+                        <h2>Order Summary</h2>
+
+                        <div class="summary-row">
+                            <span> Subtotal </span>
+
+                            <strong id="cartSubtotal"> KSh 1,200 </strong>
+                        </div>
+
+                        <div class="summary-row">
+                            <span> Delivery fee </span>
+
+                            <strong id="cartDeliveryFee"> KSh 100 </strong>
+                        </div>
+
+                        <div class="summary-divider"></div>
+
+                        <div class="summary-row summary-total">
+                            <span> Total </span>
+
+                            <strong id="cartTotal"> KSh 1,300 </strong>
+                        </div>
+
+                        <!-- Checkout -->
+                        <a href="checkout.html">
+                            <button type="button" class="checkout-button" id="checkoutButton">
+                                Proceed to Checkout
+                            </button>
+                        </a>
+
+                        <!-- Payment Info -->
+                        <div class="payment-note">
+                            <strong> Payment </strong>
+
+                            <p>Payment options will be available during checkout.</p>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 FoodDelivery. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/customer/cart.js"></script>
+</body>
+
+</html>

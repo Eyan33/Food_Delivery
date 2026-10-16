@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Riders | FoodDelivery</title>
+
+    <link rel="stylesheet" href="../../assets/css/style.css" />
+    <link rel="stylesheet" href="../../assets/css/pages/admin/riders.css" />
+    <link rel="stylesheet" href="../../assets/css/pages/admin/dashboard.css" />
+</head>
+
+<body>
+    <!-- =========================
+         ADMIN SIDEBAR
+    ========================== -->
+
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="admin-sidebar-header">
+            <a href="dashboard.html" class="admin-logo">
+                Food<span>Delivery</span>
+            </a>
+
+            <button type="button" id="adminCloseMenuButton" class="admin-close-menu-button" aria-label="Close menu">
+                ×
+            </button>
+        </div>
+
+        <div class="admin-profile">
+            <div class="admin-profile-avatar">A</div>
+
+            <div class="admin-profile-info">
+                <strong>Admin User</strong>
+                <span>Administrator</span>
+            </div>
+        </div>
+
+        <nav class="admin-navigation">
+            <a href="dashboard.html" class="admin-nav-link">
+                <span class="admin-nav-icon">▣</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="orders.html" class="admin-nav-link">
+                <span class="admin-nav-icon">▤</span>
+                <span>Orders</span>
+                <span class="admin-nav-badge">12</span>
+            </a>
+
+            <a href="customers.html" class="admin-nav-link">
+                <span class="admin-nav-icon">◯</span>
+                <span>Customers</span>
+            </a>
+
+            <a href="restaurants.html" class="admin-nav-link">
+                <span class="admin-nav-icon">▦</span>
+                <span>Restaurants</span>
+            </a>
+
+            <a href="riders.html" class="admin-nav-link active">
+                <span class="admin-nav-icon">◈</span>
+                <span>Riders</span>
+            </a>
+
+            <a href="payments.html" class="admin-nav-link">
+                <span class="admin-nav-icon">KSh</span>
+                <span>Payments</span>
+            </a>
+
+            <a href="reports.html" class="admin-nav-link">
+                <span class="admin-nav-icon">▥</span>
+                <span>Reports</span>
+            </a>
+
+            <a href="settings.html" class="admin-nav-link">
+                <span class="admin-nav-icon">⚙</span>
+                <span>Settings</span>
+            </a>
+        </nav>
+
+        <div class="admin-sidebar-footer">
+            <a href="../../index.html" class="admin-nav-link">
+                <span class="admin-nav-icon">↪</span>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- =========================
+         MAIN AREA
+    ========================== -->
+
+    <main class="admin-main">
+        <!-- =========================
+             TOPBAR
+        ========================== -->
+
+        <header class="admin-topbar">
+            <div class="admin-topbar-left">
+                <button type="button" class="admin-mobile-menu-button" id="adminMenuButton" aria-label="Open menu">
+                    ☰
+                </button>
+
+                <div>
+                    <h1>Riders</h1>
+
+                    <p>Manage delivery riders on your platform.</p>
+                </div>
+            </div>
+
+            <div class="admin-topbar-right">
+                <button type="button" class="admin-notification-button" aria-label="Notifications">
+                    <span>🔔</span>
+
+                    <span class="admin-notification-badge"> 5 </span>
+                </button>
+
+                <div class="admin-topbar-profile">
+                    <div class="admin-topbar-avatar">A</div>
+
+                    <div class="admin-topbar-profile-info">
+                        <strong>Admin User</strong>
+
+                        <span>Administrator</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- =========================
+             PAGE CONTENT
+        ========================== -->
+
+        <section class="admin-content">
+            <!-- =========================
+                 PAGE HEADER
+            ========================== -->
+
+            <div class="admin-page-header">
+                <div>
+                    <h2>Rider Management</h2>
+
+                    <p>View, monitor and manage delivery riders.</p>
+                </div>
+
+                <div class="admin-page-actions">
+                    <button type="button" class="admin-secondary-button">
+                        Export Riders
+                    </button>
+
+                    <button type="button" class="admin-primary-button">
+                        + Add Rider
+                    </button>
+                </div>
+            </div>
+
+            <!-- =========================
+                 RIDER STATISTICS
+            ========================== -->
+
+            <div class="admin-stats-grid">
+                <!-- TOTAL RIDERS -->
+
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon">◈</div>
+
+                    <div class="admin-stat-content">
+                        <span>Total Riders</span>
+
+                        <strong>128</strong>
+                    </div>
+                </div>
+
+                <!-- ONLINE RIDERS -->
+
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon">✓</div>
+
+                    <div class="admin-stat-content">
+                        <span>Online Riders</span>
+
+                        <strong>74</strong>
+                    </div>
+                </div>
+
+                <!-- AVAILABLE RIDERS -->
+
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon">◉</div>
+
+                    <div class="admin-stat-content">
+                        <span>Available Riders</span>
+
+                        <strong>42</strong>
+                    </div>
+                </div>
+
+                <!-- PENDING RIDERS -->
+
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon">◷</div>
+
+                    <div class="admin-stat-content">
+                        <span>Pending Approval</span>
+
+                        <strong>12</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================
+                 RIDER TABLE CARD
+            ========================== -->
+
+            <div class="admin-content-card admin-riders-card">
+                <!-- CARD HEADER -->
+
+                <div class="admin-card-header">
+                    <div>
+                        <h3>All Riders</h3>
+
+                        <p>Manage registered delivery riders.</p>
+                    </div>
+
+                    <div class="admin-rider-tools">
+                        <!-- SEARCH -->
+
+                        <div class="admin-search">
+                            <span>⌕</span>
+
+                            <input type="search" placeholder="Search riders..." aria-label="Search riders" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- =========================
+                     RIDER FILTER TABS
+                ========================== -->
+
+                <div class="admin-rider-tabs">
+                    <a href="#" class="admin-rider-tab active"> All </a>
+
+                    <a href="#" class="admin-rider-tab"> Online </a>
+
+                    <a href="#" class="admin-rider-tab"> Available </a>
+
+                    <a href="#" class="admin-rider-tab"> Offline </a>
+
+                    <a href="#" class="admin-rider-tab"> Pending </a>
+                </div>
+
+                <!-- =========================
+                     RIDER TABLE
+                ========================== -->
+
+                <div class="admin-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Rider</th>
+
+                                <th>Phone</th>
+
+                                <th>Vehicle</th>
+
+                                <th>Deliveries</th>
+
+                                <th>Rating</th>
+
+                                <th>Status</th>
+
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <!-- RIDER 1 -->
+
+                            <tr>
+                                <td>
+                                    <div class="admin-rider">
+                                        <div class="admin-rider-avatar">JK</div>
+
+                                        <div class="admin-rider-info">
+                                            <strong> John Kamau </strong>
+
+                                            <span> Rider ID: RD001 </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>0712 345 678</td>
+
+                                <td>
+                                    <div class="admin-vehicle">
+                                        <strong>Motorcycle</strong>
+
+                                        <span>KDA 123A</span>
+                                    </div>
+                                </td>
+
+                                <td>1,248</td>
+
+                                <td>
+                                    <span class="admin-rating"> ★ 4.9 </span>
+                                </td>
+
+                                <td>
+                                    <span class="admin-status success"> Online </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-table-actions">
+                                        <button type="button" class="admin-table-action" aria-label="View rider">
+                                            ◉
+                                        </button>
+
+                                        <button type="button" class="admin-table-action" aria-label="Edit rider">
+                                            ✎
+                                        </button>
+
+                                        <button type="button" class="admin-table-action danger"
+                                            aria-label="Delete rider">
+                                            ×
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- RIDER 2 -->
+
+                            <tr>
+                                <td>
+                                    <div class="admin-rider">
+                                        <div class="admin-rider-avatar">BO</div>
+
+                                        <div class="admin-rider-info">
+                                            <strong> Brian Otieno </strong>
+
+                                            <span> Rider ID: RD002 </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>0723 456 789</td>
+
+                                <td>
+                                    <div class="admin-vehicle">
+                                        <strong>Motorcycle</strong>
+
+                                        <span>KDG 482B</span>
+                                    </div>
+                                </td>
+
+                                <td>982</td>
+
+                                <td>
+                                    <span class="admin-rating"> ★ 4.7 </span>
+                                </td>
+
+                                <td>
+                                    <span class="admin-status success"> Online </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-table-actions">
+                                        <button type="button" class="admin-table-action" aria-label="View rider">
+                                            ◉
+                                        </button>
+
+                                        <button type="button" class="admin-table-action" aria-label="Edit rider">
+                                            ✎
+                                        </button>
+
+                                        <button type="button" class="admin-table-action danger"
+                                            aria-label="Delete rider">
+                                            ×
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- RIDER 3 -->
+
+                            <tr>
+                                <td>
+                                    <div class="admin-rider">
+                                        <div class="admin-rider-avatar">MN</div>
+
+                                        <div class="admin-rider-info">
+                                            <strong> Mary Njeri </strong>
+
+                                            <span> Rider ID: RD003 </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>0798 234 567</td>
+
+                                <td>
+                                    <div class="admin-vehicle">
+                                        <strong>Bicycle</strong>
+
+                                        <span>BIKE-203</span>
+                                    </div>
+                                </td>
+
+                                <td>746</td>
+
+                                <td>
+                                    <span class="admin-rating"> ★ 4.8 </span>
+                                </td>
+
+                                <td>
+                                    <span class="admin-status info"> Available </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-table-actions">
+                                        <button type="button" class="admin-table-action" aria-label="View rider">
+                                            ◉
+                                        </button>
+
+                                        <button type="button" class="admin-table-action" aria-label="Edit rider">
+                                            ✎
+                                        </button>
+
+                                        <button type="button" class="admin-table-action danger"
+                                            aria-label="Delete rider">
+                                            ×
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- RIDER 4 -->
+
+                            <tr>
+                                <td>
+                                    <div class="admin-rider">
+                                        <div class="admin-rider-avatar">DO</div>
+
+                                        <div class="admin-rider-info">
+                                            <strong> Daniel Ochieng </strong>
+
+                                            <span> Rider ID: RD004 </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>0701 567 890</td>
+
+                                <td>
+                                    <div class="admin-vehicle">
+                                        <strong>Motorcycle</strong>
+
+                                        <span>KDK 718C</span>
+                                    </div>
+                                </td>
+
+                                <td>631</td>
+
+                                <td>
+                                    <span class="admin-rating"> ★ 4.5 </span>
+                                </td>
+
+                                <td>
+                                    <span class="admin-status neutral"> Offline </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-table-actions">
+                                        <button type="button" class="admin-table-action" aria-label="View rider">
+                                            ◉
+                                        </button>
+
+                                        <button type="button" class="admin-table-action" aria-label="Edit rider">
+                                            ✎
+                                        </button>
+
+                                        <button type="button" class="admin-table-action danger"
+                                            aria-label="Delete rider">
+                                            ×
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- RIDER 5 -->
+
+                            <tr>
+                                <td>
+                                    <div class="admin-rider">
+                                        <div class="admin-rider-avatar">AK</div>
+
+                                        <div class="admin-rider-info">
+                                            <strong> Alice Kariuki </strong>
+
+                                            <span> Rider ID: RD005 </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>0745 678 901</td>
+
+                                <td>
+                                    <div class="admin-vehicle">
+                                        <strong>Motorcycle</strong>
+
+                                        <span>KCY 394D</span>
+                                    </div>
+                                </td>
+
+                                <td>418</td>
+
+                                <td>
+                                    <span class="admin-rating"> ★ 4.3 </span>
+                                </td>
+
+                                <td>
+                                    <span class="admin-status warning"> Pending </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-table-actions">
+                                        <button type="button" class="admin-table-action" aria-label="View rider">
+                                            ◉
+                                        </button>
+
+                                        <button type="button" class="admin-table-action" aria-label="Edit rider">
+                                            ✎
+                                        </button>
+
+                                        <button type="button" class="admin-table-action danger"
+                                            aria-label="Delete rider">
+                                            ×
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- RIDER 6 -->
+
+                            <tr>
+                                <td>
+                                    <div class="admin-rider">
+                                        <div class="admin-rider-avatar">PM</div>
+
+                                        <div class="admin-rider-info">
+                                            <strong> Peter Mwangi </strong>
+
+                                            <span> Rider ID: RD006 </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>0767 890 123</td>
+
+                                <td>
+                                    <div class="admin-vehicle">
+                                        <strong>Car</strong>
+
+                                        <span>KDG 812E</span>
+                                    </div>
+                                </td>
+
+                                <td>352</td>
+
+                                <td>
+                                    <span class="admin-rating"> ★ 4.4 </span>
+                                </td>
+
+                                <td>
+                                    <span class="admin-status success"> Online </span>
+                                </td>
+
+                                <td>
+                                    <div class="admin-table-actions">
+                                        <button type="button" class="admin-table-action" aria-label="View rider">
+                                            ◉
+                                        </button>
+
+                                        <button type="button" class="admin-table-action" aria-label="Edit rider">
+                                            ✎
+                                        </button>
+
+                                        <button type="button" class="admin-table-action danger"
+                                            aria-label="Delete rider">
+                                            ×
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- =========================
+                     TABLE FOOTER
+                ========================== -->
+
+                <div class="admin-table-footer">
+                    <p>Showing 1–6 of 128 riders</p>
+
+                    <div class="admin-pagination">
+                        <button type="button" disabled>‹</button>
+
+                        <button type="button" class="active">1</button>
+
+                        <button type="button">2</button>
+
+                        <button type="button">3</button>
+
+                        <button type="button">4</button>
+
+                        <button type="button">5</button>
+
+                        <button type="button">›</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================
+                 BOTTOM GRID
+            ========================== -->
+
+            <div class="admin-bottom-grid">
+                <!-- RIDER ACTIVITY -->
+
+                <div class="admin-content-card">
+                    <div class="admin-card-header">
+                        <div>
+                            <h3>Rider Activity</h3>
+
+                            <p>Current rider availability.</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-summary-list">
+                        <div class="admin-summary-item">
+                            <div>
+                                <div class="admin-summary-icon">●</div>
+
+                                <strong>Online Riders</strong>
+                            </div>
+
+                            <span class="success"> 74 </span>
+                        </div>
+
+                        <div class="admin-summary-item">
+                            <div>
+                                <div class="admin-summary-icon">◉</div>
+
+                                <strong>Available</strong>
+                            </div>
+
+                            <span class="success"> 42 </span>
+                        </div>
+
+                        <div class="admin-summary-item">
+                            <div>
+                                <div class="admin-summary-icon">◷</div>
+
+                                <strong>On Delivery</strong>
+                            </div>
+
+                            <span class="warning"> 32 </span>
+                        </div>
+
+                        <div class="admin-summary-item">
+                            <div>
+                                <div class="admin-summary-icon">○</div>
+
+                                <strong>Offline</strong>
+                            </div>
+
+                            <span class="total"> 42 </span>
+                        </div>
+
+                        <div class="admin-summary-item">
+                            <div>
+                                <div class="admin-summary-icon">!</div>
+
+                                <strong>Pending Approval</strong>
+                            </div>
+
+                            <span class="warning"> 12 </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIDER PERFORMANCE -->
+
+                <div class="admin-content-card">
+                    <div class="admin-card-header">
+                        <div>
+                            <h3>Rider Performance</h3>
+
+                            <p>Platform delivery performance.</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-rider-performance">
+                        <div class="admin-performance-item">
+                            <div class="admin-performance-header">
+                                <span> Delivery Completion </span>
+
+                                <strong> — </strong>
+                            </div>
+
+                            <div class="admin-progress">
+                                <div class="admin-progress-bar">
+                                    <div class="admin-progress-value" style="width: 94%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="admin-performance-item">
+                            <div class="admin-performance-header">
+                                <span> On-Time Delivery </span>
+
+                                <strong> — </strong>
+                            </div>
+
+                            <div class="admin-progress">
+                                <div class="admin-progress-bar">
+                                    <div class="admin-progress-value" style="width: 89%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="admin-performance-item">
+                            <div class="admin-performance-header">
+                                <span> Average Rating </span>
+
+                                <strong> — </strong>
+                            </div>
+
+                            <div class="admin-progress">
+                                <div class="admin-progress-bar">
+                                    <div class="admin-progress-value" style="width: 92%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="admin-spending-footer">
+                        <span>Deliveries completed today</span>
+                        <strong id="riderDeliveriesToday">—</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================
+                 MESSAGE
+            ========================== -->
+
+            <div class="admin-message" id="adminMessage" role="alert" aria-live="polite"></div>
+        </section>
+    </main>
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================== -->
+
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/auth/auth-api.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/admin/riders.js"></script>
+</body>
+
+</html>

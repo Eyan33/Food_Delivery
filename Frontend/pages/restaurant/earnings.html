@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Earnings | FoodDelivery</title>
+
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="../../assets/css/style.css" />
+
+    <!-- Restaurant CSS -->
+    <link rel="stylesheet" href="../../assets/css/pages/restaurant/restaurant.css" />
+
+    <!-- Earnings CSS -->
+    <link rel="stylesheet" href="../../assets/css/pages/restaurant/earnings.css" />
+</head>
+
+<body>
+    <!-- =====================================================
+         RESTAURANT DASHBOARD
+    ====================================================== -->
+
+    <div class="restaurant-dashboard">
+        <!-- =================================================
+             SIDEBAR
+        ================================================== -->
+
+        <aside class="restaurant-sidebar" id="restaurantSidebar">
+            <!-- Logo -->
+            <div class="restaurant-sidebar-header">
+                <a href="dashboard.html" class="restaurant-logo">
+                    Food<span>Delivery</span>
+                </a>
+            </div>
+
+            <!-- Restaurant Profile -->
+            <div class="restaurant-profile-mini">
+                <div class="restaurant-avatar">MK</div>
+
+                <div class="restaurant-profile-info">
+                    <strong>Mama's Kitchen</strong>
+
+                    <span>Restaurant</span>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="restaurant-navigation">
+                <p class="restaurant-nav-title">MAIN MENU</p>
+
+                <a href="dashboard.html" class="restaurant-nav-link">
+                    <span class="nav-icon">▦</span>
+
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="orders.html" class="restaurant-nav-link">
+                    <span class="nav-icon">🛍</span>
+
+                    <span>Orders</span>
+
+                    <span class="nav-badge"> 5 </span>
+                </a>
+
+                <a href="menu.html" class="restaurant-nav-link">
+                    <span class="nav-icon">☷</span>
+
+                    <span>Menu</span>
+                </a>
+
+                <a href="categories.html" class="restaurant-nav-link">
+                    <span class="nav-icon">▤</span>
+
+                    <span>Categories</span>
+                </a>
+
+                <p class="restaurant-nav-title">BUSINESS</p>
+
+                <a href="earnings.html" class="restaurant-nav-link active">
+                    <span class="nav-icon">▥</span>
+
+                    <span>Earnings</span>
+                </a>
+
+                <a href="restaurant-profile.html" class="restaurant-nav-link">
+                    <span class="nav-icon">◉</span>
+
+                    <span>Restaurant Profile</span>
+                </a>
+
+                <a href="settings.html" class="restaurant-nav-link">
+                    <span class="nav-icon">⚙</span>
+
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <!-- Sidebar Bottom -->
+            <div class="restaurant-sidebar-bottom">
+                <a href="../../auth/login.html" class="restaurant-nav-link logout-link">
+                    <span class="nav-icon">↪</span>
+
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- =================================================
+             MAIN CONTENT
+        ================================================== -->
+
+        <main class="restaurant-main">
+            <!-- =================================================
+                 TOPBAR
+            ================================================== -->
+
+            <header class="restaurant-topbar">
+                <div class="restaurant-topbar-left">
+                    <button type="button" class="restaurant-menu-button" id="restaurantMenuButton"
+                        aria-label="Open menu">
+                        ☰
+                    </button>
+
+                    <div class="restaurant-page-heading">
+                        <h1>Earnings</h1>
+
+                        <p>Track your restaurant revenue and financial performance.</p>
+                    </div>
+                </div>
+
+                <div class="restaurant-topbar-right">
+                    <!-- Restaurant Status -->
+                    <button type="button" class="restaurant-status" id="restaurantStatusButton">
+                        <span class="status-dot"></span>
+
+                        <span class="status-text">
+                            <small> Restaurant Status </small>
+
+                            <strong id="restaurantStatusText"> Open </strong>
+                        </span>
+                    </button>
+
+                    <!-- Notifications -->
+                    <button type="button" class="restaurant-notification-button" aria-label="Notifications">
+                        <span>♧</span>
+
+                        <span class="notification-badge"> 3 </span>
+                    </button>
+
+                    <!-- Profile -->
+                    <button type="button" class="restaurant-topbar-profile">
+                        <span class="topbar-avatar"> MK </span>
+
+                        <span class="topbar-profile-text">
+                            <strong> Mama's Kitchen </strong>
+
+                            <small> Restaurant </small>
+                        </span>
+
+                        <span class="profile-arrow"> ⌄ </span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- =================================================
+                 PAGE CONTENT
+            ================================================== -->
+
+            <section class="restaurant-dashboard-content">
+                <!-- =================================================
+                     PAGE HEADER
+                ================================================== -->
+
+                <div class="earnings-page-header">
+                    <div>
+                        <h2>Earnings Overview</h2>
+
+                        <p>Monitor your sales, revenue and payouts.</p>
+                    </div>
+
+                    <div class="earnings-period-selector">
+                        <label for="earningsPeriod"> Period </label>
+
+                        <select id="earningsPeriod">
+                            <option value="today">Today</option>
+
+                            <option value="week">This Week</option>
+
+                            <option value="month" selected>This Month</option>
+
+                            <option value="year">This Year</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- =================================================
+                     EARNINGS SUMMARY
+                ================================================== -->
+
+                <div class="earnings-summary-grid">
+                    <!-- Total Revenue -->
+                    <div class="earnings-summary-card">
+                        <div class="earnings-summary-top">
+                            <div class="earnings-summary-icon revenue">KSh</div>
+
+                            <span class="earnings-change positive"> +12.5% </span>
+                        </div>
+
+                        <div class="earnings-summary-content">
+                            <span> Total Revenue </span>
+
+                            <strong> KSh 186,450 </strong>
+
+                            <small> Compared to previous period </small>
+                        </div>
+                    </div>
+
+                    <!-- Net Earnings -->
+                    <div class="earnings-summary-card">
+                        <div class="earnings-summary-top">
+                            <div class="earnings-summary-icon earnings">↗</div>
+
+                            <span class="earnings-change positive"> +9.8% </span>
+                        </div>
+
+                        <div class="earnings-summary-content">
+                            <span> Net Earnings </span>
+
+                            <strong> KSh 158,480 </strong>
+
+                            <small> After platform fees </small>
+                        </div>
+                    </div>
+
+                    <!-- Orders -->
+                    <div class="earnings-summary-card">
+                        <div class="earnings-summary-top">
+                            <div class="earnings-summary-icon orders">🛍</div>
+
+                            <span class="earnings-change positive"> +15.2% </span>
+                        </div>
+
+                        <div class="earnings-summary-content">
+                            <span> Completed Orders </span>
+
+                            <strong> 286 </strong>
+
+                            <small> Successfully completed </small>
+                        </div>
+                    </div>
+
+                    <!-- Average Order -->
+                    <div class="earnings-summary-card">
+                        <div class="earnings-summary-top">
+                            <div class="earnings-summary-icon average">KSh</div>
+
+                            <span class="earnings-change positive"> +4.6% </span>
+                        </div>
+
+                        <div class="earnings-summary-content">
+                            <span> Average Order </span>
+
+                            <strong> KSh 652 </strong>
+
+                            <small> Average order value </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- =================================================
+                     EARNINGS GRID
+                ================================================== -->
+
+                <div class="earnings-main-grid">
+                    <!-- =================================================
+                         REVENUE CHART
+                    ================================================== -->
+
+                    <section class="restaurant-dashboard-card earnings-chart-card">
+                        <div class="dashboard-card-header">
+                            <div>
+                                <h3>Revenue Overview</h3>
+
+                                <p>Revenue generated during the selected period.</p>
+                            </div>
+
+                            <div class="chart-legend">
+                                <span class="legend-item">
+                                    <span class="legend-dot"></span>
+
+                                    Revenue
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="earnings-chart">
+                            <div class="chart-y-axis">
+                                <span> KSh 50K </span>
+
+                                <span> KSh 40K </span>
+
+                                <span> KSh 30K </span>
+
+                                <span> KSh 20K </span>
+
+                                <span> KSh 10K </span>
+
+                                <span> KSh 0 </span>
+                            </div>
+
+                            <div class="chart-area">
+                                <div class="chart-grid-lines">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+
+                                <div class="chart-bars">
+                                    <div class="chart-bar-column">
+                                        <div class="chart-bar" style="height: 45%"></div>
+
+                                        <span> Week 1 </span>
+                                    </div>
+
+                                    <div class="chart-bar-column">
+                                        <div class="chart-bar" style="height: 62%"></div>
+
+                                        <span> Week 2 </span>
+                                    </div>
+
+                                    <div class="chart-bar-column">
+                                        <div class="chart-bar" style="height: 55%"></div>
+
+                                        <span> Week 3 </span>
+                                    </div>
+
+                                    <div class="chart-bar-column">
+                                        <div class="chart-bar" style="height: 78%"></div>
+
+                                        <span> Week 4 </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- =================================================
+                         PAYOUT SUMMARY
+                    ================================================== -->
+
+                    <section class="restaurant-dashboard-card payout-card">
+                        <div class="dashboard-card-header">
+                            <div>
+                                <h3>Payout Summary</h3>
+
+                                <p>Your recent payout information.</p>
+                            </div>
+                        </div>
+
+                        <div class="payout-status">
+                            <div class="payout-status-icon">✓</div>
+
+                            <div>
+                                <span> Next payout </span>
+
+                                <strong> KSh 42,650 </strong>
+
+                                <small> September 15, 2026 </small>
+                            </div>
+                        </div>
+
+                        <div class="payout-details">
+                            <div class="payout-detail-row">
+                                <span> Available balance </span>
+
+                                <strong> KSh 42,650 </strong>
+                            </div>
+
+                            <div class="payout-detail-row">
+                                <span> Pending balance </span>
+
+                                <strong> KSh 8,240 </strong>
+                            </div>
+
+                            <div class="payout-detail-row">
+                                <span> Platform fees </span>
+
+                                <strong> KSh 27,970 </strong>
+                            </div>
+
+                            <div class="payout-detail-row total">
+                                <span> Net earnings </span>
+
+                                <strong> KSh 158,480 </strong>
+                            </div>
+                        </div>
+
+                        <button type="button" class="earnings-payout-button">
+                            View Payout History
+                        </button>
+                    </section>
+                </div>
+
+                <!-- =================================================
+                     TRANSACTIONS
+                ================================================== -->
+
+                <section class="restaurant-dashboard-card earnings-transactions-card">
+                    <div class="dashboard-card-header">
+                        <div>
+                            <h3>Recent Transactions</h3>
+
+                            <p>Latest earnings and payout transactions.</p>
+                        </div>
+
+                        <button type="button" class="earnings-export-button" id="exportEarningsButton">
+                            Export
+                        </button>
+                    </div>
+
+                    <div class="earnings-table-wrapper">
+                        <table class="earnings-table">
+                            <thead>
+                                <tr>
+                                    <th>Transaction</th>
+
+                                    <th>Order</th>
+
+                                    <th>Date</th>
+
+                                    <th>Amount</th>
+
+                                    <th>Fees</th>
+
+                                    <th>Net Amount</th>
+
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="transaction-info">
+                                            <span class="transaction-icon"> ↗ </span>
+
+                                            <div>
+                                                <strong> Order Payment </strong>
+
+                                                <small> Customer order </small>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td>#FD-1008</td>
+
+                                    <td>Sep 12, 2026</td>
+
+                                    <td>
+                                        <strong> KSh 1,300 </strong>
+                                    </td>
+
+                                    <td>KSh 195</td>
+
+                                    <td>
+                                        <strong> KSh 1,105 </strong>
+                                    </td>
+
+                                    <td>
+                                        <span class="transaction-status completed">
+                                            Completed
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <div class="transaction-info">
+                                            <span class="transaction-icon"> ↗ </span>
+
+                                            <div>
+                                                <strong> Order Payment </strong>
+
+                                                <small> Customer order </small>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td>#FD-1007</td>
+
+                                    <td>Sep 12, 2026</td>
+
+                                    <td>
+                                        <strong> KSh 2,050 </strong>
+                                    </td>
+
+                                    <td>KSh 307.50</td>
+
+                                    <td>
+                                        <strong> KSh 1,742.50 </strong>
+                                    </td>
+
+                                    <td>
+                                        <span class="transaction-status completed">
+                                            Completed
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <div class="transaction-info">
+                                            <span class="transaction-icon"> ↗ </span>
+
+                                            <div>
+                                                <strong> Order Payment </strong>
+
+                                                <small> Customer order </small>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td>#FD-1006</td>
+
+                                    <td>Sep 12, 2026</td>
+
+                                    <td>
+                                        <strong> KSh 650 </strong>
+                                    </td>
+
+                                    <td>KSh 97.50</td>
+
+                                    <td>
+                                        <strong> KSh 552.50 </strong>
+                                    </td>
+
+                                    <td>
+                                        <span class="transaction-status completed">
+                                            Completed
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <div class="transaction-info">
+                                            <span class="transaction-icon payout"> ↓ </span>
+
+                                            <div>
+                                                <strong> Bank Payout </strong>
+
+                                                <small> Payout transfer </small>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td>—</td>
+
+                                    <td>Sep 10, 2026</td>
+
+                                    <td>
+                                        <strong> KSh 38,500 </strong>
+                                    </td>
+
+                                    <td>KSh 0</td>
+
+                                    <td>
+                                        <strong> KSh 38,500 </strong>
+                                    </td>
+
+                                    <td>
+                                        <span class="transaction-status paid"> Paid </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <div class="transaction-info">
+                                            <span class="transaction-icon"> ↗ </span>
+
+                                            <div>
+                                                <strong> Order Payment </strong>
+
+                                                <small> Customer order </small>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td>#FD-1005</td>
+
+                                    <td>Sep 11, 2026</td>
+
+                                    <td>
+                                        <strong> KSh 2,450 </strong>
+                                    </td>
+
+                                    <td>KSh 367.50</td>
+
+                                    <td>
+                                        <strong> KSh 2,082.50 </strong>
+                                    </td>
+
+                                    <td>
+                                        <span class="transaction-status completed">
+                                            Completed
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- =================================================
+                     EARNINGS BREAKDOWN
+                ================================================== -->
+
+                <div class="earnings-breakdown-grid">
+                    <!-- Revenue Breakdown -->
+                    <section class="restaurant-dashboard-card earnings-breakdown-card">
+                        <div class="dashboard-card-header">
+                            <div>
+                                <h3>Revenue Breakdown</h3>
+
+                                <p>Where your revenue comes from.</p>
+                            </div>
+                        </div>
+
+                        <div class="breakdown-list">
+                            <div class="breakdown-item">
+                                <div class="breakdown-label">
+                                    <span class="breakdown-indicator orders"> </span>
+
+                                    <span> Food Orders </span>
+                                </div>
+
+                                <strong> KSh 164,800 </strong>
+                            </div>
+
+                            <div class="breakdown-progress">
+                                <span style="width: 88%"></span>
+                            </div>
+
+                            <div class="breakdown-item">
+                                <div class="breakdown-label">
+                                    <span class="breakdown-indicator delivery"> </span>
+
+                                    <span> Delivery Charges </span>
+                                </div>
+
+                                <strong> KSh 12,450 </strong>
+                            </div>
+
+                            <div class="breakdown-progress">
+                                <span style="width: 67%"></span>
+                            </div>
+
+                            <div class="breakdown-item">
+                                <div class="breakdown-label">
+                                    <span class="breakdown-indicator promotion"> </span>
+
+                                    <span> Promotions </span>
+                                </div>
+
+                                <strong> KSh 9,200 </strong>
+                            </div>
+
+                            <div class="breakdown-progress">
+                                <span style="width: 48%"></span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Performance -->
+                    <section class="restaurant-dashboard-card earnings-performance-card">
+                        <div class="dashboard-card-header">
+                            <div>
+                                <h3>Performance</h3>
+
+                                <p>Key financial metrics.</p>
+                            </div>
+                        </div>
+
+                        <div class="performance-list">
+                            <div class="performance-row">
+                                <div>
+                                    <span> Revenue growth </span>
+
+                                    <small> Compared to last month </small>
+                                </div>
+
+                                <strong class="performance-positive"> +12.5% </strong>
+                            </div>
+
+                            <div class="performance-row">
+                                <div>
+                                    <span> Average order value </span>
+
+                                    <small> Per completed order </small>
+                                </div>
+
+                                <strong> KSh 652 </strong>
+                            </div>
+
+                            <div class="performance-row">
+                                <div>
+                                    <span> Completion rate </span>
+
+                                    <small> Orders successfully completed </small>
+                                </div>
+
+                                <strong> 96.4% </strong>
+                            </div>
+
+                            <div class="performance-row">
+                                <div>
+                                    <span> Customer cancellations </span>
+
+                                    <small> Cancelled orders </small>
+                                </div>
+
+                                <strong class="performance-warning"> 3.6% </strong>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/main.js"></script>
+
+    <script src="../../assets/js/restaurant/earnings.js"></script>
+</body>
+
+</html>

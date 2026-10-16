@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Rider Profile | FoodDelivery</title>
+
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/pages/rider/profile.css">
+    <link rel="stylesheet" href="../../assets/css/pages/rider/dashboard.css">
+</head>
+
+<body>
+
+    <!-- ==================== RIDER SIDEBAR ==================== -->
+    <aside class="rider-sidebar" id="riderSidebar">
+
+        <div class="rider-sidebar-header">
+            <a href="dashboard.html" class="rider-logo">
+                Food<span>Delivery</span>
+            </a>
+        </div>
+
+        <!-- Rider profile -->
+        <div class="rider-profile">
+
+            <div class="rider-profile-avatar">
+                J
+            </div>
+
+            <div class="rider-profile-info">
+                <strong>John Kamau</strong>
+                <span>Delivery Rider</span>
+            </div>
+
+        </div>
+
+        <!-- Navigation -->
+        <nav class="rider-navigation">
+
+            <a href="dashboard.html" class="rider-nav-link">
+                <span class="rider-nav-icon">▣</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="orders.html" class="rider-nav-link">
+                <span class="rider-nav-icon">▤</span>
+                <span>Available Orders</span>
+                <span class="rider-nav-badge">4</span>
+            </a>
+
+            <a href="deliveries.html" class="rider-nav-link">
+                <span class="rider-nav-icon">◈</span>
+                <span>My Deliveries</span>
+            </a>
+
+            <a href="earnings.html" class="rider-nav-link">
+                <span class="rider-nav-icon">◆</span>
+                <span>Earnings</span>
+            </a>
+
+            <a href="profile.html" class="rider-nav-link active">
+                <span class="rider-nav-icon">◯</span>
+                <span>Profile</span>
+            </a>
+
+        </nav>
+
+        <!-- Sidebar footer -->
+        <div class="rider-sidebar-footer">
+
+            <a href="../../index.html" class="rider-nav-link">
+                <span class="rider-nav-icon">↪</span>
+                <span>Logout</span>
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="rider-main">
+
+        <!-- TOP BAR -->
+        <header class="rider-topbar">
+
+            <div class="rider-topbar-left">
+
+                <button type="button" class="rider-mobile-menu-button" id="riderMenuButton" aria-label="Open menu">
+                    ☰
+                </button>
+
+                <div>
+                    <h1>My Deliveries</h1>
+                    <p>
+                        Track and manage your current and completed deliveries.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="rider-topbar-right">
+
+                <!-- Online status -->
+                <div class="rider-status-button online">
+                    <span class="status-dot"></span>
+                    <span>You're Online</span>
+                </div>
+
+                <!-- Notification -->
+                <button class="rider-notification-button" type="button">
+                    <span>🔔</span>
+                    <span class="notification-badge">3</span>
+                </button>
+
+                <!-- Profile -->
+                <div class="rider-topbar-profile">
+
+                    <div class="rider-topbar-avatar">
+                        J
+                    </div>
+
+                    <div class="rider-topbar-profile-info">
+                        <strong>John Kamau</strong>
+                        <span>Delivery Rider</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- ==================== PROFILE PAGE ==================== -->
+        <section class="profile-page">
+
+            <!-- PAGE HEADER -->
+            <div class="profile-page-header">
+                <div>
+                    <h1>My Profile</h1>
+                    <p>Manage your personal information and rider account.</p>
+                </div>
+
+                <div class="profile-status">
+                    <span class="status-dot"></span>
+                    Active Rider
+                </div>
+            </div>
+
+
+            <!-- PROFILE CONTENT -->
+            <div class="profile-layout">
+
+                <!-- LEFT PROFILE CARD -->
+                <section class="profile-card profile-overview">
+
+                    <div class="profile-cover"></div>
+
+                    <div class="profile-avatar-wrapper">
+                        <div class="profile-avatar">
+                            JK
+                        </div>
+
+                        <button class="avatar-edit-btn" type="button">
+                            Edit
+                        </button>
+                    </div>
+
+                    <div class="profile-overview-content">
+
+                        <h2>John Kamau</h2>
+
+                        <p class="profile-role">
+                            Delivery Rider
+                        </p>
+
+                        <p class="profile-member">
+                            Rider ID: RID-1024
+                        </p>
+
+                        <div class="profile-rating">
+                            <span class="rating-value">4.8</span>
+                            <span class="rating-stars">★★★★★</span>
+                            <span class="rating-count">(126 deliveries)</span>
+                        </div>
+
+                    </div>
+
+                    <div class="profile-stats">
+
+                        <div class="profile-stat">
+                            <strong>126</strong>
+                            <span>Deliveries</span>
+                        </div>
+
+                        <div class="profile-stat">
+                            <strong>4.8</strong>
+                            <span>Rating</span>
+                        </div>
+
+                        <div class="profile-stat">
+                            <strong>8 mo.</strong>
+                            <span>Experience</span>
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- RIGHT PROFILE DETAILS -->
+                <section class="profile-card profile-details">
+
+                    <div class="profile-section-header">
+                        <div>
+                            <h2>Personal Information</h2>
+                            <p>Keep your account information up to date.</p>
+                        </div>
+
+                        <button class="edit-profile-btn" type="button">
+                            Edit Profile
+                        </button>
+                    </div>
+
+
+                    <form class="profile-form">
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+                                <label for="first-name">First Name</label>
+
+                                <input type="text" id="first-name" name="first_name" value="John">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="last-name">Last Name</label>
+
+                                <input type="text" id="last-name" name="last_name" value="Kamau">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+
+                                <input type="email" id="email" name="email" value="john.kamau@example.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+
+                                <input type="tel" id="phone" name="phone" value="+254 712 345 678">
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="address">Address</label>
+
+                                <input type="text" id="address" name="address" value="Westlands, Nairobi">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="city">City</label>
+
+                                <input type="text" id="city" name="city" value="Nairobi">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="postal-code">Postal Code</label>
+
+                                <input type="text" id="postal-code" name="postal_code" value="00100">
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-actions">
+                            <button type="button" class="cancel-btn">
+                                Cancel
+                            </button>
+
+                            <button type="submit" class="save-btn">
+                                Save Changes
+                            </button>
+                        </div>
+
+                    </form>
+
+                </section>
+
+            </div>
+
+
+            <!-- RIDER INFORMATION -->
+            <section class="profile-card rider-information">
+
+                <div class="profile-section-header">
+                    <div>
+                        <h2>Rider Information</h2>
+                        <p>Information related to your delivery rider account.</p>
+                    </div>
+                </div>
+
+                <div class="rider-info-grid">
+
+                    <div class="info-item">
+                        <span class="info-label">Rider ID</span>
+                        <strong>RID-1024</strong>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">Vehicle Type</span>
+                        <strong>Motorcycle</strong>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">Vehicle Registration</span>
+                        <strong>KDA 245X</strong>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">License Number</span>
+                        <strong>DL-458921</strong>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">Joined Date</span>
+                        <strong>January 15, 2026</strong>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-label">Account Status</span>
+                        <span class="account-status">
+                            Active
+                        </span>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- EMERGENCY CONTACT -->
+            <section class="profile-card emergency-card">
+
+                <div class="profile-section-header">
+                    <div>
+                        <h2>Emergency Contact</h2>
+                        <p>Contact information to be used in case of an emergency.</p>
+                    </div>
+                </div>
+
+                <div class="emergency-grid">
+
+                    <div class="form-group">
+                        <label for="emergency-name">
+                            Contact Name
+                        </label>
+
+                        <input type="text" id="emergency-name" value="Mary Kamau">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="emergency-phone">
+                            Contact Phone
+                        </label>
+
+                        <input type="tel" id="emergency-phone" value="+254 722 456 789">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="emergency-relation">
+                            Relationship
+                        </label>
+
+                        <select id="emergency-relation">
+                            <option selected>Spouse</option>
+                            <option>Parent</option>
+                            <option>Sibling</option>
+                            <option>Friend</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="emergency-actions">
+                    <button type="button" class="save-btn">
+                        Update Contact
+                    </button>
+                </div>
+
+            </section>
+
+
+            <!-- ACCOUNT SECURITY -->
+            <section class="profile-card security-card">
+
+                <div class="profile-section-header">
+                    <div>
+                        <h2>Account Security</h2>
+                        <p>Manage your account password and security.</p>
+                    </div>
+                </div>
+
+                <div class="security-row">
+
+                    <div class="security-icon">
+                        PW
+                    </div>
+
+                    <div class="security-info">
+                        <strong>Password</strong>
+                        <span>Last changed 30 days ago</span>
+                    </div>
+
+                    <button type="button" class="security-btn">
+                        Change Password
+                    </button>
+
+                </div>
+
+                <div class="security-row">
+
+                    <div class="security-icon">
+                        2FA
+                    </div>
+
+                    <div class="security-info">
+                        <strong>Two-Factor Authentication</strong>
+                        <span>Protect your account with an additional security layer.</span>
+                    </div>
+
+                    <span class="security-disabled">
+                        Not Enabled
+                    </span>
+
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/rider/profile.js"></script>
+
+</body>
+
+</html>

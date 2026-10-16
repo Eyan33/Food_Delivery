@@ -1,0 +1,949 @@
+/* =========================================================
+   ADMIN SETTINGS PAGE
+   ========================================================= */
+
+/* =========================================================
+   SETTINGS COLOR SYSTEM
+   ========================================================= */
+
+:root {
+    --admin-primary: #ff6b35;
+    --admin-primary-hover: #e85a28;
+    --admin-primary-light: #fff1eb;
+
+    --admin-text: #111827;
+    --admin-text-secondary: #374151;
+    --admin-text-muted: #6b7280;
+
+    --admin-border: #e5e7eb;
+    --admin-border-hover: #d1d5db;
+
+    --admin-background: #f8fafc;
+    --admin-white: #ffffff;
+
+    --admin-success: #16a34a;
+    --admin-success-light: #f0fdf4;
+
+    --admin-warning: #f59e0b;
+    --admin-danger: #dc2626;
+}
+
+.admin-content-card {
+    padding: 10px;
+}
+
+
+/* =========================================================
+   SETTINGS LAYOUT
+   ========================================================= */
+
+.admin-settings-layout {
+    display: grid;
+
+    grid-template-columns: 240px minmax(0, 1fr);
+
+    gap: 24px;
+
+    align-items: start;
+}
+
+/* =========================================================
+   SETTINGS SIDEBAR
+   ========================================================= */
+
+.admin-settings-sidebar {
+    position: sticky;
+
+    top: 24px;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 12px;
+
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+
+    background: var(--admin-white);
+
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   SETTINGS NAVIGATION TITLE
+   ========================================================= */
+
+.admin-settings-nav-title {
+    padding: 10px 12px 14px;
+
+    color: var(--admin-text-muted);
+
+    font-size: 11px;
+    font-weight: 700;
+
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+/* =========================================================
+   SETTINGS NAVIGATION
+   ========================================================= */
+
+.admin-settings-nav-link {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+
+    padding: 11px 12px;
+
+    border: 0;
+    border-radius: 8px;
+
+    background: transparent;
+
+    color: var(--admin-text-secondary);
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    appearance: none;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.15s ease;
+}
+
+.admin-settings-nav-link:hover {
+    background: var(--admin-primary-light);
+
+    color: var(--admin-primary);
+}
+
+.admin-settings-nav-link.active {
+    background: var(--admin-primary);
+
+    color: #ffffff;
+
+    box-shadow: 0 3px 10px rgba(255, 107, 53, 0.18);
+}
+
+.admin-settings-nav-link:focus-visible {
+    outline: none;
+
+    box-shadow:
+        0 0 0 3px rgba(255, 107, 53, 0.14);
+}
+
+.admin-settings-nav-icon {
+    width: 22px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    font-size: 13px;
+}
+
+/* =========================================================
+   SETTINGS CONTENT
+   ========================================================= */
+
+.admin-settings-content {
+    min-width: 0;
+}
+
+.admin-settings-section {
+    display: block;
+
+    margin-bottom: 24px;
+}
+
+.admin-settings-section:last-child {
+    margin-bottom: 0;
+}
+
+/*
+    JavaScript has been removed.
+
+    Therefore all settings sections remain visible.
+*/
+
+/* =========================================================
+   SETTINGS FORM
+   ========================================================= */
+
+.admin-settings-form {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 20px;
+
+    margin-top: 24px;
+}
+
+.admin-settings-field {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+.admin-settings-field-full {
+    grid-column: 1 / -1;
+}
+
+/* =========================================================
+   SETTINGS LABELS
+   ========================================================= */
+
+.admin-settings-field label {
+    color: var(--admin-text-secondary);
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   SETTINGS INPUTS
+   ========================================================= */
+
+.admin-settings-field input,
+.admin-settings-field select,
+.admin-settings-field textarea {
+    width: 100%;
+
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+
+    background: var(--admin-white);
+
+    color: var(--admin-text);
+
+    font-family: inherit;
+    font-size: 13px;
+
+    outline: none;
+
+    box-sizing: border-box;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.admin-settings-field input,
+.admin-settings-field select {
+    height: 44px;
+
+    padding: 0 13px;
+}
+
+.admin-settings-field textarea {
+    min-height: 110px;
+
+    padding: 12px 13px;
+
+    resize: vertical;
+
+    line-height: 1.5;
+}
+
+/* =========================================================
+   INPUT HOVER
+   ========================================================= */
+
+.admin-settings-field input:hover,
+.admin-settings-field select:hover,
+.admin-settings-field textarea:hover {
+    border-color: var(--admin-border-hover);
+}
+
+/* =========================================================
+   INPUT FOCUS
+   ========================================================= */
+
+.admin-settings-field input:focus,
+.admin-settings-field select:focus,
+.admin-settings-field textarea:focus {
+    border-color: var(--admin-primary);
+
+    box-shadow:
+        0 0 0 3px rgba(255, 107, 53, 0.12);
+}
+
+/* =========================================================
+   DISABLED INPUT
+   ========================================================= */
+
+.admin-settings-field input:disabled {
+    background: #f3f4f6;
+
+    color: var(--admin-text-muted);
+
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   SETTINGS FOOTER
+   ========================================================= */
+
+.admin-settings-footer {
+    display: flex;
+
+    justify-content: flex-end;
+    align-items: center;
+
+    gap: 10px;
+
+    margin-top: 26px;
+    padding-top: 20px;
+
+    border-top: 1px solid var(--admin-border);
+}
+
+/* =========================================================
+   PRIMARY BUTTON
+   ========================================================= */
+
+.admin-settings-footer .admin-primary-button,
+.admin-settings-profile .admin-primary-button {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding: 0 18px;
+
+    border: 1px solid var(--admin-primary);
+    border-radius: 8px;
+
+    background: var(--admin-primary);
+
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.15s ease;
+}
+
+.admin-settings-footer .admin-primary-button:hover,
+.admin-settings-profile .admin-primary-button:hover {
+    background: var(--admin-primary-hover);
+
+    border-color: var(--admin-primary-hover);
+
+    box-shadow:
+        0 4px 12px rgba(255, 107, 53, 0.22);
+
+    transform: translateY(-1px);
+}
+
+.admin-settings-footer .admin-primary-button:active,
+.admin-settings-profile .admin-primary-button:active {
+    transform: translateY(0);
+
+    box-shadow: none;
+}
+
+/* =========================================================
+   SECONDARY BUTTON
+   ========================================================= */
+
+.admin-settings-footer .admin-secondary-button,
+.admin-settings-profile .admin-secondary-button {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding: 0 18px;
+
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+
+    background: var(--admin-white);
+
+    color: var(--admin-text);
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.15s ease;
+}
+
+.admin-settings-footer .admin-secondary-button:hover,
+.admin-settings-profile .admin-secondary-button:hover {
+    background: #f9fafb;
+
+    border-color: var(--admin-border-hover);
+
+    color: var(--admin-primary);
+
+    box-shadow:
+        0 3px 10px rgba(17, 24, 39, 0.08);
+
+    transform: translateY(-1px);
+}
+
+.admin-settings-footer button:active,
+.admin-settings-profile button:active {
+    transform: translateY(0);
+
+    box-shadow: none;
+}
+
+/* =========================================================
+   BUTTON FOCUS
+   ========================================================= */
+
+.admin-settings-footer button:focus-visible,
+.admin-settings-profile button:focus-visible {
+    outline: none;
+
+    box-shadow:
+        0 0 0 3px rgba(255, 107, 53, 0.13);
+}
+
+/* =========================================================
+   ADMIN PROFILE
+   ========================================================= */
+
+.admin-settings-profile {
+    display: flex;
+    align-items: center;
+
+    gap: 16px;
+
+    margin-top: 24px;
+    padding-bottom: 24px;
+
+    border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-settings-large-avatar {
+    width: 64px;
+    height: 64px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: var(--admin-primary);
+
+    color: #ffffff;
+
+    font-size: 22px;
+    font-weight: 700;
+
+    box-shadow:
+        0 4px 12px rgba(255, 107, 53, 0.18);
+}
+
+.admin-settings-profile > div:last-child {
+    display: flex;
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 4px;
+}
+
+.admin-settings-profile strong {
+    color: var(--admin-text);
+
+    font-size: 15px;
+}
+
+.admin-settings-profile span {
+    margin-bottom: 8px;
+
+    color: var(--admin-text-muted);
+
+    font-size: 12px;
+}
+
+/* =========================================================
+   SETTINGS OPTIONS
+   ========================================================= */
+
+.admin-settings-option {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 20px 0;
+
+    border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-settings-option:first-of-type {
+    margin-top: 10px;
+}
+
+.admin-settings-option-info {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+}
+
+.admin-settings-option-icon {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 8px;
+
+    background: var(--admin-primary-light);
+
+    color: var(--admin-primary);
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.admin-settings-option-info > div:last-child {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+.admin-settings-option-info strong {
+    color: var(--admin-text);
+
+    font-size: 14px;
+}
+
+.admin-settings-option-info span {
+    color: var(--admin-text-muted);
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+/* =========================================================
+   TOGGLE SWITCH
+   ========================================================= */
+
+.admin-toggle {
+    position: relative;
+
+    width: 44px;
+    height: 24px;
+
+    display: inline-block;
+
+    flex-shrink: 0;
+
+    cursor: pointer;
+}
+
+.admin-toggle input {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+
+    opacity: 0;
+}
+
+.admin-toggle-slider {
+    position: absolute;
+
+    inset: 0;
+
+    border-radius: 30px;
+
+    background: #d1d5db;
+
+    transition:
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.admin-toggle-slider::before {
+    content: "";
+
+    position: absolute;
+
+    width: 18px;
+    height: 18px;
+
+    left: 3px;
+    top: 3px;
+
+    border-radius: 50%;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.15);
+
+    transition:
+        transform 0.2s ease;
+}
+
+/* =========================================================
+   TOGGLE ACTIVE
+   ========================================================= */
+
+.admin-toggle input:checked + .admin-toggle-slider {
+    background: var(--admin-primary);
+
+    box-shadow:
+        0 2px 8px rgba(255, 107, 53, 0.25);
+}
+
+.admin-toggle input:checked + .admin-toggle-slider::before {
+    transform: translateX(20px);
+}
+
+/* =========================================================
+   TOGGLE FOCUS
+   ========================================================= */
+
+.admin-toggle input:focus-visible + .admin-toggle-slider {
+    outline: 3px solid rgba(255, 107, 53, 0.14);
+}
+
+/* =========================================================
+   INPUT PREFIX / SUFFIX
+   ========================================================= */
+
+.admin-input-prefix,
+.admin-input-suffix {
+    display: flex;
+
+    align-items: stretch;
+
+    width: 100%;
+}
+
+.admin-input-prefix > span,
+.admin-input-suffix > span {
+    min-width: 52px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 10px;
+
+    border: 1px solid var(--admin-border);
+
+    background: #f9fafb;
+
+    color: var(--admin-text-muted);
+
+    font-size: 12px;
+
+    box-sizing: border-box;
+}
+
+.admin-input-prefix > span {
+    border-right: 0;
+
+    border-radius: 8px 0 0 8px;
+}
+
+.admin-input-suffix > span {
+    border-left: 0;
+
+    border-radius: 0 8px 8px 0;
+}
+
+.admin-input-prefix input,
+.admin-input-suffix input {
+    min-width: 0;
+
+    flex: 1;
+}
+
+.admin-input-prefix input {
+    border-radius: 0 8px 8px 0;
+}
+
+.admin-input-suffix input {
+    border-radius: 8px 0 0 8px;
+}
+
+/* =========================================================
+   PREFIX / SUFFIX FOCUS
+   ========================================================= */
+
+.admin-input-prefix:focus-within > span,
+.admin-input-suffix:focus-within > span {
+    border-color: var(--admin-primary);
+
+    background: var(--admin-primary-light);
+
+    color: var(--admin-primary);
+}
+
+/* =========================================================
+   SECURITY SETTINGS
+   ========================================================= */
+
+.admin-settings-security-block {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 20px 0;
+
+    border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-settings-security-block > div {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.admin-settings-security-block strong {
+    color: var(--admin-text);
+
+    font-size: 14px;
+}
+
+.admin-settings-security-block span {
+    color: var(--admin-text-muted);
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+/* =========================================================
+   MESSAGE
+   ========================================================= */
+
+.admin-message {
+    display: none;
+
+    width: 100%;
+
+    margin-top: 20px;
+
+    padding: 12px 15px;
+
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+
+    background: var(--admin-success-light);
+
+    color: #166534;
+
+    font-size: 13px;
+
+    box-sizing: border-box;
+}
+
+.admin-message.show {
+    display: block;
+}
+
+/* =========================================================
+   LARGE TABLET / SMALL DESKTOP
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+    .admin-settings-layout {
+        grid-template-columns: 200px minmax(0, 1fr);
+
+        gap: 18px;
+    }
+
+    .admin-settings-form {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-settings-field-full {
+        grid-column: auto;
+    }
+}
+
+/* =========================================================
+   TABLET / MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .admin-settings-layout {
+        grid-template-columns: 1fr;
+
+        gap: 18px;
+    }
+
+    /* -----------------------------------------
+       Settings Navigation
+    ----------------------------------------- */
+
+    .admin-settings-sidebar {
+        position: static;
+
+        display: grid;
+
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        gap: 5px;
+    }
+
+    .admin-settings-nav-title {
+        grid-column: 1 / -1;
+    }
+
+    .admin-settings-nav-link {
+        min-height: 42px;
+    }
+
+    /* -----------------------------------------
+       Settings Forms
+    ----------------------------------------- */
+
+    .admin-settings-form {
+        grid-template-columns: 1fr;
+    }
+
+    /* -----------------------------------------
+       Settings Footer
+    ----------------------------------------- */
+
+    .admin-settings-footer {
+        flex-direction: column-reverse;
+
+        align-items: stretch;
+    }
+
+    .admin-settings-footer button {
+        width: 100%;
+    }
+
+    /* -----------------------------------------
+       Profile
+    ----------------------------------------- */
+
+    .admin-settings-profile {
+        align-items: flex-start;
+    }
+
+    /* -----------------------------------------
+       Settings Options
+    ----------------------------------------- */
+
+    .admin-settings-option {
+        align-items: flex-start;
+    }
+}
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 450px) {
+
+    .admin-settings-sidebar {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-settings-nav-title {
+        grid-column: auto;
+    }
+
+    /* -----------------------------------------
+       Options
+    ----------------------------------------- */
+
+    .admin-settings-option-info {
+        align-items: flex-start;
+    }
+
+    .admin-settings-option-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    /* -----------------------------------------
+       Security
+    ----------------------------------------- */
+
+    .admin-settings-security-block {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .admin-settings-security-block .admin-toggle,
+    .admin-settings-security-block button {
+        align-self: flex-start;
+    }
+}
+
+/* Settings sections */
+.admin-settings-section {
+    display: none;
+}
+
+.admin-settings-section.active {
+    display: block;
+}

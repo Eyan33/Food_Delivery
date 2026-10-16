@@ -1,0 +1,968 @@
+/* =========================================================
+   ADMIN RESTAURANTS PAGE
+   ========================================================= */
+
+/* =========================================================
+   PAGE CONTENT
+   ========================================================= */
+
+.admin-content {
+    padding: 30px;
+}
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.admin-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.admin-page-header h2 {
+    margin: 0 0 6px;
+    color: #222;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.admin-page-header p {
+    margin: 0;
+    color: #777;
+    font-size: 14px;
+}
+
+.admin-page-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.admin-primary-button,
+.admin-secondary-button,
+.admin-filter-button {
+    border-radius: 8px;
+    padding: 11px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.admin-primary-button {
+    border: 1px solid #ff6b35;
+    background: #ff6b35;
+    color: #fff;
+}
+
+.admin-primary-button:hover {
+    background: #e85b2c;
+    border-color: #e85b2c;
+}
+
+.admin-secondary-button {
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #444;
+}
+
+.admin-secondary-button:hover {
+    background: #f7f7f7;
+}
+
+/* =========================================================
+   STATISTICS GRID
+   ========================================================= */
+
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+/* =========================================================
+   STAT CARD
+   ========================================================= */
+
+.admin-stat-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.admin-stat-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #fff1eb;
+    color: #ff6b35;
+    font-size: 19px;
+    font-weight: 600;
+}
+
+.admin-stat-content {
+    min-width: 0;
+}
+
+.admin-stat-content span {
+    display: block;
+    margin-bottom: 5px;
+    color: #777;
+    font-size: 13px;
+}
+
+.admin-stat-content strong {
+    display: block;
+    color: #222;
+    font-size: 23px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   CONTENT CARD
+   ========================================================= */
+
+.admin-content-card {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.admin-restaurants-card {
+    margin-bottom: 25px;
+}
+
+/* =========================================================
+   CARD HEADER
+   ========================================================= */
+
+.admin-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.admin-card-header h3 {
+    margin: 0 0 5px;
+    color: #222;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.admin-card-header p {
+    margin: 0;
+    color: #888;
+    font-size: 13px;
+}
+
+/* =========================================================
+   RESTAURANT TOOLS
+   ========================================================= */
+
+.admin-restaurant-tools {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+.admin-search {
+    width: 240px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    background: #f8f8f8;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+}
+
+.admin-search span {
+    color: #888;
+    font-size: 18px;
+}
+
+.admin-search input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #333;
+    font-size: 13px;
+}
+
+.admin-search input::placeholder {
+    color: #999;
+}
+
+/* =========================================================
+   FILTER BUTTON
+   ========================================================= */
+
+.admin-filter-button {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #444;
+}
+
+.admin-filter-button:hover {
+    background: #f7f7f7;
+}
+
+/* =========================================================
+   RESTAURANT TABS
+   ========================================================= */
+
+.admin-restaurant-tabs {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    padding: 0 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.admin-restaurant-tab {
+    position: relative;
+    padding: 15px 2px;
+    color: #777;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.admin-restaurant-tab:hover {
+    color: #ff6b35;
+}
+
+.admin-restaurant-tab.active {
+    color: #ff6b35;
+}
+
+.admin-restaurant-tab.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: #ff6b35;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.admin-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    min-width: 900px;
+    border-collapse: collapse;
+}
+
+.admin-table thead {
+    background: #fafafa;
+}
+
+.admin-table th {
+    padding: 14px 20px;
+    text-align: left;
+    color: #777;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border-bottom: 1px solid #eee;
+}
+
+.admin-table td {
+    padding: 16px 20px;
+    color: #444;
+    font-size: 13px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+}
+
+.admin-table tbody tr:hover {
+    background: #fcfcfc;
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* =========================================================
+   RESTAURANT INFORMATION
+   ========================================================= */
+
+.admin-restaurant {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-restaurant-avatar {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: #fff1eb;
+    color: #ff6b35;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.admin-restaurant-info {
+    min-width: 0;
+}
+
+.admin-restaurant-info strong {
+    display: block;
+    margin-bottom: 3px;
+    color: #222;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.admin-restaurant-info span {
+    display: block;
+    color: #999;
+    font-size: 12px;
+}
+
+/* =========================================================
+   RESTAURANT RATING
+   ========================================================= */
+
+.admin-rating {
+    color: #b77900;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.admin-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.admin-status.success {
+    background: #e9f8ef;
+    color: #218c4a;
+}
+
+.admin-status.warning {
+    background: #fff5df;
+    color: #b77900;
+}
+
+.admin-status.danger {
+    background: #fdeaea;
+    color: #c63d3d;
+}
+
+.admin-status.info {
+    background: #eaf3ff;
+    color: #2875c7;
+}
+
+.admin-status.neutral {
+    background: #f1f1f1;
+    color: #666;
+}
+
+/* =========================================================
+   TABLE ACTIONS
+   ========================================================= */
+
+.admin-table-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.admin-table-action {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e5e5e5;
+    border-radius: 7px;
+    background: #fff;
+    color: #666;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.admin-table-action:hover {
+    border-color: #ff6b35;
+    background: #f7f7f7;
+    color: #ff6b35;
+}
+
+.admin-table-action.danger:hover {
+    border-color: #d64545;
+    background: #fff5f5;
+    color: #d64545;
+}
+
+/* =========================================================
+   TABLE FOOTER
+   ========================================================= */
+
+.admin-table-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 16px 20px;
+    border-top: 1px solid #eee;
+}
+
+.admin-table-footer p {
+    margin: 0;
+    color: #888;
+    font-size: 12px;
+}
+
+/* =========================================================
+   PAGINATION
+   ========================================================= */
+
+.admin-pagination {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.admin-pagination button {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 8px;
+    border: 1px solid #e2e2e2;
+    border-radius: 7px;
+    background: #fff;
+    color: #555;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.admin-pagination button:hover {
+    border-color: #ff6b35;
+    color: #ff6b35;
+}
+
+.admin-pagination button.active {
+    border-color: #ff6b35;
+    background: #ff6b35;
+    color: #fff;
+}
+
+.admin-pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   BOTTOM GRID
+   ========================================================= */
+
+.admin-bottom-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+    margin-bottom: 25px;
+}
+
+/* =========================================================
+   SUMMARY LIST
+   ========================================================= */
+
+.admin-summary-list {
+    padding: 5px 20px;
+}
+
+.admin-summary-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 14px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.admin-summary-item:last-child {
+    border-bottom: none;
+}
+
+.admin-summary-item>div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-summary-icon {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #f7f7f7;
+    color: #777;
+    font-size: 14px;
+}
+
+.admin-summary-item strong {
+    color: #333;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.admin-summary-item span {
+    color: #888;
+    font-size: 12px;
+}
+
+.admin-summary-item .total {
+    color: #333;
+    font-weight: 600;
+}
+
+/* =========================================================
+   RESTAURANT PERFORMANCE
+   ========================================================= */
+
+.admin-restaurant-performance {
+    padding: 20px;
+}
+
+.admin-performance-item {
+    margin-bottom: 22px;
+}
+
+.admin-performance-item:last-child {
+    margin-bottom: 0;
+}
+
+.admin-performance-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 8px;
+}
+
+.admin-performance-header span {
+    color: #666;
+    font-size: 13px;
+}
+
+.admin-performance-header strong {
+    color: #333;
+    font-size: 13px;
+}
+
+/* =========================================================
+   PROGRESS BAR
+   ========================================================= */
+
+.admin-progress {
+    width: 100%;
+}
+
+.admin-progress-bar {
+    width: 100%;
+    height: 8px;
+    overflow: hidden;
+    background: #eeeeee;
+    border-radius: 10px;
+}
+
+.admin-progress-value {
+    height: 100%;
+    border-radius: 10px;
+    background: #ff6b35;
+}
+
+/* =========================================================
+   PERFORMANCE FOOTER
+   ========================================================= */
+
+.admin-spending-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 15px 20px;
+    border-top: 1px solid #eee;
+}
+
+.admin-spending-footer span {
+    color: #888;
+    font-size: 12px;
+}
+
+.admin-spending-footer strong {
+    color: #333;
+    font-size: 13px;
+}
+
+/* =========================================================
+   MESSAGE
+   ========================================================= */
+
+.admin-message {
+    display: none;
+    margin-bottom: 25px;
+    padding: 13px 16px;
+    border: 1px solid #cfe3fa;
+    border-radius: 8px;
+    background: #eaf3ff;
+    color: #2875c7;
+    font-size: 13px;
+}
+
+.admin-message.show {
+    display: block;
+}
+
+.admin-message.success {
+    border-color: #ccefd9;
+    background: #e9f8ef;
+    color: #218c4a;
+}
+
+.admin-message.error {
+    border-color: #f4caca;
+    background: #fdeaea;
+    color: #c63d3d;
+}
+
+/* =========================================================
+   RESPONSIVE DESIGN
+   ========================================================= */
+
+@media (max-width: 1200px) {
+    .admin-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .admin-bottom-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+    .admin-content {
+        padding: 25px 20px;
+    }
+
+    .admin-page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .admin-card-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .admin-restaurant-tools {
+        width: 100%;
+    }
+
+    .admin-search {
+        flex: 1;
+        width: auto;
+    }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+    .admin-content {
+        padding: 20px 15px;
+    }
+
+    .admin-page-header h2 {
+        font-size: 20px;
+    }
+
+    .admin-page-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .admin-primary-button,
+    .admin-secondary-button {
+        width: 100%;
+    }
+
+    .admin-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .admin-stat-card {
+        padding: 16px;
+    }
+
+    .admin-card-header {
+        padding: 16px;
+    }
+
+    .admin-restaurant-tools {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .admin-search {
+        width: 100%;
+    }
+
+    .admin-filter-button {
+        justify-content: center;
+    }
+
+    .admin-restaurant-tabs {
+        gap: 18px;
+        padding: 0 16px;
+        overflow-x: auto;
+    }
+
+    .admin-restaurant-tab {
+        flex-shrink: 0;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 13px 15px;
+    }
+
+    .admin-table-footer {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 15px;
+    }
+
+    .admin-pagination {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .admin-bottom-grid {
+        gap: 15px;
+    }
+}
+
+.admin-modal-dialog {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(92vw, 620px);
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 0;
+    border-radius: 14px;
+    padding: 0;
+    background: #ffffff;
+    box-shadow: 0 24px 64px rgba(15, 23, 42, 0.28);
+}
+
+.admin-modal-dialog::backdrop {
+    background: rgba(15, 23, 42, 0.58);
+}
+
+.admin-modal-dialog form {
+    padding: 28px;
+}
+
+.admin-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    padding-bottom: 21px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.admin-modal-eyebrow {
+    margin: 0 0 6px;
+    color: #f97316;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.admin-modal-header h2 {
+    margin: 0 0 7px;
+    color: #1f2937;
+    font-size: 22px;
+}
+
+.admin-modal-header p:not(.admin-modal-eyebrow) {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.admin-modal-close {
+    display: grid;
+    width: 35px;
+    height: 35px;
+    flex: 0 0 35px;
+    place-items: center;
+    border: 0;
+    border-radius: 8px;
+    background: #f3f4f6;
+    color: #475569;
+    cursor: pointer;
+    font-size: 24px;
+    line-height: 1;
+}
+
+.admin-modal-close:hover {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.admin-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    padding: 25px 0;
+}
+
+.admin-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.admin-form-field label {
+    color: #374151;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-form-field label span {
+    color: #dc2626;
+}
+
+.admin-form-field input,
+.admin-form-field select {
+    width: 100%;
+    height: 43px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    outline: none;
+    background: #ffffff;
+    color: #1f2937;
+    font: inherit;
+    font-size: 14px;
+    padding: 0 12px;
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
+}
+
+.admin-form-field input:focus,
+.admin-form-field select:focus {
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.16);
+}
+
+.admin-form-field.is-invalid input,
+.admin-form-field.is-invalid select {
+    border-color: #dc2626;
+}
+
+.admin-form-error {
+    min-height: 15px;
+    color: #dc2626;
+    font-size: 12px;
+}
+
+.admin-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 22px;
+    border-top: 1px solid #e5e7eb;
+}
+
+@media (max-width: 600px) {
+    .admin-modal-dialog {
+        width: calc(100vw - 24px);
+    }
+
+    .admin-modal-dialog form {
+        padding: 22px 18px;
+    }
+
+    .admin-form-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .admin-modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .admin-modal-actions button {
+        width: 100%;
+    }
+}
