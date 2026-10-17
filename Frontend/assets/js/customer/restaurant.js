@@ -370,7 +370,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             src="${image}"
                             alt="${name}"
                             loading="lazy"
-                            onerror="this.onerror=null;this.src='${FOOD_PLACEHOLDER}'"
+                            data-fallback="${FOOD_PLACEHOLDER}"
                         />
                     </div>
 

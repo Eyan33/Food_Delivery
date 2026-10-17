@@ -168,7 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             src="${escapeHTML(imageUrl)}"
                             alt="${escapeHTML(name)}"
                             loading="lazy"
-                            onerror="this.onerror=null;this.src='${RESTAURANT_PLACEHOLDER}'"
+                            data-fallback="${RESTAURANT_PLACEHOLDER}"
                         >
 
                         <span class="restaurant-status">

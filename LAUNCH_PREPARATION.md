@@ -1,5 +1,7 @@
 # FoodDelivery — Launch Preparation
 
+> **Deploying on Render? Start with [`DEPLOY_RENDER.md`](DEPLOY_RENDER.md) and `render.yaml`.** It supersedes the generic "Before deploying" steps below (the app now serves the frontend itself, reads `DATABASE_URL`, and creates the schema on first start). The "Known items" list below is still current.
+
 This ZIP is a source-code handoff, not a claim that the application has already been deployed or passed end-to-end production testing.
 
 ## Included changes in this preparation pass

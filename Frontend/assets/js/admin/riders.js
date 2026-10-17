@@ -3,7 +3,7 @@
    File: Frontend/assets/js/admin/riders.js
 
    Uses FoodDeliveryAuthApi.
-   API base URL: <meta name="api-base-url" content=(window.FOOD_DELIVERY_API_BASE || document.querySelector('meta[name="api-base-url"]')?.content?.trim() || "http://localhost:5000/api").replace(/\/+$/, "")>
+   API base URL: window.FOOD_DELIVERY_API_BASE (see assets/js/api-config.js)
    Backend routes: /api/riders
 ========================================================= */
 

@@ -1,18 +1,16 @@
 const forgotPasswordForm = document.getElementById("forgotPasswordForm");
-const emailInput = document.getElementById("email");
 const forgotPasswordMessage = document.getElementById("forgotPasswordMessage");
 
+/*
+ * Password reset by email is not implemented on the backend yet (there is
+ * no reset endpoint and no email service). Until it is, do not tell users a
+ * reset link was sent: say plainly what to do instead.
+ */
 forgotPasswordForm.addEventListener("submit", (event) => {
-    event.preventDefault(); // Stops the page from refreshing
-
-    const resetData = {
-        email: emailInput.value.trim(),
-    };
-
-    console.log("Password reset information:", resetData);
+    event.preventDefault();
 
     forgotPasswordMessage.textContent =
-        "Reset-link request collected successfully.";
-    forgotPasswordMessage.classList.remove("error");
-    forgotPasswordMessage.classList.add("success");
+        "Password reset by email is not available yet. Please contact support to reset your password.";
+    forgotPasswordMessage.classList.remove("success");
+    forgotPasswordMessage.classList.add("error");
 });

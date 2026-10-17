@@ -1,29 +1,62 @@
 const pool = require("../../config/database");
 
-// Create a new review
+// Create a new review (customers only; the route enforces the role)
 const createReview = async (req, res) => {
     try {
-        const userId = req.user.id; // Assumes auth middleware attaches the user object with id
-        const { restaurant_id, order_id, rating, comment } = req.body;
+        const userId = req.user.id;
+        const { restaurant_id, order_id, comment } = req.body || {};
+        const rating = Number(req.body && req.body.rating);
+        const restaurantId = Number(restaurant_id);
 
-        if (!restaurant_id || !rating) {
+        if (!Number.isInteger(restaurantId) || restaurantId <= 0) {
             return res
                 .status(400)
-                .json({ error: "Restaurant ID and rating are required." });
+                .json({ error: "A valid restaurant ID is required." });
         }
+
+        if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+            return res
+                .status(400)
+                .json({ error: "Rating must be a whole number from 1 to 5." });
+        }
+
+        let orderId = null;
+
+        if (order_id !== undefined && order_id !== null && order_id !== "") {
+            orderId = Number(order_id);
+
+            if (!Number.isInteger(orderId) || orderId <= 0) {
+                return res.status(400).json({ error: "Invalid order ID." });
+            }
+
+            // The order must belong to this customer and this restaurant.
+            const orderCheck = await pool.query(
+                `
+                SELECT id
+                FROM orders
+                WHERE id = $1
+                  AND customer_id = $2
+                  AND restaurant_id = $3
+                LIMIT 1
+                `,
+                [orderId, userId, restaurantId],
+            );
+
+            if (orderCheck.rows.length === 0) {
+                return res
+                    .status(403)
+                    .json({ error: "You can only review your own orders." });
+            }
+        }
+
+        const trimmedComment = String(comment || "").trim().slice(0, 1000);
 
         const query = `
             INSERT INTO reviews (customer_id, restaurant_id, order_id, rating, comment)
             VALUES ($1, $2, $3, $4, $5)
             RETURNING *;
         `;
-        const values = [
-            userId,
-            restaurant_id,
-            order_id || null,
-            rating,
-            comment || "",
-        ];
+        const values = [userId, restaurantId, orderId, rating, trimmedComment];
         const newReview = await pool.query(query, values);
 
         res.status(201).json({
@@ -31,7 +64,7 @@ const createReview = async (req, res) => {
             review: newReview.rows[0],
         });
     } catch (err) {
-        console.error(err.message);
+        console.error(err.internalMessage || err.message);
         res.status(500).json({ error: "Server error" });
     }
 };

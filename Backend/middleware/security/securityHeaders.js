@@ -1,0 +1,72 @@
+"use strict";
+
+/*
+ * Security headers (a small, dependency-free subset of what `helmet`
+ * sets, tuned for this app).
+ *
+ * The Content-Security-Policy is the important one. Pages only load
+ * scripts from this origin, and inline event handlers / javascript:
+ * URLs are blocked. That means that even if some user-supplied text
+ * (restaurant name, address, ...) ever reaches innerHTML unescaped,
+ * the browser refuses to run injected script.
+ *
+ * External hosts allowed: Google Fonts (CSS + font files) and https
+ * images (restaurant/food photos are stored as URLs).
+ */
+
+const BASE_DIRECTIVES = [
+    "default-src 'self'",
+    "script-src 'self'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com data:",
+    "img-src 'self' data: blob: https:",
+    "connect-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+];
+
+function buildContentSecurityPolicy(isProduction) {
+    // Only upgrade http -> https in production; plain-http localhost must keep working in development.
+    return (isProduction
+        ? [...BASE_DIRECTIVES, "upgrade-insecure-requests"]
+        : BASE_DIRECTIVES
+    ).join("; ");
+}
+
+function securityHeaders({ isProduction }) {
+    const contentSecurityPolicy = buildContentSecurityPolicy(isProduction);
+
+    return function securityHeadersMiddleware(req, res, next) {
+        res.setHeader("Content-Security-Policy", contentSecurityPolicy);
+        res.setHeader("X-Content-Type-Options", "nosniff");
+        res.setHeader("X-Frame-Options", "DENY");
+        res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+        res.setHeader("X-DNS-Prefetch-Control", "off");
+        res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
+        res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+        res.setHeader(
+            "Permissions-Policy",
+            "geolocation=(), camera=(), microphone=(), payment=()",
+        );
+
+        if (isProduction) {
+            // Render terminates TLS and always serves this app over HTTPS.
+            res.setHeader(
+                "Strict-Transport-Security",
+                "max-age=15552000; includeSubDomains",
+            );
+        }
+
+        // API responses can contain personal data: never cache them.
+        if (req.path.startsWith("/api")) {
+            res.setHeader("Cache-Control", "no-store");
+        }
+
+        next();
+    };
+}
+
+module.exports = securityHeaders;
+module.exports.buildContentSecurityPolicy = buildContentSecurityPolicy;
