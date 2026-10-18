@@ -226,9 +226,10 @@ function restoreSectionValues(section) {
             const strong = profileCard.querySelector("strong");
 
             if (avatar) {
-                avatar.textContent = fullName
-                    ? fullName.charAt(0).toUpperCase()
-                    : "A";
+                avatar.textContent = admin.avatar_url ? "" : (fullName ? fullName.charAt(0).toUpperCase() : "A");
+                avatar.style.backgroundImage = admin.avatar_url ? `url("${admin.avatar_url}")` : "";
+                avatar.style.backgroundSize = "cover";
+                avatar.style.backgroundPosition = "center";
             }
 
             if (strong) {
@@ -251,6 +252,13 @@ function restoreSectionValues(section) {
             if (!element.textContent.trim()) {
                 element.textContent = "Administrator";
             }
+        });
+
+        document.querySelectorAll(".admin-profile-avatar, .admin-topbar-avatar").forEach((avatar) => {
+            avatar.textContent = admin.avatar_url ? "" : (fullName.charAt(0).toUpperCase() || "A");
+            avatar.style.backgroundImage = admin.avatar_url ? `url("${admin.avatar_url}")` : "";
+            avatar.style.backgroundSize = "cover";
+            avatar.style.backgroundPosition = "center";
         });
 
         rememberSectionValues(
@@ -421,65 +429,80 @@ function restoreSectionValues(section) {
             saveAdminProfile(event.currentTarget);
         });
 
-    /* =====================================================
-       GENERAL / PAYMENT / DELIVERY / NOTIFICATION SETTINGS
-       
-       These features currently have no matching backend
-       persistence endpoints in the supplied project.
-       Do not show fake success messages.
-    ===================================================== */
-
-    const notConnectedSections = [
-        {
-            id: "settings-general",
-            message:
-                "General settings are not connected yet. " +
-                "A backend settings endpoint and database storage are required."
-        },
-        {
-            id: "settings-payments",
-            message:
-                "Payment preferences are not saved. " +
-                "A backend endpoint is required before payment methods or transaction fees can be changed."
-        },
-        {
-            id: "settings-delivery",
-            message:
-                "Platform-wide delivery settings are not saved. " +
-                "The backend must define how these values affect order calculations."
-        },
-        {
-            id: "settings-notifications",
-            message:
-                "Notification preferences are not saved. " +
-                "A backend endpoint and persistent storage are required."
-        }
+    const preferenceSections = [
+        "general",
+        "payments",
+        "delivery",
+        "notifications",
+        "security"
     ];
 
-    notConnectedSections.forEach(({ id, message }) => {
-        const section = getField(id);
+    function readSection(section) {
+        const values = {};
+        section.querySelectorAll("input[id], textarea[id], select[id]").forEach((field) => {
+            if (field.type === "file" || field.disabled) return;
+            values[field.id] = field.type === "checkbox"
+                ? field.checked
+                : field.type === "number"
+                    ? Number(field.value)
+                    : field.value.trim();
+        });
+        return values;
+    }
 
+    async function loadPlatformSettings() {
+        try {
+            const result = await apiRequest("/admins/settings");
+            const settings = result?.settings || result?.data?.settings || {};
+            preferenceSections.forEach((name) => {
+                const section = getField(`settings-${name}`);
+                const saved = settings[name] || {};
+                if (!section) return;
+                Object.entries(saved).forEach(([id, value]) => {
+                    const field = getField(id);
+                    if (!field) return;
+                    if (field.type === "checkbox") field.checked = Boolean(value);
+                    else field.value = value;
+                });
+                rememberSectionValues(section);
+            });
+        } catch (error) {
+            showMessage(getErrorMessage(error, "Could not load platform settings."), "danger");
+        }
+    }
+
+    async function savePreferenceSection(sectionName, button) {
+        const section = getField(`settings-${sectionName}`);
         if (!section) return;
-
-        const saveButton = section.querySelector(
-            ".admin-save-button"
-        );
-
-        if (saveButton) {
-            saveButton.addEventListener("click", () => {
-                showMessage(message, "info");
+        const originalText = button.textContent;
+        button.disabled = true;
+        button.textContent = "Saving…";
+        try {
+            await apiRequest("/admins/settings", {
+                method: "PUT",
+                body: { [sectionName]: readSection(section) }
             });
+            rememberSectionValues(section);
+            showMessage("Settings saved successfully.", "success");
+        } catch (error) {
+            showMessage(getErrorMessage(error, "Could not save settings."), "danger");
+        } finally {
+            button.disabled = false;
+            button.textContent = originalText;
         }
+    }
 
-        const cancelButton = section.querySelector(
-            ".admin-secondary-button"
-        );
-
-        if (cancelButton) {
-            cancelButton.addEventListener("click", () => {
-                restoreSectionValues(section);
-            });
-        }
+    preferenceSections.forEach((name) => {
+        const section = getField(`settings-${name}`);
+        const saveButton = name === "security"
+            ? section?.querySelector(".admin-settings-footer .admin-save-button")
+            : section?.querySelector(".admin-save-button");
+        saveButton?.addEventListener("click", (event) => {
+            savePreferenceSection(name, event.currentTarget);
+        });
+        section?.querySelector(".admin-secondary-button")?.addEventListener("click", () => {
+            restoreSectionValues(section);
+        });
     });
 
     /* =====================================================
@@ -490,11 +513,20 @@ function restoreSectionValues(section) {
         ".admin-secondary-button"
     );
 
-    avatarButton?.addEventListener("click", () => {
-        showMessage(
-            "Avatar upload is not implemented yet.",
-            "info"
-        );
+    avatarButton?.addEventListener("click", async () => {
+        const avatarUrl = window.prompt("Enter an HTTPS image URL for your avatar:");
+        if (avatarUrl === null) return;
+        try {
+            const result = await apiRequest("/admins/me/avatar", {
+                method: "PATCH",
+                body: { avatar_url: avatarUrl.trim() }
+            });
+            currentAdmin = result?.admin || result?.data?.admin || currentAdmin;
+            renderAdminProfile(currentAdmin);
+            showMessage("Avatar updated.", "success");
+        } catch (error) {
+            showMessage(getErrorMessage(error, "Could not update avatar."), "danger");
+        }
     });
 
     /* =====================================================
@@ -751,11 +783,22 @@ function restoreSectionValues(section) {
 
                     if (Object.values(errors).some(Boolean)) return;
 
-                    showMessage(
-                        "Password change is not connected yet. " +
-                        "A secure backend endpoint must verify your current password first.",
-                        "info"
-                    );
+                    const submit = form.querySelector('[type="submit"]');
+                    const originalText = submit.textContent;
+                    submit.disabled = true;
+                    submit.textContent = "Updating…";
+                    apiRequest("/auth/me/password", {
+                        method: "PATCH",
+                        body: { currentPassword: current, newPassword: next }
+                    }).then(() => {
+                        showMessage("Password changed successfully.", "success");
+                        closePasswordModal();
+                    }).catch((error) => {
+                        showMessage(getErrorMessage(error, "Could not change password."), "danger");
+                    }).finally(() => {
+                        submit.disabled = false;
+                        submit.textContent = originalText;
+                    });
                 });
         }
 
@@ -789,11 +832,8 @@ function restoreSectionValues(section) {
         ".admin-settings-footer .admin-save-button"
     );
 
-    securitySaveButton?.addEventListener("click", () => {
-        showMessage(
-            "Advanced security preferences are not connected to the backend yet.",
-            "info"
-        );
+    securitySaveButton?.addEventListener("click", (event) => {
+        savePreferenceSection("security", event.currentTarget);
     });
 
     /* =====================================================
@@ -801,4 +841,5 @@ function restoreSectionValues(section) {
     ===================================================== */
 
     loadAdminProfile();
+    loadPlatformSettings();
 });

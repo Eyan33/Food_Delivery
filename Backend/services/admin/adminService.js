@@ -15,6 +15,7 @@ const ADMIN_COLUMNS = `
     last_name,
     email,
     phone,
+    avatar_url,
     role,
     is_active,
     created_at,
@@ -261,6 +262,17 @@ async function getAdminById(id) {
         [adminId]
     );
 
+    return result.rows[0] || null;
+}
+
+async function updateAdminAvatar(id, avatarUrl) {
+    const adminId = validateAdminId(id);
+    const result = await pool.query(
+        `UPDATE users SET avatar_url = $1, updated_at = CURRENT_TIMESTAMP
+         WHERE id = $2 AND role = 'admin'
+         RETURNING ${ADMIN_COLUMNS}`,
+        [avatarUrl, adminId]
+    );
     return result.rows[0] || null;
 }
 
@@ -1229,7 +1241,8 @@ async function getDashboard(
 ========================================================= */
 
 async function getReports(
-    period = "30d"
+    period = "30d",
+    { startDate, endDate } = {}
 ) {
     const periodConfig = {
         "7d": {
@@ -1253,9 +1266,39 @@ async function getReports(
         }
     };
 
-    const cfg =
-        periodConfig[period] ||
-        periodConfig["30d"];
+    const cfg = periodConfig[period];
+
+    if (!cfg) {
+        throw apiError(
+            "Invalid period. Use 7d, 30d, 3m or 12m"
+        );
+    }
+
+    let customRange = false;
+
+    if (startDate !== undefined || endDate !== undefined) {
+        const isValidDate = (value) => {
+            if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                return false;
+            }
+
+            const date = new Date(`${value}T00:00:00.000Z`);
+            return !Number.isNaN(date.getTime()) &&
+                date.toISOString().slice(0, 10) === value;
+        };
+
+        if (!isValidDate(startDate) || !isValidDate(endDate)) {
+            throw apiError(
+                "Start date and end date must be valid YYYY-MM-DD dates"
+            );
+        }
+
+        if (startDate > endDate) {
+            throw apiError("Start date cannot be after end date");
+        }
+
+        customRange = true;
+    }
 
     const client =
         await pool.connect();
@@ -1263,8 +1306,18 @@ async function getReports(
     try {
         await client.query("BEGIN");
 
-        const boundsResult =
-            await client.query(
+        const boundsResult = customRange
+            ? await client.query(
+                `
+                SELECT
+                    $1::date AS cur_start,
+                    ($2::date + 1) AS cur_end,
+                    ($1::date - (($2::date - $1::date) + 1)) AS prev_start,
+                    $1::date AS prev_end
+                `,
+                [startDate, endDate]
+            )
+            : await client.query(
                 `
                 SELECT
                     CURRENT_DATE -
@@ -1615,11 +1668,12 @@ async function getReports(
             await client.query(
                 `
                 SELECT
-                    payment_status AS status,
+                    payment_method AS method,
                     COUNT(*)::int AS count,
-
                     COALESCE(
-                        SUM(amount),
+                        SUM(amount) FILTER (
+                            WHERE payment_status = 'completed'
+                        ),
                         0
                     )::numeric AS amount
 
@@ -1627,14 +1681,33 @@ async function getReports(
                 WHERE created_at >= $1
                   AND created_at < $2
 
-                GROUP BY payment_status
-                ORDER BY amount DESC
+                GROUP BY payment_method
+                ORDER BY count DESC
                 `,
                 [
                     b.cur_start,
                     b.cur_end
                 ]
             );
+
+        const riderSummaryResult = await client.query(
+            `
+            SELECT
+                COUNT(*)::int AS total,
+                COUNT(*) FILTER (WHERE u.is_active = TRUE)::int AS active,
+                (
+                    SELECT COUNT(*)::int
+                    FROM orders o
+                    WHERE o.status = 'delivered'
+                                            AND o.rider_id IS NOT NULL
+                      AND o.delivered_at >= $1
+                      AND o.delivered_at < $2
+                ) AS deliveries
+            FROM rider_profiles rp
+            JOIN users u ON u.id = rp.user_id
+            `,
+            [b.cur_start, b.cur_end]
+        );
 
         await client.query("COMMIT");
 
@@ -1804,8 +1877,8 @@ async function getReports(
             orderStatusBreakdown:
                 statusBreakdownResult.rows.map(
                     (row) => ({
-                        status:
-                            row.status,
+                        method:
+                            row.method,
 
                         count:
                             Number(
@@ -1830,7 +1903,13 @@ async function getReports(
                                 row.amount
                             )
                     })
-                )
+                ),
+
+            riders: {
+                total: Number(riderSummaryResult.rows[0].total),
+                active: Number(riderSummaryResult.rows[0].active),
+                deliveries: Number(riderSummaryResult.rows[0].deliveries)
+            }
         };
     } catch (error) {
         await client
@@ -1846,6 +1925,7 @@ async function getReports(
 module.exports = {
     getAdmins,
     getAdminById,
+    updateAdminAvatar,
     createAdmin,
     updateAdmin,
     deactivateAdmin,

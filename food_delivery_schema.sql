@@ -526,6 +526,7 @@ CREATE TABLE public.users (
     last_name character varying(100) NOT NULL,
     email character varying(255) NOT NULL,
     phone character varying(30),
+    avatar_url text,
     password_hash text NOT NULL,
     role character varying(20) DEFAULT 'customer'::character varying NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
@@ -1233,6 +1234,42 @@ ALTER TABLE ONLY public.rider_profiles
 --
 -- PostgreSQL database dump complete
 --
+
+CREATE TABLE IF NOT EXISTS public.admin_settings (
+    id smallint PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+    settings jsonb NOT NULL DEFAULT '{}'::jsonb,
+    updated_by bigint REFERENCES public.users(id) ON DELETE SET NULL,
+    updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO public.admin_settings (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS public.admin_notifications (
+    id bigserial PRIMARY KEY,
+    source_type character varying(40) NOT NULL,
+    source_id character varying(80) NOT NULL,
+    title character varying(180) NOT NULL,
+    message text NOT NULL,
+    target_url text NOT NULL,
+    created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    read_at timestamp with time zone,
+    UNIQUE (source_type, source_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_admin_notifications_unread
+    ON public.admin_notifications (created_at DESC) WHERE read_at IS NULL;
+
+CREATE TABLE IF NOT EXISTS public.admin_audit_logs (
+    id bigserial PRIMARY KEY,
+    admin_id bigint REFERENCES public.users(id) ON DELETE SET NULL,
+    action character varying(12) NOT NULL,
+    resource text NOT NULL,
+    status_code integer NOT NULL,
+    created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_admin_audit_logs_created
+    ON public.admin_audit_logs (created_at DESC);
 
 \unrestrict IELRJXiQKFnOScTINA5InF2cXNOkVs0tl5nYZKEIz4chXY96mSsknT2GPRjmSGg
 

@@ -101,6 +101,11 @@
                     <span>Reports</span>
                 </a>
 
+                <a href="operations.html" class="admin-nav-link">
+                    <span class="admin-nav-icon">▦</span>
+                    <span>Operations</span>
+                </a>
+
                 <!-- Settings -->
                 <a href="settings.html" class="admin-nav-link">
                     <span class="admin-nav-icon">⚙</span>
@@ -254,7 +259,7 @@
                 <!-- =========================
                      REPORT STATISTICS
                 ========================== -->
-                <section class="admin-stats-grid">
+                <section class="admin-stats-grid" data-report-section="overview sales orders customers">
                     <!-- Total Revenue -->
                     <div class="admin-stat-card">
                         <div class="admin-stat-icon">KSh</div>
@@ -315,7 +320,7 @@
                     <!-- =========================
                          REVENUE REPORT
                     ========================== -->
-                    <div class="admin-content-card admin-reports-revenue-card">
+                    <div class="admin-content-card admin-reports-revenue-card" data-report-section="overview sales">
                         <div class="admin-card-header">
                             <div>
                                 <h3>Revenue Overview</h3>
@@ -390,7 +395,7 @@
                     <!-- =========================
                          ORDER BREAKDOWN
                     ========================== -->
-                    <div class="admin-content-card admin-order-breakdown-card">
+                    <div class="admin-content-card admin-order-breakdown-card" data-report-section="overview orders">
                         <div class="admin-card-header">
                             <div>
                                 <h3>Order Breakdown</h3>
@@ -459,7 +464,7 @@
                     <!-- =========================
                          TOP RESTAURANTS
                     ========================== -->
-                    <div class="admin-content-card">
+                    <div class="admin-content-card" data-report-section="overview restaurants">
                         <div class="admin-card-header">
                             <div>
                                 <h3>Top Restaurants</h3>
@@ -521,7 +526,7 @@
                     <!-- =========================
                          CUSTOMER GROWTH
                     ========================== -->
-                    <div class="admin-content-card">
+                    <div class="admin-content-card" data-report-section="overview customers">
                         <div class="admin-card-header">
                             <div>
                                 <h3>Customer Growth</h3>
@@ -569,7 +574,7 @@
                 <!-- =========================
                      PAYMENT PERFORMANCE
                 ========================== -->
-                <section class="admin-content-card admin-report-payment-card">
+                <section class="admin-content-card admin-report-payment-card" data-report-section="overview payments">
                     <div class="admin-card-header">
                         <div>
                             <h3>Payment Method Performance</h3>
@@ -647,6 +652,20 @@
                     </div>
                 </section>
 
+                <section class="admin-content-card" data-report-section="riders">
+                    <div class="admin-card-header">
+                        <div>
+                            <h3>Rider Performance</h3>
+                            <p>Active rider accounts and completed deliveries in this period.</p>
+                        </div>
+                    </div>
+                    <div class="admin-summary-list">
+                        <div class="admin-summary-item"><span>Total Riders</span><strong id="reportRiderTotal">0</strong></div>
+                        <div class="admin-summary-item"><span>Active Riders</span><strong id="reportRiderActive">0</strong></div>
+                        <div class="admin-summary-item"><span>Completed Deliveries</span><strong id="reportRiderDeliveries">0</strong></div>
+                    </div>
+                </section>
+
                 <!-- =========================
                      REPORT MESSAGE
                 ========================== -->
@@ -659,6 +678,7 @@
          GLOBAL JAVASCRIPT
     ========================== -->
     <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/auth/auth-api.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script src="../../assets/js/admin/reports.js"></script>
 </body>

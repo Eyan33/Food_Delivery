@@ -7,9 +7,14 @@ const {
 } = require('../../controllers/reviews/reviewController');
 const authMiddleware = require('../../middleware/auth/authMiddleware');
 const authorizeRoles = require('../../middleware/auth/roleMiddleware');
+const adminController = require('../../controllers/admin/adminController');
 
 // Public endpoints
 router.get('/restaurant/:restaurantId', getRestaurantReviews);
+
+// Admin review moderation
+router.get('/admin', authMiddleware, authorizeRoles('admin'), adminController.getReviews);
+router.patch('/admin/:id/visibility', authMiddleware, authorizeRoles('admin'), adminController.updateReviewVisibility);
 
 // Protected endpoints (Requires authentication)
 router.post('/', authMiddleware, authorizeRoles('customer'), createReview);

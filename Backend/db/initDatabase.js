@@ -174,9 +174,55 @@ async function seedAdmin() {
     log(`admin account created for ${email}. Remove ADMIN_PASSWORD from the environment now.`);
 }
 
+async function ensureAdminSupportSchema() {
+    await pool.query(`
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url text;
+
+        CREATE TABLE IF NOT EXISTS admin_settings (
+            id smallint PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+            settings jsonb NOT NULL DEFAULT '{}'::jsonb,
+            updated_by bigint REFERENCES users(id) ON DELETE SET NULL,
+            updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        INSERT INTO admin_settings (id)
+        VALUES (1)
+        ON CONFLICT (id) DO NOTHING;
+
+        CREATE TABLE IF NOT EXISTS admin_notifications (
+            id bigserial PRIMARY KEY,
+            source_type varchar(40) NOT NULL,
+            source_id varchar(80) NOT NULL,
+            title varchar(180) NOT NULL,
+            message text NOT NULL,
+            target_url text NOT NULL,
+            created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            read_at timestamptz,
+            UNIQUE (source_type, source_id)
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_admin_notifications_unread
+            ON admin_notifications (created_at DESC)
+            WHERE read_at IS NULL;
+
+        CREATE TABLE IF NOT EXISTS admin_audit_logs (
+            id bigserial PRIMARY KEY,
+            admin_id bigint REFERENCES users(id) ON DELETE SET NULL,
+            action varchar(12) NOT NULL,
+            resource text NOT NULL,
+            status_code integer NOT NULL,
+            created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_admin_audit_logs_created
+            ON admin_audit_logs (created_at DESC);
+    `);
+}
+
 async function initializeDatabase() {
     await waitForDatabase();
     await ensureSchema();
+    await ensureAdminSupportSchema();
     await seedAdmin();
 }
 
