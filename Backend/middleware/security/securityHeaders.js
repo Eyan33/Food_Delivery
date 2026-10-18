@@ -10,8 +10,8 @@
  * (restaurant name, address, ...) ever reaches innerHTML unescaped,
  * the browser refuses to run injected script.
  *
- * External hosts allowed: Google Fonts (CSS + font files) and https
- * images (restaurant/food photos are stored as URLs).
+ * External hosts allowed: Google Fonts (CSS + font files), the production
+ * API, and https images (restaurant/food photos are stored as URLs).
  */
 
 const BASE_DIRECTIVES = [
@@ -20,7 +20,7 @@ const BASE_DIRECTIVES = [
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com data:",
     "img-src 'self' data: blob: https:",
-    "connect-src 'self'",
+    "connect-src 'self' https://food-delivery-ljy7.onrender.com",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

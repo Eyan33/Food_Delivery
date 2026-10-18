@@ -61,6 +61,10 @@ test("GET / serves the frontend with security headers", async () => {
     assert.match(await res.text(), /FoodDelivery/);
 
     assert.match(res.headers.get("content-security-policy"), /script-src 'self'/);
+    assert.match(
+        res.headers.get("content-security-policy"),
+        /connect-src 'self' https:\/\/food-delivery-ljy7\.onrender\.com/,
+    );
     assert.match(res.headers.get("content-security-policy"), /frame-ancestors 'none'/);
     assert.equal(res.headers.get("x-content-type-options"), "nosniff");
     assert.match(res.headers.get("strict-transport-security"), /max-age=/);
