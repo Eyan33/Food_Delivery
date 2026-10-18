@@ -9,7 +9,7 @@
 (() => {
     const hostname = window.location.hostname;
     const isLocalDevelopment = ["localhost", "127.0.0.1", "::1"].includes(hostname);
-    const productionApiBase = "/api";
+    const productionApiBase = "https://food-delivery-ljy7.onrender.com/api";
 
     // Page served by Express itself (port 5000): same origin, so a relative URL is right.
     // Page served by another local dev server (Live Server on 5500, ...): call Express on 5000.
