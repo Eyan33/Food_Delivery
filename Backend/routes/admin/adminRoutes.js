@@ -3,7 +3,6 @@ const express = require("express");
 const adminController = require("../../controllers/admin/adminController");
 const authenticateToken = require("../../middleware/auth/authMiddleware");
 const authorizeRoles = require("../../middleware/auth/roleMiddleware");
-const auditAdminAction = require("../../middleware/adminAuditMiddleware");
 
 const router = express.Router();
 
@@ -11,7 +10,6 @@ router.use(
     authenticateToken,
     authorizeRoles("admin")
 );
-router.use(auditAdminAction);
 
 // Static paths must come before /:id
 router.get("/me", adminController.getMe);

@@ -84,6 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll("[data-report-section]").forEach((section) => {
             const visibleFor = section.dataset.reportSection.split(/\s+/);
             section.hidden = !visibleFor.includes(typeKey);
+            section.style.display = section.hidden ? "none" : "";
         });
 
         const statCards = document.querySelectorAll(".admin-stats-grid .admin-stat-card");
@@ -156,16 +157,21 @@ document.addEventListener("DOMContentLoaded", () => {
             }));
         }
 
-        const paymentItems = document.querySelectorAll(".admin-report-payment-item");
         const payments = data.paymentStatusBreakdown;
-        paymentItems.forEach((item, index) => {
-            const payment = payments[index];
-            if (!payment) return;
-            const spans = item.querySelectorAll("span");
-            if (spans[0]) spans[0].textContent = payment.status;
-            if (spans[1]) spans[1].textContent = `${payment.count} transactions`;
+        const paymentTotal = payments.reduce((total, item) => total + Number(item.count), 0);
+        document.querySelectorAll(".admin-report-payment-item").forEach((item) => {
+            const name = item.querySelector(".admin-report-payment-header div strong")?.textContent.trim().toLowerCase();
+            const method = name === "m-pesa" ? "mpesa" : name;
+            const payment = payments.find((entry) => entry.method === method);
+            const count = item.querySelector(".admin-report-payment-header div span");
+            const share = item.querySelector(".admin-report-payment-header > strong");
+            const progress = item.querySelector(".admin-report-progress-bar");
             const amount = item.querySelector(".admin-report-payment-footer strong");
-            if (amount) amount.textContent = money(payment.amount);
+            const percentage = paymentTotal ? (Number(payment?.count || 0) / paymentTotal) * 100 : 0;
+            if (count) count.textContent = `${Number(payment?.count || 0).toLocaleString("en-KE")} transactions`;
+            if (share) share.textContent = `${percentage.toFixed(1)}%`;
+            if (progress) progress.style.width = `${percentage}%`;
+            if (amount) amount.textContent = money(payment?.amount || 0);
         });
 
         setText("#reportRiderTotal", Number(data.riders?.total || 0).toLocaleString("en-KE"));

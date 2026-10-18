@@ -50,6 +50,25 @@ document.addEventListener("DOMContentLoaded", () => {
             cell(row, money(food.price));
             cell(row, food.is_available ? "Available" : "Unavailable");
             const actions = document.createElement("td");
+            actions.append(button("Edit", async () => {
+                const name = window.prompt("Food name:", food.name);
+                if (name === null) return;
+                const price = window.prompt("Price in KSh:", String(food.price));
+                if (price === null) return;
+                const amount = Number(price);
+                if (!name.trim() || !Number.isFinite(amount) || amount < 0) {
+                    showMessage("Enter a food name and a valid non-negative price.", true);
+                    return;
+                }
+                try {
+                    await request(`/foods/admin/${food.id}`, {
+                        method: "PUT",
+                        body: { name: name.trim(), price: amount },
+                    });
+                    await loadCatalog();
+                    showMessage("Food item updated.");
+                } catch (error) { showMessage(error.message, true); }
+            }, true));
             actions.append(button(food.is_available ? "Mark unavailable" : "Make available", async () => {
                 try {
                     await request(`/foods/admin/${food.id}/availability`, {
@@ -60,6 +79,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     showMessage("Food availability updated.");
                 } catch (error) { showMessage(error.message, true); }
             }));
+            actions.append(button("Delete", async () => {
+                if (!window.confirm(`Delete food item “${food.name}”?`)) return;
+                try {
+                    await request(`/foods/admin/${food.id}`, { method: "DELETE" });
+                    await loadCatalog();
+                    showMessage("Food item deleted.");
+                } catch (error) { showMessage(error.message, true); }
+            }, true));
             row.append(actions);
             foodsBody.append(row);
         });
@@ -73,6 +100,18 @@ document.addEventListener("DOMContentLoaded", () => {
             cell(row, category.restaurant_name || `Restaurant ${category.restaurant_id}`);
             cell(row, category.is_active ? "Active" : "Inactive");
             const actions = document.createElement("td");
+            actions.append(button("Edit", async () => {
+                const name = window.prompt("Category name:", category.name);
+                if (name === null || !name.trim()) return;
+                try {
+                    await request(`/categories/admin/${category.id}`, {
+                        method: "PUT",
+                        body: { name: name.trim() },
+                    });
+                    await loadCatalog();
+                    showMessage("Category updated.");
+                } catch (error) { showMessage(error.message, true); }
+            }, true));
             actions.append(button("Delete", async () => {
                 if (!window.confirm(`Delete category “${category.name}”?`)) return;
                 try {

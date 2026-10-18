@@ -1877,8 +1877,8 @@ async function getReports(
             orderStatusBreakdown:
                 statusBreakdownResult.rows.map(
                     (row) => ({
-                        method:
-                            row.method,
+                        status:
+                            row.status,
 
                         count:
                             Number(
@@ -1890,8 +1890,8 @@ async function getReports(
             paymentStatusBreakdown:
                 paymentBreakdownResult.rows.map(
                     (row) => ({
-                        status:
-                            row.status,
+                        method:
+                            row.method,
 
                         count:
                             Number(

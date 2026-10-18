@@ -1,3 +1,5 @@
+const auditAdminAction = require("../adminAuditMiddleware");
+
 function authorizeRoles(...allowedRoles) {
     return (req, res, next) => {
 
@@ -13,6 +15,10 @@ function authorizeRoles(...allowedRoles) {
                 success: false,
                 message: "You do not have permission to access this resource"
             });
+        }
+
+        if (req.user.role === "admin") {
+            auditAdminAction(req, res, () => {});
         }
 
         next();

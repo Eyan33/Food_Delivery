@@ -80,7 +80,8 @@ const getRestaurantReviews = async (req, res) => {
                 CONCAT(users.first_name, ' ', users.last_name) AS customer_name
             FROM reviews
             JOIN users ON reviews.customer_id = users.id
-            WHERE restaurant_id = $1
+                        WHERE restaurant_id = $1
+                            AND reviews.is_visible = TRUE
             ORDER BY created_at DESC;
         `;
 
