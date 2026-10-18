@@ -1631,6 +1631,7 @@ async function adminCreateRestaurant(
         data,
         [
             ...RESTAURANT_FIELDS,
+            "is_open",
             "owner_id",
             "owner_first_name",
             "owner_last_name",

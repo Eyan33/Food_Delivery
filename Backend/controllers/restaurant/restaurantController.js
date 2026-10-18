@@ -230,9 +230,10 @@ async function updateRestaurantStatus(req, res) {
 async function createRestaurantAdmin(req, res) {
     try {
         const restaurant =
-            await restaurantService.createRestaurantForAdmin(
-                req.body
-            );
+    await restaurantService.adminCreateRestaurant(
+        req.body,
+        req.user.id
+    );
 
         return res.status(201).json({
             success: true,

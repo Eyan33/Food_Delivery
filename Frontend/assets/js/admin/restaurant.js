@@ -972,6 +972,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
             <div
+                id="restaurantFormGrid"
                 class="admin-form-grid"
                 style="margin-top:22px;"
             >
@@ -1279,186 +1280,81 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 <div
                     class="admin-form-field admin-form-field-full"
-                    id="initialPasswordField"
+                    id="temporaryPasswordNote"
                 >
-
-                    <label for="ownerPassword">
-                        Initial password <span>*</span>
-                    </label>
-
-                    <input
-                        id="ownerPassword"
-                        name="ownerPassword"
-                        type="password"
-                        placeholder="At least 8 characters"
-                        minlength="8"
-                        autocomplete="new-password"
-                    />
-
-                    <small class="admin-form-error"></small>
-
-                </div>
-
-
-                <div
-                    class="admin-form-field admin-form-field-full"
-                    id="currentPasswordField"
-                >
-
-                    <label for="ownerCurrentPassword">
-                        Current password
-                    </label>
-
-                    <input
-                        id="ownerCurrentPassword"
-                        name="ownerCurrentPassword"
-                        type="password"
-                        placeholder="Enter owner's current password"
-                        autocomplete="current-password"
-                    />
-
-                    <small class="admin-form-error"></small>
-
-                </div>
-
-
-                <div
-                    class="admin-form-field admin-form-field-full"
-                    id="newPasswordField"
-                >
-
-                    <label for="ownerNewPassword">
-                        New password
-                    </label>
-
-                    <input
-                        id="ownerNewPassword"
-                        name="ownerNewPassword"
-                        type="password"
-                        placeholder="Leave blank to keep the current password"
-                        minlength="8"
-                        autocomplete="new-password"
-                    />
 
                     <small class="admin-form-hint">
-                        Current password is required before changing this password.
+                        A temporary password is generated automatically. You
+                        will see it once after the restaurant is created. The
+                        owner can change it from their portal.
                     </small>
 
-                    <small class="admin-form-error"></small>
-
                 </div>
 
+            </div>
+
+
+            <div
+                id="restaurantCredentials"
+                style="display:none; margin-top:22px;"
+            >
+
+                <p>
+                    The restaurant and its owner account were created. Share
+                    these sign-in details with the owner. The password is
+                    shown only once.
+                </p>
 
                 <div
-                    class="admin-form-field"
-                    id="restaurantIdField"
+                    class="admin-form-grid"
+                    style="margin-top:16px;"
                 >
 
-                    <label for="restaurantId">
-                        Restaurant ID
-                    </label>
+                    <div
+                        class="admin-form-field admin-form-field-full"
+                    >
 
-                    <input
-                        id="restaurantId"
-                        name="restaurantId"
-                        type="text"
-                        readonly
-                    />
+                        <label for="credentialsEmail">
+                            Owner email
+                        </label>
 
-                </div>
+                        <input
+                            id="credentialsEmail"
+                            type="text"
+                            readonly
+                        />
 
-
-                <div
-                    class="admin-form-field"
-                    id="approvalStatusField"
-                >
-
-                    <label for="restaurantApprovalStatus">
-                        Approval status
-                    </label>
-
-                    <input
-                        id="restaurantApprovalStatus"
-                        name="restaurantApprovalStatus"
-                        type="text"
-                        readonly
-                    />
-
-                </div>
+                    </div>
 
 
-                <div
-                    class="admin-form-field"
-                    id="accountStatusField"
-                >
+                    <div
+                        class="admin-form-field admin-form-field-full"
+                    >
 
-                    <label for="restaurantAccountStatus">
-                        Account status
-                    </label>
+                        <label for="credentialsPassword">
+                            Temporary password
+                        </label>
 
-                    <input
-                        id="restaurantAccountStatus"
-                        name="restaurantAccountStatus"
-                        type="text"
-                        readonly
-                    />
+                        <div style="display:flex; gap:10px;">
 
-                </div>
+                            <input
+                                id="credentialsPassword"
+                                type="text"
+                                readonly
+                                style="flex:1;"
+                            />
 
+                            <button
+                                type="button"
+                                class="admin-secondary-button"
+                                id="copyCredentialsPassword"
+                            >
+                                Copy
+                            </button>
 
-                <div
-                    class="admin-form-field admin-form-field-full"
-                    id="rejectionReasonField"
-                >
+                        </div>
 
-                    <label for="restaurantRejectionReason">
-                        Rejection reason
-                    </label>
-
-                    <textarea
-                        id="restaurantRejectionReason"
-                        name="restaurantRejectionReason"
-                        rows="3"
-                        readonly
-                    ></textarea>
-
-                </div>
-
-
-                <div
-                    class="admin-form-field"
-                    id="createdAtField"
-                >
-
-                    <label for="restaurantCreatedAt">
-                        Created
-                    </label>
-
-                    <input
-                        id="restaurantCreatedAt"
-                        name="restaurantCreatedAt"
-                        type="text"
-                        readonly
-                    />
-
-                </div>
-
-
-                <div
-                    class="admin-form-field"
-                    id="updatedAtField"
-                >
-
-                    <label for="restaurantUpdatedAt">
-                        Last updated
-                    </label>
-
-                    <input
-                        id="restaurantUpdatedAt"
-                        name="restaurantUpdatedAt"
-                        type="text"
-                        readonly
-                    />
+                    </div>
 
                 </div>
 
@@ -1543,6 +1439,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const form = modal.querySelector("#restaurantForm");
 
+  const formGrid = modal.querySelector("#restaurantFormGrid");
+
   const modalTitle = modal.querySelector("#restaurantModalTitle");
 
   const modalSubtitle = modal.querySelector("#restaurantModalSubtitle");
@@ -1561,29 +1459,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const deactivateButton = modal.querySelector("#deactivateRestaurantButton");
 
-  const initialPasswordField = modal.querySelector("#initialPasswordField");
+  const temporaryPasswordNote = modal.querySelector("#temporaryPasswordNote");
 
-  const currentPasswordField = modal.querySelector("#currentPasswordField");
+  const credentialsBox = modal.querySelector("#restaurantCredentials");
 
-  const newPasswordField = modal.querySelector("#newPasswordField");
+  const credentialsEmail = modal.querySelector("#credentialsEmail");
 
-  const restaurantIdField = modal.querySelector("#restaurantIdField");
+  const credentialsPassword = modal.querySelector("#credentialsPassword");
 
-  const approvalStatusField = modal.querySelector("#approvalStatusField");
-
-  const accountStatusField = modal.querySelector("#accountStatusField");
-
-  const rejectionReasonField = modal.querySelector("#rejectionReasonField");
-
-  const createdAtField = modal.querySelector("#createdAtField");
-
-  const updatedAtField = modal.querySelector("#updatedAtField");
+  const copyCredentialsButton = modal.querySelector("#copyCredentialsPassword");
 
   const restaurantModal = {
     mode: "add",
     restaurantId: null,
     restaurant: null,
     loading: false,
+    showingCredentials: false,
   };
 
   /*
@@ -1638,6 +1529,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function resetCredentialsView() {
+    restaurantModal.showingCredentials = false;
+
+    formGrid.style.display = "";
+
+    credentialsBox.style.display = "none";
+
+    credentialsEmail.value = "";
+
+    credentialsPassword.value = "";
+
+    copyCredentialsButton.textContent = "Copy";
+
+    cancelButton.textContent = "Close";
+  }
+
   function closeDialog() {
     if (modal.open) {
       modal.close();
@@ -1647,6 +1554,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     clearModalMessage();
     clearFormErrors();
+    resetCredentialsView();
 
     restaurantModal.mode = "add";
 
@@ -1656,23 +1564,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     restaurantModal.loading = false;
 
-    setFieldVisible(initialPasswordField, true);
-
-    setFieldVisible(currentPasswordField, false);
-
-    setFieldVisible(newPasswordField, false);
-
-    setFieldVisible(restaurantIdField, false);
-
-    setFieldVisible(approvalStatusField, false);
-
-    setFieldVisible(accountStatusField, false);
-
-    setFieldVisible(rejectionReasonField, false);
-
-    setFieldVisible(createdAtField, false);
-
-    setFieldVisible(updatedAtField, false);
+    setFieldVisible(temporaryPasswordNote, true);
 
     approveButton.hidden = true;
     rejectButton.hidden = true;
@@ -1683,6 +1575,98 @@ document.addEventListener("DOMContentLoaded", () => {
     saveButton.disabled = false;
     saveButton.textContent = "Create Restaurant";
   }
+
+  /*
+   * =========================================================
+   * TEMPORARY PASSWORD
+   * =========================================================
+   *
+   * The system generates the owner's first password. It is sent to
+   * the backend with the new restaurant and shown to the admin once,
+   * so it can be passed on. The owner changes it from their portal.
+   */
+
+  function randomInt(max) {
+    const limit = Math.floor(0x100000000 / max) * max;
+
+    const buffer = new Uint32Array(1);
+
+    do {
+      window.crypto.getRandomValues(buffer);
+    } while (buffer[0] >= limit);
+
+    return buffer[0] % max;
+  }
+
+  function generateTemporaryPassword(length = 14) {
+    const sets = [
+      "ABCDEFGHJKLMNPQRSTUVWXYZ",
+      "abcdefghijkmnopqrstuvwxyz",
+      "23456789",
+      "!@#$%&*?",
+    ];
+
+    const all = sets.join("");
+
+    const pick = (chars) => chars[randomInt(chars.length)];
+
+    const chars = sets.map(pick);
+
+    while (chars.length < length) {
+      chars.push(pick(all));
+    }
+
+    for (let i = chars.length - 1; i > 0; i -= 1) {
+      const j = randomInt(i + 1);
+
+      [chars[i], chars[j]] = [chars[j], chars[i]];
+    }
+
+    return chars.join("");
+  }
+
+  function showCredentials(email, password) {
+    restaurantModal.showingCredentials = true;
+
+    clearModalMessage();
+
+    formGrid.style.display = "none";
+
+    credentialsBox.style.display = "";
+
+    credentialsEmail.value = email;
+
+    credentialsPassword.value = password;
+
+    modalTitle.textContent = "Restaurant Created";
+
+    modalSubtitle.textContent =
+      "Copy the owner's sign-in details before closing.";
+
+    saveButton.hidden = true;
+
+    cancelButton.textContent = "Done";
+
+    credentialsPassword.focus();
+
+    credentialsPassword.select();
+  }
+
+  copyCredentialsButton.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(credentialsPassword.value);
+
+      copyCredentialsButton.textContent = "Copied";
+    } catch (error) {
+      credentialsPassword.select();
+
+      copyCredentialsButton.textContent = "Press Ctrl+C";
+    }
+
+    window.setTimeout(() => {
+      copyCredentialsButton.textContent = "Copy";
+    }, 1500);
+  });
 
   /*
    * =========================================================
@@ -1780,65 +1764,6 @@ document.addEventListener("DOMContentLoaded", () => {
       valid = false;
     }
 
-    if (restaurantModal.mode === "add") {
-      const password = modal.querySelector("#ownerPassword");
-
-      if (!password.value || password.value.length < 8) {
-        showFieldError(
-          password,
-          "Initial password must contain at least 8 characters.",
-        );
-
-        valid = false;
-      }
-    }
-
-    if (restaurantModal.mode === "edit") {
-      const currentPassword = modal.querySelector("#ownerCurrentPassword");
-
-      const newPassword = modal.querySelector("#ownerNewPassword");
-
-      if (newPassword.value && newPassword.value.length < 8) {
-        showFieldError(
-          newPassword,
-          "New password must contain at least 8 characters.",
-        );
-
-        valid = false;
-      }
-
-      if (newPassword.value && !currentPassword.value) {
-        showFieldError(
-          currentPassword,
-          "Current password is required before changing the password.",
-        );
-
-        valid = false;
-      }
-
-      if (currentPassword.value && !newPassword.value) {
-        showFieldError(
-          newPassword,
-          "Enter a new password or clear the current password field.",
-        );
-
-        valid = false;
-      }
-
-      if (
-        currentPassword.value &&
-        newPassword.value &&
-        currentPassword.value === newPassword.value
-      ) {
-        showFieldError(
-          newPassword,
-          "The new password must be different from the current password.",
-        );
-
-        valid = false;
-      }
-    }
-
     return valid;
   }
 
@@ -1891,30 +1816,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setInputValue("ownerEmail", restaurant.owner_email);
 
     setInputValue("ownerPhone", restaurant.owner_phone);
-
-    setInputValue("restaurantId", restaurant.id);
-
-    setInputValue(
-      "restaurantApprovalStatus",
-      restaurant.approval_status || "—",
-    );
-
-    setInputValue(
-      "restaurantAccountStatus",
-      restaurant.is_active ? "Active" : "Inactive",
-    );
-
-    setInputValue("restaurantRejectionReason", restaurant.rejection_reason);
-
-    setInputValue("restaurantCreatedAt", formatDateTime(restaurant.created_at));
-
-    setInputValue("restaurantUpdatedAt", formatDateTime(restaurant.updated_at));
-
-    setInputValue("ownerCurrentPassword", "");
-
-    setInputValue("ownerNewPassword", "");
-
-    setInputValue("ownerPassword", "");
   }
 
   /*
@@ -1934,6 +1835,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     clearFormErrors();
     clearModalMessage();
+    resetCredentialsView();
 
     modalTitle.textContent = "Add Restaurant";
 
@@ -1943,23 +1845,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     saveButton.hidden = false;
 
-    setFieldVisible(initialPasswordField, true);
-
-    setFieldVisible(currentPasswordField, false);
-
-    setFieldVisible(newPasswordField, false);
-
-    setFieldVisible(restaurantIdField, false);
-
-    setFieldVisible(approvalStatusField, false);
-
-    setFieldVisible(accountStatusField, false);
-
-    setFieldVisible(rejectionReasonField, false);
-
-    setFieldVisible(createdAtField, false);
-
-    setFieldVisible(updatedAtField, false);
+    setFieldVisible(temporaryPasswordNote, true);
 
     approveButton.hidden = true;
 
@@ -1997,23 +1883,7 @@ document.addEventListener("DOMContentLoaded", () => {
     saveButton.disabled = false;
     restaurantModal.loading = false;
 
-    setFieldVisible(initialPasswordField, false);
-
-    setFieldVisible(currentPasswordField, true);
-
-    setFieldVisible(newPasswordField, true);
-
-    setFieldVisible(restaurantIdField, true);
-
-    setFieldVisible(approvalStatusField, true);
-
-    setFieldVisible(accountStatusField, true);
-
-    setFieldVisible(rejectionReasonField, Boolean(restaurant.rejection_reason));
-
-    setFieldVisible(createdAtField, true);
-
-    setFieldVisible(updatedAtField, true);
+    setFieldVisible(temporaryPasswordNote, false);
 
     populateRestaurantForm(restaurant);
 
@@ -2075,23 +1945,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     modalSubtitle.textContent = "Loading restaurant details...";
 
-    setFieldVisible(initialPasswordField, false);
-
-    setFieldVisible(currentPasswordField, false);
-
-    setFieldVisible(newPasswordField, false);
-
-    setFieldVisible(restaurantIdField, true);
-
-    setFieldVisible(approvalStatusField, false);
-
-    setFieldVisible(accountStatusField, false);
-
-    setFieldVisible(rejectionReasonField, false);
-
-    setFieldVisible(createdAtField, false);
-
-    setFieldVisible(updatedAtField, false);
+    setFieldVisible(temporaryPasswordNote, false);
 
     approveButton.hidden = true;
 
@@ -2204,9 +2058,9 @@ document.addEventListener("DOMContentLoaded", () => {
        */
 
       if (restaurantModal.mode === "add") {
-        const password = form.elements.ownerPassword.value.trim();
+        const temporaryPassword = generateTemporaryPassword();
 
-        basePayload.password = password;
+        basePayload.password = temporaryPassword;
 
         const response = await restaurantsApi.create(basePayload);
 
@@ -2218,13 +2072,13 @@ document.addEventListener("DOMContentLoaded", () => {
           );
         }
 
-        closeDialog();
-
         state.page = 1;
 
         await loadRestaurants();
 
         showMessage("Restaurant created successfully.");
+
+        showCredentials(basePayload.owner_email, temporaryPassword);
 
         return;
       }
@@ -2243,30 +2097,6 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       }
 
-      const currentPassword = form.elements.ownerCurrentPassword.value.trim();
-
-      const newPassword = form.elements.ownerNewPassword.value.trim();
-
-      /*
-       * Only send password fields when the admin
-       * actually wants to change the password.
-       */
-      if (newPassword) {
-        basePayload.current_password = currentPassword;
-
-        basePayload.password = newPassword;
-      }
-
-      /*
-       * Do not send an empty current password.
-       * The backend requires current_password + password
-       * together for a password change.
-       */
-      if (!newPassword) {
-        delete basePayload.current_password;
-        delete basePayload.password;
-      }
-
       const response = await restaurantsApi.update(restaurantId, basePayload);
 
       const updatedRestaurant = response?.restaurant || null;
@@ -2283,24 +2113,12 @@ document.addEventListener("DOMContentLoaded", () => {
       restaurantModal.restaurant = updatedRestaurant;
 
       /*
-       * Clear password fields immediately after
-       * a successful update.
-       */
-      form.elements.ownerCurrentPassword.value = "";
-      form.elements.ownerNewPassword.value = "";
-
-      /*
        * Repopulate the modal with the server's
        * actual saved values.
        */
       populateRestaurantForm(updatedRestaurant);
 
       configureActionButtons(updatedRestaurant);
-
-      setFieldVisible(
-        rejectionReasonField,
-        Boolean(updatedRestaurant.rejection_reason),
-      );
 
       /*
        * Refresh the restaurant table without
@@ -2451,6 +2269,10 @@ document.addEventListener("DOMContentLoaded", () => {
    * =========================================================
    * MODAL CLOSE
    * =========================================================
+   *
+   * While the temporary password is on screen, only the Done and
+   * close buttons dismiss the modal. Escape and clicks on the
+   * backdrop are ignored so the password is not lost by accident.
    */
 
   cancelButton.addEventListener("click", closeDialog);
@@ -2462,11 +2284,15 @@ document.addEventListener("DOMContentLoaded", () => {
   modal.addEventListener("cancel", (event) => {
     event.preventDefault();
 
+    if (restaurantModal.showingCredentials) {
+      return;
+    }
+
     closeDialog();
   });
 
   modal.addEventListener("click", (event) => {
-    if (event.target === modal) {
+    if (event.target === modal && !restaurantModal.showingCredentials) {
       closeDialog();
     }
   });
