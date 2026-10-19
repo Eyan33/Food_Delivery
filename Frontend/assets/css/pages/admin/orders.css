@@ -1417,3 +1417,119 @@
     width: 100%;
   }
 }
+
+
+.admin-daily-target {
+    margin: 18px 0;
+    padding: 18px;
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 12px;
+    background: var(--card-background, #fff);
+}
+
+.admin-daily-target-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.admin-daily-target h4 {
+    margin: 0 0 6px;
+    font-size: 16px;
+}
+
+.admin-daily-target p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted, #6b7280);
+}
+
+#dailyRevenueTargetForm label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.admin-target-input-row {
+    display: flex;
+    gap: 8px;
+}
+
+#dailyRevenueTargetInput {
+    width: 145px;
+    min-width: 0;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+}
+
+#saveDailyRevenueTarget {
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 7px;
+    background: #15803d;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#saveDailyRevenueTarget:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.admin-target-progress-label,
+.admin-target-progress-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 13px;
+}
+
+.admin-target-progress-label {
+    margin-bottom: 10px;
+}
+
+.admin-target-progress-track {
+    height: 10px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e5e7eb;
+}
+
+#dailyRevenueProgressBar {
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: #16a34a;
+    transition: width 0.3s ease;
+}
+
+.admin-target-progress-footer {
+    margin-top: 10px;
+    color: var(--text-muted, #6b7280);
+}
+
+#dailyRevenueTargetMessage {
+    margin-top: 10px;
+}
+
+@media (max-width: 600px) {
+    .admin-daily-target-heading {
+        flex-direction: column;
+    }
+
+    #dailyRevenueTargetForm,
+    .admin-target-input-row {
+        width: 100%;
+    }
+
+    #dailyRevenueTargetInput {
+        flex: 1;
+    }
+}
