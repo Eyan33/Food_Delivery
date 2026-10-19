@@ -31,6 +31,53 @@
     const formatMoney = (value) =>
         `KSh ${formatNumber(value)}`;
 
+    
+function renderDailyRevenueTarget(actualRevenue, target) {
+    const actual = Math.max(0, Number(actualRevenue) || 0);
+    const goal = Math.max(1, Number(target) || 25000);
+    const percentage = (actual / goal) * 100;
+    const progress = Math.min(100, percentage);
+    const remaining = Math.max(0, goal - actual);
+
+    const input = document.getElementById("dailyRevenueTargetInput");
+    const actualNode = document.getElementById("dailyRevenueActual");
+    const bar = document.getElementById("dailyRevenueProgressBar");
+    const track = document.getElementById("dailyRevenueProgressTrack");
+    const progressText = document.getElementById("dailyRevenueProgressText");
+    const remainingNode = document.getElementById("dailyRevenueRemaining");
+
+    if (input && document.activeElement !== input) {
+        input.value = String(goal);
+    }
+
+    if (actualNode) actualNode.textContent = formatMoney(actual);
+    if (bar) bar.style.width = `${progress}%`;
+
+    if (track) {
+        track.setAttribute("aria-valuenow", String(Math.round(progress)));
+    }
+
+    if (progressText) {
+        progressText.textContent = `${percentage.toFixed(1)}% of target`;
+    }
+
+    if (remainingNode) {
+        remainingNode.textContent = remaining > 0
+            ? `${formatMoney(remaining)} remaining`
+            : `Target exceeded by ${formatMoney(actual - goal)}`;
+    }
+}
+
+function setDailyTargetMessage(message, isError = false) {
+    const node = document.getElementById("dailyRevenueTargetMessage");
+
+    if (!node) return;
+
+    node.textContent = message;
+    node.style.color = isError ? "#b91c1c" : "#15803d";
+}
+
+
     const getInitials = (name = "") =>
         String(name)
             .split(" ")
