@@ -270,6 +270,54 @@
                 tbody.append(row);
             });
         }
+        
+function renderPlatformSummary(summary) {
+    if (!summary) {
+        console.warn("Platform Summary data is missing from the API.");
+        return;
+    }
+
+    const summaryItems = document.querySelectorAll(
+        ".admin-summary-list .admin-summary-item"
+    );
+
+    const values = [
+        {
+            value: summary.activeRiders,
+            format: formatNumber
+        },
+        {
+            value: summary.onlineRiders,
+            format: formatNumber
+        },
+        {
+            value: summary.activeRestaurants,
+            format: formatNumber
+        },
+        {
+            value: summary.pendingApprovals,
+            format: formatNumber
+        },
+        {
+            value: summary.openSupportTickets,
+            format: formatNumber
+        },
+        {
+            value: summary.todaysRevenue,
+            format: formatMoney
+        }
+    ];
+
+    summaryItems.forEach((item, index) => {
+        const strong = item.querySelector("strong");
+        const entry = values[index];
+
+        if (!strong || !entry) return;
+
+        strong.textContent = entry.format(entry.value);
+    });
+}
+
 
         function renderDashboard(data) {
             if (!data || typeof data !== "object") {
