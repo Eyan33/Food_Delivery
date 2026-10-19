@@ -3,7 +3,7 @@
 const pool = require("../../config/database");
 
 const SETTINGS_FIELDS = {
-    general: ["platformName", "supportEmail", "supportPhone", "currency", "timezone", "platformDescription"],
+    general: ["platformName", "supportEmail", "supportPhone", "currency", "timezone", "platformDescription","dailyRevenueTarget"],
     payments: ["mpesaEnabled", "cardEnabled", "cashEnabled", "transactionFee"],
     delivery: ["deliveryFee", "distanceFee", "freeDelivery", "maxDistance", "minimumOrder", "deliveryTime"],
     notifications: ["newOrderAlerts", "paymentNotifications", "restaurantRegistration", "riderRegistration", "systemAlerts"],
@@ -16,7 +16,7 @@ const BOOLEAN_SETTINGS = new Set([
 ]);
 const NUMBER_SETTINGS = new Set([
     "transactionFee", "deliveryFee", "distanceFee", "freeDelivery",
-    "maxDistance", "minimumOrder", "deliveryTime",
+    "maxDistance", "minimumOrder", "deliveryTime","dailyRevenueTarget",
 ]);
 
 function apiError(message, statusCode = 400) {
