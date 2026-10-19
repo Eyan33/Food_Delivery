@@ -1014,6 +1014,14 @@ async function getDashboard(
                     )::int AS pending_orders
                 `
             );
+        const targetResult = await client.query(`
+    SELECT COALESCE(
+        NULLIF(settings->>'dailyRevenueTarget', '')::numeric,
+        25000
+    ) AS daily_revenue_target
+    FROM admin_settings
+    WHERE id = 1
+`);
 
         await client.query("COMMIT");
 
