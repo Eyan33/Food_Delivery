@@ -1026,6 +1026,52 @@ function setDailyTargetMessage(message, isError = false) {
         }
     }
 
+    
+function getSavedDailyRevenueTarget() {
+    try {
+        const saved = Number(
+            localStorage.getItem(
+                "foodDelivery.admin.dailyRevenueTarget"
+            )
+        );
+
+        return Number.isFinite(saved) && saved > 0
+            ? saved
+            : null;
+    } catch (error) {
+        console.warn("Could not read daily target:", error);
+        return null;
+    }
+}
+
+function saveDailyRevenueTarget(value) {
+    const target = Number(value);
+
+    if (!Number.isFinite(target) || target <= 0) {
+        showMessage(
+            "Enter a daily target greater than KSh 0.",
+            "error"
+        );
+        return false;
+    }
+
+    try {
+        localStorage.setItem(
+            "foodDelivery.admin.dailyRevenueTarget",
+            String(Math.round(target))
+        );
+        return true;
+    } catch (error) {
+        console.error("Could not save daily target:", error);
+        showMessage(
+            "Could not save the target in this browser.",
+            "error"
+        );
+        return false;
+    }
+}
+
+
     function renderQuickOrderSummary(
         data,
     ) {
@@ -1122,11 +1168,18 @@ function setDailyTargetMessage(message, isError = false) {
                 )}% from yesterday`;
         }
 
-        const target =
-            Number(
-                revenue.target,
-            ) ||
-            DAILY_TARGET;
+        
+const savedTarget = getSavedDailyRevenueTarget();
+const apiTarget = Number(revenue.target);
+
+const target =
+    savedTarget ??
+    (
+        Number.isFinite(apiTarget) && apiTarget > 0
+            ? apiTarget
+            : DAILY_TARGET
+    );
+
 
         const targetElement =
             revenueCard.querySelector(
@@ -1158,6 +1211,100 @@ function setDailyTargetMessage(message, isError = false) {
             progress.style.width =
                 `${percentage}%`;
         }
+
+        
+revenueCard.dataset.actualRevenue = String(
+    Math.max(0, Number(revenue.today) || 0)
+);
+
+let targetControls = revenueCard.querySelector(
+    ".admin-daily-target-controls"
+);
+
+if (!targetControls) {
+    targetControls = document.createElement("div");
+    targetControls.className = "admin-daily-target-controls";
+    targetControls.style.cssText =
+        "display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px;";
+
+    const targetInput = document.createElement("input");
+    targetInput.type = "number";
+    targetInput.min = "1";
+    targetInput.step = "1000";
+    targetInput.placeholder = "Enter daily target";
+    targetInput.setAttribute(
+        "aria-label",
+        "Daily revenue target in Kenyan shillings"
+    );
+    targetInput.className = "admin-daily-target-input";
+    targetInput.style.cssText =
+        "max-width:190px;padding:8px 10px;border:1px solid #ccc;border-radius:6px;";
+
+    const saveButton = document.createElement("button");
+    saveButton.type = "button";
+    saveButton.textContent = "Save target";
+    saveButton.className = "admin-daily-target-save";
+    saveButton.style.cssText =
+        "padding:8px 12px;border:0;border-radius:6px;cursor:pointer;";
+
+    const saveTarget = () => {
+        if (!saveDailyRevenueTarget(targetInput.value)) {
+            return;
+        }
+
+        const newTarget = Math.round(Number(targetInput.value));
+        const currentRevenue = Math.max(
+            0,
+            Number(revenueCard.dataset.actualRevenue) || 0
+        );
+
+        targetInput.value = String(newTarget);
+
+        const targetElement = revenueCard.querySelector(
+            ".admin-revenue-footer strong"
+        );
+
+        if (targetElement) {
+            targetElement.textContent = formatMoney(newTarget);
+        }
+
+        const progressBar = revenueCard.querySelector(
+            ".admin-revenue-bar span"
+        );
+
+        if (progressBar) {
+            const percentage = Math.min(
+                100,
+                (currentRevenue / newTarget) * 100
+            );
+
+            progressBar.style.width = `${percentage}%`;
+        }
+
+        showMessage("Daily revenue target saved.");
+    };
+
+    saveButton.addEventListener("click", saveTarget);
+
+    targetInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            saveTarget();
+        }
+    });
+
+    targetControls.append(targetInput, saveButton);
+    revenueCard.appendChild(targetControls);
+}
+
+const targetInput = targetControls.querySelector(
+    ".admin-daily-target-input"
+);
+
+if (targetInput && document.activeElement !== targetInput) {
+    targetInput.value = String(Math.round(target));
+}
+
+        
     }
 
     /*
