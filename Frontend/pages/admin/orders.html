@@ -712,7 +712,60 @@
                     </div>
                 </div>
 
-                <!-- Revenue -->
+                
+<div class="admin-daily-target" id="dailyRevenueTargetPanel">
+    <div class="admin-daily-target-heading">
+        <div>
+            <h4>Daily Revenue Target</h4>
+            <p>Today's revenue compared with your daily goal.</p>
+        </div>
+
+        <form id="dailyRevenueTargetForm">
+            <label for="dailyRevenueTargetInput">Target (KSh)</label>
+            <div class="admin-target-input-row">
+                <input
+                    id="dailyRevenueTargetInput"
+                    type="number"
+                    min="1"
+                    max="1000000000000"
+                    step="1"
+                    value="25000"
+                    required
+                />
+                <button type="submit" id="saveDailyRevenueTarget">
+                    Save Target
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="admin-target-progress-label">
+        <span>Today's revenue</span>
+        <strong id="dailyRevenueActual">KSh 0</strong>
+    </div>
+
+    <div
+        class="admin-target-progress-track"
+        role="progressbar"
+        aria-label="Daily revenue target progress"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+        id="dailyRevenueProgressTrack"
+    >
+        <div id="dailyRevenueProgressBar"></div>
+    </div>
+
+    <div class="admin-target-progress-footer">
+        <span id="dailyRevenueProgressText">0% of target</span>
+        <span id="dailyRevenueRemaining">KSh 25,000 remaining</span>
+    </div>
+
+    <p id="dailyRevenueTargetMessage" role="status" aria-live="polite"></p>
+</div>
+
+
+                <!-- Revenue 
                 <div class="admin-summary-card">
                     <div class="admin-summary-header">
                         <div>
@@ -736,7 +789,7 @@
                     <div class="admin-revenue-footer">
                         <span>Daily target</span>
                         <strong>KSh 45,000</strong>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
