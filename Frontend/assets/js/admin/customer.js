@@ -223,10 +223,69 @@
     },
 
     async exportCustomers() {
-      showMessage(
-        "Customer export is not connected yet.",
-        "info",
-      );
+      try {
+        const exportLimit = 100;
+        const firstResponse = await API.request(
+          `/customers?${new URLSearchParams({
+            page: "1",
+            limit: String(exportLimit),
+            ...(customerState.status && customerState.status !== "all" ? { status: customerState.status } : {}),
+            ...(customerState.search ? { search: customerState.search } : {}),
+          }).toString()}`,
+          { method: "GET", authenticated: true },
+        );
+        const firstData = firstResponse || {};
+        const pagination = firstData.pagination || {};
+        const customers = [...(firstData.customers || [])];
+        const totalPages = Math.max(1, Number(pagination.totalPages) || 1);
+
+        for (let page = 2; page <= totalPages; page += 1) {
+          const query = new URLSearchParams({ page: String(page), limit: String(exportLimit) });
+          if (customerState.status && customerState.status !== "all") query.set("status", customerState.status);
+          if (customerState.search) query.set("search", customerState.search);
+          const response = await API.request(`/customers?${query.toString()}`, {
+            method: "GET",
+            authenticated: true,
+          });
+          customers.push(...((response && response.customers) || []));
+        }
+
+        if (!customers.length) {
+          showMessage("There are no customers to export for the current filters.", "info");
+          return;
+        }
+
+        const columns = [
+          ["ID", (c) => c.id],
+          ["First name", (c) => c.first_name],
+          ["Last name", (c) => c.last_name],
+          ["Email", (c) => c.email],
+          ["Phone", (c) => c.phone],
+          ["Status", (c) => c.is_active ? "Active" : "Inactive"],
+          ["Orders", (c) => c.order_count ?? 0],
+          ["Total spent (KSh)", (c) => c.total_spent ?? 0],
+          ["Last order", (c) => c.last_order_at || ""],
+          ["Joined", (c) => c.created_at || ""],
+        ];
+        const csvCell = (value) => `"${String(value ?? "").replaceAll('"', '""')}"`;
+        const csv = [
+          columns.map(([heading]) => csvCell(heading)).join(","),
+          ...customers.map((customer) => columns.map(([, getValue]) => csvCell(getValue(customer))).join(",")),
+        ].join("\r\n");
+        const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `customers-${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+        showMessage(`Exported ${customers.length} customer(s) to CSV.`, "success");
+      } catch (error) {
+        console.error("Customer export failed:", error);
+        showMessage(error.message || "Could not export customers. Please try again.", "error");
+      }
     },
 
     async viewCustomer(
@@ -704,8 +763,9 @@
             customer.created_at,
           );
 
-        const orders = 0;
-        const totalSpent = 0;
+        const orders = Number(customer.order_count ?? customer.orders_count ?? 0);
+        const totalSpent = Number(customer.total_spent ?? customer.totalSpent ?? 0);
+        const lastOrderAt = customer.last_order_at || customer.last_order || null;
 
         const row =
           document.createElement(
@@ -770,11 +830,11 @@
           <td>
             <div class="admin-last-order">
               <strong>
-                No orders
+                ${lastOrderAt ? escapeHtml(formatDate(lastOrderAt)) : (orders > 0 ? "Date unavailable" : "No orders")}
               </strong>
 
               <span>
-                —
+                ${lastOrderAt ? escapeHtml(formatDateTime(lastOrderAt)) : (orders > 0 ? `${number(orders)} order(s)` : "—")}
               </span>
             </div>
           </td>
