@@ -34,7 +34,9 @@ async function getCustomers(req, res) {
             data: {
                 customers: result.customers,
                 pagination: result.pagination,
-                statistics: result.statistics
+                statistics: result.statistics,
+                activity: result.activity,
+                spending: result.spending
             }
         });
     } catch (error) {
