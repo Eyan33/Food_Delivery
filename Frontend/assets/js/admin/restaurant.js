@@ -616,39 +616,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("restaurantSummaryInactive").textContent =
       formatNumber(inactive);
 
-    const activeRate = total > 0 ? Math.round((active / total) * 100) : 0;
-
-    const approved = Number(statistics.approved || 0);
-
-    const approvalRate = total > 0 ? Math.round((approved / total) * 100) : 0;
-
-    const averageRating = Number(statistics.averageRating || 0);
-
-    const ratingPercentage = Math.min(
-      100,
-      Math.round((averageRating / 5) * 100),
-    );
-
-    document.getElementById("restaurantActiveRate").textContent =
-      `${activeRate}%`;
-
-    document.getElementById("restaurantActiveProgress").style.width =
-      `${activeRate}%`;
-
-    document.getElementById("restaurantApprovalRate").textContent =
-      `${approvalRate}%`;
-
-    document.getElementById("restaurantApprovalProgress").style.width =
-      `${approvalRate}%`;
-
-    document.getElementById("restaurantAverageRating").textContent =
-      `${averageRating.toFixed(1)} / 5`;
-
-    document.getElementById("restaurantRatingProgress").style.width =
-      `${ratingPercentage}%`;
-
-    document.getElementById("restaurantAddedThisMonth").textContent =
-      `+${formatNumber(statistics.addedThisMonth || 0)}`;
+    
   }
 
   /*
