@@ -111,104 +111,136 @@ function validatePassword(value) {
     return value;
 }
 
-const CUSTOMER_STATUS_FILTERS = ["all", "active", "inactive"];
+const CUSTOMER_STATUS_FILTERS = ["all", "active", "inactive", "new"];
 
 /*
- * List customers with search, status filter and pagination.
- *
- * options.search : matches first name, last name, full name, email or phone
- * options.status : all | active | inactive   (default: all)
- * options.page   : default 1
- * options.limit  : default 10, maximum 100
+ * Customer listing includes order metrics used by the admin table.
+ * "New" means registered in the current calendar month (database time).
  */
 async function getCustomers(options = {}) {
     const search = String(options.search ?? "").trim();
     const status = String(options.status ?? "all").trim().toLowerCase();
 
     if (!CUSTOMER_STATUS_FILTERS.includes(status)) {
-        throw apiError("Invalid status. Use all, active or inactive");
+        throw apiError("Invalid status. Use all, active, inactive or new");
     }
 
-    const limit = Math.min(
-        100,
-        Math.max(1, Number.parseInt(options.limit, 10) || 10)
-    );
-    const page = Math.max(1, Number.parseInt(options.page, 10) || 1);
-    const offset = (page - 1) * limit;
-
+    const limit = Math.min(100, Math.max(1, Number.parseInt(options.limit, 10) || 10));
+    const requestedPage = Math.max(1, Number.parseInt(options.page, 10) || 1);
     const values = [];
     const conditions = [];
 
     if (search) {
-        // Escape LIKE wildcards so "50%" or "a_b" are searched literally.
+        // Escape SQL LIKE wildcards so searches containing % or _ are literal.
         values.push(`%${search.replace(/[\\%_]/g, "\\$&")}%`);
-        const placeholder = `$${values.length}`;
-
+        const p = `$${values.length}`;
         conditions.push(`(
-            first_name ILIKE ${placeholder} ESCAPE '\\'
-            OR last_name ILIKE ${placeholder} ESCAPE '\\'
-            OR CONCAT(first_name, ' ', last_name) ILIKE ${placeholder} ESCAPE '\\'
-            OR email ILIKE ${placeholder} ESCAPE '\\'
-            OR COALESCE(phone, '') ILIKE ${placeholder} ESCAPE '\\'
+            u.first_name ILIKE ${p} ESCAPE '\\'
+            OR u.last_name ILIKE ${p} ESCAPE '\\'
+            OR CONCAT(u.first_name, ' ', u.last_name) ILIKE ${p} ESCAPE '\\'
+            OR u.email ILIKE ${p} ESCAPE '\\'
+            OR COALESCE(u.phone, '') ILIKE ${p} ESCAPE '\\'
         )`);
     }
-
-    if (status === "active") {
-        conditions.push("is_active = TRUE");
+    if (status === "active") conditions.push("u.is_active = TRUE");
+    if (status === "inactive") conditions.push("u.is_active = FALSE");
+    if (status === "new") {
+        conditions.push("u.created_at >= date_trunc('month', CURRENT_TIMESTAMP)");
+        conditions.push("u.created_at < date_trunc('month', CURRENT_TIMESTAMP) + INTERVAL '1 month'");
     }
+    const filter = conditions.length ? conditions.join(" AND ") : "TRUE";
 
-    if (status === "inactive") {
-        conditions.push("is_active = FALSE");
-    }
-
-    const filter = conditions.length > 0
-        ? conditions.join(" AND ")
-        : "TRUE";
-
-    /*
-     * One query gives the overall counts (for stat cards)
-     * and the number of rows matching the current filters.
-     */
     const statsResult = await pool.query(
-        `
-        SELECT
+        `SELECT
             COUNT(*)::int AS total,
-            COUNT(*) FILTER (WHERE is_active = TRUE)::int AS active,
-            COUNT(*) FILTER (WHERE is_active = FALSE)::int AS inactive,
+            COUNT(*) FILTER (WHERE u.is_active = TRUE)::int AS active,
+            COUNT(*) FILTER (WHERE u.is_active = FALSE)::int AS inactive,
+            COUNT(*) FILTER (WHERE u.created_at >= date_trunc('month', CURRENT_TIMESTAMP)
+                AND u.created_at < date_trunc('month', CURRENT_TIMESTAMP) + INTERVAL '1 month')::int AS new,
             COUNT(*) FILTER (WHERE ${filter})::int AS filtered
-        FROM users
-        WHERE role = 'customer'
-        `,
+         FROM users u
+         WHERE u.role = 'customer'`,
         values
     );
 
+    const stats = statsResult.rows[0] || {};
+    const totalItems = Number(stats.filtered || 0);
+    const totalPages = Math.max(1, Math.ceil(totalItems / limit));
+    const page = Math.min(requestedPage, totalPages);
+    const offset = (page - 1) * limit;
+
     const dataResult = await pool.query(
-        `
-        SELECT ${CUSTOMER_COLUMNS}
-        FROM users
-        WHERE role = 'customer'
-          AND ${filter}
-        ORDER BY created_at DESC, id DESC
-        LIMIT $${values.length + 1}
-        OFFSET $${values.length + 2}
-        `,
+        `SELECT
+            u.id, u.first_name, u.last_name, u.email, u.phone, u.role,
+            u.is_active, u.created_at, u.updated_at,
+            COALESCE(order_stats.order_count, 0)::int AS order_count,
+            COALESCE(order_stats.total_spent, 0)::numeric(12,2) AS total_spent,
+            order_stats.last_order_at
+         FROM users u
+         LEFT JOIN LATERAL (
+            SELECT
+                COUNT(*) FILTER (WHERE o.status <> 'cancelled')::int AS order_count,
+                COALESCE(SUM(o.total_amount) FILTER (WHERE o.status <> 'cancelled'), 0)::numeric(12,2) AS total_spent,
+                MAX(COALESCE(o.delivered_at, o.placed_at)) FILTER (WHERE o.status <> 'cancelled') AS last_order_at
+            FROM orders o
+            WHERE o.customer_id = u.id
+         ) order_stats ON TRUE
+         WHERE u.role = 'customer' AND ${filter}
+         ORDER BY u.created_at DESC, u.id DESC
+         LIMIT $${values.length + 1} OFFSET $${values.length + 2}`,
         [...values, limit, offset]
     );
 
-    const stats = statsResult.rows[0];
+    const [activityResult, spendingResult] = await Promise.all([
+        pool.query(`SELECT
+            COUNT(DISTINCT o.customer_id) FILTER (
+                WHERE o.placed_at >= CURRENT_DATE
+                  AND o.placed_at < CURRENT_DATE + INTERVAL '1 day'
+                  AND o.status <> 'cancelled'
+            )::int AS active_today,
+            COUNT(DISTINCT o.customer_id) FILTER (WHERE o.status <> 'cancelled')::int AS customers_with_orders
+          FROM orders o
+          JOIN users u ON u.id = o.customer_id AND u.role = 'customer'`),
+        pool.query(`WITH revenue AS (
+            SELECT
+                COALESCE(SUM(total_amount) FILTER (WHERE status = 'delivered'
+                    AND placed_at >= date_trunc('month', CURRENT_TIMESTAMP)
+                    AND placed_at < date_trunc('month', CURRENT_TIMESTAMP) + INTERVAL '1 month'), 0)::numeric(12,2) AS monthly_revenue,
+                COALESCE(SUM(total_amount) FILTER (WHERE status = 'delivered'), 0)::numeric(12,2) AS delivered_revenue,
+                COUNT(*) FILTER (WHERE status = 'delivered')::int AS delivered_orders,
+                COALESCE(SUM(total_amount) FILTER (WHERE status = 'delivered'
+                    AND placed_at >= date_trunc('month', CURRENT_TIMESTAMP) - INTERVAL '1 month'
+                    AND placed_at < date_trunc('month', CURRENT_TIMESTAMP)), 0)::numeric(12,2) AS previous_month_revenue
+            FROM orders
+         ) SELECT monthly_revenue,
+            CASE WHEN delivered_orders > 0 THEN delivered_revenue / delivered_orders ELSE 0 END::numeric(12,2) AS average_order_value,
+            CASE WHEN previous_month_revenue > 0 THEN LEAST(100, monthly_revenue / previous_month_revenue * 100)
+                 WHEN monthly_revenue > 0 THEN 100 ELSE 0 END::numeric(5,2) AS progress
+         FROM revenue`)
+    ]);
+
+    const activity = activityResult.rows[0] || {};
+    const spending = spendingResult.rows[0] || {};
 
     return {
         customers: dataResult.rows,
-        pagination: {
-            page,
-            limit,
-            totalItems: stats.filtered,
-            totalPages: Math.max(1, Math.ceil(stats.filtered / limit))
-        },
+        pagination: { page, limit, totalItems, totalPages },
         statistics: {
-            total: stats.total,
-            active: stats.active,
-            inactive: stats.inactive
+            total: Number(stats.total || 0),
+            active: Number(stats.active || 0),
+            inactive: Number(stats.inactive || 0),
+            new: Number(stats.new || 0)
+        },
+        activity: {
+            activeToday: Number(activity.active_today || 0),
+            customersWithOrders: Number(activity.customers_with_orders || 0),
+            newRegistrations: Number(stats.new || 0),
+            inactiveCustomers: Number(stats.inactive || 0)
+        },
+        spending: {
+            averageOrderValue: Number(spending.average_order_value || 0),
+            monthlyRevenue: Number(spending.monthly_revenue || 0),
+            progress: Number(spending.progress || 0)
         }
     };
 }
