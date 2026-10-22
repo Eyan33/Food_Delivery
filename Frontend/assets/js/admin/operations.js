@@ -534,7 +534,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         catalogEditTrigger = document.activeElement;
 
-        form.reset();
+        if (!form) {
+    showMessage(
+        'Edit form not found. Check that operations.html contains id="catalogEditForm".',
+        true
+    );
+    return;
+}
+
+form.reset();
 
         byId("catalogEditError").hidden = true;
         byId("catalogEditError").textContent = "";
