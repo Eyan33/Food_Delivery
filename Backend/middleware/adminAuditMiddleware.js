@@ -3,7 +3,7 @@
 const { recordAuditLog } = require("../services/admin/adminOperationsService");
 
 function auditAdminAction(req, res, next) {
-    if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) {
+    if (req.user?.role === "admin" && ["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) {
         res.on("finish", () => {
             recordAuditLog({
                 adminId: req.user?.id,

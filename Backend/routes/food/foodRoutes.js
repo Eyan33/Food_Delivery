@@ -132,69 +132,6 @@ router.get(
   foodController.getMyFoods,
 );
 
-router.get(
-  "/categories/my",
-  authenticateToken,
-  authorizeRoles("restaurant"),
-  foodController.getMyCategories,
-);
-
-router.post(
-  "/categories",
-  authenticateToken,
-  authorizeRoles("restaurant"),
-  foodController.createCategory,
-);
-
-router.put(
-  "/categories/:id",
-  authenticateToken,
-  authorizeRoles("restaurant"),
-  foodController.updateCategory,
-);
-
-router.delete(
-  "/categories/:id",
-  authenticateToken,
-  authorizeRoles("restaurant"),
-  foodController.deleteCategory,
-);
-
-router.post(
-  "/",
-  authenticateToken,
-  authorizeRoles("restaurant"),
-  foodController.createFood,
-);
-
-router.put(
-  "/:id",
-  authenticateToken,
-  authorizeRoles("restaurant"),
-  foodController.updateFood,
-);
-
-router.delete(
-  "/:id",
-  authenticateToken,
-  authorizeRoles("restaurant"),
-  foodController.deleteFood,
-);
-
-router.patch(
-  "/:id/availability",
-  authenticateToken,
-  authorizeRoles("restaurant"),
-  foodController.updateFoodAvailability,
-);
-
-router.patch(
-  "/:id/featured",
-  authenticateToken,
-  authorizeRoles("restaurant"),
-  foodController.updateFoodFeatured,
-);
-
 /*
 |--------------------------------------------------------------------------
 | Public Routes

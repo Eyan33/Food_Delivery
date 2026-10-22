@@ -612,13 +612,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 window.location.href = "orders.html";
             });
         }
-
-        if (text.includes("manage menu")) {
-            link.addEventListener("click", event => {
-                event.preventDefault();
-                window.location.href = "menu.html";
-            });
-        }
     });
 
     quickActions.forEach(action => {
@@ -626,10 +619,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         action.addEventListener("click", event => {
             event.preventDefault();
-
-            if (actionText.includes("add menu item")) {
-                window.location.href = "menu.html";
-            } else if (actionText.includes("view orders")) {
+            if (actionText.includes("view orders")) {
                 window.location.href = "orders.html";
             } else if (actionText.includes("edit restaurant")) {
                 window.location.href = "restaurant-profile.html";
