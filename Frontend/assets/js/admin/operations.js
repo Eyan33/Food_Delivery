@@ -430,6 +430,185 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    
+    // -------------------------------------------------------
+    // Catalog edit modal
+    // -------------------------------------------------------
+
+    let catalogEditTrigger = null;
+
+    function openCatalogEditModal(type, item) {
+        const modal = byId("catalogEditModal");
+        const form = byId("catalogEditForm");
+        const priceGroup = byId("catalogEditPriceGroup");
+        const priceInput = byId("catalogEditPrice");
+        const nameInput = byId("catalogEditName");
+
+        catalogEditTrigger = document.activeElement;
+
+        form.reset();
+        byId("catalogEditError").hidden = true;
+        byId("catalogEditError").textContent = "";
+
+        byId("catalogEditType").value = type;
+        byId("catalogEditId").value = String(item.id);
+        nameInput.value = item.name || "";
+
+        if (type === "food") {
+            byId("catalogEditTitle").textContent = "Edit food item";
+            byId("catalogEditDescription").textContent =
+                "Update the food name and price.";
+            byId("catalogEditNameLabel").textContent = "Food name";
+
+            nameInput.maxLength = 150;
+            priceGroup.hidden = false;
+            priceInput.required = true;
+            priceInput.value = String(item.price ?? "");
+        } else {
+            byId("catalogEditTitle").textContent = "Edit category";
+            byId("catalogEditDescription").textContent =
+                "Update the category name.";
+            byId("catalogEditNameLabel").textContent = "Category name";
+
+            nameInput.maxLength = 100;
+            priceGroup.hidden = true;
+            priceInput.required = false;
+            priceInput.value = "";
+        }
+
+        modal.hidden = false;
+        document.body.classList.add("catalog-modal-open");
+
+        nameInput.focus();
+        nameInput.select();
+    }
+
+    function closeCatalogEditModal() {
+        const modal = byId("catalogEditModal");
+
+        if (modal.hidden) return;
+
+        modal.hidden = true;
+        document.body.classList.remove("catalog-modal-open");
+
+        byId("catalogEditForm").reset();
+        byId("catalogEditError").hidden = true;
+        byId("catalogEditError").textContent = "";
+
+        if (catalogEditTrigger?.isConnected) {
+            catalogEditTrigger.focus();
+        }
+    }
+
+    function showCatalogEditError(text) {
+        const error = byId("catalogEditError");
+        error.textContent = text;
+        error.hidden = false;
+    }
+
+    byId("catalogEditForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const type = byId("catalogEditType").value;
+        const id = byId("catalogEditId").value;
+        const name = byId("catalogEditName").value.trim();
+        const priceValue = byId("catalogEditPrice").value;
+        const saveButton = byId("catalogEditSave");
+
+        if (type !== "food" && type !== "category") {
+            showCatalogEditError("Invalid item type.");
+            return;
+        }
+
+        if (!id || !name) {
+            showCatalogEditError("Please enter a valid name.");
+            return;
+        }
+
+        const body = { name };
+
+        if (type === "food") {
+            if (priceValue.trim() === "") {
+                showCatalogEditError("Please enter a price.");
+                return;
+            }
+
+            const price = Number(priceValue);
+
+            if (!Number.isFinite(price) || price < 0) {
+                showCatalogEditError(
+                    "Price must be a valid non-negative number."
+                );
+                return;
+            }
+
+            body.price = price;
+        }
+
+        saveButton.disabled = true;
+        saveButton.textContent = "Saving...";
+
+        byId("catalogEditCancel").disabled = true;
+        byId("catalogEditClose").disabled = true;
+
+        try {
+            const endpoint = type === "food"
+                ? `/foods/admin/${encodeURIComponent(id)}`
+                : `/categories/admin/${encodeURIComponent(id)}`;
+
+            await request(endpoint, {
+                method: "PUT",
+                body,
+            });
+
+            closeCatalogEditModal();
+
+            await loadCatalog();
+
+            showMessage(
+                type === "food"
+                    ? "Food item updated successfully."
+                    : "Category updated successfully."
+            );
+        } catch (error) {
+            showCatalogEditError(
+                error.message || "Could not save changes. Please try again."
+            );
+        } finally {
+            saveButton.disabled = false;
+            saveButton.textContent = "Save changes";
+
+            byId("catalogEditCancel").disabled = false;
+            byId("catalogEditClose").disabled = false;
+        }
+    });
+
+    byId("catalogEditCancel").addEventListener(
+        "click",
+        closeCatalogEditModal
+    );
+
+    byId("catalogEditClose").addEventListener(
+        "click",
+        closeCatalogEditModal
+    );
+
+    byId("catalogEditModal").addEventListener("click", (event) => {
+        if (event.target.matches("[data-close-modal]")) {
+            closeCatalogEditModal();
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (
+            event.key === "Escape" &&
+            !byId("catalogEditModal").hidden
+        ) {
+            closeCatalogEditModal();
+        }
+    });
+
+
     // -------------------------------------------------------
     // Pagination
     // -------------------------------------------------------
