@@ -327,11 +327,17 @@
                                 <p>Revenue generated during the selected period.</p>
                             </div>
 
-                            <select class="admin-period-select">
-                                <option selected>Last 7 Days</option>
-                                <option>Last 30 Days</option>
-                                <option>This Month</option>
-                            </select>
+                            <div class="admin-report-chart-controls">
+                                <select class="admin-period-select" aria-label="Chart date range">
+                                    <option selected>Last 7 Days</option>
+                                    <option>Last 30 Days</option>
+                                    <option>This Month</option>
+                                </select>
+                                <select id="reportChartMetric" class="admin-period-select" aria-label="Chart metric">
+                                    <option value="revenue" selected>Revenue</option>
+                                    <option value="orders">Orders</option>
+                                </select>
+                            </div>
                         </div>
 
                         <!-- Revenue Chart -->
@@ -540,10 +546,10 @@
 
                                 <div>
                                     <span>New Customers</span>
-                                    <strong>642</strong>
+                                    <strong id="reportNewCustomers">0</strong>
                                 </div>
 
-                                <small class="admin-report-positive"> +12.4% </small>
+                                <small>Accounts created in selected period</small>
                             </div>
 
                             <div class="admin-summary-item">
@@ -551,10 +557,10 @@
 
                                 <div>
                                     <span>Returning Customers</span>
-                                    <strong>2,186</strong>
+                                    <strong id="reportReturningCustomers">0</strong>
                                 </div>
 
-                                <small class="admin-report-positive"> +7.8% </small>
+                                <small>Existing customers who ordered</small>
                             </div>
 
                             <div class="admin-summary-item">
@@ -562,10 +568,10 @@
 
                                 <div>
                                     <span>Inactive Customers</span>
-                                    <strong>1,014</strong>
+                                    <strong id="reportInactiveCustomers">0</strong>
                                 </div>
 
-                                <small> 3.2% </small>
+                                <small>No orders in selected period</small>
                             </div>
                         </div>
                     </div>
@@ -650,6 +656,16 @@
                             </div>
                         </div>
                     </div>
+                </section>
+
+                <section class="admin-content-card" data-report-section="overview payments">
+                    <div class="admin-card-header"><div><h3>Payment Status Breakdown</h3><p>Payment attempts created during the selected period; amounts show completed payments collected during the period.</p></div></div>
+                    <div class="admin-report-status-list" id="reportPaymentStatuses"><p class="admin-report-empty">Loading payment statuses…</p></div>
+                </section>
+
+                <section class="admin-content-card" data-report-section="riders">
+                    <div class="admin-card-header"><div><h3>Top Rider Activity</h3><p>Completed deliveries and orders assigned during the selected period.</p></div></div>
+                    <div class="admin-report-status-list" id="reportRiderList"><p class="admin-report-empty">Loading rider activity…</p></div>
                 </section>
 
                 <section class="admin-content-card" data-report-section="riders">
