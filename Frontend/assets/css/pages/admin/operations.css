@@ -648,3 +648,214 @@
     transition: none;
   }
 }
+
+
+/* ==========================================
+   Catalog edit modal
+   ========================================== */
+
+.catalog-modal[hidden] {
+  display: none !important;
+}
+
+.catalog-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.catalog-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(17 24 39 / 58%);
+  backdrop-filter: blur(3px);
+}
+
+.catalog-modal-dialog {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  border: 1px solid #EEEEEE;
+  border-radius: 14px;
+  background: #FFFFFF;
+  box-shadow: 0 24px 70px rgb(0 0 0 / 22%);
+  animation: catalogModalAppear 160ms ease-out;
+}
+
+.catalog-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 23px 24px 18px;
+  border-bottom: 1px solid #EEEEEE;
+}
+
+.catalog-modal-header h2 {
+  margin: 0 0 7px;
+  color: #171717;
+  font-size: 1.25rem;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.catalog-modal-header p {
+  margin: 0;
+  color: #666666;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.catalog-modal-close {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #EEEEEE;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #555555;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.catalog-modal-close:hover {
+  border-color: #FDBA9A;
+  background: #FFF0E9;
+  color: #E64A16;
+}
+
+.catalog-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 23px 24px;
+}
+
+.catalog-modal-body label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #333333;
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+.catalog-modal-body input {
+  width: 100%;
+  min-height: 45px;
+  padding: 11px 13px;
+  border: 1px solid #D9DDE3;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #171717;
+  font: inherit;
+  font-size: 0.94rem;
+  box-sizing: border-box;
+}
+
+.catalog-modal-body input:focus {
+  border-color: #FF5A1F;
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(255 90 31 / 13%);
+}
+
+.catalog-modal-body input:disabled {
+  background: #F3F4F6;
+  color: #6B7280;
+  cursor: not-allowed;
+}
+
+.catalog-modal-error {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid #FECACA;
+  border-radius: 7px;
+  background: #FEF2F2;
+  color: #991B1B;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.catalog-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 17px 24px 23px;
+  border-top: 1px solid #EEEEEE;
+  background: #FAFAFA;
+}
+
+.catalog-modal-footer button {
+  min-width: 115px;
+  min-height: 42px;
+}
+
+.catalog-modal-footer button:disabled,
+.catalog-modal-close:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+body.catalog-modal-open {
+  overflow: hidden;
+}
+
+@keyframes catalogModalAppear {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 520px) {
+  .catalog-modal {
+    align-items: center;
+    padding: 12px;
+  }
+
+  .catalog-modal-dialog {
+    max-height: calc(100vh - 24px);
+    border-radius: 12px;
+  }
+
+  .catalog-modal-header {
+    padding: 19px 18px 15px;
+  }
+
+  .catalog-modal-body {
+    padding: 19px 18px;
+  }
+
+  .catalog-modal-footer {
+    padding: 15px 18px 19px;
+  }
+
+  .catalog-modal-footer button {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .catalog-modal-dialog {
+    animation: none;
+  }
+}
+
