@@ -5,6 +5,7 @@ const foodController = require("../../controllers/food/foodController");
 const authenticateToken = require("../../middleware/auth/authMiddleware");
 
 const authorizeRoles = require("../../middleware/auth/roleMiddleware");
+const auditAdminAction = require("../../middleware/adminAuditMiddleware");
 
 const router = express.Router();
 
@@ -38,6 +39,7 @@ router.post(
   "/admin/categories",
   authenticateToken,
   authorizeRoles("admin"),
+  auditAdminAction,
   foodController.createAdminCategory,
 );
 
@@ -45,6 +47,7 @@ router.put(
   "/admin/categories/:id",
   authenticateToken,
   authorizeRoles("admin"),
+  auditAdminAction,
   foodController.updateAdminCategory,
 );
 
@@ -52,6 +55,7 @@ router.delete(
   "/admin/categories/:id",
   authenticateToken,
   authorizeRoles("admin"),
+  auditAdminAction,
   foodController.deleteAdminCategory,
 );
 
@@ -76,6 +80,7 @@ router.post(
   "/admin",
   authenticateToken,
   authorizeRoles("admin"),
+  auditAdminAction,
   foodController.createAdminFood,
 );
 
@@ -83,6 +88,7 @@ router.put(
   "/admin/:id",
   authenticateToken,
   authorizeRoles("admin"),
+  auditAdminAction,
   foodController.updateAdminFood,
 );
 
@@ -90,6 +96,7 @@ router.delete(
   "/admin/:id",
   authenticateToken,
   authorizeRoles("admin"),
+  auditAdminAction,
   foodController.deleteAdminFood,
 );
 
@@ -97,6 +104,7 @@ router.patch(
   "/admin/:id/availability",
   authenticateToken,
   authorizeRoles("admin"),
+  auditAdminAction,
   foodController.updateAdminFoodAvailability,
 );
 
@@ -104,6 +112,7 @@ router.patch(
   "/admin/:id/featured",
   authenticateToken,
   authorizeRoles("admin"),
+  auditAdminAction,
   foodController.updateAdminFoodFeatured,
 );
 
