@@ -11,6 +11,12 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     const listFrom = (data, name) => data?.[name] || data?.data?.[name] || [];
     const money = (value) => `KSh ${Number(value || 0).toLocaleString("en-KE")}`;
+    let catalogCache = { foods: [], categories: [], restaurants: [] };
+    let currentAdminId = null;
+    let foodSearchTimer = null;
+    let reviewSearchTimer = null;
+    const listPages = { admins: 1, reviews: 1, audit: 1 };
+    const listPagination = { admins: null, reviews: null, audit: null };
 
     function cell(row, text) {
         const element = document.createElement("td");
@@ -28,6 +34,32 @@ document.addEventListener("DOMContentLoaded", () => {
         return element;
     }
 
+    function renderPager(key, elementId) {
+        const host = byId(elementId);
+        if (!host) return;
+        host.replaceChildren();
+        const pagination = listPagination[key];
+        if (!pagination || Number(pagination.totalPages || 1) <= 1) {
+            if (pagination && Number(pagination.totalItems || 0) > 0) host.textContent = `${pagination.totalItems} records`;
+            return;
+        }
+        const label = document.createElement("span");
+        label.textContent = `Page ${pagination.page} of ${pagination.totalPages} · ${pagination.totalItems} records`;
+        const previous = button("Previous", async () => { if (listPages[key] > 1) { listPages[key]--; await loadPage(key); } });
+        previous.disabled = Number(pagination.page) <= 1;
+        const next = button("Next", async () => { if (listPages[key] < Number(pagination.totalPages)) { listPages[key]++; await loadPage(key); } });
+        next.disabled = Number(pagination.page) >= Number(pagination.totalPages);
+        host.append(label, previous, next);
+    }
+
+    async function loadPage(key) {
+        try {
+            if (key === "admins") await loadAdmins();
+            if (key === "reviews") await loadReviews();
+            if (key === "audit") await loadAudit();
+        } catch (error) { showMessage(error.message || "Could not load this page.", true); }
+    }
+
     async function loadCatalog() {
         const [foodData, categoryData, restaurantData] = await Promise.all([
             request("/foods/admin?limit=100"),
@@ -37,6 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const foods = listFrom(foodData, "foods");
         const categories = listFrom(categoryData, "categories");
         const restaurants = listFrom(restaurantData, "restaurants");
+        catalogCache = { foods, categories, restaurants };
         const filter = byId("foodSearch").value.trim().toLowerCase();
         const visibleFoods = foods.filter((food) =>
             `${food.name} ${food.restaurant_name || ""}`.toLowerCase().includes(filter),
@@ -136,15 +169,23 @@ document.addEventListener("DOMContentLoaded", () => {
             select.replaceChildren(...restaurantOptions.map((option) => option.cloneNode(true)));
             if (selected) select.value = selected;
         });
+        refreshFoodCategories();
+    }
+
+    function refreshFoodCategories() {
+        const restaurantId = byId("foodRestaurant").value;
         const categorySelect = byId("foodCategory");
         const selectedCategory = categorySelect.value;
+        const categories = catalogCache.categories.filter((category) => !restaurantId || String(category.restaurant_id) === String(restaurantId));
         categorySelect.replaceChildren(new Option("No category", ""), ...categories.map((category) => new Option(category.name, category.id)));
-        if (selectedCategory) categorySelect.value = selectedCategory;
+        if (categories.some((category) => String(category.id) === selectedCategory)) categorySelect.value = selectedCategory;
     }
 
     async function loadAdmins() {
-        const data = await request("/admins?limit=100");
+        const data = await request(`/admins?page=${listPages.admins}&limit=25`);
         const admins = listFrom(data, "admins");
+        listPagination.admins = data?.data?.pagination || data?.pagination || null;
+        renderPager("admins", "adminsPager");
         const body = byId("adminsBody");
         body.replaceChildren();
         admins.forEach((admin) => {
@@ -155,14 +196,19 @@ document.addEventListener("DOMContentLoaded", () => {
             cell(row, admin.is_active ? "Active" : "Inactive");
             const actions = document.createElement("td");
             if (admin.is_active) {
-                actions.append(button("Deactivate", async () => {
+                const isSelf = currentAdminId != null && String(admin.id) === String(currentAdminId);
+                const deactivateButton = button(isSelf ? "Your account" : "Deactivate", async () => {
+                    if (isSelf) return;
                     if (!window.confirm(`Deactivate ${admin.email}?`)) return;
                     try {
                         await request(`/admins/${admin.id}`, { method: "DELETE" });
                         await loadAdmins();
                         showMessage("Administrator deactivated.");
                     } catch (error) { showMessage(error.message, true); }
-                }, true));
+                }, true);
+                deactivateButton.disabled = isSelf;
+                if (isSelf) deactivateButton.title = "You cannot deactivate the currently signed-in account.";
+                actions.append(deactivateButton);
             } else {
                 actions.append(button("Activate", async () => {
                     try {
@@ -179,9 +225,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function loadReviews() {
-        const params = new URLSearchParams({ limit: "100", visibility: byId("reviewVisibility").value, search: byId("reviewSearch").value.trim() });
+        const params = new URLSearchParams({ page: String(listPages.reviews), limit: "25", visibility: byId("reviewVisibility").value, search: byId("reviewSearch").value.trim() });
         const data = await request(`/admins/reviews?${params}`);
         const reviews = listFrom(data, "reviews");
+        listPagination.reviews = data?.data?.pagination || data?.pagination || null;
+        renderPager("reviews", "reviewsPager");
         const body = byId("reviewsBody");
         body.replaceChildren();
         reviews.forEach((review) => {
@@ -210,8 +258,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function loadAudit() {
-        const data = await request("/admins/audit-logs?limit=100");
+        const data = await request(`/admins/audit-logs?page=${listPages.audit}&limit=25`);
         const logs = listFrom(data, "logs");
+        listPagination.audit = data?.data?.pagination || data?.pagination || null;
+        renderPager("audit", "auditPager");
         const body = byId("auditBody");
         body.replaceChildren();
         logs.forEach((log) => {
@@ -220,7 +270,8 @@ document.addEventListener("DOMContentLoaded", () => {
             cell(row, log.admin_name || log.admin_email || "Admin removed");
             cell(row, log.action);
             cell(row, log.resource);
-            cell(row, String(log.status_code));
+            const statusCode = Number(log.status_code);
+            cell(row, `${statusCode >= 200 && statusCode < 400 ? "Success" : "Failed"} (${statusCode})`);
             body.append(row);
         });
         if (!logs.length) body.innerHTML = '<tr><td colspan="5" class="operations-empty">No recorded admin changes yet.</td></tr>';
@@ -289,12 +340,20 @@ document.addEventListener("DOMContentLoaded", () => {
             } catch (error) { showMessage(error.message || "Could not load operations data.", true); }
         });
     });
-    byId("foodSearch").addEventListener("input", () => loadCatalog().catch((error) => showMessage(error.message, true)));
+    byId("foodSearch").addEventListener("input", () => {
+        clearTimeout(foodSearchTimer);
+        foodSearchTimer = setTimeout(() => loadCatalog().catch((error) => showMessage(error.message, true)), 250);
+    });
+    byId("foodRestaurant").addEventListener("change", refreshFoodCategories);
     byId("refreshCatalog").addEventListener("click", () => loadCatalog().catch((error) => showMessage(error.message, true)));
-    byId("reviewVisibility").addEventListener("change", () => loadReviews().catch((error) => showMessage(error.message, true)));
-    byId("reviewSearch").addEventListener("change", () => loadReviews().catch((error) => showMessage(error.message, true)));
+    byId("reviewVisibility").addEventListener("change", () => { listPages.reviews = 1; loadReviews().catch((error) => showMessage(error.message, true)); });
+    byId("reviewSearch").addEventListener("input", () => { listPages.reviews = 1;
+        clearTimeout(reviewSearchTimer);
+        reviewSearchTimer = setTimeout(() => loadReviews().catch((error) => showMessage(error.message, true)), 300);
+    });
     byId("refreshReviews").addEventListener("click", () => loadReviews().catch((error) => showMessage(error.message, true)));
     byId("refreshAudit").addEventListener("click", () => loadAudit().catch((error) => showMessage(error.message, true)));
 
+    request("/admins/me").then((data) => { const admin = data?.data?.admin || data?.admin; currentAdminId = admin?.id ?? null; }).catch(() => {});
     loadCatalog().catch((error) => showMessage(error.message || "Could not load catalog data.", true));
 });
