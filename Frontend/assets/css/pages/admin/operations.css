@@ -1,34 +1,23 @@
 
-/* =========================================================
-   Food_Delivery Admin — Operations Page
-   File: assets/css/pages/admin/operations.css
-   Brand: #FF5A1F
-   ========================================================= */
-
 :root {
   --operations-primary: #FF5A1F;
   --operations-primary-hover: #E64A16;
   --operations-primary-light: #FFF0E9;
-  --operations-background: #FFFAF7;
-  --operations-surface: #FFFFFF;
   --operations-text: #171717;
   --operations-text-secondary: #666666;
   --operations-text-muted: #888888;
   --operations-border: #EEEEEE;
   --operations-border-strong: #D9DDE3;
-  --operations-success: #16A34A;
   --operations-success-light: #F0FDF4;
-  --operations-danger: #DC2626;
   --operations-danger-light: #FEF2F2;
-  --operations-warning: #D97706;
   --operations-warning-light: #FFFBEB;
-  --operations-info: #2563EB;
   --operations-info-light: #EFF6FF;
 }
 
-/* ---------------------------------------------------------
-   Page header
-   --------------------------------------------------------- */
+.operations-panel[hidden],
+[hidden] {
+  display: none !important;
+}
 
 .admin-content .admin-page-header {
   display: flex;
@@ -53,10 +42,7 @@
   line-height: 1.6;
 }
 
-/* ---------------------------------------------------------
-   Operations tabs
-   --------------------------------------------------------- */
-
+/* Operations navigation tabs */
 .operations-tabs {
   display: flex;
   align-items: stretch;
@@ -66,7 +52,6 @@
   overflow-x: auto;
   border-bottom: 1px solid var(--operations-border);
   scrollbar-width: thin;
-  scrollbar-color: #D1D5DB transparent;
 }
 
 .operations-tabs button {
@@ -83,33 +68,27 @@
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
-  transition:
-    color 160ms ease,
-    background-color 160ms ease,
-    border-color 160ms ease;
+  transition: color 160ms ease, background-color 160ms ease;
 }
 
-.operations-tabs button:hover {
+.operations-tabs button:hover,
+.operations-tabs button.active {
   background: var(--operations-primary-light);
   color: var(--operations-primary-hover);
 }
 
 .operations-tabs button.active {
   border-bottom-color: var(--operations-primary);
-  background: var(--operations-primary-light);
-  color: var(--operations-primary-hover);
   font-weight: 750;
 }
 
-.operations-tabs button:focus-visible {
+.operations-tabs button:focus-visible,
+.operations-panel button:focus-visible {
   outline: 2px solid var(--operations-primary);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
-/* ---------------------------------------------------------
-   Messages and feedback
-   --------------------------------------------------------- */
-
+/* Feedback messages */
 .operations-message {
   min-height: 0;
   margin: 0 0 16px;
@@ -127,7 +106,7 @@
 .operations-message:not(:empty) {
   padding: 11px 14px;
   border: 1px solid var(--operations-border);
-  background: var(--operations-surface);
+  background: #FFFFFF;
 }
 
 .operations-message.success {
@@ -142,16 +121,7 @@
   color: #991B1B;
 }
 
-.operations-message.warning {
-  border-color: #FDE68A;
-  background: var(--operations-warning-light);
-  color: #92400E;
-}
-
-/* ---------------------------------------------------------
-   Operations content panels
-   --------------------------------------------------------- */
-
+/* Content panels */
 .admin-content-card.operations-panel {
   min-width: 0;
   margin-bottom: 24px;
@@ -159,12 +129,8 @@
   overflow: hidden;
   border: 1px solid var(--operations-border);
   border-radius: 12px;
-  background: var(--operations-surface);
+  background: #FFFFFF;
   box-shadow: 0 3px 12px rgb(23 23 23 / 4%);
-}
-
-.operations-panel[hidden] {
-  display: none !important;
 }
 
 .operations-panel .admin-card-header {
@@ -192,17 +158,132 @@
   line-height: 1.6;
 }
 
-.operations-panel > h3 {
-  margin: 30px 0 12px;
+.operations-panel > h3,
+.catalog-section-title {
+  margin: 26px 0 12px;
   color: var(--operations-text);
   font-size: 1.02rem;
   font-weight: 750;
 }
 
-/* ---------------------------------------------------------
-   Forms
-   --------------------------------------------------------- */
+/* Restaurant cards */
+.restaurant-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 18px;
+  margin: 22px 0 6px;
+}
 
+.restaurant-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  min-height: 220px;
+  padding: 22px;
+  border: 1px solid var(--operations-border);
+  border-radius: 12px;
+  background: #FFFFFF;
+  color: var(--operations-text);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 160ms ease, box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.restaurant-card:hover {
+  border-color: var(--operations-primary);
+  box-shadow: 0 6px 20px rgb(23 23 23 / 7%);
+  transform: translateY(-2px);
+}
+
+.restaurant-card:focus-visible {
+  outline: 3px solid rgb(255 90 31 / 35%);
+  outline-offset: 3px;
+}
+
+.restaurant-card-icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--operations-primary-light);
+  color: var(--operations-primary);
+  font-size: 24px;
+}
+
+.restaurant-card h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+
+.restaurant-card-description {
+  margin: 0;
+  color: var(--operations-text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.restaurant-card-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.restaurant-card-stats span {
+  padding: 6px 9px;
+  border-radius: 6px;
+  background: #F9FAFB;
+  color: #374151;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.restaurant-card-action {
+  margin-top: 4px;
+  color: var(--operations-primary-hover);
+  font-size: 0.88rem;
+  font-weight: 750;
+}
+
+.restaurant-cards-empty {
+  grid-column: 1 / -1;
+  padding: 28px;
+  border: 1px dashed var(--operations-border-strong);
+  border-radius: 10px;
+  color: var(--operations-text-secondary);
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* Selected restaurant workspace */
+.restaurant-workspace-header {
+  margin: 10px 0 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--operations-border);
+}
+
+.restaurant-workspace-header h3 {
+  margin: 18px 0 6px;
+  color: var(--operations-text);
+  font-size: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.restaurant-workspace-header p {
+  margin: 0;
+  color: var(--operations-text-secondary);
+  line-height: 1.6;
+}
+
+/* Forms */
 .operations-form {
   display: flex;
   align-items: flex-end;
@@ -238,9 +319,7 @@
   color: var(--operations-text);
   font: inherit;
   font-size: 0.9rem;
-  transition:
-    border-color 160ms ease,
-    box-shadow 160ms ease;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
 .operations-form input::placeholder,
@@ -279,10 +358,7 @@
   min-height: 43px;
 }
 
-/* ---------------------------------------------------------
-   Search, filters, refresh and pagination tools
-   --------------------------------------------------------- */
-
+/* Search and action tools */
 .operations-tools {
   display: flex;
   align-items: flex-end;
@@ -316,16 +392,7 @@
   margin-bottom: 0;
 }
 
-.operations-tools:has(#adminsPager):empty,
-.operations-tools:has(#reviewsPager):empty,
-.operations-tools:has(#auditPager):empty {
-  display: none;
-}
-
-/* ---------------------------------------------------------
-   Buttons
-   --------------------------------------------------------- */
-
+/* Buttons */
 .operations-panel .admin-primary-button,
 .operations-panel .admin-secondary-button {
   display: inline-flex;
@@ -343,12 +410,8 @@
   text-align: center;
   text-decoration: none;
   cursor: pointer;
-  transition:
-    background-color 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease,
-    box-shadow 160ms ease,
-    transform 160ms ease;
+  transition: background-color 160ms ease, border-color 160ms ease,
+    color 160ms ease, box-shadow 160ms ease;
 }
 
 .operations-panel .admin-primary-button {
@@ -375,21 +438,13 @@
   color: var(--operations-primary-hover);
 }
 
-.operations-panel button:focus-visible {
-  outline: 2px solid var(--operations-primary);
-  outline-offset: 3px;
-}
-
 .operations-panel button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
   box-shadow: none;
 }
 
-/* ---------------------------------------------------------
-   Tables
-   --------------------------------------------------------- */
-
+/* Tables */
 .operations-scroll {
   width: 100%;
   overflow-x: auto;
@@ -454,16 +509,7 @@
   font-size: 0.79rem;
 }
 
-/* Keep long comments and resource details readable. */
-.operations-table td:nth-child(4) {
-  min-width: 160px;
-  max-width: 360px;
-}
-
-/* ---------------------------------------------------------
-   Empty states
-   --------------------------------------------------------- */
-
+/* Empty states */
 .operations-empty {
   padding: 30px 18px;
   color: var(--operations-text-muted);
@@ -471,92 +517,7 @@
   text-align: center;
 }
 
-.operations-table tbody:empty::after {
-  content: "No records to display.";
-  display: table-cell;
-  padding: 28px 18px;
-  color: var(--operations-text-muted);
-  text-align: center;
-}
-
-/* ---------------------------------------------------------
-   Status indicators
-   Works with common status class names when used by JS.
-   --------------------------------------------------------- */
-
-.operations-status,
-.status-badge,
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  max-width: 100%;
-  padding: 5px 10px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 750;
-  line-height: 1.35;
-  white-space: nowrap;
-}
-
-.operations-status.success,
-.status-badge.active,
-.status-pill.active,
-.status-visible {
-  border-color: #BBF7D0;
-  background: var(--operations-success-light);
-  color: #166534;
-}
-
-.operations-status.danger,
-.status-badge.inactive,
-.status-pill.inactive,
-.status-hidden {
-  border-color: #FECACA;
-  background: var(--operations-danger-light);
-  color: #991B1B;
-}
-
-.operations-status.warning,
-.status-badge.pending,
-.status-pill.pending {
-  border-color: #FDE68A;
-  background: var(--operations-warning-light);
-  color: #92400E;
-}
-
-.operations-status.info,
-.status-badge.info,
-.status-pill.info {
-  border-color: #BFDBFE;
-  background: var(--operations-info-light);
-  color: #1D4ED8;
-}
-
-/* ---------------------------------------------------------
-   Loading and disabled interaction states
-   --------------------------------------------------------- */
-
-.operations-panel [aria-busy="true"] {
-  cursor: progress;
-}
-
-.operations-panel button[aria-busy="true"] {
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-.operations-panel .is-loading {
-  opacity: 0.65;
-  pointer-events: none;
-}
-
-/* ---------------------------------------------------------
-   Responsive layouts
-   --------------------------------------------------------- */
-
+/* Responsive layout */
 @media (max-width: 1024px) {
   .admin-content-card.operations-panel {
     padding: 20px;
@@ -598,10 +559,6 @@
     border-radius: 10px;
   }
 
-  .operations-panel .admin-card-header {
-    align-items: flex-start;
-  }
-
   .operations-form {
     gap: 13px;
   }
@@ -614,16 +571,21 @@
     flex: 1 1 calc(50% - 12px);
   }
 
-  .operations-tools > button {
-    flex: 0 0 auto;
-  }
-
   .operations-table {
     font-size: 0.84rem;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 520px) {
+  .restaurant-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .restaurant-card {
+    min-height: 0;
+    padding: 18px;
+  }
+
   .admin-content-card.operations-panel {
     padding: 13px;
   }
@@ -644,7 +606,8 @@
     width: 100%;
   }
 
-  .operations-form button {
+  .operations-form button,
+  .operations-tools > button {
     width: 100%;
   }
 
@@ -660,10 +623,6 @@
     min-width: 0;
   }
 
-  .operations-tools > button {
-    width: 100%;
-  }
-
   .operations-tabs button {
     padding: 11px 12px;
   }
@@ -677,10 +636,6 @@
   }
 }
 
-/* ---------------------------------------------------------
-   Reduced motion accessibility
-   --------------------------------------------------------- */
-
 @media (prefers-reduced-motion: reduce) {
   .operations-tabs button,
   .operations-form input,
@@ -688,7 +643,8 @@
   .operations-tools input,
   .operations-tools select,
   .operations-panel button,
-  .operations-table tbody tr {
+  .operations-table tbody tr,
+  .restaurant-card {
     transition: none;
   }
 }
