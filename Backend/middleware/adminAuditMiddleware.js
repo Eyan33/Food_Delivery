@@ -7,7 +7,7 @@ function auditAdminAction(req, res, next) {
         res.on("finish", () => {
             recordAuditLog({
                 adminId: req.user?.id,
-                method: req.method,
+                method: `${req.method} ${req.route?.path || req.path}`,
                 resource: req.originalUrl.split("?")[0],
                 statusCode: res.statusCode,
             }).catch((error) => {
