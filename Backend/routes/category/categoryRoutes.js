@@ -8,6 +8,8 @@ const authenticateToken =
 
 const authorizeRoles =
     require("../../middleware/auth/roleMiddleware");
+const auditAdminAction =
+    require("../../middleware/adminAuditMiddleware");
 
 const router = express.Router();
 
@@ -53,6 +55,7 @@ router.post(
     "/admin",
     authenticateToken,
     authorizeRoles("admin"),
+    auditAdminAction,
     categoryController.createAdminCategory
 );
 
@@ -65,6 +68,7 @@ router.put(
     "/admin/:id",
     authenticateToken,
     authorizeRoles("admin"),
+    auditAdminAction,
     categoryController.updateAdminCategory
 );
 
@@ -77,6 +81,7 @@ router.delete(
     "/admin/:id",
     authenticateToken,
     authorizeRoles("admin"),
+    auditAdminAction,
     categoryController.deleteAdminCategory
 );
 
