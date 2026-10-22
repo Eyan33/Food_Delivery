@@ -194,42 +194,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const actions = document.createElement("td");
 
-            actions.append(button("Edit", async () => {
-                const name = window.prompt("Food name:", food.name);
-                if (name === null) return;
-
-                const price = window.prompt("Price in KSh:", String(food.price));
-                if (price === null) return;
-
-                const amount = Number(price);
-
-                if (
-                    !name.trim() ||
-                    !Number.isFinite(amount) ||
-                    amount < 0
-                ) {
-                    showMessage(
-                        "Enter a food name and a valid non-negative price.",
-                        true
-                    );
-                    return;
-                }
-
-                try {
-                    await request(`/foods/admin/${food.id}`, {
-                        method: "PUT",
-                        body: {
-                            name: name.trim(),
-                            price: amount,
-                        },
-                    });
-
-                    await loadCatalog();
-                    showMessage("Food item updated.");
-                } catch (error) {
-                    showMessage(error.message || "Could not update food item.", true);
-                }
+            
+            actions.append(button("Edit", () => {
+                openCatalogEditModal("food", food);
             }, true));
+, true));
 
             actions.append(button(
                 food.is_available ? "Mark unavailable" : "Make available",
