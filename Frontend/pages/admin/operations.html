@@ -350,6 +350,86 @@
         <div class="operations-tools" id="auditPager" aria-live="polite"></div>
       </section>
     </section>
+
+    
+<!-- Catalog Edit Modal -->
+<div id="catalogEditModal" class="catalog-modal" hidden>
+  <div class="catalog-modal-backdrop" data-close-modal></div>
+
+  <section
+    class="catalog-modal-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="catalogEditTitle"
+    aria-describedby="catalogEditDescription"
+  >
+    <div class="catalog-modal-header">
+      <div>
+        <h2 id="catalogEditTitle">Edit item</h2>
+        <p id="catalogEditDescription">
+          Update the details below.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        id="catalogEditClose"
+        class="catalog-modal-close"
+        aria-label="Close edit dialog"
+      >×</button>
+    </div>
+
+    <form id="catalogEditForm">
+      <input type="hidden" id="catalogEditType" />
+      <input type="hidden" id="catalogEditId" />
+
+      <div class="catalog-modal-body">
+        <label for="catalogEditName">
+          <span id="catalogEditNameLabel">Name</span>
+          <input
+            type="text"
+            id="catalogEditName"
+            required
+            maxlength="150"
+            autocomplete="off"
+          />
+        </label>
+
+        <label id="catalogEditPriceGroup" for="catalogEditPrice">
+          Price (KSh)
+          <input
+            type="number"
+            id="catalogEditPrice"
+            min="0"
+            step="0.01"
+          />
+        </label>
+
+        <p
+          id="catalogEditError"
+          class="catalog-modal-error"
+          role="alert"
+          hidden
+        ></p>
+      </div>
+
+      <div class="catalog-modal-footer">
+        <button
+          type="button"
+          id="catalogEditCancel"
+          class="admin-secondary-button"
+        >Cancel</button>
+
+        <button
+          type="submit"
+          id="catalogEditSave"
+          class="admin-primary-button"
+        >Save changes</button>
+      </div>
+    </form>
+  </section>
+</div>
+
   </main>
 
   <script src="../../assets/js/api-config.js"></script>
