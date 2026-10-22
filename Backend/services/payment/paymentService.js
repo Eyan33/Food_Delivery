@@ -1225,7 +1225,7 @@ async function updateAdminPaymentStatus(
 
                     paid_at =
                         CASE
-                            WHEN $1 = 'completed'
+                            WHEN $5 = TRUE
                                  AND paid_at IS NULL
                             THEN CURRENT_TIMESTAMP
 
@@ -1239,7 +1239,7 @@ async function updateAdminPaymentStatus(
 
                 RETURNING *
                 `,
-      [status, transactionReference, providerResponse, id],
+      [status, transactionReference, providerResponse, id, status === "completed"],
     );
 
     if (result.rows.length === 0) {
