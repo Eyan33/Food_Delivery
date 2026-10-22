@@ -1,15 +1,19 @@
-
 document.addEventListener("DOMContentLoaded", () => {
     const API = window.FoodDeliveryAuthApi;
     const byId = (id) => document.getElementById(id);
     const message = byId("operationsMessage");
 
-    if (!API?.request) return;
+    if (!API?.request) {
+        console.error("FoodDeliveryAuthApi is not available.");
+        return;
+    }
 
     const request = (path, options = {}) =>
         API.request(path, { ...options, authenticated: true });
 
     const showMessage = (text, error = false) => {
+        if (!message) return;
+
         message.textContent = text;
         message.classList.toggle("error", error);
         message.classList.toggle("success", Boolean(text) && !error);
@@ -31,25 +35,40 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentAdminId = null;
     let foodSearchTimer = null;
     let reviewSearchTimer = null;
+    let catalogEditTrigger = null;
 
-    const listPages = { admins: 1, reviews: 1, audit: 1 };
-    const listPagination = { admins: null, reviews: null, audit: null };
+    const listPages = {
+        admins: 1,
+        reviews: 1,
+        audit: 1,
+    };
+
+    const listPagination = {
+        admins: null,
+        reviews: null,
+        audit: null,
+    };
 
     function cell(row, text) {
         const element = document.createElement("td");
-        element.textContent = text == null || text === "" ? "—" : String(text);
+        element.textContent =
+            text == null || text === "" ? "—" : String(text);
+
         row.append(element);
         return element;
     }
 
     function button(label, action, secondary = false) {
         const element = document.createElement("button");
+
         element.type = "button";
         element.textContent = label;
         element.className = secondary
             ? "admin-secondary-button"
             : "admin-primary-button";
+
         element.addEventListener("click", action);
+
         return element;
     }
 
@@ -62,7 +81,8 @@ document.addEventListener("DOMContentLoaded", () => {
             (item) => sameId(item.id, restaurantId)
         );
 
-        return restaurant?.name || `Restaurant ${restaurantId ?? ""}`;
+        return restaurant?.name ||
+            `Restaurant ${restaurantId ?? ""}`;
     }
 
     function restaurantFoods(restaurantId) {
@@ -73,29 +93,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function restaurantCategories(restaurantId) {
         return catalogCache.categories.filter(
-            (category) => sameId(category.restaurant_id, restaurantId)
+            (category) =>
+                sameId(category.restaurant_id, restaurantId)
         );
     }
 
     function setRestaurantSelects(restaurantId) {
-        byId("foodRestaurant").value = String(restaurantId ?? "");
-        byId("categoryRestaurant").value = String(restaurantId ?? "");
+        const foodRestaurant = byId("foodRestaurant");
+        const categoryRestaurant = byId("categoryRestaurant");
+
+        if (foodRestaurant) {
+            foodRestaurant.value = String(restaurantId ?? "");
+        }
+
+        if (categoryRestaurant) {
+            categoryRestaurant.value = String(restaurantId ?? "");
+        }
+
         refreshFoodCategories();
     }
 
-    // -------------------------------------------------------
+    // =======================================================
     // Restaurant cards
-    // -------------------------------------------------------
+    // =======================================================
 
     function renderRestaurantCards() {
         const host = byId("restaurantCards");
+        if (!host) return;
+
         host.replaceChildren();
 
         if (!catalogCache.restaurants.length) {
             const empty = document.createElement("div");
+
             empty.className = "restaurant-cards-empty";
             empty.textContent =
                 "No restaurants were found. Add or activate a restaurant first.";
+
             host.append(empty);
             return;
         }
@@ -105,22 +139,26 @@ document.addEventListener("DOMContentLoaded", () => {
             const categories = restaurantCategories(restaurant.id);
 
             const card = document.createElement("button");
+
             card.type = "button";
             card.className = "restaurant-card";
             card.setAttribute(
                 "aria-label",
-                `Manage catalog for ${restaurant.name}`
+                `Manage catalog for ${restaurant.name || "restaurant"}`
             );
 
             const icon = document.createElement("span");
+
             icon.className = "restaurant-card-icon";
             icon.setAttribute("aria-hidden", "true");
             icon.textContent = "▦";
 
             const name = document.createElement("h4");
-            name.textContent = restaurant.name || "Unnamed restaurant";
+            name.textContent =
+                restaurant.name || "Unnamed restaurant";
 
             const description = document.createElement("p");
+
             description.className = "restaurant-card-description";
             description.textContent =
                 restaurant.address || "Manage foods and categories";
@@ -129,16 +167,23 @@ document.addEventListener("DOMContentLoaded", () => {
             stats.className = "restaurant-card-stats";
 
             const foodCount = document.createElement("span");
+
             foodCount.textContent =
-                `${foods.length} ${foods.length === 1 ? "food item" : "food items"}`;
+                `${foods.length} ${
+                    foods.length === 1 ? "food item" : "food items"
+                }`;
 
             const categoryCount = document.createElement("span");
+
             categoryCount.textContent =
-                `${categories.length} ${categories.length === 1 ? "category" : "categories"}`;
+                `${categories.length} ${
+                    categories.length === 1 ? "category" : "categories"
+                }`;
 
             stats.append(foodCount, categoryCount);
 
             const action = document.createElement("span");
+
             action.className = "restaurant-card-action";
             action.textContent = "Manage catalog →";
 
@@ -150,7 +195,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 byId("restaurantCards").hidden = true;
                 byId("restaurantCatalogWorkspace").hidden = false;
 
-                byId("selectedRestaurantName").textContent = restaurant.name;
+                byId("selectedRestaurantName").textContent =
+                    restaurant.name || "Restaurant";
+
                 byId("selectedRestaurantSummary").textContent =
                     "Manage food items, prices, availability, and categories for this restaurant.";
 
@@ -165,9 +212,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // -------------------------------------------------------
-    // Food and category tables for the selected restaurant
-    // -------------------------------------------------------
+    // =======================================================
+    // Food and category tables
+    // =======================================================
 
     function renderSelectedCatalog() {
         if (selectedRestaurantId == null) return;
@@ -176,7 +223,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const foodsBody = byId("foodsBody");
         const categoriesBody = byId("categoriesBody");
 
-        const search = byId("foodSearch").value.trim().toLowerCase();
+        if (!foodsBody || !categoriesBody) return;
+
+        const search = byId("foodSearch").value
+            .trim()
+            .toLowerCase();
 
         const foods = restaurantFoods(restaurantId).filter((food) =>
             String(food.name || "").toLowerCase().includes(search)
@@ -190,52 +241,83 @@ document.addEventListener("DOMContentLoaded", () => {
             cell(row, food.name);
             cell(row, restaurantName(food.restaurant_id));
             cell(row, money(food.price));
-            cell(row, food.is_available ? "Available" : "Unavailable");
+            cell(
+                row,
+                food.is_available ? "Available" : "Unavailable"
+            );
 
             const actions = document.createElement("td");
 
-            
-            actions.append(button("Edit", () => {
-                openCatalogEditModal("food", food);
-            }, true));
-, true));
+            // Open the food edit modal.
+            actions.append(
+                button("Edit", () => {
+                    openCatalogEditModal("food", food);
+                }, true)
+            );
 
-            actions.append(button(
-                food.is_available ? "Mark unavailable" : "Make available",
-                async () => {
-                    try {
-                        await request(`/foods/admin/${food.id}/availability`, {
-                            method: "PATCH",
-                            body: {
-                                is_available: !food.is_available,
-                            },
-                        });
+            // Toggle food availability.
+            actions.append(
+                button(
+                    food.is_available
+                        ? "Mark unavailable"
+                        : "Make available",
+                    async () => {
+                        try {
+                            await request(
+                                `/foods/admin/${encodeURIComponent(food.id)}/availability`,
+                                {
+                                    method: "PATCH",
+                                    body: {
+                                        is_available: !food.is_available,
+                                    },
+                                }
+                            );
 
-                        await loadCatalog();
-                        showMessage("Food availability updated.");
-                    } catch (error) {
-                        showMessage(
-                            error.message || "Could not update availability.",
-                            true
-                        );
+                            await loadCatalog();
+                            showMessage("Food availability updated.");
+                        } catch (error) {
+                            showMessage(
+                                error.message ||
+                                    "Could not update availability.",
+                                true
+                            );
+                        }
                     }
-                }
-            ));
+                )
+            );
 
-            actions.append(button("Delete", async () => {
-                if (!window.confirm(`Delete food item "${food.name}"?`)) return;
+            // Delete food.
+            actions.append(
+                button(
+                    "Delete",
+                    async () => {
+                        if (
+                            !window.confirm(
+                                `Delete food item "${food.name}"?`
+                            )
+                        ) {
+                            return;
+                        }
 
-                try {
-                    await request(`/foods/admin/${food.id}`, {
-                        method: "DELETE",
-                    });
+                        try {
+                            await request(
+                                `/foods/admin/${encodeURIComponent(food.id)}`,
+                                { method: "DELETE" }
+                            );
 
-                    await loadCatalog();
-                    showMessage("Food item deleted.");
-                } catch (error) {
-                    showMessage(error.message || "Could not delete food item.", true);
-                }
-            }, true));
+                            await loadCatalog();
+                            showMessage("Food item deleted.");
+                        } catch (error) {
+                            showMessage(
+                                error.message ||
+                                    "Could not delete food item.",
+                                true
+                            );
+                        }
+                    },
+                    true
+                )
+            );
 
             row.append(actions);
             foodsBody.append(row);
@@ -244,16 +326,20 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!foods.length) {
             const row = document.createElement("tr");
             const empty = document.createElement("td");
+
             empty.colSpan = 5;
             empty.className = "operations-empty";
             empty.textContent = search
                 ? "No food items match your search."
                 : "No food items have been added to this restaurant yet.";
+
             row.append(empty);
             foodsBody.append(row);
         }
 
+        // Render categories.
         const categories = restaurantCategories(restaurantId);
+
         categoriesBody.replaceChildren();
 
         categories.forEach((category) => {
@@ -261,42 +347,52 @@ document.addEventListener("DOMContentLoaded", () => {
 
             cell(row, category.name);
             cell(row, restaurantName(category.restaurant_id));
-            cell(row, category.is_active ? "Active" : "Inactive");
+            cell(
+                row,
+                category.is_active ? "Active" : "Inactive"
+            );
 
             const actions = document.createElement("td");
 
-            actions.append(button("Edit", async () => {
-                const name = window.prompt("Category name:", category.name);
+            // Open the category edit modal.
+            actions.append(
+                button("Edit", () => {
+                    openCatalogEditModal("category", category);
+                }, true)
+            );
 
-                if (name === null || !name.trim()) return;
+            // Delete category.
+            actions.append(
+                button(
+                    "Delete",
+                    async () => {
+                        if (
+                            !window.confirm(
+                                `Delete category "${category.name}"?`
+                            )
+                        ) {
+                            return;
+                        }
 
-                try {
-                    await request(`/categories/admin/${category.id}`, {
-                        method: "PUT",
-                        body: { name: name.trim() },
-                    });
+                        try {
+                            await request(
+                                `/categories/admin/${encodeURIComponent(category.id)}`,
+                                { method: "DELETE" }
+                            );
 
-                    await loadCatalog();
-                    showMessage("Category updated.");
-                } catch (error) {
-                    showMessage(error.message || "Could not update category.", true);
-                }
-            }, true));
-
-            actions.append(button("Delete", async () => {
-                if (!window.confirm(`Delete category "${category.name}"?`)) return;
-
-                try {
-                    await request(`/categories/admin/${category.id}`, {
-                        method: "DELETE",
-                    });
-
-                    await loadCatalog();
-                    showMessage("Category deleted.");
-                } catch (error) {
-                    showMessage(error.message || "Could not delete category.", true);
-                }
-            }, true));
+                            await loadCatalog();
+                            showMessage("Category deleted.");
+                        } catch (error) {
+                            showMessage(
+                                error.message ||
+                                    "Could not delete category.",
+                                true
+                            );
+                        }
+                    },
+                    true
+                )
+            );
 
             row.append(actions);
             categoriesBody.append(row);
@@ -305,30 +401,34 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!categories.length) {
             const row = document.createElement("tr");
             const empty = document.createElement("td");
+
             empty.colSpan = 4;
             empty.className = "operations-empty";
             empty.textContent =
                 "No categories have been added to this restaurant yet.";
+
             row.append(empty);
             categoriesBody.append(row);
         }
 
-        // Update the card counts after edits, additions, or deletions.
+        // Refresh restaurant card counts without leaving the workspace.
         renderRestaurantCards();
+
         byId("restaurantCards").hidden = true;
         byId("restaurantCatalogWorkspace").hidden = false;
     }
 
-    // -------------------------------------------------------
-    // Load catalog from the existing backend endpoints
-    // -------------------------------------------------------
+    // =======================================================
+    // Load catalog
+    // =======================================================
 
     async function loadCatalog() {
-        const [foodData, categoryData, restaurantData] = await Promise.all([
-            request("/foods/admin?limit=100"),
-            request("/categories/admin?limit=100"),
-            request("/restaurants/admin?limit=100"),
-        ]);
+        const [foodData, categoryData, restaurantData] =
+            await Promise.all([
+                request("/foods/admin?limit=100"),
+                request("/categories/admin?limit=100"),
+                request("/restaurants/admin?limit=100"),
+            ]);
 
         catalogCache = {
             foods: listFrom(foodData, "foods"),
@@ -337,34 +437,40 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         const restaurantOptions = catalogCache.restaurants.map(
-            (restaurant) => new Option(restaurant.name, restaurant.id)
+            (restaurant) =>
+                new Option(restaurant.name, restaurant.id)
         );
 
-        [byId("foodRestaurant"), byId("categoryRestaurant")].forEach(
-            (select) => {
-                select.replaceChildren(
-                    ...restaurantOptions.map((option) => option.cloneNode(true))
-                );
-            }
-        );
+        [
+            byId("foodRestaurant"),
+            byId("categoryRestaurant"),
+        ].forEach((select) => {
+            if (!select) return;
+
+            select.replaceChildren(
+                ...restaurantOptions.map((option) =>
+                    option.cloneNode(true)
+                )
+            );
+        });
 
         renderRestaurantCards();
 
         if (selectedRestaurantId != null) {
-            const exists = catalogCache.restaurants.some(
-                (restaurant) => sameId(restaurant.id, selectedRestaurantId)
+            const restaurant = catalogCache.restaurants.find(
+                (item) =>
+                    sameId(item.id, selectedRestaurantId)
             );
 
-            if (exists) {
-                const restaurant = catalogCache.restaurants.find(
-                    (item) => sameId(item.id, selectedRestaurantId)
-                );
+            if (restaurant) {
+                byId("selectedRestaurantName").textContent =
+                    restaurant.name || "Restaurant";
 
-                byId("selectedRestaurantName").textContent = restaurant.name;
                 setRestaurantSelects(restaurant.id);
                 renderSelectedCatalog();
             } else {
                 selectedRestaurantId = null;
+
                 byId("restaurantCards").hidden = false;
                 byId("restaurantCatalogWorkspace").hidden = true;
             }
@@ -375,18 +481,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function refreshFoodCategories() {
-        const restaurantId = selectedRestaurantId;
         const categorySelect = byId("foodCategory");
+        if (!categorySelect) return;
+
         const previousCategory = categorySelect.value;
 
-        const categories = restaurantId == null
+        const categories = selectedRestaurantId == null
             ? []
-            : restaurantCategories(restaurantId);
+            : restaurantCategories(selectedRestaurantId);
 
         categorySelect.replaceChildren(
             new Option("No category", ""),
             ...categories.map(
-                (category) => new Option(category.name, category.id)
+                (category) =>
+                    new Option(category.name, category.id)
             )
         );
 
@@ -399,12 +507,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    
-    // -------------------------------------------------------
+    // =======================================================
     // Catalog edit modal
-    // -------------------------------------------------------
-
-    let catalogEditTrigger = null;
+    // =======================================================
 
     function openCatalogEditModal(type, item) {
         const modal = byId("catalogEditModal");
@@ -413,36 +518,65 @@ document.addEventListener("DOMContentLoaded", () => {
         const priceInput = byId("catalogEditPrice");
         const nameInput = byId("catalogEditName");
 
+        if (
+            !modal ||
+            !form ||
+            !priceGroup ||
+            !priceInput ||
+            !nameInput
+        ) {
+            showMessage(
+                "The edit modal is missing from operations.html. Add the catalog edit modal HTML first.",
+                true
+            );
+            return;
+        }
+
         catalogEditTrigger = document.activeElement;
 
         form.reset();
+
         byId("catalogEditError").hidden = true;
         byId("catalogEditError").textContent = "";
 
         byId("catalogEditType").value = type;
         byId("catalogEditId").value = String(item.id);
+
         nameInput.value = item.name || "";
 
         if (type === "food") {
-            byId("catalogEditTitle").textContent = "Edit food item";
+            byId("catalogEditTitle").textContent =
+                "Edit food item";
+
             byId("catalogEditDescription").textContent =
                 "Update the food name and price.";
-            byId("catalogEditNameLabel").textContent = "Food name";
+
+            byId("catalogEditNameLabel").textContent =
+                "Food name";
 
             nameInput.maxLength = 150;
+
             priceGroup.hidden = false;
             priceInput.required = true;
             priceInput.value = String(item.price ?? "");
-        } else {
-            byId("catalogEditTitle").textContent = "Edit category";
+        } else if (type === "category") {
+            byId("catalogEditTitle").textContent =
+                "Edit category";
+
             byId("catalogEditDescription").textContent =
                 "Update the category name.";
-            byId("catalogEditNameLabel").textContent = "Category name";
+
+            byId("catalogEditNameLabel").textContent =
+                "Category name";
 
             nameInput.maxLength = 100;
+
             priceGroup.hidden = true;
             priceInput.required = false;
             priceInput.value = "";
+        } else {
+            showMessage("Invalid item type.", true);
+            return;
         }
 
         modal.hidden = false;
@@ -455,7 +589,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function closeCatalogEditModal() {
         const modal = byId("catalogEditModal");
 
-        if (modal.hidden) return;
+        if (!modal || modal.hidden) return;
 
         modal.hidden = true;
         document.body.classList.remove("catalog-modal-open");
@@ -471,116 +605,152 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function showCatalogEditError(text) {
         const error = byId("catalogEditError");
+
         error.textContent = text;
         error.hidden = false;
     }
 
-    byId("catalogEditForm").addEventListener("submit", async (event) => {
-        event.preventDefault();
+    const catalogEditForm = byId("catalogEditForm");
 
-        const type = byId("catalogEditType").value;
-        const id = byId("catalogEditId").value;
-        const name = byId("catalogEditName").value.trim();
-        const priceValue = byId("catalogEditPrice").value;
-        const saveButton = byId("catalogEditSave");
+    if (catalogEditForm) {
+        catalogEditForm.addEventListener(
+            "submit",
+            async (event) => {
+                event.preventDefault();
 
-        if (type !== "food" && type !== "category") {
-            showCatalogEditError("Invalid item type.");
-            return;
-        }
+                const type = byId("catalogEditType").value;
+                const id = byId("catalogEditId").value;
+                const name = byId("catalogEditName").value.trim();
+                const priceValue = byId("catalogEditPrice").value;
+                const saveButton = byId("catalogEditSave");
 
-        if (!id || !name) {
-            showCatalogEditError("Please enter a valid name.");
-            return;
-        }
+                if (
+                    type !== "food" &&
+                    type !== "category"
+                ) {
+                    showCatalogEditError(
+                        "Invalid item type."
+                    );
+                    return;
+                }
 
-        const body = { name };
+                if (!id || !name) {
+                    showCatalogEditError(
+                        "Please enter a valid name."
+                    );
+                    return;
+                }
 
-        if (type === "food") {
-            if (priceValue.trim() === "") {
-                showCatalogEditError("Please enter a price.");
-                return;
+                const body = { name };
+
+                if (type === "food") {
+                    if (priceValue.trim() === "") {
+                        showCatalogEditError(
+                            "Please enter a price."
+                        );
+                        return;
+                    }
+
+                    const price = Number(priceValue);
+
+                    if (
+                        !Number.isFinite(price) ||
+                        price < 0
+                    ) {
+                        showCatalogEditError(
+                            "Price must be a valid non-negative number."
+                        );
+                        return;
+                    }
+
+                    body.price = price;
+                }
+
+                saveButton.disabled = true;
+                saveButton.textContent = "Saving...";
+
+                byId("catalogEditCancel").disabled = true;
+                byId("catalogEditClose").disabled = true;
+
+                try {
+                    const endpoint = type === "food"
+                        ? `/foods/admin/${encodeURIComponent(id)}`
+                        : `/categories/admin/${encodeURIComponent(id)}`;
+
+                    await request(endpoint, {
+                        method: "PUT",
+                        body,
+                    });
+
+                    closeCatalogEditModal();
+
+                    await loadCatalog();
+
+                    showMessage(
+                        type === "food"
+                            ? "Food item updated successfully."
+                            : "Category updated successfully."
+                    );
+                } catch (error) {
+                    showCatalogEditError(
+                        error.message ||
+                            "Could not save changes. Please try again."
+                    );
+                } finally {
+                    saveButton.disabled = false;
+                    saveButton.textContent = "Save changes";
+
+                    byId("catalogEditCancel").disabled = false;
+                    byId("catalogEditClose").disabled = false;
+                }
             }
+        );
+    }
 
-            const price = Number(priceValue);
+    const catalogEditCancel = byId("catalogEditCancel");
+    const catalogEditClose = byId("catalogEditClose");
+    const catalogEditModal = byId("catalogEditModal");
 
-            if (!Number.isFinite(price) || price < 0) {
-                showCatalogEditError(
-                    "Price must be a valid non-negative number."
-                );
-                return;
+    if (catalogEditCancel) {
+        catalogEditCancel.addEventListener(
+            "click",
+            closeCatalogEditModal
+        );
+    }
+
+    if (catalogEditClose) {
+        catalogEditClose.addEventListener(
+            "click",
+            closeCatalogEditModal
+        );
+    }
+
+    if (catalogEditModal) {
+        catalogEditModal.addEventListener(
+            "click",
+            (event) => {
+                if (
+                    event.target.matches("[data-close-modal]")
+                ) {
+                    closeCatalogEditModal();
+                }
             }
-
-            body.price = price;
-        }
-
-        saveButton.disabled = true;
-        saveButton.textContent = "Saving...";
-
-        byId("catalogEditCancel").disabled = true;
-        byId("catalogEditClose").disabled = true;
-
-        try {
-            const endpoint = type === "food"
-                ? `/foods/admin/${encodeURIComponent(id)}`
-                : `/categories/admin/${encodeURIComponent(id)}`;
-
-            await request(endpoint, {
-                method: "PUT",
-                body,
-            });
-
-            closeCatalogEditModal();
-
-            await loadCatalog();
-
-            showMessage(
-                type === "food"
-                    ? "Food item updated successfully."
-                    : "Category updated successfully."
-            );
-        } catch (error) {
-            showCatalogEditError(
-                error.message || "Could not save changes. Please try again."
-            );
-        } finally {
-            saveButton.disabled = false;
-            saveButton.textContent = "Save changes";
-
-            byId("catalogEditCancel").disabled = false;
-            byId("catalogEditClose").disabled = false;
-        }
-    });
-
-    byId("catalogEditCancel").addEventListener(
-        "click",
-        closeCatalogEditModal
-    );
-
-    byId("catalogEditClose").addEventListener(
-        "click",
-        closeCatalogEditModal
-    );
-
-    byId("catalogEditModal").addEventListener("click", (event) => {
-        if (event.target.matches("[data-close-modal]")) {
-            closeCatalogEditModal();
-        }
-    });
+        );
+    }
 
     document.addEventListener("keydown", (event) => {
         if (
             event.key === "Escape" &&
-            !byId("catalogEditModal").hidden
+            catalogEditModal &&
+            !catalogEditModal.hidden
         ) {
             closeCatalogEditModal();
         }
     });
 
-
-    // -------------------------------------------------------
+    // =======================================================
     // Pagination
-    // -------------------------------------------------------
+    // =======================================================
 
     function renderPager(key, elementId) {
         const host = byId(elementId);
@@ -590,35 +760,57 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const pagination = listPagination[key];
 
-        if (!pagination || Number(pagination.totalPages || 1) <= 1) {
-            if (pagination && Number(pagination.totalItems || 0) > 0) {
-                host.textContent = `${pagination.totalItems} records`;
+        if (
+            !pagination ||
+            Number(pagination.totalPages || 1) <= 1
+        ) {
+            if (
+                pagination &&
+                Number(pagination.totalItems || 0) > 0
+            ) {
+                host.textContent =
+                    `${pagination.totalItems} records`;
             }
+
             return;
         }
 
         const label = document.createElement("span");
+
         label.textContent =
             `Page ${pagination.page} of ${pagination.totalPages} · ${pagination.totalItems} records`;
 
-        const previous = button("Previous", async () => {
-            if (listPages[key] > 1) {
-                listPages[key]--;
-                await loadPage(key);
-            }
-        }, true);
+        const previous = button(
+            "Previous",
+            async () => {
+                if (listPages[key] > 1) {
+                    listPages[key]--;
+                    await loadPage(key);
+                }
+            },
+            true
+        );
 
-        previous.disabled = Number(pagination.page) <= 1;
+        previous.disabled =
+            Number(pagination.page) <= 1;
 
-        const next = button("Next", async () => {
-            if (listPages[key] < Number(pagination.totalPages)) {
-                listPages[key]++;
-                await loadPage(key);
-            }
-        }, true);
+        const next = button(
+            "Next",
+            async () => {
+                if (
+                    listPages[key] <
+                    Number(pagination.totalPages)
+                ) {
+                    listPages[key]++;
+                    await loadPage(key);
+                }
+            },
+            true
+        );
 
         next.disabled =
-            Number(pagination.page) >= Number(pagination.totalPages);
+            Number(pagination.page) >=
+            Number(pagination.totalPages);
 
         host.append(label, previous, next);
     }
@@ -629,13 +821,16 @@ document.addEventListener("DOMContentLoaded", () => {
             if (key === "reviews") await loadReviews();
             if (key === "audit") await loadAudit();
         } catch (error) {
-            showMessage(error.message || "Could not load this page.", true);
+            showMessage(
+                error.message || "Could not load this page.",
+                true
+            );
         }
     }
 
-    // -------------------------------------------------------
+    // =======================================================
     // Administrator accounts
-    // -------------------------------------------------------
+    // =======================================================
 
     async function loadAdmins() {
         const data = await request(
@@ -643,8 +838,11 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         const admins = listFrom(data, "admins");
+
         listPagination.admins =
-            data?.data?.pagination || data?.pagination || null;
+            data?.data?.pagination ||
+            data?.pagination ||
+            null;
 
         renderPager("admins", "adminsPager");
 
@@ -654,15 +852,23 @@ document.addEventListener("DOMContentLoaded", () => {
         admins.forEach((admin) => {
             const row = document.createElement("tr");
 
-            cell(row, `${admin.first_name} ${admin.last_name}`);
+            cell(
+                row,
+                `${admin.first_name} ${admin.last_name}`
+            );
+
             cell(row, admin.email);
             cell(row, admin.phone);
-            cell(row, admin.is_active ? "Active" : "Inactive");
+            cell(
+                row,
+                admin.is_active ? "Active" : "Inactive"
+            );
 
             const actions = document.createElement("td");
 
             if (admin.is_active) {
-                const isSelf = currentAdminId != null &&
+                const isSelf =
+                    currentAdminId != null &&
                     sameId(admin.id, currentAdminId);
 
                 const deactivate = button(
@@ -670,17 +876,30 @@ document.addEventListener("DOMContentLoaded", () => {
                     async () => {
                         if (isSelf) return;
 
-                        if (!window.confirm(`Deactivate ${admin.email}?`)) return;
+                        if (
+                            !window.confirm(
+                                `Deactivate ${admin.email}?`
+                            )
+                        ) {
+                            return;
+                        }
 
                         try {
-                            await request(`/admins/${admin.id}`, {
-                                method: "DELETE",
-                            });
+                            await request(
+                                `/admins/${encodeURIComponent(admin.id)}`,
+                                { method: "DELETE" }
+                            );
 
                             await loadAdmins();
-                            showMessage("Administrator deactivated.");
+                            showMessage(
+                                "Administrator deactivated."
+                            );
                         } catch (error) {
-                            showMessage(error.message, true);
+                            showMessage(
+                                error.message ||
+                                    "Could not deactivate administrator.",
+                                true
+                            );
                         }
                     },
                     true
@@ -695,18 +914,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 actions.append(deactivate);
             } else {
-                actions.append(button("Activate", async () => {
-                    try {
-                        await request(`/admins/${admin.id}/activate`, {
-                            method: "PATCH",
-                        });
+                actions.append(
+                    button("Activate", async () => {
+                        try {
+                            await request(
+                                `/admins/${encodeURIComponent(admin.id)}/activate`,
+                                { method: "PATCH" }
+                            );
 
-                        await loadAdmins();
-                        showMessage("Administrator activated.");
-                    } catch (error) {
-                        showMessage(error.message, true);
-                    }
-                }));
+                            await loadAdmins();
+                            showMessage(
+                                "Administrator activated."
+                            );
+                        } catch (error) {
+                            showMessage(
+                                error.message ||
+                                    "Could not activate administrator.",
+                                true
+                            );
+                        }
+                    })
+                );
             }
 
             row.append(actions);
@@ -714,14 +942,22 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (!admins.length) {
-            body.innerHTML =
-                '<tr><td colspan="5" class="operations-empty">No administrator accounts found.</td></tr>';
+            const row = document.createElement("tr");
+            const empty = document.createElement("td");
+
+            empty.colSpan = 5;
+            empty.className = "operations-empty";
+            empty.textContent =
+                "No administrator accounts found.";
+
+            row.append(empty);
+            body.append(row);
         }
     }
 
-    // -------------------------------------------------------
+    // =======================================================
     // Reviews
-    // -------------------------------------------------------
+    // =======================================================
 
     async function loadReviews() {
         const params = new URLSearchParams({
@@ -731,11 +967,16 @@ document.addEventListener("DOMContentLoaded", () => {
             search: byId("reviewSearch").value.trim(),
         });
 
-        const data = await request(`/admins/reviews?${params}`);
+        const data = await request(
+            `/admins/reviews?${params}`
+        );
+
         const reviews = listFrom(data, "reviews");
 
         listPagination.reviews =
-            data?.data?.pagination || data?.pagination || null;
+            data?.data?.pagination ||
+            data?.pagination ||
+            null;
 
         renderPager("reviews", "reviewsPager");
 
@@ -749,50 +990,76 @@ document.addEventListener("DOMContentLoaded", () => {
             cell(row, review.restaurant_name);
             cell(row, `${review.rating} / 5`);
             cell(row, review.comment);
-            cell(row, new Date(review.created_at).toLocaleDateString());
-            cell(row, review.is_visible ? "Visible" : "Hidden");
+
+            cell(
+                row,
+                review.created_at
+                    ? new Date(review.created_at).toLocaleDateString()
+                    : "—"
+            );
+
+            cell(
+                row,
+                review.is_visible ? "Visible" : "Hidden"
+            );
 
             const actions = document.createElement("td");
 
-            actions.append(button(
-                review.is_visible ? "Hide" : "Restore",
-                async () => {
-                    try {
-                        await request(
-                            `/admins/reviews/${review.id}/visibility`,
-                            {
-                                method: "PATCH",
-                                body: { is_visible: !review.is_visible },
-                            }
-                        );
+            actions.append(
+                button(
+                    review.is_visible ? "Hide" : "Restore",
+                    async () => {
+                        try {
+                            await request(
+                                `/admins/reviews/${encodeURIComponent(review.id)}/visibility`,
+                                {
+                                    method: "PATCH",
+                                    body: {
+                                        is_visible: !review.is_visible,
+                                    },
+                                }
+                            );
 
-                        await loadReviews();
+                            await loadReviews();
 
-                        showMessage(
-                            review.is_visible
-                                ? "Review hidden from customers."
-                                : "Review restored."
-                        );
-                    } catch (error) {
-                        showMessage(error.message, true);
-                    }
-                },
-                review.is_visible
-            ));
+                            showMessage(
+                                review.is_visible
+                                    ? "Review hidden from customers."
+                                    : "Review restored."
+                            );
+                        } catch (error) {
+                            showMessage(
+                                error.message ||
+                                    "Could not update review visibility.",
+                                true
+                            );
+                        }
+                    },
+                    review.is_visible
+                )
+            );
 
             row.append(actions);
             body.append(row);
         });
 
         if (!reviews.length) {
-            body.innerHTML =
-                '<tr><td colspan="7" class="operations-empty">No reviews match this filter.</td></tr>';
+            const row = document.createElement("tr");
+            const empty = document.createElement("td");
+
+            empty.colSpan = 7;
+            empty.className = "operations-empty";
+            empty.textContent =
+                "No reviews match this filter.";
+
+            row.append(empty);
+            body.append(row);
         }
     }
 
-    // -------------------------------------------------------
+    // =======================================================
     // Audit history
-    // -------------------------------------------------------
+    // =======================================================
 
     async function loadAudit() {
         const data = await request(
@@ -802,7 +1069,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const logs = listFrom(data, "logs");
 
         listPagination.audit =
-            data?.data?.pagination || data?.pagination || null;
+            data?.data?.pagination ||
+            data?.pagination ||
+            null;
 
         renderPager("audit", "auditPager");
 
@@ -812,8 +1081,20 @@ document.addEventListener("DOMContentLoaded", () => {
         logs.forEach((log) => {
             const row = document.createElement("tr");
 
-            cell(row, new Date(log.created_at).toLocaleString());
-            cell(row, log.admin_name || log.admin_email || "Admin removed");
+            cell(
+                row,
+                log.created_at
+                    ? new Date(log.created_at).toLocaleString()
+                    : "—"
+            );
+
+            cell(
+                row,
+                log.admin_name ||
+                    log.admin_email ||
+                    "Admin removed"
+            );
+
             cell(row, log.action);
             cell(row, log.resource);
 
@@ -821,224 +1102,370 @@ document.addEventListener("DOMContentLoaded", () => {
 
             cell(
                 row,
-                `${statusCode >= 200 && statusCode < 400 ? "Success" : "Failed"} (${statusCode})`
+                `${
+                    statusCode >= 200 && statusCode < 400
+                        ? "Success"
+                        : "Failed"
+                } (${statusCode})`
             );
 
             body.append(row);
         });
 
         if (!logs.length) {
-            body.innerHTML =
-                '<tr><td colspan="5" class="operations-empty">No recorded admin changes yet.</td></tr>';
+            const row = document.createElement("tr");
+            const empty = document.createElement("td");
+
+            empty.colSpan = 5;
+            empty.className = "operations-empty";
+            empty.textContent =
+                "No recorded admin changes yet.";
+
+            row.append(empty);
+            body.append(row);
         }
     }
 
-    // -------------------------------------------------------
-    // Add food to the selected restaurant
-    // -------------------------------------------------------
+    // =======================================================
+    // Add food
+    // =======================================================
 
-    byId("foodForm").addEventListener("submit", async (event) => {
-        event.preventDefault();
+    byId("foodForm").addEventListener(
+        "submit",
+        async (event) => {
+            event.preventDefault();
 
-        if (selectedRestaurantId == null) {
-            showMessage("Select a restaurant first.", true);
-            return;
-        }
+            if (selectedRestaurantId == null) {
+                showMessage(
+                    "Select a restaurant first.",
+                    true
+                );
+                return;
+            }
 
-        const name = byId("foodName").value.trim();
-        const price = Number(byId("foodPrice").value);
-        const preparation = byId("foodPrep").value;
+            const name = byId("foodName").value.trim();
+            const priceValue = byId("foodPrice").value;
+            const price = Number(priceValue);
+            const preparation = byId("foodPrep").value;
 
-        if (!name || !Number.isFinite(price) || price < 0) {
-            showMessage("Enter a food name and a valid price.", true);
-            return;
-        }
-
-        try {
-            await request("/foods/admin", {
-                method: "POST",
-                body: {
-                    restaurant_id: Number(selectedRestaurantId),
-                    category_id: byId("foodCategory").value
-                        ? Number(byId("foodCategory").value)
-                        : null,
-                    name,
-                    price,
-                    preparation_time: preparation
-                        ? Number(preparation)
-                        : null,
-                },
-            });
-
-            event.currentTarget.reset();
-
-            // Resetting a form can change hidden selects; restore the chosen restaurant.
-            setRestaurantSelects(selectedRestaurantId);
-
-            await loadCatalog();
-            showMessage("Food item created.");
-        } catch (error) {
-            showMessage(error.message || "Could not create food item.", true);
-        }
-    });
-
-    // -------------------------------------------------------
-    // Add category to the selected restaurant
-    // -------------------------------------------------------
-
-    byId("categoryForm").addEventListener("submit", async (event) => {
-        event.preventDefault();
-
-        if (selectedRestaurantId == null) {
-            showMessage("Select a restaurant first.", true);
-            return;
-        }
-
-        const name = byId("categoryName").value.trim();
-
-        if (!name) {
-            showMessage("Enter a category name.", true);
-            return;
-        }
-
-        try {
-            await request("/categories/admin", {
-                method: "POST",
-                body: {
-                    restaurant_id: Number(selectedRestaurantId),
-                    name,
-                },
-            });
-
-            event.currentTarget.reset();
-            setRestaurantSelects(selectedRestaurantId);
-
-            await loadCatalog();
-            showMessage("Category created.");
-        } catch (error) {
-            showMessage(error.message || "Could not create category.", true);
-        }
-    });
-
-    // -------------------------------------------------------
-    // Create administrator
-    // -------------------------------------------------------
-
-    byId("adminForm").addEventListener("submit", async (event) => {
-        event.preventDefault();
-
-        try {
-            await request("/admins", {
-                method: "POST",
-                body: {
-                    first_name: byId("newAdminFirst").value.trim(),
-                    last_name: byId("newAdminLast").value.trim(),
-                    email: byId("newAdminEmail").value.trim(),
-                    phone: byId("newAdminPhone").value.trim() || null,
-                    password: byId("newAdminPassword").value,
-                },
-            });
-
-            event.currentTarget.reset();
-            await loadAdmins();
-            showMessage("Administrator account created.");
-        } catch (error) {
-            showMessage(error.message || "Could not create administrator.", true);
-        }
-    });
-
-    // -------------------------------------------------------
-    // Return to the restaurant cards
-    // -------------------------------------------------------
-
-    byId("backToRestaurants").addEventListener("click", () => {
-        selectedRestaurantId = null;
-
-        byId("restaurantCatalogWorkspace").hidden = true;
-        byId("restaurantCards").hidden = false;
-        byId("foodSearch").value = "";
-
-        showMessage("");
-    });
-
-    // -------------------------------------------------------
-    // Tabs
-    // -------------------------------------------------------
-
-    document.querySelectorAll(".operations-tabs button").forEach((tab) => {
-        tab.addEventListener("click", async () => {
-            document.querySelectorAll(".operations-tabs button").forEach(
-                (item) => item.classList.toggle("active", item === tab)
-            );
-
-            document.querySelectorAll(".operations-panel").forEach((panel) => {
-                panel.hidden = panel.id !== `panel-${tab.dataset.panel}`;
-            });
+            if (
+                !name ||
+                priceValue.trim() === "" ||
+                !Number.isFinite(price) ||
+                price < 0
+            ) {
+                showMessage(
+                    "Enter a food name and a valid price.",
+                    true
+                );
+                return;
+            }
 
             try {
-                if (tab.dataset.panel === "catalog") await loadCatalog();
-                if (tab.dataset.panel === "admins") await loadAdmins();
-                if (tab.dataset.panel === "reviews") await loadReviews();
-                if (tab.dataset.panel === "audit") await loadAudit();
+                await request("/foods/admin", {
+                    method: "POST",
+                    body: {
+                        restaurant_id:
+                            Number(selectedRestaurantId),
+
+                        category_id:
+                            byId("foodCategory").value
+                                ? Number(
+                                    byId("foodCategory").value
+                                )
+                                : null,
+
+                        name,
+                        price,
+
+                        preparation_time: preparation
+                            ? Number(preparation)
+                            : null,
+                    },
+                });
+
+                event.currentTarget.reset();
+
+                setRestaurantSelects(
+                    selectedRestaurantId
+                );
+
+                await loadCatalog();
+                showMessage("Food item created.");
             } catch (error) {
                 showMessage(
-                    error.message || "Could not load operations data.",
+                    error.message ||
+                        "Could not create food item.",
                     true
                 );
             }
-        });
-    });
+        }
+    );
 
-    // -------------------------------------------------------
+    // =======================================================
+    // Add category
+    // =======================================================
+
+    byId("categoryForm").addEventListener(
+        "submit",
+        async (event) => {
+            event.preventDefault();
+
+            if (selectedRestaurantId == null) {
+                showMessage(
+                    "Select a restaurant first.",
+                    true
+                );
+                return;
+            }
+
+            const name =
+                byId("categoryName").value.trim();
+
+            if (!name) {
+                showMessage(
+                    "Enter a category name.",
+                    true
+                );
+                return;
+            }
+
+            try {
+                await request("/categories/admin", {
+                    method: "POST",
+                    body: {
+                        restaurant_id:
+                            Number(selectedRestaurantId),
+                        name,
+                    },
+                });
+
+                event.currentTarget.reset();
+
+                setRestaurantSelects(
+                    selectedRestaurantId
+                );
+
+                await loadCatalog();
+                showMessage("Category created.");
+            } catch (error) {
+                showMessage(
+                    error.message ||
+                        "Could not create category.",
+                    true
+                );
+            }
+        }
+    );
+
+    // =======================================================
+    // Create administrator
+    // =======================================================
+
+    byId("adminForm").addEventListener(
+        "submit",
+        async (event) => {
+            event.preventDefault();
+
+            try {
+                await request("/admins", {
+                    method: "POST",
+                    body: {
+                        first_name:
+                            byId("newAdminFirst").value.trim(),
+
+                        last_name:
+                            byId("newAdminLast").value.trim(),
+
+                        email:
+                            byId("newAdminEmail").value.trim(),
+
+                        phone:
+                            byId("newAdminPhone").value.trim() ||
+                            null,
+
+                        password:
+                            byId("newAdminPassword").value,
+                    },
+                });
+
+                event.currentTarget.reset();
+
+                await loadAdmins();
+
+                showMessage(
+                    "Administrator account created."
+                );
+            } catch (error) {
+                showMessage(
+                    error.message ||
+                        "Could not create administrator.",
+                    true
+                );
+            }
+        }
+    );
+
+    // =======================================================
+    // Return to restaurant cards
+    // =======================================================
+
+    byId("backToRestaurants").addEventListener(
+        "click",
+        () => {
+            selectedRestaurantId = null;
+
+            byId("restaurantCatalogWorkspace").hidden = true;
+            byId("restaurantCards").hidden = false;
+            byId("foodSearch").value = "";
+
+            showMessage("");
+        }
+    );
+
+    // =======================================================
+    // Tabs
+    // =======================================================
+
+    document
+        .querySelectorAll(".operations-tabs button")
+        .forEach((tab) => {
+            tab.addEventListener(
+                "click",
+                async () => {
+                    document
+                        .querySelectorAll(".operations-tabs button")
+                        .forEach((item) => {
+                            item.classList.toggle(
+                                "active",
+                                item === tab
+                            );
+                        });
+
+                    document
+                        .querySelectorAll(".operations-panel")
+                        .forEach((panel) => {
+                            panel.hidden =
+                                panel.id !==
+                                `panel-${tab.dataset.panel}`;
+                        });
+
+                    try {
+                        if (tab.dataset.panel === "catalog") {
+                            await loadCatalog();
+                        }
+
+                        if (tab.dataset.panel === "admins") {
+                            await loadAdmins();
+                        }
+
+                        if (tab.dataset.panel === "reviews") {
+                            await loadReviews();
+                        }
+
+                        if (tab.dataset.panel === "audit") {
+                            await loadAudit();
+                        }
+                    } catch (error) {
+                        showMessage(
+                            error.message ||
+                                "Could not load operations data.",
+                            true
+                        );
+                    }
+                }
+            );
+        });
+
+    // =======================================================
     // Refresh and search handlers
-    // -------------------------------------------------------
+    // =======================================================
 
-    byId("foodSearch").addEventListener("input", () => {
-        clearTimeout(foodSearchTimer);
+    byId("foodSearch").addEventListener(
+        "input",
+        () => {
+            clearTimeout(foodSearchTimer);
 
-        foodSearchTimer = setTimeout(() => {
-            renderSelectedCatalog();
-        }, 200);
-    });
+            foodSearchTimer = setTimeout(() => {
+                renderSelectedCatalog();
+            }, 200);
+        }
+    );
 
-    byId("refreshCatalog").addEventListener("click", () => {
-        loadCatalog().catch((error) => {
-            showMessage(error.message || "Could not refresh catalog.", true);
-        });
-    });
+    byId("refreshCatalog").addEventListener(
+        "click",
+        () => {
+            loadCatalog().catch((error) => {
+                showMessage(
+                    error.message ||
+                        "Could not refresh catalog.",
+                    true
+                );
+            });
+        }
+    );
 
-    byId("reviewVisibility").addEventListener("change", () => {
-        listPages.reviews = 1;
-        loadReviews().catch((error) => showMessage(error.message, true));
-    });
+    byId("reviewVisibility").addEventListener(
+        "change",
+        () => {
+            listPages.reviews = 1;
 
-    byId("reviewSearch").addEventListener("input", () => {
-        listPages.reviews = 1;
-        clearTimeout(reviewSearchTimer);
+            loadReviews().catch((error) => {
+                showMessage(error.message, true);
+            });
+        }
+    );
 
-        reviewSearchTimer = setTimeout(() => {
-            loadReviews().catch((error) => showMessage(error.message, true));
-        }, 300);
-    });
+    byId("reviewSearch").addEventListener(
+        "input",
+        () => {
+            listPages.reviews = 1;
+            clearTimeout(reviewSearchTimer);
 
-    byId("refreshReviews").addEventListener("click", () => {
-        loadReviews().catch((error) => showMessage(error.message, true));
-    });
+            reviewSearchTimer = setTimeout(() => {
+                loadReviews().catch((error) => {
+                    showMessage(error.message, true);
+                });
+            }, 300);
+        }
+    );
 
-    byId("refreshAudit").addEventListener("click", () => {
-        loadAudit().catch((error) => showMessage(error.message, true));
-    });
+    byId("refreshReviews").addEventListener(
+        "click",
+        () => {
+            loadReviews().catch((error) => {
+                showMessage(error.message, true);
+            });
+        }
+    );
+
+    byId("refreshAudit").addEventListener(
+        "click",
+        () => {
+            loadAudit().catch((error) => {
+                showMessage(error.message, true);
+            });
+        }
+    );
 
     // Load the signed-in administrator ID for self-deactivation protection.
     request("/admins/me")
         .then((data) => {
-            const admin = data?.data?.admin || data?.admin;
+            const admin =
+                data?.data?.admin || data?.admin;
+
             currentAdminId = admin?.id ?? null;
         })
-        .catch(() => {});
+        .catch(() => {
+            // Keep the rest of the Operations page usable if this lookup fails.
+        });
 
     // Initial catalog load.
     loadCatalog().catch((error) => {
-        showMessage(error.message || "Could not load catalog data.", true);
+        showMessage(
+            error.message ||
+                "Could not load catalog data.",
+            true
+        );
     });
 });
