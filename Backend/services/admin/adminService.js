@@ -1248,682 +1248,182 @@ async function getDashboard(
    REPORTS
 ========================================================= */
 
-async function getReports(
-    period = "30d",
-    { startDate, endDate } = {}
-) {
+async function getReports(period = "30d", { startDate, endDate } = {}) {
     const periodConfig = {
-        "7d": {
-            days: 7,
-            bucket: "day"
-        },
-
-        "30d": {
-            days: 30,
-            bucket: "day"
-        },
-
-        "3m": {
-            days: 90,
-            bucket: "week"
-        },
-
-        "12m": {
-            days: 365,
-            bucket: "month"
-        }
+        "7d": { days: 7, bucket: "day" },
+        "30d": { days: 30, bucket: "day" },
+        "3m": { days: 90, bucket: "week" },
+        "12m": { days: 365, bucket: "month" }
     };
-
     const cfg = periodConfig[period];
+    if (!cfg) throw apiError("Invalid period. Use 7d, 30d, 3m or 12m");
 
-    if (!cfg) {
-        throw apiError(
-            "Invalid period. Use 7d, 30d, 3m or 12m"
-        );
+    const isValidDate = (value) => {
+        if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+        const date = new Date(`${value}T00:00:00.000Z`);
+        return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+    };
+    const customRange = startDate !== undefined || endDate !== undefined;
+    if (customRange && (!isValidDate(startDate) || !isValidDate(endDate))) {
+        throw apiError("Start date and end date must be valid YYYY-MM-DD dates");
     }
+    if (customRange && startDate > endDate) throw apiError("Start date cannot be after end date");
 
-    let customRange = false;
-
-    if (startDate !== undefined || endDate !== undefined) {
-        const isValidDate = (value) => {
-            if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-                return false;
-            }
-
-            const date = new Date(`${value}T00:00:00.000Z`);
-            return !Number.isNaN(date.getTime()) &&
-                date.toISOString().slice(0, 10) === value;
-        };
-
-        if (!isValidDate(startDate) || !isValidDate(endDate)) {
-            throw apiError(
-                "Start date and end date must be valid YYYY-MM-DD dates"
-            );
-        }
-
-        if (startDate > endDate) {
-            throw apiError("Start date cannot be after end date");
-        }
-
-        customRange = true;
-    }
-
-    const client =
-        await pool.connect();
-
+    const client = await pool.connect();
     try {
         await client.query("BEGIN");
-
         const boundsResult = customRange
-            ? await client.query(
-                `
-                SELECT
-                    $1::date AS cur_start,
-                    ($2::date + 1) AS cur_end,
-                    ($1::date - (($2::date - $1::date) + 1)) AS prev_start,
-                    $1::date AS prev_end
-                `,
-                [startDate, endDate]
-            )
-            : await client.query(
-                `
-                SELECT
-                    CURRENT_DATE -
-                        ($1::int - 1)
-                        AS cur_start,
+            ? await client.query(`
+                SELECT $1::date AS cur_start, ($2::date + 1) AS cur_end,
+                       ($1::date - (($2::date - $1::date) + 1)) AS prev_start,
+                       $1::date AS prev_end
+            `, [startDate, endDate])
+            : await client.query(`
+                SELECT CURRENT_DATE - ($1::int - 1) AS cur_start,
+                       CURRENT_DATE + 1 AS cur_end,
+                       CURRENT_DATE - (2 * $1::int - 1) AS prev_start,
+                       CURRENT_DATE - ($1::int - 1) AS prev_end
+            `, [cfg.days]);
+        const b = boundsResult.rows[0];
+        const dateOnly = value => value instanceof Date ? value.toISOString().slice(0, 10) : String(value).slice(0, 10);
+        const rangeDays = Math.max(1, Math.round((new Date(`${dateOnly(b.cur_end)}T00:00:00Z`) - new Date(`${dateOnly(b.cur_start)}T00:00:00Z`)) / 86400000));
+        const bucket = customRange ? (rangeDays <= 45 ? "day" : rangeDays <= 180 ? "week" : "month") : cfg.bucket;
 
-                    CURRENT_DATE + 1
-                        AS cur_end,
-
-                    CURRENT_DATE -
-                        (2 * $1::int - 1)
-                        AS prev_start,
-
-                    CURRENT_DATE -
-                        ($1::int - 1)
-                        AS prev_end
-                `,
-                [cfg.days]
-            );
-
-        const b =
-            boundsResult.rows[0];
-
-        const totalsResult =
-            await client.query(
-                `
-                SELECT
-
-                    (
-                        SELECT COUNT(*)
-                        FROM orders
-                        WHERE placed_at >= $1
-                          AND placed_at < $2
-                    )::int AS orders_current,
-
-                    (
-                        SELECT COUNT(*)
-                        FROM orders
-                        WHERE placed_at >= $3
-                          AND placed_at < $4
-                    )::int AS orders_previous,
-
-                    (
-                        SELECT COALESCE(
-                            SUM(amount),
-                            0
-                        )
-                        FROM payments
-                        WHERE payment_status =
-                            'completed'
-                          AND paid_at >= $1
-                          AND paid_at < $2
-                    )::numeric AS revenue_current,
-
-                    (
-                        SELECT COALESCE(
-                            SUM(amount),
-                            0
-                        )
-                        FROM payments
-                        WHERE payment_status =
-                            'completed'
-                          AND paid_at >= $3
-                          AND paid_at < $4
-                    )::numeric AS revenue_previous,
-
-                    (
-                        SELECT COUNT(*)
-                        FROM users
-                        WHERE role = 'customer'
-                          AND created_at >= $1
-                          AND created_at < $2
-                    )::int AS customers_new,
-
-                    (
-                        SELECT COUNT(*)
-                        FROM users
-                        WHERE role = 'customer'
-                    )::int AS customers_total,
-
-                    (
-                        SELECT COUNT(*)
-                        FROM restaurants
-                        WHERE created_at >= $1
-                          AND created_at < $2
-                    )::int AS restaurants_new,
-
-                    (
-                        SELECT COUNT(*)
-                        FROM restaurants
-                    )::int AS restaurants_total,
-
-                    (
-                        SELECT COUNT(*)
-                        FROM orders
-                        WHERE status = 'delivered'
-                          AND placed_at >= $1
-                          AND placed_at < $2
-                    )::int AS delivered_current,
-
-                    (
-                        SELECT COUNT(*)
-                        FROM orders
-                        WHERE status = 'cancelled'
-                          AND placed_at >= $1
-                          AND placed_at < $2
-                    )::int AS cancelled_current
-                `,
-                [
-                    b.cur_start,
-                    b.cur_end,
-                    b.prev_start,
-                    b.prev_end
-                ]
-            );
-
-        const t =
-            totalsResult.rows[0];
+        const totalsResult = await client.query(`
+            SELECT
+              (SELECT COUNT(*) FROM orders WHERE placed_at >= $1 AND placed_at < $2)::int AS orders_current,
+              (SELECT COUNT(*) FROM orders WHERE placed_at >= $3 AND placed_at < $4)::int AS orders_previous,
+              (SELECT COALESCE(SUM(amount),0) FROM payments WHERE payment_status='completed' AND paid_at >= $1 AND paid_at < $2)::numeric AS revenue_current,
+              (SELECT COALESCE(SUM(amount),0) FROM payments WHERE payment_status='completed' AND paid_at >= $3 AND paid_at < $4)::numeric AS revenue_previous,
+              (SELECT COUNT(*) FROM users WHERE role='customer' AND created_at >= $1 AND created_at < $2)::int AS customers_new,
+              (SELECT COUNT(*) FROM users WHERE role='customer')::int AS customers_total,
+              (SELECT COUNT(DISTINCT o.customer_id) FROM orders o WHERE o.placed_at >= $1 AND o.placed_at < $2)::int AS customers_active,
+              (SELECT COUNT(DISTINCT o.customer_id) FROM orders o JOIN users u ON u.id=o.customer_id WHERE u.role='customer' AND u.created_at < $1 AND o.placed_at >= $1 AND o.placed_at < $2)::int AS customers_returning,
+              (SELECT COUNT(*) FROM restaurants WHERE created_at >= $1 AND created_at < $2)::int AS restaurants_new,
+              (SELECT COUNT(*) FROM restaurants)::int AS restaurants_total,
+              (SELECT COUNT(*) FROM orders WHERE status='delivered' AND placed_at >= $1 AND placed_at < $2)::int AS delivered_current,
+              (SELECT COUNT(*) FROM orders WHERE status='cancelled' AND placed_at >= $1 AND placed_at < $2)::int AS cancelled_current,
+              (SELECT COUNT(DISTINCT order_id) FROM payments WHERE payment_status='completed' AND paid_at >= $1 AND paid_at < $2)::int AS paid_orders_current
+        `, [b.cur_start, b.cur_end, b.prev_start, b.prev_end]);
+        const t = totalsResult.rows[0];
 
         let seriesQuery;
-
-        if (cfg.bucket === "day") {
-            seriesQuery = `
-                WITH days AS (
-                    SELECT generate_series(
-                        $1::date,
-                        ($2::date - 1),
-                        '1 day'::interval
-                    )::date AS day
-                )
-
-                SELECT
-                    to_char(
-                        d.day,
-                        'Mon DD'
-                    ) AS label,
-
-                    COALESCE(
-                        (
-                            SELECT SUM(p.amount)
-                            FROM payments p
-                            WHERE p.payment_status =
-                                'completed'
-                              AND p.paid_at::date =
-                                  d.day
-                        ),
-                        0
-                    )::numeric AS revenue,
-
-                    COALESCE(
-                        (
-                            SELECT COUNT(*)
-                            FROM orders o
-                            WHERE o.placed_at::date =
-                                d.day
-                        ),
-                        0
-                    )::int AS orders
-
-                FROM days d
-                ORDER BY d.day
-            `;
-        } else if (cfg.bucket === "week") {
-            seriesQuery = `
-                WITH weeks AS (
-                    SELECT generate_series(
-                        date_trunc(
-                            'week',
-                            $1::timestamp
-                        ),
-                        date_trunc(
-                            'week',
-                            (
-                                $2::timestamp -
-                                interval '1 day'
-                            )
-                        ),
-                        '1 week'::interval
-                    )::date AS week_start
-                )
-
-                SELECT
-                    to_char(
-                        w.week_start,
-                        'Mon DD'
-                    ) AS label,
-
-                    COALESCE(
-                        (
-                            SELECT SUM(p.amount)
-                            FROM payments p
-                            WHERE p.payment_status =
-                                'completed'
-                              AND p.paid_at >=
-                                  w.week_start
-                              AND p.paid_at <
-                                  w.week_start +
-                                  interval '7 days'
-                        ),
-                        0
-                    )::numeric AS revenue,
-
-                    COALESCE(
-                        (
-                            SELECT COUNT(*)
-                            FROM orders o
-                            WHERE o.placed_at >=
-                                  w.week_start
-                              AND o.placed_at <
-                                  w.week_start +
-                                  interval '7 days'
-                        ),
-                        0
-                    )::int AS orders
-
-                FROM weeks w
-                ORDER BY w.week_start
-            `;
+        if (bucket === "day") {
+            seriesQuery = `WITH buckets AS (SELECT generate_series($1::date, ($2::date - 1), '1 day'::interval)::date AS bucket_start)
+                SELECT to_char(x.bucket_start,'Mon DD') AS label,
+                  COALESCE((SELECT SUM(p.amount) FROM payments p WHERE p.payment_status='completed' AND p.paid_at >= x.bucket_start AND p.paid_at < x.bucket_start + interval '1 day'),0)::numeric AS revenue,
+                  (SELECT COUNT(*) FROM orders o WHERE o.placed_at >= x.bucket_start AND o.placed_at < x.bucket_start + interval '1 day')::int AS orders
+                FROM buckets x ORDER BY x.bucket_start`;
+        } else if (bucket === "week") {
+            seriesQuery = `WITH buckets AS (SELECT generate_series(date_trunc('week',$1::timestamp), date_trunc('week',($2::timestamp - interval '1 day')), '1 week'::interval)::date AS bucket_start)
+                SELECT to_char(x.bucket_start,'Mon DD') AS label,
+                  COALESCE((SELECT SUM(p.amount) FROM payments p WHERE p.payment_status='completed' AND p.paid_at >= GREATEST(x.bucket_start, $1::date) AND p.paid_at < LEAST(x.bucket_start + interval '7 days', $2::date)),0)::numeric AS revenue,
+                  (SELECT COUNT(*) FROM orders o WHERE o.placed_at >= GREATEST(x.bucket_start, $1::date) AND o.placed_at < LEAST(x.bucket_start + interval '7 days', $2::date))::int AS orders
+                FROM buckets x ORDER BY x.bucket_start`;
         } else {
-            seriesQuery = `
-                WITH months AS (
-                    SELECT generate_series(
-                        date_trunc(
-                            'month',
-                            $1::timestamp
-                        ),
-                        date_trunc(
-                            'month',
-                            (
-                                $2::timestamp -
-                                interval '1 day'
-                            )
-                        ),
-                        '1 month'::interval
-                    )::date AS month_start
-                )
-
-                SELECT
-                    to_char(
-                        m.month_start,
-                        'Mon YYYY'
-                    ) AS label,
-
-                    COALESCE(
-                        (
-                            SELECT SUM(p.amount)
-                            FROM payments p
-                            WHERE p.payment_status =
-                                'completed'
-                              AND p.paid_at >=
-                                  m.month_start
-                              AND p.paid_at <
-                                  m.month_start +
-                                  interval '1 month'
-                        ),
-                        0
-                    )::numeric AS revenue,
-
-                    COALESCE(
-                        (
-                            SELECT COUNT(*)
-                            FROM orders o
-                            WHERE o.placed_at >=
-                                  m.month_start
-                              AND o.placed_at <
-                                  m.month_start +
-                                  interval '1 month'
-                        ),
-                        0
-                    )::int AS orders
-
-                FROM months m
-                ORDER BY m.month_start
-            `;
+            seriesQuery = `WITH buckets AS (SELECT generate_series(date_trunc('month',$1::timestamp), date_trunc('month',($2::timestamp - interval '1 day')), '1 month'::interval)::date AS bucket_start)
+                SELECT to_char(x.bucket_start,'Mon YYYY') AS label,
+                  COALESCE((SELECT SUM(p.amount) FROM payments p WHERE p.payment_status='completed' AND p.paid_at >= GREATEST(x.bucket_start, $1::date) AND p.paid_at < LEAST(x.bucket_start + interval '1 month', $2::date)),0)::numeric AS revenue,
+                  (SELECT COUNT(*) FROM orders o WHERE o.placed_at >= GREATEST(x.bucket_start, $1::date) AND o.placed_at < LEAST(x.bucket_start + interval '1 month', $2::date))::int AS orders
+                FROM buckets x ORDER BY x.bucket_start`;
         }
+        const seriesResult = await client.query(seriesQuery, [b.cur_start, b.cur_end]);
 
-        const seriesResult =
-            await client.query(
-                seriesQuery,
-                [
-                    b.cur_start,
-                    b.cur_end
-                ]
-            );
+        const topRestaurantsResult = await client.query(`
+            WITH order_counts AS (
+                SELECT restaurant_id, COUNT(*)::int AS order_count
+                FROM orders WHERE placed_at >= $1 AND placed_at < $2
+                GROUP BY restaurant_id
+            ), payment_revenue AS (
+                SELECT o.restaurant_id, COALESCE(SUM(p.amount), 0)::numeric AS revenue
+                FROM payments p JOIN orders o ON o.id = p.order_id
+                WHERE p.payment_status = 'completed' AND p.paid_at >= $1 AND p.paid_at < $2
+                GROUP BY o.restaurant_id
+            )
+            SELECT r.id, r.name, COALESCE(oc.order_count, 0)::int AS order_count,
+                   COALESCE(pr.revenue, 0)::numeric AS revenue
+            FROM restaurants r
+            LEFT JOIN order_counts oc ON oc.restaurant_id = r.id
+            LEFT JOIN payment_revenue pr ON pr.restaurant_id = r.id
+            ORDER BY revenue DESC, order_count DESC LIMIT 10
+        `, [b.cur_start, b.cur_end]);
 
-        const topRestaurantsResult =
-            await client.query(
-                `
-                SELECT
-                    r.id,
-                    r.name,
-                    COUNT(o.id)::int
-                        AS order_count,
-
-                    COALESCE(
-                        SUM(o.total_amount)
-                        FILTER (
-                            WHERE o.status =
-                                'delivered'
-                        ),
-                        0
-                    )::numeric AS revenue
-
-                FROM restaurants r
-
-                LEFT JOIN orders o
-                    ON o.restaurant_id =
-                        r.id
-
-                   AND o.placed_at >= $1
-                   AND o.placed_at < $2
-
-                GROUP BY
-                    r.id,
-                    r.name
-
-                ORDER BY
-                    revenue DESC,
-                    order_count DESC
-
-                LIMIT 10
-                `,
-                [
-                    b.cur_start,
-                    b.cur_end
-                ]
-            );
-
-        const statusBreakdownResult =
-            await client.query(
-                `
-                SELECT
-                    status,
-                    COUNT(*)::int AS count
-                FROM orders
-                WHERE placed_at >= $1
-                  AND placed_at < $2
-                GROUP BY status
-                ORDER BY count DESC
-                `,
-                [
-                    b.cur_start,
-                    b.cur_end
-                ]
-            );
-
-        const paymentBreakdownResult =
-            await client.query(
-                `
-                SELECT
-                    payment_method AS method,
-                    COUNT(*)::int AS count,
-                    COALESCE(
-                        SUM(amount) FILTER (
-                            WHERE payment_status = 'completed'
-                        ),
-                        0
-                    )::numeric AS amount
-
-                FROM payments
-                WHERE created_at >= $1
-                  AND created_at < $2
-
-                GROUP BY payment_method
-                ORDER BY count DESC
-                `,
-                [
-                    b.cur_start,
-                    b.cur_end
-                ]
-            );
-
-        const riderSummaryResult = await client.query(
-            `
-            SELECT
-                COUNT(*)::int AS total,
-                COUNT(*) FILTER (WHERE u.is_active = TRUE)::int AS active,
-                (
-                    SELECT COUNT(*)::int
-                    FROM orders o
-                    WHERE o.status = 'delivered'
-                                            AND o.rider_id IS NOT NULL
-                      AND o.delivered_at >= $1
-                      AND o.delivered_at < $2
-                ) AS deliveries
-            FROM rider_profiles rp
-            JOIN users u ON u.id = rp.user_id
-            `,
-            [b.cur_start, b.cur_end]
-        );
+        const statusBreakdownResult = await client.query(`
+            SELECT status, COUNT(*)::int AS count FROM orders
+            WHERE placed_at >= $1 AND placed_at < $2 GROUP BY status ORDER BY count DESC
+        `, [b.cur_start, b.cur_end]);
+        const paymentBreakdownResult = await client.query(`
+            SELECT payment_method AS method, COUNT(*) FILTER (WHERE created_at >= $1 AND created_at < $2)::int AS count,
+              COALESCE(SUM(amount) FILTER (WHERE payment_status='completed' AND paid_at >= $1 AND paid_at < $2),0)::numeric AS amount
+            FROM payments WHERE (created_at >= $1 AND created_at < $2) OR (payment_status='completed' AND paid_at >= $1 AND paid_at < $2) GROUP BY payment_method ORDER BY count DESC
+        `, [b.cur_start, b.cur_end]);
+        const paymentStatusResult = await client.query(`
+            SELECT payment_status AS status, COUNT(*) FILTER (WHERE created_at >= $1 AND created_at < $2)::int AS count,
+              COALESCE(SUM(amount) FILTER (WHERE payment_status='completed' AND paid_at >= $1 AND paid_at < $2),0)::numeric AS amount
+            FROM payments WHERE (created_at >= $1 AND created_at < $2) OR (payment_status='completed' AND paid_at >= $1 AND paid_at < $2) GROUP BY payment_status ORDER BY count DESC
+        `, [b.cur_start, b.cur_end]);
+        const riderSummaryResult = await client.query(`
+            SELECT COUNT(*)::int AS total, COUNT(*) FILTER (WHERE u.is_active=TRUE)::int AS active,
+              (SELECT COUNT(*)::int FROM orders o WHERE o.status='delivered' AND o.rider_id IS NOT NULL AND o.delivered_at >= $1 AND o.delivered_at < $2) AS deliveries
+            FROM rider_profiles rp JOIN users u ON u.id=rp.user_id
+        `, [b.cur_start, b.cur_end]);
+        const riderPerformanceResult = await client.query(`
+            SELECT u.id AS rider_id, u.first_name, u.last_name,
+              COUNT(o.id) FILTER (WHERE o.status='delivered' AND o.delivered_at >= $1 AND o.delivered_at < $2)::int AS deliveries,
+              COUNT(o.id) FILTER (WHERE o.placed_at >= $1 AND o.placed_at < $2)::int AS assigned_orders
+            FROM rider_profiles rp JOIN users u ON u.id=rp.user_id
+            LEFT JOIN orders o ON o.rider_id=u.id AND ((o.placed_at >= $1 AND o.placed_at < $2) OR (o.delivered_at >= $1 AND o.delivered_at < $2))
+            GROUP BY u.id,u.first_name,u.last_name ORDER BY deliveries DESC, assigned_orders DESC LIMIT 10
+        `, [b.cur_start, b.cur_end]);
 
         await client.query("COMMIT");
-
-        function percentChange(
-            current,
-            previous
-        ) {
-            const cur =
-                Number(current) || 0;
-
-            const prev =
-                Number(previous) || 0;
-
-            if (prev === 0) {
-                return cur > 0
-                    ? "+100%"
-                    : "0%";
-            }
-
-            const change =
-                ((cur - prev) /
-                    prev) *
-                100;
-
-            const sign =
-                change >= 0
-                    ? "+"
-                    : "";
-
-            return `${sign}${change.toFixed(1)}%`;
-        }
-
-        const ordersCurrent =
-            Number(t.orders_current);
-
-        const revenueCurrent =
-            Number(t.revenue_current);
-
+        const percentChange = (current, previous) => {
+            const cur = Number(current) || 0, prev = Number(previous) || 0;
+            if (prev === 0) return cur > 0 ? "+100%" : "0%";
+            const change = ((cur - prev) / prev) * 100;
+            return `${change >= 0 ? "+" : ""}${change.toFixed(1)}%`;
+        };
+        const ordersCurrent = Number(t.orders_current);
+        const revenueCurrent = Number(t.revenue_current);
+        const customersTotal = Number(t.customers_total);
+        const customersActive = Number(t.customers_active);
         return {
-            period,
-
-            range: {
-                start: b.cur_start,
-                end: b.cur_end
-            },
-
+            period, bucket,
+            range: { start: dateOnly(b.cur_start), end: new Date(new Date(`${dateOnly(b.cur_end)}T00:00:00Z`).getTime() - 86400000).toISOString().slice(0, 10) },
             summary: {
-                orders: {
-                    value: ordersCurrent,
-
-                    change:
-                        percentChange(
-                            ordersCurrent,
-                            t.orders_previous
-                        ),
-
-                    description:
-                        "vs previous period"
-                },
-
-                revenue: {
-                    value: revenueCurrent,
-
-                    change:
-                        percentChange(
-                            revenueCurrent,
-                            t.revenue_previous
-                        ),
-
-                    description:
-                        "vs previous period"
-                },
-
-                customers: {
-                    value:
-                        Number(
-                            t.customers_total
-                        ),
-
-                    change:
-                        `+${Number(
-                            t.customers_new
-                        )}`,
-
-                    description:
-                        "new this period"
-                },
-
-                restaurants: {
-                    value:
-                        Number(
-                            t.restaurants_total
-                        ),
-
-                    change:
-                        `+${Number(
-                            t.restaurants_new
-                        )}`,
-
-                    description:
-                        "new this period"
-                },
-
-                delivered: {
-                    value:
-                        Number(
-                            t.delivered_current
-                        ),
-
-                    description:
-                        "completed deliveries"
-                },
-
-                cancelled: {
-                    value:
-                        Number(
-                            t.cancelled_current
-                        ),
-
-                    description:
-                        "cancelled orders"
-                }
+                orders: { value: ordersCurrent, change: percentChange(ordersCurrent,t.orders_previous), description: "vs previous period" },
+                revenue: { value: revenueCurrent, change: percentChange(revenueCurrent,t.revenue_previous), description: "completed payments collected in period" },
+                customers: { value: customersTotal, change: `+${Number(t.customers_new)}`, description: "new accounts this period" },
+                activeCustomers: { value: customersActive, description: "customers with an order in this period" },
+                averageOrder: { value: Number(t.paid_orders_current) ? revenueCurrent / Number(t.paid_orders_current) : 0, description: "revenue per order with a completed payment" },
+                paidOrders: { value: Number(t.paid_orders_current) },
+                restaurants: { value: Number(t.restaurants_total), change: `+${Number(t.restaurants_new)}`, description: "new this period" },
+                delivered: { value: Number(t.delivered_current), description: "orders delivered in this period" },
+                cancelled: { value: Number(t.cancelled_current), description: "orders cancelled in this period" },
+                cancellationRate: { value: ordersCurrent ? Number(t.cancelled_current) / ordersCurrent * 100 : 0 }
             },
-
+            customers: {
+                total: customersTotal, active: customersActive,
+                new: Number(t.customers_new), returning: Number(t.customers_returning),
+                inactive: Math.max(0, customersTotal - customersActive)
+            },
             series: {
-                labels:
-                    seriesResult.rows.map(
-                        (row) =>
-                            row.label
-                    ),
-
-                revenue:
-                    seriesResult.rows.map(
-                        (row) =>
-                            Number(
-                                row.revenue
-                            )
-                    ),
-
-                orders:
-                    seriesResult.rows.map(
-                        (row) =>
-                            Number(
-                                row.orders
-                            )
-                    )
+                labels: seriesResult.rows.map(row => row.label),
+                revenue: seriesResult.rows.map(row => Number(row.revenue)),
+                orders: seriesResult.rows.map(row => Number(row.orders))
             },
-
-            topRestaurants:
-                topRestaurantsResult.rows.map(
-                    (row) => ({
-                        id: row.id,
-                        name: row.name,
-
-                        orderCount:
-                            Number(
-                                row.order_count
-                            ),
-
-                        revenue:
-                            Number(
-                                row.revenue
-                            )
-                    })
-                ),
-
-            orderStatusBreakdown:
-                statusBreakdownResult.rows.map(
-                    (row) => ({
-                        status:
-                            row.status,
-
-                        count:
-                            Number(
-                                row.count
-                            )
-                    })
-                ),
-
-            paymentStatusBreakdown:
-                paymentBreakdownResult.rows.map(
-                    (row) => ({
-                        method:
-                            row.method,
-
-                        count:
-                            Number(
-                                row.count
-                            ),
-
-                        amount:
-                            Number(
-                                row.amount
-                            )
-                    })
-                ),
-
+            topRestaurants: topRestaurantsResult.rows.map(row => ({ id: row.id, name: row.name, orderCount: Number(row.order_count), revenue: Number(row.revenue) })),
+            orderStatusBreakdown: statusBreakdownResult.rows.map(row => ({ status: row.status, count: Number(row.count) })),
+            paymentStatusBreakdown: paymentBreakdownResult.rows.map(row => ({ method: row.method, count: Number(row.count), amount: Number(row.amount) })),
+            paymentStatuses: paymentStatusResult.rows.map(row => ({ status: row.status, count: Number(row.count), amount: Number(row.amount) })),
             riders: {
-                total: Number(riderSummaryResult.rows[0].total),
-                active: Number(riderSummaryResult.rows[0].active),
-                deliveries: Number(riderSummaryResult.rows[0].deliveries)
+                total: Number(riderSummaryResult.rows[0].total), active: Number(riderSummaryResult.rows[0].active),
+                deliveries: Number(riderSummaryResult.rows[0].deliveries),
+                performance: riderPerformanceResult.rows.map(row => ({ id: row.rider_id, name: `${row.first_name} ${row.last_name}`.trim(), deliveries: Number(row.deliveries), assignedOrders: Number(row.assigned_orders) }))
             }
         };
     } catch (error) {
-        await client
-            .query("ROLLBACK")
-            .catch(() => {});
-
+        await client.query("ROLLBACK").catch(() => {});
         throw error;
     } finally {
         client.release();
