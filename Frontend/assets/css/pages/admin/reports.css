@@ -938,3 +938,29 @@
         font-size: 13px;
     }
 }
+
+/* Dynamic report empty states */
+.admin-report-empty {
+    margin: 0;
+    padding: 12px 0;
+    color: var(--admin-text-secondary);
+    font-size: 14px;
+}
+
+.admin-report-status-item > span {
+    color: var(--admin-text-secondary);
+    text-transform: capitalize;
+}
+
+.admin-summary-item small {
+    max-width: 180px;
+    line-height: 1.35;
+}
+
+
+.admin-report-chart-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
