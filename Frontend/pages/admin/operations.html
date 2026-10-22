@@ -81,16 +81,16 @@
         <form class="operations-form" id="adminForm">
           <label>First name<input id="newAdminFirst" required minlength="2" /></label><label>Last name<input id="newAdminLast" required minlength="2" /></label><label>Email<input id="newAdminEmail" type="email" required /></label><label>Phone<input id="newAdminPhone" type="tel" /></label><label>Temporary password<input id="newAdminPassword" type="password" minlength="8" required autocomplete="new-password" /></label><button class="admin-primary-button" type="submit">Create admin</button>
         </form>
-        <div class="operations-scroll"><table class="operations-table"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Action</th></tr></thead><tbody id="adminsBody"></tbody></table></div>
+        <div class="operations-scroll"><table class="operations-table"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Action</th></tr></thead><tbody id="adminsBody"></tbody></table></div><div class="operations-tools" id="adminsPager" aria-live="polite"></div>
       </section>
       <section class="admin-content-card operations-panel" id="panel-reviews" hidden>
         <div class="admin-card-header"><div><h3>Review moderation</h3><p>Hide or restore customer reviews without deleting their history.</p></div></div>
         <div class="operations-tools"><label>Visibility<select id="reviewVisibility"><option value="all">All reviews</option><option value="visible">Visible</option><option value="hidden">Hidden</option></select></label><label>Search<input id="reviewSearch" type="search" placeholder="Review, customer, restaurant" /></label><button type="button" class="admin-secondary-button" id="refreshReviews">Refresh</button></div>
-        <div class="operations-scroll"><table class="operations-table"><thead><tr><th>Customer</th><th>Restaurant</th><th>Rating</th><th>Comment</th><th>Date</th><th>Visibility</th><th>Action</th></tr></thead><tbody id="reviewsBody"></tbody></table></div>
+        <div class="operations-scroll"><table class="operations-table"><thead><tr><th>Customer</th><th>Restaurant</th><th>Rating</th><th>Comment</th><th>Date</th><th>Visibility</th><th>Action</th></tr></thead><tbody id="reviewsBody"></tbody></table></div><div class="operations-tools" id="reviewsPager" aria-live="polite"></div>
       </section>
       <section class="admin-content-card operations-panel" id="panel-audit" hidden>
         <div class="admin-card-header"><div><h3>Audit history</h3><p>Recent administrator-created and administrator-changed records.</p></div><button type="button" id="refreshAudit" class="admin-secondary-button">Refresh</button></div>
-        <div class="operations-scroll"><table class="operations-table"><thead><tr><th>When</th><th>Administrator</th><th>Action</th><th>Resource</th><th>Result</th></tr></thead><tbody id="auditBody"></tbody></table></div>
+        <div class="operations-scroll"><table class="operations-table"><thead><tr><th>When</th><th>Administrator</th><th>Action</th><th>Resource</th><th>Result</th></tr></thead><tbody id="auditBody"></tbody></table></div><div class="operations-tools" id="auditPager" aria-live="polite"></div>
       </section>
     </section>
   </main>
