@@ -22,6 +22,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const chartYAxis = document.querySelector(".chart-y-axis");
     const payoutDetails = document.querySelector(".payout-details");
     const payoutStatus = document.querySelector(".payout-status");
+    const restaurantSidebarName = $("restaurantSidebarName");
+    const restaurantTopbarName = $("restaurantTopbarName");
+    const restaurantTopbarAvatar = $("restaurantTopbarAvatar");
+    const restaurantStatusText = $("restaurantStatusText");
+    const restaurantStatusDisplay = $("restaurantStatusDisplay");
+    const profileButton = document.querySelector(".restaurant-topbar-profile");
 
     let payments = [];
     let filteredPayments = [];
@@ -79,32 +85,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (earningsTableBody) {
             earningsTableBody.innerHTML = `
-                <tr>
-                    <td colspan="7">Loading payment transactions...</td>
-                </tr>
+                <tr><td colspan="7">Loading payment transactions…</td></tr>
             `;
         }
 
         try {
-            const result = await apiRequest("/payments/restaurant");
+            const [paymentsOutcome, profileOutcome] = await Promise.allSettled([
+                apiRequest("/payments/restaurant"),
+                apiRequest("/restaurants/owner/me")
+            ]);
 
-            payments = Array.isArray(result.data?.payments)
-                ? result.data.payments
-                : [];
-
-            updateEarningsPeriod();
-        } catch (error) {
-            console.error("Loading earnings failed:", error);
-
-            if (earningsTableBody) {
-                earningsTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="7">${escapeHtml(error.message)}</td>
-                    </tr>
-                `;
+            if (profileOutcome.status === "fulfilled") {
+                const profileResult = profileOutcome.value;
+                const restaurant = profileResult.data?.restaurant || profileResult.restaurant;
+                try {
+                    renderRestaurantProfile(restaurant);
+                } catch (error) {
+                    console.error("Loading restaurant profile failed:", error);
+                    showEarningsMessage(error.message, "error");
+                }
+            } else {
+                console.error("Loading restaurant profile failed:", profileOutcome.reason);
+                showEarningsMessage(
+                    "Restaurant profile could not be loaded. Financial data is handled separately.",
+                    "error"
+                );
             }
 
-            showEarningsMessage(error.message, "error");
+            if (paymentsOutcome.status === "fulfilled") {
+                const paymentsResult = paymentsOutcome.value;
+                payments = Array.isArray(paymentsResult.data?.payments)
+                    ? paymentsResult.data.payments
+                    : Array.isArray(paymentsResult.payments)
+                        ? paymentsResult.payments
+                        : [];
+                updateEarningsPeriod();
+            } else {
+                const error = paymentsOutcome.reason || new Error("Financial data could not be loaded.");
+                console.error("Loading earnings failed:", error);
+                payments = [];
+                filteredPayments = [];
+                renderUnavailable(error.message);
+                showEarningsMessage(error.message, "error");
+            }
         } finally {
             loading = false;
         }
@@ -243,7 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setSummaryCard(1, "Completed Payments", String(completed.length),
             "Payments marked completed");
 
-        setSummaryCard(2, "Completed Orders", String(completedOrders.size),
+        setSummaryCard(2, "Orders with Completed Payments", String(completedOrders.size),
             "Distinct orders with completed payments");
 
         setSummaryCard(3, "Average Order", formatMoney(averageOrder),
@@ -298,15 +321,16 @@ document.addEventListener("DOMContentLoaded", () => {
             const status = String(payment.payment_status || "unknown")
                 .toLowerCase();
 
-            const isPayout = false;
             const amount = amountOf(payment);
-
-            /*
-             * No platform fee is calculated here because the project does
-             * not currently provide a configured, authoritative fee rule.
-             */
-            const fee = null;
-            const net = null;
+            const configuredRate = payment.platform_fee_rate === null ||
+                payment.platform_fee_rate === undefined ||
+                payment.platform_fee_rate === ""
+                    ? null
+                    : Number(payment.platform_fee_rate);
+            const fee = configuredRate !== null && Number.isFinite(configuredRate) && configuredRate >= 0
+                ? (isCompletedPayment(payment) ? amount * configuredRate / 100 : 0)
+                : null;
+            const net = fee === null ? null : amount - fee;
 
             row.innerHTML = `
                 <td>
@@ -358,11 +382,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const completed = getCompletedPayments();
 
         const buckets = createChartBuckets(period);
-        const maxBucket = Math.max(
-            1,
-            ...buckets.map((bucket) => bucket.amount)
-        );
-
         completed.forEach((payment) => {
             const date = getPaymentDate(payment);
             if (!date) return;
@@ -371,6 +390,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (bucket) bucket.amount += amountOf(payment);
         });
 
+        const maxBucket = Math.max(1, ...buckets.map((bucket) => bucket.amount));
         chartBars.innerHTML = "";
 
         buckets.forEach((bucket) => {
@@ -544,12 +564,10 @@ document.addEventListener("DOMContentLoaded", () => {
             sumAmounts(filteredPayments.filter(isRefundedPayment))
         ];
 
+        const breakdownMaximum = Math.max(1, ...totals);
         progressBars.forEach((bar, index) => {
-            const percentage = total > 0
-                ? Math.min(100, (totals[index] / Math.max(total, ...totals, 1)) * 100)
-                : 0;
-
-            bar.style.width = `${percentage}%`;
+            const percentage = (totals[index] / breakdownMaximum) * 100;
+            bar.style.width = `${Math.min(100, percentage)}%`;
         });
     }
 
@@ -578,33 +596,33 @@ document.addEventListener("DOMContentLoaded", () => {
             completed.map((payment) => String(payment.order_id))
         );
 
-        const allOrderIds = new Set(
+        const orderIdsWithPayment = new Set(
             filteredPayments
-                .filter((payment) => !isCancelledOrder(payment))
+                .filter((payment) => payment.order_id !== null && payment.order_id !== undefined)
                 .map((payment) => String(payment.order_id))
         );
-
+        const completedOrderIds = new Set(
+            completed.filter((payment) => payment.order_id !== null && payment.order_id !== undefined)
+                .map((payment) => String(payment.order_id))
+        );
         const cancelledOrderIds = new Set(
-            filteredPayments
-                .filter(isCancelledOrder)
+            filteredPayments.filter(isCancelledOrder)
                 .map((payment) => String(payment.order_id))
         );
 
-        const completionRate = allOrderIds.size
-            ? (completedOrders.size / allOrderIds.size) * 100
+        const completionRate = orderIdsWithPayment.size
+            ? (completedOrderIds.size / orderIdsWithPayment.size) * 100
+            : 0;
+        const cancellationRate = orderIdsWithPayment.size
+            ? (cancelledOrderIds.size / orderIdsWithPayment.size) * 100
             : 0;
 
-        const cancellationRate = allOrderIds.size + cancelledOrderIds.size
-            ? (cancelledOrderIds.size /
-                (allOrderIds.size + cancelledOrderIds.size)) * 100
-            : 0;
-
-        setPerformanceRow(rows[0], "Collected revenue", formatMoney(revenue));
-        setPerformanceRow(rows[1], "Average completed order",
+        setPerformanceRow(rows[0], "Collected payment amount", formatMoney(revenue));
+        setPerformanceRow(rows[1], "Average completed payment order",
             formatMoney(completedOrders.size ? revenue / completedOrders.size : 0));
         setPerformanceRow(rows[2], "Payment completion rate",
             `${completionRate.toFixed(1)}%`);
-        setPerformanceRow(rows[3], "Orders cancelled",
+        setPerformanceRow(rows[3], "Payments linked to cancelled orders",
             `${cancellationRate.toFixed(1)}%`);
     }
 
@@ -629,30 +647,33 @@ document.addEventListener("DOMContentLoaded", () => {
     */
 
     function renderPayoutSummary() {
-        /*
-         * Payment records are not payout records. Do not display the
-         * sample payout balances and dates as if they came from the backend.
-         */
+        const completed = getCompletedPayments();
+        const grossCollected = sumAmounts(completed);
+        const configuredRate = filteredPayments.find((payment) =>
+            payment.platform_fee_rate !== null &&
+            payment.platform_fee_rate !== undefined &&
+            payment.platform_fee_rate !== ""
+        )?.platform_fee_rate;
+        const feeRate = configuredRate === undefined ? null : Number(configuredRate);
+        const feeTotal = feeRate !== null && Number.isFinite(feeRate) && feeRate >= 0
+            ? grossCollected * feeRate / 100
+            : null;
+
         if (payoutStatus) {
             const strong = payoutStatus.querySelector("strong");
             const small = payoutStatus.querySelector("small");
             const label = payoutStatus.querySelector("span");
-
             if (label) label.textContent = "Payout tracking";
-            if (strong) strong.textContent = "Not configured";
-            if (small) {
-                small.textContent =
-                    "Payout records are not currently available from the backend.";
-            }
+            if (strong) strong.textContent = "Not available";
+            if (small) small.textContent = "The backend has no persisted payout schedule or transfer history.";
         }
 
         if (payoutDetails) {
             payoutDetails.innerHTML = `
                 <div class="payout-detail-row">
                     <span>Collected payments</span>
-                    <strong>${formatMoney(sumAmounts(getCompletedPayments()))}</strong>
+                    <strong>${formatMoney(grossCollected)}</strong>
                 </div>
-
                 <div class="payout-detail-row">
                     <span>Pending / processing</span>
                     <strong>${formatMoney(sumAmounts(
@@ -663,29 +684,24 @@ document.addEventListener("DOMContentLoaded", () => {
                         )
                     ))}</strong>
                 </div>
-
                 <div class="payout-detail-row">
-                    <span>Platform fees</span>
-                    <strong>Not configured</strong>
+                    <span>Estimated platform fees</span>
+                    <strong>${feeTotal === null ? "Not configured" : formatMoney(feeTotal)}</strong>
                 </div>
-
                 <div class="payout-detail-row total">
-                    <span>Actual payouts</span>
-                    <strong>Not available</strong>
+                    <span>Estimated after-fee amount (not a payout balance)</span>
+                    <strong>${feeTotal === null ? "Not configured" : formatMoney(grossCollected - feeTotal)}</strong>
                 </div>
             `;
         }
     }
 
-    document.querySelector(".earnings-payout-button")?.addEventListener(
-        "click",
-        () => {
-            showEarningsMessage(
-                "Payout history is not available yet because payout records are not implemented in the backend.",
-                "info"
-            );
-        }
-    );
+    document.querySelector(".earnings-payout-button")?.addEventListener("click", () => {
+        showEarningsMessage(
+            "Payout history cannot be shown because the backend does not yet store payout transfers. No payout data has been fabricated.",
+            "info"
+        );
+    });
 
     /*
     |--------------------------------------------------------------------------
@@ -709,7 +725,10 @@ document.addEventListener("DOMContentLoaded", () => {
             "Order Number",
             "Date",
             "Payment Method",
-            "Amount",
+            "Gross Amount",
+            "Platform Fee Rate (%)",
+            "Platform Fee",
+            "Net Amount After Platform Fee",
             "Payment Status",
             "Order Status",
             "Transaction Reference"
@@ -721,6 +740,13 @@ document.addEventListener("DOMContentLoaded", () => {
             formatDate(getPaymentDate(payment)),
             payment.payment_method,
             amountOf(payment),
+            payment.platform_fee_rate ?? "",
+            payment.platform_fee_rate === null || payment.platform_fee_rate === undefined || payment.platform_fee_rate === ""
+                ? ""
+                : (isCompletedPayment(payment) ? amountOf(payment) * Number(payment.platform_fee_rate) / 100 : 0),
+            payment.platform_fee_rate === null || payment.platform_fee_rate === undefined || payment.platform_fee_rate === ""
+                ? ""
+                : amountOf(payment) - (isCompletedPayment(payment) ? amountOf(payment) * Number(payment.platform_fee_rate) / 100 : 0),
             payment.payment_status,
             payment.order_status,
             payment.transaction_reference
@@ -750,9 +776,91 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function csvEscape(value) {
-        const text = String(value ?? "");
+        let text = String(value ?? "");
+        if (/^[=+@-]/.test(text)) text = "'" + text;
         return `"${text.replace(/"/g, '""')}"`;
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RESTAURANT PROFILE, LOGOUT AND NAVIGATION
+    |--------------------------------------------------------------------------
+    */
+
+    function renderRestaurantProfile(restaurant) {
+        if (!restaurant || typeof restaurant !== "object") {
+            throw new Error("The server did not return your restaurant profile.");
+        }
+        const name = String(restaurant.name || restaurant.restaurant_name || "").trim();
+        if (!name) throw new Error("Your restaurant name is missing from the profile response.");
+        const initials = name.split(/\s+/).filter(Boolean).slice(0, 2)
+            .map((part) => part.charAt(0).toUpperCase()).join("") || "R";
+        if (restaurantSidebarName) restaurantSidebarName.textContent = name;
+        if (restaurantTopbarName) restaurantTopbarName.textContent = name;
+        if (restaurantTopbarAvatar) restaurantTopbarAvatar.textContent = initials;
+        const sidebarAvatar = document.querySelector(".restaurant-avatar");
+        if (sidebarAvatar) sidebarAvatar.textContent = initials;
+        if (restaurantStatusText) {
+            const isOpen = typeof restaurant.is_open === "boolean" ? restaurant.is_open : null;
+            restaurantStatusText.textContent = isOpen === null ? "Unknown" : (isOpen ? "Open" : "Closed");
+            if (restaurantStatusDisplay) {
+                restaurantStatusDisplay.classList.toggle("open", isOpen === true);
+                restaurantStatusDisplay.classList.toggle("closed", isOpen === false);
+            }
+        }
+    }
+
+    function renderUnavailable(message) {
+        summaryCards.forEach((card) => {
+            const value = card.querySelector(".earnings-summary-content > strong");
+            const description = card.querySelector(".earnings-summary-content > small");
+            const change = card.querySelector(".earnings-change");
+            if (value) value.textContent = "Unavailable";
+            if (description) description.textContent = "Could not load financial data.";
+            if (change) change.hidden = true;
+        });
+        if (earningsTableBody) {
+            earningsTableBody.innerHTML = `<tr><td colspan="7">${escapeHtml(message || "Financial data is unavailable.")}</td></tr>`;
+        }
+        if (chartBars) chartBars.innerHTML = "";
+        if (chartYAxis) chartYAxis.innerHTML = "";
+        document.querySelectorAll(".earnings-breakdown-card .breakdown-item strong")
+            .forEach((node) => { node.textContent = "Unavailable"; });
+        document.querySelectorAll(".earnings-breakdown-card .breakdown-progress span")
+            .forEach((node) => { node.style.width = "0%"; });
+        document.querySelectorAll(".earnings-performance-card .performance-row strong")
+            .forEach((node) => { node.textContent = "Unavailable"; });
+        if (payoutStatus) {
+            const strong = payoutStatus.querySelector("strong");
+            const small = payoutStatus.querySelector("small");
+            const label = payoutStatus.querySelector("span");
+            if (label) label.textContent = "Payout tracking";
+            if (strong) strong.textContent = "Unavailable";
+            if (small) small.textContent = "Financial data could not be loaded.";
+        }
+        if (payoutDetails) {
+            payoutDetails.innerHTML = `
+                <div class="payout-detail-row"><span>Collected payments</span><strong>Unavailable</strong></div>
+                <div class="payout-detail-row"><span>Pending / processing</span><strong>Unavailable</strong></div>
+                <div class="payout-detail-row"><span>Estimated platform fees</span><strong>Unavailable</strong></div>
+                <div class="payout-detail-row total"><span>Estimated after-fee amount</span><strong>Unavailable</strong></div>
+            `;
+        }
+    }
+
+    const logoutLink = document.querySelector(".logout-link");
+    logoutLink?.addEventListener("click", (event) => {
+        event.preventDefault();
+        localStorage.removeItem("foodDeliveryAccessToken");
+        sessionStorage.removeItem("foodDeliveryAccessToken");
+        localStorage.removeItem("foodDeliveryUser");
+        sessionStorage.removeItem("foodDeliveryUser");
+        window.location.href = "../../pages/auth/login.html";
+    });
+
+    profileButton?.addEventListener("click", () => {
+        window.location.href = "restaurant-profile.html";
+    });
 
     /*
     |--------------------------------------------------------------------------
