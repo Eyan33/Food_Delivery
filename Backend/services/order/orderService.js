@@ -566,6 +566,11 @@ async function getRestaurantOrders(ownerId) {
             o.cancelled_at,
             o.created_at,
             o.updated_at,
+            (
+                SELECT COALESCE(SUM(oi.quantity), 0)::int
+                FROM order_items oi
+                WHERE oi.order_id = o.id
+            ) AS item_count,
             u.first_name AS customer_first_name,
             u.last_name AS customer_last_name,
             u.email AS customer_email,
