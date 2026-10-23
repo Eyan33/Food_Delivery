@@ -266,7 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setSummaryCard(1, "Completed Payments", String(completed.length),
             "Payments marked completed");
 
-        setSummaryCard(2, "Completed Orders", String(completedOrders.size),
+        setSummaryCard(2, "Orders with Completed Payments", String(completedOrders.size),
             "Distinct orders with completed payments");
 
         setSummaryCard(3, "Average Order", formatMoney(averageOrder),
@@ -649,7 +649,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderPayoutSummary() {
         const completed = getCompletedPayments();
         const grossCollected = sumAmounts(completed);
-        const configuredRate = completed.find((payment) =>
+        const configuredRate = filteredPayments.find((payment) =>
             payment.platform_fee_rate !== null &&
             payment.platform_fee_rate !== undefined &&
             payment.platform_fee_rate !== ""
