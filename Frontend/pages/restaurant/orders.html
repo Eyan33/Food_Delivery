@@ -1,0 +1,412 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Restaurant Orders | FoodDelivery</title>
+
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/pages/restaurant/restaurant.css">
+    <link rel="stylesheet" href="../../assets/css/pages/restaurant/orders.css">
+</head>
+
+<body>
+    <div class="restaurant-dashboard">
+
+        <!-- SIDEBAR -->
+        <aside class="restaurant-sidebar" id="restaurantSidebar">
+            <div class="restaurant-sidebar-header">
+                <a href="dashboard.html" class="restaurant-logo">
+                    Food<span>Delivery</span>
+                </a>
+            </div>
+
+            <div class="restaurant-profile-mini">
+                <div class="restaurant-avatar">R</div>
+                <div class="restaurant-profile-info">
+                    <strong>My Restaurant</strong>
+                    <span>Restaurant</span>
+                </div>
+            </div>
+
+            <nav class="restaurant-navigation">
+                <p class="restaurant-nav-title">MAIN MENU</p>
+
+                <a href="dashboard.html" class="restaurant-nav-link">
+                    <span class="nav-icon">▦</span>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="orders.html" class="restaurant-nav-link active"
+                   aria-current="page">
+                    <span class="nav-icon">▤</span>
+                    <span>Orders</span>
+                    <span class="nav-badge" hidden>0</span>
+                </a>
+
+                <p class="restaurant-nav-title">BUSINESS</p>
+
+                <a href="earnings.html" class="restaurant-nav-link">
+                    <span class="nav-icon">▥</span>
+                    <span>Earnings</span>
+                </a>
+
+                <a href="restaurant-profile.html" class="restaurant-nav-link">
+                    <span class="nav-icon">◉</span>
+                    <span>Restaurant Profile</span>
+                </a>
+
+                <a href="settings.html" class="restaurant-nav-link">
+                    <span class="nav-icon">⚙</span>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="restaurant-sidebar-bottom">
+                <a href="../../auth/login.html"
+                   class="restaurant-nav-link logout-link">
+                    <span class="nav-icon">↪</span>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="restaurant-main">
+
+            <header class="restaurant-topbar">
+                <div class="restaurant-topbar-left">
+                    <button type="button"
+                            class="restaurant-menu-button"
+                            id="restaurantMenuButton"
+                            aria-label="Open menu">
+                        ☰
+                    </button>
+
+                    <div class="restaurant-page-heading">
+                        <h1>Orders</h1>
+                        <p>Review incoming orders and manage their progress.</p>
+                    </div>
+                </div>
+
+                <div class="restaurant-topbar-right">
+                    <button type="button"
+                            class="restaurant-status"
+                            id="restaurantStatusButton">
+                        <span class="status-dot"></span>
+                        <span class="status-text">
+                            <small>Restaurant Status</small>
+                            <strong id="restaurantStatusText">Loading...</strong>
+                        </span>
+                    </button>
+
+                    <button type="button"
+                            class="restaurant-notification-button"
+                            aria-label="Notifications">
+                        <span>♧</span>
+                        <span class="notification-badge" hidden>0</span>
+                    </button>
+
+                    <button type="button"
+                            class="restaurant-topbar-profile">
+                        <span class="topbar-avatar">R</span>
+                        <span class="topbar-profile-text">
+                            <strong>My Restaurant</strong>
+                            <small>Restaurant</small>
+                        </span>
+                        <span class="profile-arrow">⌄</span>
+                    </button>
+                </div>
+            </header>
+
+            <section class="restaurant-dashboard-content orders-page">
+
+                <!-- PAGE HEADING -->
+                <div class="orders-page-heading">
+                    <div>
+                        <h2>Order Management</h2>
+                        <p>View customer orders and update their status.</p>
+                    </div>
+
+                    <div class="dashboard-date">
+                        <span>Today</span>
+                        <strong>Loading date...</strong>
+                    </div>
+                </div>
+
+                <!-- FEEDBACK -->
+                <div id="restaurantOrderMessage"
+                     class="orders-message"
+                     role="status"
+                     aria-live="polite"
+                     hidden></div>
+
+                <!-- STATISTICS -->
+                <div class="restaurant-statistics orders-statistics">
+
+                    <article class="restaurant-stat-card">
+                        <div class="stat-card-top">
+                            <div class="stat-icon orders-icon">▤</div>
+                            <span class="stat-change neutral">Today</span>
+                        </div>
+                        <div class="stat-card-content">
+                            <span>Today's Orders</span>
+                            <strong>—</strong>
+                            <small>Orders placed today</small>
+                        </div>
+                    </article>
+
+                    <article class="restaurant-stat-card">
+                        <div class="stat-card-top">
+                            <div class="stat-icon pending-icon">◷</div>
+                            <span class="stat-change warning">Attention</span>
+                        </div>
+                        <div class="stat-card-content">
+                            <span>Pending Orders</span>
+                            <strong>—</strong>
+                            <small>Waiting for action</small>
+                        </div>
+                    </article>
+
+                    <article class="restaurant-stat-card">
+                        <div class="stat-card-top">
+                            <div class="stat-icon preparing-icon">⌛</div>
+                            <span class="stat-change neutral">Active</span>
+                        </div>
+                        <div class="stat-card-content">
+                            <span>Preparing</span>
+                            <strong>—</strong>
+                            <small>Currently in the kitchen</small>
+                        </div>
+                    </article>
+
+                    <article class="restaurant-stat-card">
+                        <div class="stat-card-top">
+                            <div class="stat-icon delivered-icon">✓</div>
+                            <span class="stat-change positive">Completed</span>
+                        </div>
+                        <div class="stat-card-content">
+                            <span>Delivered Orders</span>
+                            <strong>—</strong>
+                            <small>Successfully delivered</small>
+                        </div>
+                    </article>
+
+                </div>
+
+                <!-- ORDERS TABLE -->
+                <section class="restaurant-dashboard-card orders-main-card">
+
+                    <div class="dashboard-card-header orders-card-header">
+                        <div>
+                            <h3>Customer Orders</h3>
+                            <p>Search, filter and process your orders.</p>
+                        </div>
+                    </div>
+
+                    <!-- STATUS TABS -->
+                    <div class="restaurant-order-tabs"
+                         role="group"
+                         aria-label="Filter orders by status">
+
+                        <button type="button"
+                                class="restaurant-order-tab active"
+                                data-status="all"
+                                aria-pressed="true">
+                            All <span>0</span>
+                        </button>
+
+                        <button type="button"
+                                class="restaurant-order-tab"
+                                data-status="pending"
+                                aria-pressed="false">
+                            Pending <span>0</span>
+                        </button>
+
+                        <button type="button"
+                                class="restaurant-order-tab"
+                                data-status="confirmed"
+                                aria-pressed="false">
+                            Confirmed <span>0</span>
+                        </button>
+
+                        <button type="button"
+                                class="restaurant-order-tab"
+                                data-status="preparing"
+                                aria-pressed="false">
+                            Preparing <span>0</span>
+                        </button>
+
+                        <button type="button"
+                                class="restaurant-order-tab"
+                                data-status="ready"
+                                aria-pressed="false">
+                            Ready <span>0</span>
+                        </button>
+
+                        <button type="button"
+                                class="restaurant-order-tab"
+                                data-status="out-for-delivery"
+                                aria-pressed="false">
+                            Out for delivery <span>0</span>
+                        </button>
+
+                        <button type="button"
+                                class="restaurant-order-tab"
+                                data-status="delivered"
+                                aria-pressed="false">
+                            Delivered <span>0</span>
+                        </button>
+
+                        <button type="button"
+                                class="restaurant-order-tab"
+                                data-status="cancelled"
+                                aria-pressed="false">
+                            Cancelled <span>0</span>
+                        </button>
+                    </div>
+
+                    <!-- SEARCH AND FILTERS -->
+                    <div class="orders-toolbar">
+
+                        <div class="orders-search">
+                            <label for="orderSearch">Search orders</label>
+                            <input type="search"
+                                   id="orderSearch"
+                                   placeholder="Order number, customer or phone..."
+                                   autocomplete="off">
+                        </div>
+
+                        <div class="orders-filter">
+                            <label for="orderStatusFilter">Status</label>
+                            <select id="orderStatusFilter">
+                                <option value="all">All statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="preparing">Preparing</option>
+                                <option value="ready">Ready</option>
+                                <option value="out_for_delivery">Out for delivery</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+
+                        <div class="orders-filter">
+                            <label for="orderDateFilter">Date</label>
+                            <select id="orderDateFilter">
+                                <option value="all">All dates</option>
+                                <option value="today">Today</option>
+                                <option value="yesterday">Yesterday</option>
+                                <option value="week">This week</option>
+                                <option value="month">This month</option>
+                            </select>
+                        </div>
+
+                        <button type="button"
+                                id="clearOrderFilters"
+                                class="orders-clear-button">
+                            Clear filters
+                        </button>
+                    </div>
+
+                    <!-- TABLE -->
+                    <div class="orders-table-wrapper">
+                        <table class="restaurant-orders-table orders-management-table">
+                            <thead>
+                                <tr>
+                                    <th>Order</th>
+                                    <th>Customer</th>
+                                    <th>Items</th>
+                                    <th>Amount</th>
+                                    <th>Payment</th>
+                                    <th>Status</th>
+                                    <th>Placed</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="restaurantOrdersList"
+                                   aria-busy="true">
+                                <tr>
+                                    <td colspan="8" class="orders-loading">
+                                        Loading restaurant orders...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="noOrdersMessage"
+                         class="orders-empty-message"
+                         hidden>
+                        <strong>No orders found</strong>
+                        <p>Try changing your search or filters.</p>
+                    </div>
+
+                    <!-- PAGINATION -->
+                    <div class="orders-pagination">
+                        <p class="orders-pagination-info">Loading orders...</p>
+                        <div class="orders-pagination-buttons"></div>
+                    </div>
+
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <!-- ORDER DETAILS MODAL -->
+    <div class="restaurant-order-modal"
+         id="orderDetailsModal"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="orderModalTitle"
+         hidden>
+
+        <section class="restaurant-order-modal-panel">
+
+            <header class="restaurant-order-modal-header">
+                <div>
+                    <h2 id="orderModalTitle">Order details</h2>
+                    <p id="orderModalSubtitle">Review customer and order information.</p>
+                </div>
+
+                <span id="orderModalStatus" class="order-status pending">
+                    Loading
+                </span>
+
+                <button type="button"
+                        id="closeOrderModal"
+                        class="orders-modal-close"
+                        aria-label="Close order details">
+                    &times;
+                </button>
+            </header>
+
+            <div id="orderModalBody" class="restaurant-order-modal-body">
+                <p>Order information will appear here.</p>
+            </div>
+
+            <footer id="orderModalActions" class="restaurant-order-modal-footer">
+                <button type="button"
+                        id="closeOrderModalFooter"
+                        class="restaurant-modal-button secondary">
+                    Close
+                </button>
+            </footer>
+
+        </section>
+    </div>
+
+    <!-- Shared configuration and authentication -->
+    <script src="../../assets/js/api-config.js"></script>
+    <script src="../../assets/js/auth/auth-api.js"></script>
+    <script src="../../assets/js/main.js"></script>
+
+    <!-- Existing restaurant order logic -->
+    <script src="../../assets/js/restaurant/orders.js"></script>
+</body>
+
+</html>
