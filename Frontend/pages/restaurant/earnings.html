@@ -37,10 +37,10 @@
 
             <!-- Restaurant Profile -->
             <div class="restaurant-profile-mini">
-                <div class="restaurant-avatar">MK</div>
+                <div class="restaurant-avatar">R</div>
 
                 <div class="restaurant-profile-info">
-                    <strong>Mama's Kitchen</strong>
+                    <strong id="restaurantSidebarName">Loading restaurant…</strong>
 
                     <span>Restaurant</span>
                 </div>
@@ -61,7 +61,7 @@
 
                     <span>Orders</span>
 
-                    <span class="nav-badge"> 5 </span>
+                    <span class="nav-badge" style="display:none"></span>
                 </a>
 
                 <p class="restaurant-nav-title">BUSINESS</p>
@@ -87,7 +87,7 @@
 
             <!-- Sidebar Bottom -->
             <div class="restaurant-sidebar-bottom">
-                <a href="../../auth/login.html" class="restaurant-nav-link logout-link">
+                <a href="../../pages/auth/login.html" class="restaurant-nav-link logout-link">
                     <span class="nav-icon">↪</span>
 
                     <span>Logout</span>
@@ -120,29 +120,20 @@
 
                 <div class="restaurant-topbar-right">
                     <!-- Restaurant Status -->
-                    <button type="button" class="restaurant-status" id="restaurantStatusButton">
+                    <div class="restaurant-status" id="restaurantStatusDisplay" aria-live="polite">
                         <span class="status-dot"></span>
-
                         <span class="status-text">
-                            <small> Restaurant Status </small>
-
-                            <strong id="restaurantStatusText"> Open </strong>
+                            <small>Restaurant Status</small>
+                            <strong id="restaurantStatusText">Loading…</strong>
                         </span>
-                    </button>
-
-                    <!-- Notifications -->
-                    <button type="button" class="restaurant-notification-button" aria-label="Notifications">
-                        <span>♧</span>
-
-                        <span class="notification-badge"> 3 </span>
-                    </button>
+                    </div>
 
                     <!-- Profile -->
                     <button type="button" class="restaurant-topbar-profile">
-                        <span class="topbar-avatar"> MK </span>
+                        <span class="topbar-avatar" id="restaurantTopbarAvatar">R</span>
 
                         <span class="topbar-profile-text">
-                            <strong> Mama's Kitchen </strong>
+                            <strong id="restaurantTopbarName">Loading restaurant…</strong>
 
                             <small> Restaurant </small>
                         </span>
@@ -193,13 +184,13 @@
                         <div class="earnings-summary-top">
                             <div class="earnings-summary-icon revenue">KSh</div>
 
-                            <span class="earnings-change positive"> +12.5% </span>
+                            <span class="earnings-change" hidden></span>
                         </div>
 
                         <div class="earnings-summary-content">
                             <span> Total Revenue </span>
 
-                            <strong> KSh 186,450 </strong>
+                            <strong>Loading…</strong>
 
                             <small> Compared to previous period </small>
                         </div>
@@ -210,13 +201,13 @@
                         <div class="earnings-summary-top">
                             <div class="earnings-summary-icon earnings">↗</div>
 
-                            <span class="earnings-change positive"> +9.8% </span>
+                            <span class="earnings-change" hidden></span>
                         </div>
 
                         <div class="earnings-summary-content">
                             <span> Net Earnings </span>
 
-                            <strong> KSh 158,480 </strong>
+                            <strong>Loading…</strong>
 
                             <small> After platform fees </small>
                         </div>
@@ -227,13 +218,13 @@
                         <div class="earnings-summary-top">
                             <div class="earnings-summary-icon orders">🛍</div>
 
-                            <span class="earnings-change positive"> +15.2% </span>
+                            <span class="earnings-change" hidden></span>
                         </div>
 
                         <div class="earnings-summary-content">
                             <span> Completed Orders </span>
 
-                            <strong> 286 </strong>
+                            <strong>Loading…</strong>
 
                             <small> Successfully completed </small>
                         </div>
@@ -244,13 +235,13 @@
                         <div class="earnings-summary-top">
                             <div class="earnings-summary-icon average">KSh</div>
 
-                            <span class="earnings-change positive"> +4.6% </span>
+                            <span class="earnings-change" hidden></span>
                         </div>
 
                         <div class="earnings-summary-content">
                             <span> Average Order </span>
 
-                            <strong> KSh 652 </strong>
+                            <strong>Loading…</strong>
 
                             <small> Average order value </small>
                         </div>
@@ -308,31 +299,7 @@
                                     <span></span>
                                 </div>
 
-                                <div class="chart-bars">
-                                    <div class="chart-bar-column">
-                                        <div class="chart-bar" style="height: 45%"></div>
-
-                                        <span> Week 1 </span>
-                                    </div>
-
-                                    <div class="chart-bar-column">
-                                        <div class="chart-bar" style="height: 62%"></div>
-
-                                        <span> Week 2 </span>
-                                    </div>
-
-                                    <div class="chart-bar-column">
-                                        <div class="chart-bar" style="height: 55%"></div>
-
-                                        <span> Week 3 </span>
-                                    </div>
-
-                                    <div class="chart-bar-column">
-                                        <div class="chart-bar" style="height: 78%"></div>
-
-                                        <span> Week 4 </span>
-                                    </div>
-                                </div>
+                                <div class="chart-bars" aria-live="polite"></div>
                             </div>
                         </div>
                     </section>
@@ -356,9 +323,9 @@
                             <div>
                                 <span> Next payout </span>
 
-                                <strong> KSh 42,650 </strong>
+                                <strong>Not available</strong>
 
-                                <small> September 15, 2026 </small>
+                                <small>Payout records are not configured.</small>
                             </div>
                         </div>
 
@@ -372,13 +339,13 @@
                             <div class="payout-detail-row">
                                 <span> Pending balance </span>
 
-                                <strong> KSh 8,240 </strong>
+                                <strong>Not available</strong>
                             </div>
 
                             <div class="payout-detail-row">
                                 <span> Platform fees </span>
 
-                                <strong> KSh 27,970 </strong>
+                                <strong>Not configured</strong>
                             </div>
 
                             <div class="payout-detail-row total">
@@ -432,173 +399,7 @@
                             </thead>
 
                             <tbody>
-                                <tr>
-                                    <td>
-                                        <div class="transaction-info">
-                                            <span class="transaction-icon"> ↗ </span>
-
-                                            <div>
-                                                <strong> Order Payment </strong>
-
-                                                <small> Customer order </small>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td>#FD-1008</td>
-
-                                    <td>Sep 12, 2026</td>
-
-                                    <td>
-                                        <strong> KSh 1,300 </strong>
-                                    </td>
-
-                                    <td>KSh 195</td>
-
-                                    <td>
-                                        <strong> KSh 1,105 </strong>
-                                    </td>
-
-                                    <td>
-                                        <span class="transaction-status completed">
-                                            Completed
-                                        </span>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>
-                                        <div class="transaction-info">
-                                            <span class="transaction-icon"> ↗ </span>
-
-                                            <div>
-                                                <strong> Order Payment </strong>
-
-                                                <small> Customer order </small>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td>#FD-1007</td>
-
-                                    <td>Sep 12, 2026</td>
-
-                                    <td>
-                                        <strong> KSh 2,050 </strong>
-                                    </td>
-
-                                    <td>KSh 307.50</td>
-
-                                    <td>
-                                        <strong> KSh 1,742.50 </strong>
-                                    </td>
-
-                                    <td>
-                                        <span class="transaction-status completed">
-                                            Completed
-                                        </span>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>
-                                        <div class="transaction-info">
-                                            <span class="transaction-icon"> ↗ </span>
-
-                                            <div>
-                                                <strong> Order Payment </strong>
-
-                                                <small> Customer order </small>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td>#FD-1006</td>
-
-                                    <td>Sep 12, 2026</td>
-
-                                    <td>
-                                        <strong> KSh 650 </strong>
-                                    </td>
-
-                                    <td>KSh 97.50</td>
-
-                                    <td>
-                                        <strong> KSh 552.50 </strong>
-                                    </td>
-
-                                    <td>
-                                        <span class="transaction-status completed">
-                                            Completed
-                                        </span>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>
-                                        <div class="transaction-info">
-                                            <span class="transaction-icon payout"> ↓ </span>
-
-                                            <div>
-                                                <strong> Bank Payout </strong>
-
-                                                <small> Payout transfer </small>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td>—</td>
-
-                                    <td>Sep 10, 2026</td>
-
-                                    <td>
-                                        <strong> KSh 38,500 </strong>
-                                    </td>
-
-                                    <td>KSh 0</td>
-
-                                    <td>
-                                        <strong> KSh 38,500 </strong>
-                                    </td>
-
-                                    <td>
-                                        <span class="transaction-status paid"> Paid </span>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>
-                                        <div class="transaction-info">
-                                            <span class="transaction-icon"> ↗ </span>
-
-                                            <div>
-                                                <strong> Order Payment </strong>
-
-                                                <small> Customer order </small>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td>#FD-1005</td>
-
-                                    <td>Sep 11, 2026</td>
-
-                                    <td>
-                                        <strong> KSh 2,450 </strong>
-                                    </td>
-
-                                    <td>KSh 367.50</td>
-
-                                    <td>
-                                        <strong> KSh 2,082.50 </strong>
-                                    </td>
-
-                                    <td>
-                                        <span class="transaction-status completed">
-                                            Completed
-                                        </span>
-                                    </td>
-                                </tr>
+                                <tr><td colspan="7">Loading payment transactions…</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -627,7 +428,7 @@
                                     <span> Food Orders </span>
                                 </div>
 
-                                <strong> KSh 164,800 </strong>
+                                <strong>Loading…</strong>
                             </div>
 
                             <div class="breakdown-progress">
@@ -641,7 +442,7 @@
                                     <span> Delivery Charges </span>
                                 </div>
 
-                                <strong> KSh 12,450 </strong>
+                                <strong>Loading…</strong>
                             </div>
 
                             <div class="breakdown-progress">
@@ -655,7 +456,7 @@
                                     <span> Promotions </span>
                                 </div>
 
-                                <strong> KSh 9,200 </strong>
+                                <strong>Loading…</strong>
                             </div>
 
                             <div class="breakdown-progress">
@@ -682,7 +483,7 @@
                                     <small> Compared to last month </small>
                                 </div>
 
-                                <strong class="performance-positive"> +12.5% </strong>
+                                <strong>—</strong>
                             </div>
 
                             <div class="performance-row">
@@ -702,7 +503,7 @@
                                     <small> Orders successfully completed </small>
                                 </div>
 
-                                <strong> 96.4% </strong>
+                                <strong>—</strong>
                             </div>
 
                             <div class="performance-row">
@@ -712,7 +513,7 @@
                                     <small> Cancelled orders </small>
                                 </div>
 
-                                <strong class="performance-warning"> 3.6% </strong>
+                                <strong>—</strong>
                             </div>
                         </div>
                     </section>
