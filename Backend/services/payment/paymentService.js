@@ -548,7 +548,13 @@ async function getRestaurantPayments(restaurantOwnerId) {
                 o.status AS order_status,
 
                 r.id AS restaurant_id,
-                r.name AS restaurant_name
+                r.name AS restaurant_name,
+                NULLIF(
+                    (SELECT settings #>> '{payments,transactionFee}'
+                     FROM admin_settings
+                     WHERE id = 1),
+                    ''
+                )::numeric AS platform_fee_rate
 
             FROM payments p
 
