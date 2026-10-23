@@ -855,3 +855,648 @@
         grid-template-columns: 1fr;
     }
 }
+
+
+/* =========================================================
+   RESTAURANT ORDERS PAGE
+========================================================= */
+
+.orders-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 0;
+}
+
+.orders-page-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.orders-page-heading h2 {
+    margin: 0 0 6px;
+    color: #172033;
+    font-size: 24px;
+}
+
+.orders-page-heading p,
+.orders-card-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.orders-statistics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.orders-main-card {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.orders-card-header {
+    padding: 22px 24px;
+}
+
+.orders-card-header h3 {
+    margin: 0 0 6px;
+    color: #172033;
+    font-size: 18px;
+}
+
+/* STATUS TABS */
+
+.restaurant-order-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 0 24px 18px;
+    overflow-x: auto;
+    border-bottom: 1px solid #e8edf3;
+}
+
+.restaurant-order-tab {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 13px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    color: #475569;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.restaurant-order-tab span {
+    display: inline-flex;
+    min-width: 21px;
+    min-height: 21px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    background: #f1f5f9;
+    color: #334155;
+    font-size: 11px;
+}
+
+.restaurant-order-tab:hover {
+    border-color: #ff5a1f;
+}
+
+.restaurant-order-tab.active {
+    border-color: #ff5a1f;
+    background: #fff4ef;
+    color: #c2410c;
+    font-weight: 600;
+}
+
+.restaurant-order-tab.active span {
+    background: #ff5a1f;
+    color: #fff;
+}
+
+/* SEARCH AND FILTERS */
+
+.orders-toolbar {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) minmax(140px, 180px)
+        minmax(140px, 160px) auto;
+    align-items: end;
+    gap: 14px;
+    padding: 20px 24px;
+}
+
+.orders-search,
+.orders-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+}
+
+.orders-search label,
+.orders-filter label {
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.orders-search input,
+.orders-filter select {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 12px;
+    border: 1px solid #dbe2ea;
+    border-radius: 8px;
+    background: #fff;
+    color: #172033;
+    font: inherit;
+    font-size: 13px;
+}
+
+.orders-search input:focus,
+.orders-filter select:focus {
+    outline: 2px solid #fed7aa;
+    border-color: #ff5a1f;
+}
+
+.orders-clear-button {
+    min-height: 42px;
+    padding: 10px 14px;
+    border: 1px solid #dbe2ea;
+    border-radius: 8px;
+    background: #fff;
+    color: #475569;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.orders-clear-button:hover {
+    background: #f8fafc;
+}
+
+/* TABLE */
+
+.orders-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.orders-management-table {
+    width: 100%;
+    min-width: 920px;
+    border-collapse: collapse;
+}
+
+.orders-management-table thead th {
+    padding: 14px 16px;
+    background: #f8fafc;
+    border-top: 1px solid #e8edf3;
+    border-bottom: 1px solid #e8edf3;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.orders-management-table tbody td {
+    padding: 16px;
+    border-bottom: 1px solid #edf1f5;
+    color: #334155;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.orders-management-table tbody tr:hover {
+    background: #fcfcfd;
+}
+
+.orders-management-table .customer-table-info {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.orders-management-table .customer-small-avatar {
+    display: inline-flex;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #fff0e8;
+    color: #c2410c;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.orders-management-table .order-status {
+    display: inline-flex;
+    padding: 6px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.order-status.pending {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.order-status.confirmed {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.order-status.preparing {
+    background: #fefce8;
+    color: #a16207;
+}
+
+.order-status.ready {
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.order-status.out_for_delivery {
+    background: #f5f3ff;
+    color: #6d28d9;
+}
+
+.order-status.delivered {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.order-status.cancelled {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+/* ROW ACTIONS */
+
+.restaurant-order-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.order-action-button,
+.restaurant-modal-button {
+    padding: 8px 10px;
+    border: 1px solid #ff5a1f;
+    border-radius: 7px;
+    background: #ff5a1f;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.order-action-button:hover,
+.restaurant-modal-button:hover {
+    background: #e94b12;
+    border-color: #e94b12;
+}
+
+.order-action-button:disabled,
+.restaurant-modal-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.orders-loading {
+    padding: 32px !important;
+    color: #64748b !important;
+    text-align: center;
+}
+
+.orders-empty-message {
+    padding: 32px 20px;
+    text-align: center;
+}
+
+.orders-empty-message strong {
+    color: #172033;
+}
+
+.orders-empty-message p {
+    margin-bottom: 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+/* PAGINATION */
+
+.orders-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 24px;
+    border-top: 1px solid #e8edf3;
+}
+
+.orders-pagination-info {
+    margin: 0;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.orders-pagination-buttons {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.orders-pagination-buttons button {
+    min-width: 34px;
+    min-height: 34px;
+    padding: 6px 9px;
+    border: 1px solid #dbe2ea;
+    border-radius: 7px;
+    background: #fff;
+    color: #475569;
+    cursor: pointer;
+}
+
+.orders-pagination-buttons button.active {
+    border-color: #ff5a1f;
+    background: #ff5a1f;
+    color: #fff;
+}
+
+.orders-pagination-buttons button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* FEEDBACK */
+
+.orders-message {
+    padding: 12px 15px;
+    border: 1px solid #dbeafe;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 13px;
+}
+
+.orders-message[data-type="success"] {
+    border-color: #bbf7d0;
+    background: #f0fdf4;
+    color: #166534;
+}
+
+.orders-message[data-type="error"] {
+    border-color: #fecaca;
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+/* ORDER DETAILS MODAL */
+
+.restaurant-order-modal[hidden],
+.orders-message[hidden],
+.orders-empty-message[hidden] {
+    display: none !important;
+}
+
+.restaurant-order-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(15, 23, 42, 0.6);
+}
+
+.restaurant-order-modal-panel {
+    display: flex;
+    flex-direction: column;
+    width: min(900px, 100%);
+    max-height: 90vh;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.2);
+}
+
+.restaurant-order-modal-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 24px;
+    border-bottom: 1px solid #e8edf3;
+}
+
+.restaurant-order-modal-header > div {
+    flex: 1;
+    min-width: 0;
+}
+
+.restaurant-order-modal-header h2 {
+    margin: 0 0 6px;
+    color: #172033;
+    font-size: 20px;
+}
+
+.restaurant-order-modal-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.orders-modal-close {
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #334155;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.restaurant-order-modal-body {
+    overflow-y: auto;
+    padding: 24px;
+}
+
+.restaurant-modal-section {
+    margin-bottom: 26px;
+}
+
+.restaurant-modal-section:last-child {
+    margin-bottom: 0;
+}
+
+.restaurant-modal-section h3 {
+    margin: 0 0 14px;
+    color: #172033;
+    font-size: 15px;
+}
+
+.restaurant-modal-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.restaurant-modal-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 13px;
+    border: 1px solid #e8edf3;
+    border-radius: 8px;
+    overflow-wrap: anywhere;
+}
+
+.restaurant-modal-field small {
+    color: #64748b;
+    font-size: 11px;
+}
+
+.restaurant-modal-field strong {
+    color: #172033;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.restaurant-modal-items {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.restaurant-modal-items th,
+.restaurant-modal-items td {
+    padding: 11px;
+    border-bottom: 1px solid #e8edf3;
+    font-size: 12px;
+    text-align: left;
+}
+
+.restaurant-modal-items th {
+    background: #f8fafc;
+    color: #64748b;
+}
+
+.restaurant-modal-totals {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: min(320px, 100%);
+    margin: 18px 0 0 auto;
+}
+
+.restaurant-modal-total-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.restaurant-modal-total-row strong {
+    color: #172033;
+}
+
+.restaurant-modal-total-row.grand-total {
+    padding-top: 12px;
+    border-top: 1px solid #dbe2ea;
+    color: #172033;
+    font-weight: 700;
+}
+
+.restaurant-modal-notes {
+    padding: 14px;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 13px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.restaurant-order-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 18px 24px;
+    border-top: 1px solid #e8edf3;
+}
+
+.restaurant-modal-button.secondary {
+    border-color: #dbe2ea;
+    background: #fff;
+    color: #334155;
+}
+
+.restaurant-modal-button.secondary:hover {
+    background: #f8fafc;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1100px) {
+    .orders-statistics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .orders-toolbar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .orders-page-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .orders-statistics {
+        grid-template-columns: 1fr;
+    }
+
+    .orders-toolbar {
+        grid-template-columns: 1fr;
+        padding: 16px;
+    }
+
+    .orders-card-header {
+        padding: 18px 16px;
+    }
+
+    .restaurant-order-tabs {
+        padding-right: 16px;
+        padding-left: 16px;
+    }
+
+    .orders-pagination {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 16px;
+    }
+
+    .restaurant-order-modal {
+        padding: 10px;
+    }
+
+    .restaurant-order-modal-panel {
+        max-height: 95vh;
+    }
+
+    .restaurant-order-modal-header {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        padding: 18px;
+    }
+
+    .restaurant-order-modal-body {
+        padding: 18px;
+    }
+
+    .restaurant-modal-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .restaurant-order-modal-footer {
+        padding: 16px;
+    }
+}
