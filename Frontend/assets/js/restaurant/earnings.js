@@ -22,6 +22,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const chartYAxis = document.querySelector(".chart-y-axis");
     const payoutDetails = document.querySelector(".payout-details");
     const payoutStatus = document.querySelector(".payout-status");
+    const restaurantSidebarName = $("restaurantSidebarName");
+    const restaurantTopbarName = $("restaurantTopbarName");
+    const restaurantTopbarAvatar = $("restaurantTopbarAvatar");
+    const restaurantStatusText = $("restaurantStatusText");
+    const restaurantStatusDisplay = $("restaurantStatusDisplay");
+    const profileButton = document.querySelector(".restaurant-topbar-profile");
 
     let payments = [];
     let filteredPayments = [];
@@ -86,24 +92,25 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            const result = await apiRequest("/payments/restaurant");
+            const [paymentsResult, profileResult] = await Promise.all([
+                apiRequest("/payments/restaurant"),
+                apiRequest("/restaurants/owner/me")
+            ]);
 
-            payments = Array.isArray(result.data?.payments)
-                ? result.data.payments
-                : [];
+            payments = Array.isArray(paymentsResult.data?.payments)
+                ? paymentsResult.data.payments
+                : Array.isArray(paymentsResult.payments)
+                    ? paymentsResult.payments
+                    : [];
 
+            const restaurant = profileResult.restaurant || profileResult.data?.restaurant || profileResult.data || profileResult;
+            renderRestaurantProfile(restaurant);
             updateEarningsPeriod();
         } catch (error) {
             console.error("Loading earnings failed:", error);
-
-            if (earningsTableBody) {
-                earningsTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="7">${escapeHtml(error.message)}</td>
-                    </tr>
-                `;
-            }
-
+            payments = [];
+            filteredPayments = [];
+            renderUnavailable(error.message);
             showEarningsMessage(error.message, "error");
         } finally {
             loading = false;
@@ -358,11 +365,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const completed = getCompletedPayments();
 
         const buckets = createChartBuckets(period);
-        const maxBucket = Math.max(
-            1,
-            ...buckets.map((bucket) => bucket.amount)
-        );
-
         completed.forEach((payment) => {
             const date = getPaymentDate(payment);
             if (!date) return;
@@ -371,6 +373,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (bucket) bucket.amount += amountOf(payment);
         });
 
+        const maxBucket = Math.max(1, ...buckets.map((bucket) => bucket.amount));
         chartBars.innerHTML = "";
 
         buckets.forEach((bucket) => {
@@ -578,33 +581,33 @@ document.addEventListener("DOMContentLoaded", () => {
             completed.map((payment) => String(payment.order_id))
         );
 
-        const allOrderIds = new Set(
+        const orderIdsWithPayment = new Set(
             filteredPayments
-                .filter((payment) => !isCancelledOrder(payment))
+                .filter((payment) => payment.order_id !== null && payment.order_id !== undefined)
                 .map((payment) => String(payment.order_id))
         );
-
+        const completedOrderIds = new Set(
+            completed.filter((payment) => payment.order_id !== null && payment.order_id !== undefined)
+                .map((payment) => String(payment.order_id))
+        );
         const cancelledOrderIds = new Set(
-            filteredPayments
-                .filter(isCancelledOrder)
+            filteredPayments.filter(isCancelledOrder)
                 .map((payment) => String(payment.order_id))
         );
 
-        const completionRate = allOrderIds.size
-            ? (completedOrders.size / allOrderIds.size) * 100
+        const completionRate = orderIdsWithPayment.size
+            ? (completedOrderIds.size / orderIdsWithPayment.size) * 100
+            : 0;
+        const cancellationRate = orderIdsWithPayment.size
+            ? (cancelledOrderIds.size / orderIdsWithPayment.size) * 100
             : 0;
 
-        const cancellationRate = allOrderIds.size + cancelledOrderIds.size
-            ? (cancelledOrderIds.size /
-                (allOrderIds.size + cancelledOrderIds.size)) * 100
-            : 0;
-
-        setPerformanceRow(rows[0], "Collected revenue", formatMoney(revenue));
-        setPerformanceRow(rows[1], "Average completed order",
+        setPerformanceRow(rows[0], "Collected payment amount", formatMoney(revenue));
+        setPerformanceRow(rows[1], "Average completed payment order",
             formatMoney(completedOrders.size ? revenue / completedOrders.size : 0));
         setPerformanceRow(rows[2], "Payment completion rate",
             `${completionRate.toFixed(1)}%`);
-        setPerformanceRow(rows[3], "Orders cancelled",
+        setPerformanceRow(rows[3], "Payments linked to cancelled orders",
             `${cancellationRate.toFixed(1)}%`);
     }
 
@@ -753,6 +756,76 @@ document.addEventListener("DOMContentLoaded", () => {
         const text = String(value ?? "");
         return `"${text.replace(/"/g, '""')}"`;
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RESTAURANT PROFILE, LOGOUT AND NAVIGATION
+    |--------------------------------------------------------------------------
+    */
+
+    function renderRestaurantProfile(restaurant) {
+        if (!restaurant || typeof restaurant !== "object") {
+            throw new Error("The server did not return your restaurant profile.");
+        }
+        const name = String(restaurant.name || restaurant.restaurant_name || "").trim();
+        if (!name) throw new Error("Your restaurant name is missing from the profile response.");
+        const initials = name.split(/\s+/).filter(Boolean).slice(0, 2)
+            .map((part) => part.charAt(0).toUpperCase()).join("") || "R";
+        if (restaurantSidebarName) restaurantSidebarName.textContent = name;
+        if (restaurantTopbarName) restaurantTopbarName.textContent = name;
+        if (restaurantTopbarAvatar) restaurantTopbarAvatar.textContent = initials;
+        const sidebarAvatar = document.querySelector(".restaurant-avatar");
+        if (sidebarAvatar) sidebarAvatar.textContent = initials;
+        if (restaurantStatusText) {
+            const isOpen = typeof restaurant.is_open === "boolean" ? restaurant.is_open : null;
+            restaurantStatusText.textContent = isOpen === null ? "Unknown" : (isOpen ? "Open" : "Closed");
+            if (restaurantStatusDisplay) {
+                restaurantStatusDisplay.classList.toggle("open", isOpen === true);
+                restaurantStatusDisplay.classList.toggle("closed", isOpen === false);
+            }
+        }
+    }
+
+    function renderUnavailable(message) {
+        summaryCards.forEach((card) => {
+            const value = card.querySelector(".earnings-summary-content > strong");
+            const description = card.querySelector(".earnings-summary-content > small");
+            const change = card.querySelector(".earnings-change");
+            if (value) value.textContent = "Unavailable";
+            if (description) description.textContent = "Could not load financial data.";
+            if (change) change.hidden = true;
+        });
+        if (earningsTableBody) {
+            earningsTableBody.innerHTML = `<tr><td colspan="7">${escapeHtml(message || "Financial data is unavailable.")}</td></tr>`;
+        }
+        if (chartBars) chartBars.innerHTML = "";
+        if (chartYAxis) chartYAxis.innerHTML = "";
+        document.querySelectorAll(".earnings-breakdown-card .breakdown-item strong")
+            .forEach((node) => { node.textContent = "Unavailable"; });
+        document.querySelectorAll(".earnings-breakdown-card .breakdown-progress span")
+            .forEach((node) => { node.style.width = "0%"; });
+        document.querySelectorAll(".earnings-performance-card .performance-row strong")
+            .forEach((node) => { node.textContent = "Unavailable"; });
+        renderPayoutSummary();
+        if (payoutStatus) {
+            const small = payoutStatus.querySelector("small");
+            if (small) small.textContent = "Payout data is not available.";
+        }
+    }
+
+    const logoutLink = document.querySelector(".logout-link");
+    logoutLink?.addEventListener("click", (event) => {
+        event.preventDefault();
+        localStorage.removeItem("foodDeliveryAccessToken");
+        sessionStorage.removeItem("foodDeliveryAccessToken");
+        localStorage.removeItem("foodDeliveryUser");
+        sessionStorage.removeItem("foodDeliveryUser");
+        window.location.href = "../../pages/auth/login.html";
+    });
+
+    profileButton?.addEventListener("click", () => {
+        window.location.href = "restaurant-profile.html";
+    });
 
     /*
     |--------------------------------------------------------------------------
