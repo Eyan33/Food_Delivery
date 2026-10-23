@@ -43,7 +43,7 @@
                 </div>
 
                 <div class="restaurant-profile-info">
-                    <strong>Mama's Kitchen</strong>
+                    <strong id="restaurantSidebarName">Loading restaurant…</strong>
                     <span>Restaurant</span>
                 </div>
 
@@ -62,7 +62,7 @@
                 <a href="orders.html" class="restaurant-nav-link">
                     <span class="nav-icon">🛍</span>
                     <span>Orders</span>
-                    <span class="nav-badge">5</span>
+                    <span class="nav-badge" style="display:none"></span>
                 </a>
 
                 <p class="restaurant-nav-title">BUSINESS</p>
@@ -117,7 +117,7 @@
 
                     <div class="restaurant-page-heading">
                         <h1>Dashboard</h1>
-                        <p>Welcome back, Mama's Kitchen</p>
+                        <p id="restaurantWelcomeBack">Welcome back</p>
                     </div>
 
                 </div>
@@ -138,16 +138,6 @@
                     </button>
 
 
-                    <!-- Notifications -->
-                    <button type="button" class="restaurant-notification-button" aria-label="Notifications">
-
-                        <span>♧</span>
-
-                        <span class="notification-badge">3</span>
-
-                    </button>
-
-
                     <!-- Profile -->
                     <button type="button" class="restaurant-topbar-profile">
 
@@ -156,7 +146,7 @@
                         </span>
 
                         <span class="topbar-profile-text">
-                            <strong>Mama's Kitchen</strong>
+                            <strong id="restaurantTopbarName">Loading…</strong>
                             <small>Restaurant</small>
                         </span>
 
@@ -182,14 +172,11 @@
                 <div class="restaurant-welcome">
 
                     <div>
-                        <h2>Good morning, Mama's Kitchen</h2>
+                        <h2 id="restaurantWelcomeHeading">Your restaurant overview</h2>
                         <p>Here's what's happening with your restaurant today.</p>
                     </div>
 
-                    <div class="dashboard-date">
-                        <span>Today</span>
-                        <strong>September 12, 2026</strong>
-                    </div>
+                    <div class="dashboard-date"><span>Today</span><strong id="dashboardCurrentDate">Loading date…</strong></div>
 
                 </div>
 
@@ -209,9 +196,7 @@
                                 🛍
                             </div>
 
-                            <span class="stat-change positive">
-                                +12%
-                            </span>
+                            <span class="stat-change neutral">Today</span>
 
                         </div>
 
@@ -219,9 +204,9 @@
 
                             <span>Today's Orders</span>
 
-                            <strong>24</strong>
+                            <strong>—</strong>
 
-                            <small>Compared to yesterday</small>
+                            <small>Orders placed today</small>
 
                         </div>
 
@@ -237,9 +222,7 @@
                                 ⏱
                             </div>
 
-                            <span class="stat-change warning">
-                                5 waiting
-                            </span>
+                            <span class="stat-change warning">Pending</span>
 
                         </div>
 
@@ -247,7 +230,7 @@
 
                             <span>Pending Orders</span>
 
-                            <strong>5</strong>
+                            <strong>—</strong>
 
                             <small>Orders requiring attention</small>
 
@@ -265,9 +248,7 @@
                                 KSh
                             </div>
 
-                            <span class="stat-change positive">
-                                +8.5%
-                            </span>
+                            <span class="stat-change neutral">Today</span>
 
                         </div>
 
@@ -275,9 +256,9 @@
 
                             <span>Today's Revenue</span>
 
-                            <strong>KSh 18,450</strong>
+                            <strong>—</strong>
 
-                            <small>Compared to yesterday</small>
+                            <small>Revenue from delivered orders today</small>
 
                         </div>
 
@@ -293,9 +274,7 @@
                                 ☷
                             </div>
 
-                            <span class="stat-change neutral">
-                                Active
-                            </span>
+                            <span class="stat-change neutral">Menu</span>
 
                         </div>
 
@@ -303,9 +282,9 @@
 
                             <span>Menu Items</span>
 
-                            <strong>32</strong>
+                            <strong>—</strong>
 
-                            <small>28 available today</small>
+                            <small>Loading menu availability</small>
 
                         </div>
 
@@ -358,193 +337,7 @@
 
                                 </thead>
 
-                                <tbody>
-
-                                    <tr>
-
-                                        <td>
-                                            <strong>#FD-1008</strong>
-                                        </td>
-
-                                        <td>
-                                            <div class="customer-table-info">
-                                                <span class="customer-small-avatar">
-                                                    JM
-                                                </span>
-
-                                                <span>John Mwangi</span>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            2 items
-                                        </td>
-
-                                        <td>
-                                            <strong>KSh 1,300</strong>
-                                        </td>
-
-                                        <td>
-                                            <span class="order-status preparing">
-                                                Preparing
-                                            </span>
-                                        </td>
-
-                                        <td>
-                                            8:45 AM
-                                        </td>
-
-                                    </tr>
-
-
-                                    <tr>
-
-                                        <td>
-                                            <strong>#FD-1007</strong>
-                                        </td>
-
-                                        <td>
-                                            <div class="customer-table-info">
-                                                <span class="customer-small-avatar">
-                                                    AW
-                                                </span>
-
-                                                <span>Anne Wanjiku</span>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            3 items
-                                        </td>
-
-                                        <td>
-                                            <strong>KSh 2,050</strong>
-                                        </td>
-
-                                        <td>
-                                            <span class="order-status confirmed">
-                                                Confirmed
-                                            </span>
-                                        </td>
-
-                                        <td>
-                                            8:32 AM
-                                        </td>
-
-                                    </tr>
-
-
-                                    <tr>
-
-                                        <td>
-                                            <strong>#FD-1006</strong>
-                                        </td>
-
-                                        <td>
-                                            <div class="customer-table-info">
-                                                <span class="customer-small-avatar">
-                                                    DK
-                                                </span>
-
-                                                <span>David Kamau</span>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            1 item
-                                        </td>
-
-                                        <td>
-                                            <strong>KSh 650</strong>
-                                        </td>
-
-                                        <td>
-                                            <span class="order-status ready">
-                                                Ready
-                                            </span>
-                                        </td>
-
-                                        <td>
-                                            8:15 AM
-                                        </td>
-
-                                    </tr>
-
-
-                                    <tr>
-
-                                        <td>
-                                            <strong>#FD-1005</strong>
-                                        </td>
-
-                                        <td>
-                                            <div class="customer-table-info">
-                                                <span class="customer-small-avatar">
-                                                    SN
-                                                </span>
-
-                                                <span>Sarah Njeri</span>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            4 items
-                                        </td>
-
-                                        <td>
-                                            <strong>KSh 2,450</strong>
-                                        </td>
-
-                                        <td>
-                                            <span class="order-status delivered">
-                                                Delivered
-                                            </span>
-                                        </td>
-
-                                        <td>
-                                            7:50 AM
-                                        </td>
-
-                                    </tr>
-
-
-                                    <tr>
-
-                                        <td>
-                                            <strong>#FD-1004</strong>
-                                        </td>
-
-                                        <td>
-                                            <div class="customer-table-info">
-                                                <span class="customer-small-avatar">
-                                                    EO
-                                                </span>
-
-                                                <span>Eric Otieno</span>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            2 items
-                                        </td>
-
-                                        <td>
-                                            <strong>KSh 1,500</strong>
-                                        </td>
-
-                                        <td>
-                                            <span class="order-status cancelled">
-                                                Cancelled
-                                            </span>
-                                        </td>
-
-                                        <td>
-                                            7:25 AM
-                                        </td>
-
-                                    </tr>
-
-                                </tbody>
+                                <tbody><tr><td colspan="6" style="text-align:center;padding:24px;">Loading your recent orders…</td></tr></tbody>
 
                             </table>
 
@@ -624,162 +417,7 @@
                     </section>
 
 
-                    <!-- =========================
-                         POPULAR MENU ITEMS
-                    ========================== -->
-
-                    <section class="restaurant-dashboard-card popular-items-card">
-
-                        <div class="dashboard-card-header">
-
-                            <div>
-                                <h3>Popular Menu Items</h3>
-                                <p>Best performing items today</p>
-                            </div>
-
-                        </div>
-
-
-                        <div class="popular-items-list">
-
-                            <!-- Item 1 -->
-                            <div class="popular-item">
-
-                                <div class="popular-item-image">
-                                    GC
-                                </div>
-
-                                <div class="popular-item-info">
-
-                                    <strong>
-                                        Grilled Chicken
-                                    </strong>
-
-                                    <span>
-                                        18 orders
-                                    </span>
-
-                                </div>
-
-                                <div class="popular-item-revenue">
-
-                                    <strong>
-                                        KSh 11,700
-                                    </strong>
-
-                                    <small>
-                                        Revenue
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-
-                            <!-- Item 2 -->
-                            <div class="popular-item">
-
-                                <div class="popular-item-image">
-                                    BS
-                                </div>
-
-                                <div class="popular-item-info">
-
-                                    <strong>
-                                        Beef Stew
-                                    </strong>
-
-                                    <span>
-                                        14 orders
-                                    </span>
-
-                                </div>
-
-                                <div class="popular-item-revenue">
-
-                                    <strong>
-                                        KSh 7,700
-                                    </strong>
-
-                                    <small>
-                                        Revenue
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-
-                            <!-- Item 3 -->
-                            <div class="popular-item">
-
-                                <div class="popular-item-image">
-                                    CW
-                                </div>
-
-                                <div class="popular-item-info">
-
-                                    <strong>
-                                        Chicken Wings
-                                    </strong>
-
-                                    <span>
-                                        11 orders
-                                    </span>
-
-                                </div>
-
-                                <div class="popular-item-revenue">
-
-                                    <strong>
-                                        KSh 5,500
-                                    </strong>
-
-                                    <small>
-                                        Revenue
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-
-                            <!-- Item 4 -->
-                            <div class="popular-item">
-
-                                <div class="popular-item-image">
-                                    VR
-                                </div>
-
-                                <div class="popular-item-info">
-
-                                    <strong>
-                                        Vegetable Rice
-                                    </strong>
-
-                                    <span>
-                                        8 orders
-                                    </span>
-
-                                </div>
-
-                                <div class="popular-item-revenue">
-
-                                    <strong>
-                                        KSh 3,200
-                                    </strong>
-
-                                    <small>
-                                        Revenue
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </section>
+                    <!-- Popular items are hidden until live order-item analytics are available. -->
 
 
                     <!-- =========================

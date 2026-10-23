@@ -220,9 +220,25 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const avatar = document.querySelector(".restaurant-avatar");
-        if (avatar) {
-            avatar.textContent = getInitials(restaurant.name || "Restaurant");
+        if (avatar) avatar.textContent = getInitials(restaurant.name || "Restaurant");
+
+        const topbarAvatar = document.querySelector(".topbar-avatar");
+        if (topbarAvatar) topbarAvatar.textContent = getInitials(restaurant.name || "Restaurant");
+
+        const sidebarName = document.getElementById("restaurantSidebarName");
+        if (sidebarName) sidebarName.textContent = restaurant.name || "My Restaurant";
+        const topbarName = document.getElementById("restaurantTopbarName");
+        if (topbarName) topbarName.textContent = restaurant.name || "My Restaurant";
+
+        const welcomeHeading = document.getElementById("restaurantWelcomeHeading");
+        if (welcomeHeading) {
+            const hour = new Date().getHours();
+            const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+            welcomeHeading.textContent = `${greeting}, ${restaurant.name || "your restaurant"}`;
         }
+
+        const welcomeBack = document.getElementById("restaurantWelcomeBack");
+        if (welcomeBack) welcomeBack.textContent = `Welcome back, ${restaurant.name || "your restaurant"}`;
 
         updateRestaurantStatusUI();
     }
@@ -347,86 +363,48 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function renderStatistics(orders, foods) {
-        const todaysOrders = orders.filter(order => isToday(getOrderDate(order)));
+    function renderStatistics(orders, foods, ordersFailed = false, foodsFailed = false) {
+        const safeOrders = Array.isArray(orders) ? orders : [];
+        const todaysOrders = safeOrders.filter(order => isToday(getOrderDate(order)));
+        const pendingOrders = safeOrders.filter(order => String(order.status || "").toLowerCase() === "pending");
 
-        const pendingOrders = orders.filter(order =>
-            String(order.status || "").toLowerCase() === "pending"
-        );
-
-        // Cancelled orders must not be counted as revenue.
+        // Revenue represents delivered orders, not orders that may still be cancelled.
         const todaysRevenue = todaysOrders.reduce((total, order) => {
-            if (String(order.status || "").toLowerCase() === "cancelled") {
-                return total;
-            }
-
+            if (String(order.status || "").toLowerCase() !== "delivered") return total;
             return total + (Number(order.total_amount) || 0);
         }, 0);
 
-        const foodList = Array.isArray(foods)
-            ? foods
-            : Array.isArray(foods?.foods)
-                ? foods.foods
-                : [];
+        const foodList = Array.isArray(foods) ? foods : Array.isArray(foods?.foods) ? foods.foods : [];
+        const activeFoodCount = foodList.filter(food => food.is_active !== false).length;
+        const availableFoodCount = foodList.filter(food => food.is_active !== false && food.is_available !== false).length;
 
-        const activeFoodCount = foodList.filter(food =>
-            food.is_active !== false
-        ).length;
+        updateStatCard(0, ordersFailed ? "—" : String(todaysOrders.length),
+            ordersFailed ? "Could not load orders" : "All statuses, placed today");
+        updateStatCard(1, ordersFailed ? "—" : String(pendingOrders.length),
+            ordersFailed ? "Could not load pending orders" : "Currently awaiting action");
+        updateStatCard(2, ordersFailed ? "—" : formatCurrency(todaysRevenue),
+            ordersFailed ? "Could not calculate revenue" : "Delivered orders placed today");
+        updateStatCard(3, foodsFailed ? "—" : String(activeFoodCount),
+            foodsFailed ? "Could not load menu items" : `${availableFoodCount} currently available`);
 
-        const availableFoodCount = foodList.filter(food =>
-            food.is_active !== false && food.is_available !== false
-        ).length;
-
-        updateStatCard(
-            0,
-            String(todaysOrders.length),
-            "Orders placed today"
-        );
-
-        updateStatCard(
-            1,
-            String(pendingOrders.length),
-            "Orders requiring attention"
-        );
-
-        updateStatCard(
-            2,
-            formatCurrency(todaysRevenue),
-            "Today's non-cancelled order total"
-        );
-
-        updateStatCard(
-            3,
-            String(activeFoodCount),
-            `${availableFoodCount} currently available`
-        );
-
-        // Update the small badges above the statistic cards.
         const firstBadge = statCards[0]?.querySelector(".stat-change");
-        if (firstBadge) firstBadge.textContent = "Today";
-
+        if (firstBadge) firstBadge.textContent = ordersFailed ? "Unavailable" : "Today";
         const pendingBadge = statCards[1]?.querySelector(".stat-change");
-        if (pendingBadge) {
-            pendingBadge.textContent = `${pendingOrders.length} waiting`;
-        }
-
+        if (pendingBadge) pendingBadge.textContent = ordersFailed ? "Unavailable" : `${pendingOrders.length} pending`;
         const revenueBadge = statCards[2]?.querySelector(".stat-change");
-        if (revenueBadge) revenueBadge.textContent = "Today";
-
+        if (revenueBadge) revenueBadge.textContent = ordersFailed ? "Unavailable" : "Today";
         const menuBadge = statCards[3]?.querySelector(".stat-change");
-        if (menuBadge) menuBadge.textContent = "Menu";
+        if (menuBadge) menuBadge.textContent = foodsFailed ? "Unavailable" : "Menu";
 
         if (dashboardDate) {
             dashboardDate.textContent = new Date().toLocaleDateString("en-KE", {
-                day: "numeric",
-                month: "long",
-                year: "numeric"
+                day: "numeric", month: "long", year: "numeric"
             });
         }
 
         if (orderNavBadge) {
-            orderNavBadge.textContent = String(pendingOrders.length);
-            orderNavBadge.style.display = pendingOrders.length ? "" : "none";
+            orderNavBadge.textContent = ordersFailed ? "" : String(pendingOrders.length);
+            orderNavBadge.style.display = !ordersFailed && pendingOrders.length ? "" : "none";
         }
     }
 
@@ -434,25 +412,26 @@ document.addEventListener("DOMContentLoaded", () => {
        RECENT ORDERS TABLE
        ===================================================== */
 
-    function renderRecentOrders(orders) {
+    function renderRecentOrders(orders, failed = false) {
         if (!recentOrdersBody) return;
 
-        const recentOrders = [...orders]
-            .sort((a, b) => {
-                const dateA = new Date(getOrderDate(a) || 0).getTime();
-                const dateB = new Date(getOrderDate(b) || 0).getTime();
-                return dateB - dateA;
-            })
+        if (failed) {
+            recentOrdersBody.innerHTML = `
+                <tr><td colspan="6" style="text-align:center;padding:24px;">
+                    We could not load recent orders. Refresh the page and try again.
+                </td></tr>`;
+            return;
+        }
+
+        const recentOrders = [...(Array.isArray(orders) ? orders : [])]
+            .sort((a, b) => new Date(getOrderDate(b) || 0).getTime() - new Date(getOrderDate(a) || 0).getTime())
             .slice(0, 5);
 
         if (!recentOrders.length) {
             recentOrdersBody.innerHTML = `
-                <tr>
-                    <td colspan="6" style="text-align:center;padding:24px;">
-                        No orders have been received yet.
-                    </td>
-                </tr>
-            `;
+                <tr><td colspan="6" style="text-align:center;padding:24px;">
+                    No orders have been received yet.
+                </td></tr>`;
             return;
         }
 
@@ -462,29 +441,23 @@ document.addEventListener("DOMContentLoaded", () => {
             const orderNumber = order.order_number || `#${order.id}`;
             const amount = formatCurrency(order.total_amount);
             const time = formatDateTime(getOrderDate(order));
+            const count = Number(order.item_count);
+            const itemLabel = Number.isFinite(count) && count >= 0
+                ? `${count} ${count === 1 ? "item" : "items"}`
+                : "—";
 
             return `
-                <tr data-order-id="${escapeHtml(orderNumber)}"
-                    data-status="${escapeHtml(status)}">
+                <tr data-order-id="${escapeHtml(orderNumber)}" data-status="${escapeHtml(status)}">
                     <td><strong>${escapeHtml(orderNumber)}</strong></td>
-                    <td>
-                        <div class="customer-table-info">
-                            <span class="customer-small-avatar">
-                                ${escapeHtml(getInitials(customerName))}
-                            </span>
-                            <span>${escapeHtml(customerName)}</span>
-                        </div>
-                    </td>
-                    <td>—</td>
+                    <td><div class="customer-table-info">
+                        <span class="customer-small-avatar">${escapeHtml(getInitials(customerName))}</span>
+                        <span>${escapeHtml(customerName)}</span>
+                    </div></td>
+                    <td>${escapeHtml(itemLabel)}</td>
                     <td><strong>${escapeHtml(amount)}</strong></td>
-                    <td>
-                        <span class="order-status ${escapeHtml(status)}">
-                            ${escapeHtml(getStatusLabel(status))}
-                        </span>
-                    </td>
+                    <td><span class="order-status ${escapeHtml(status)}">${escapeHtml(getStatusLabel(status))}</span></td>
                     <td>${escapeHtml(time)}</td>
-                </tr>
-            `;
+                </tr>`;
         }).join("");
     }
 
@@ -498,41 +471,36 @@ document.addEventListener("DOMContentLoaded", () => {
             apiRequest("/foods/restaurant/my")
         ]);
 
-        let orders = [];
-        let foods = [];
+        let orders = null;
+        let foods = null;
         const errors = [];
 
         if (results[0].status === "fulfilled") {
             const result = results[0].value;
-            orders = Array.isArray(result.orders)
-                ? result.orders
-                : Array.isArray(result)
-                    ? result
-                    : [];
+            if (Array.isArray(result?.orders)) orders = result.orders;
+            else if (Array.isArray(result)) orders = result;
+            else errors.push("Orders: the API returned an unexpected response.");
         } else {
-            errors.push(`Orders: ${results[0].reason.message}`);
+            errors.push(`Orders: ${results[0].reason?.message || "request failed"}`);
         }
 
         if (results[1].status === "fulfilled") {
             const result = results[1].value;
-            foods = Array.isArray(result.foods)
-                ? result.foods
-                : Array.isArray(result)
-                    ? result
-                    : [];
+            if (Array.isArray(result?.foods)) foods = result.foods;
+            else if (Array.isArray(result)) foods = result;
+            else errors.push("Menu: the API returned an unexpected response.");
         } else {
-            errors.push(`Menu: ${results[1].reason.message}`);
+            errors.push(`Menu: ${results[1].reason?.message || "request failed"}`);
         }
 
-        currentOrders = orders;
-
-        renderStatistics(orders, foods);
-        renderRecentOrders(orders);
+        currentOrders = Array.isArray(orders) ? orders : [];
+        renderStatistics(orders, foods, orders === null, foods === null);
+        renderRecentOrders(orders, orders === null);
 
         if (errors.length) {
-            showMessage(
-                "Some dashboard data could not be loaded. " + errors.join(" | ")
-            );
+            showMessage("Some dashboard data could not be loaded. " + errors.join(" | "));
+        } else {
+            clearMessage();
         }
     }
 
@@ -572,20 +540,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    /* =====================================================
-       NOTIFICATIONS
-       ===================================================== */
+    /* Notifications are omitted until a real notification endpoint exists. */
 
-    if (notificationButton) {
-        notificationButton.addEventListener("click", () => {
-            // This clears the visual badge only. Notification APIs
-            // can be connected separately when implemented.
-            const badge = notificationButton.querySelector(".notification-badge");
-
-            if (badge) {
-                badge.textContent = "0";
-                badge.style.display = "none";
-            }
+    const logoutLink = document.querySelector(".logout-link");
+    if (logoutLink) {
+        logoutLink.addEventListener("click", event => {
+            event.preventDefault();
+            if (api && typeof api.clearSession === "function") api.clearSession();
+            window.location.href = "../../pages/auth/login.html";
         });
     }
 
@@ -634,6 +596,12 @@ document.addEventListener("DOMContentLoaded", () => {
        ===================================================== */
 
     async function initializeDashboard() {
+        if (dashboardDate) {
+            dashboardDate.textContent = new Date().toLocaleDateString("en-KE", {
+                day: "numeric", month: "long", year: "numeric"
+            });
+        }
+
         const authenticated = await checkRestaurantSession();
         if (!authenticated) return;
 
