@@ -2330,6 +2330,22 @@ if (targetInput && document.activeElement !== targetInput) {
                             </option>
                         </select>
                     </label>
+
+                    <label class="admin-form-field">
+                        <span>
+                            Payment method
+                        </span>
+
+                        <select
+                            name="payment_method"
+                            id="adminCreatePaymentMethod"
+                            required
+                        >
+                            <option value="mpesa">M-Pesa</option>
+                            <option value="cash">Cash</option>
+                            <option value="card">Card</option>
+                        </select>
+                    </label>
                 </div>
 
                 <div
@@ -3385,6 +3401,10 @@ if (targetInput && document.activeElement !== targetInput) {
                 document.getElementById(
                     "adminCreateRider",
                 )?.value || null,
+            payment_method:
+                document.getElementById(
+                    "adminCreatePaymentMethod",
+                )?.value || "",
             delivery_address:
                 address,
             delivery_city:

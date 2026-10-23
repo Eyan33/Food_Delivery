@@ -1757,6 +1757,7 @@ async function createAdminOrder(data, adminId) {
         recipient_phone,
         delivery_instructions,
         notes,
+        payment_method,
         items,
     } = data || {};
 
@@ -1781,6 +1782,16 @@ async function createAdminOrder(data, adminId) {
                   rider_id,
                   "rider_id",
               );
+
+    const paymentMethod = String(payment_method || "")
+        .trim()
+        .toLowerCase();
+
+    if (!["mpesa", "cash", "card"].includes(paymentMethod)) {
+        throw apiError(
+            "Select a valid payment method: M-Pesa, cash, or card",
+        );
+    }
 
     if (!customerId) {
         throw apiError("Customer is required");
@@ -2213,6 +2224,25 @@ async function createAdminOrder(data, adminId) {
                 ],
             );
         }
+
+        /*
+         * Every admin-created order must have a payment record so it appears
+         * in payment reconciliation and restaurant earnings. Keep it pending:
+         * creating an order does not prove that money has been received.
+         */
+        await client.query(
+            `
+            INSERT INTO payments (
+                order_id,
+                payment_method,
+                payment_status,
+                amount
+            )
+            VALUES ($1, $2, 'pending', $3)
+            ON CONFLICT (order_id) DO NOTHING
+            `,
+            [orderId, paymentMethod, totalAmount],
+        );
 
         await client.query("COMMIT");
 
