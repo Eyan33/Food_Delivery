@@ -564,12 +564,10 @@ document.addEventListener("DOMContentLoaded", () => {
             sumAmounts(filteredPayments.filter(isRefundedPayment))
         ];
 
+        const breakdownMaximum = Math.max(1, ...totals);
         progressBars.forEach((bar, index) => {
-            const percentage = total > 0
-                ? Math.min(100, (totals[index] / Math.max(total, ...totals, 1)) * 100)
-                : 0;
-
-            bar.style.width = `${percentage}%`;
+            const percentage = (totals[index] / breakdownMaximum) * 100;
+            bar.style.width = `${Math.min(100, percentage)}%`;
         });
     }
 
@@ -832,10 +830,21 @@ document.addEventListener("DOMContentLoaded", () => {
             .forEach((node) => { node.style.width = "0%"; });
         document.querySelectorAll(".earnings-performance-card .performance-row strong")
             .forEach((node) => { node.textContent = "Unavailable"; });
-        renderPayoutSummary();
         if (payoutStatus) {
+            const strong = payoutStatus.querySelector("strong");
             const small = payoutStatus.querySelector("small");
-            if (small) small.textContent = "Payout data is not available.";
+            const label = payoutStatus.querySelector("span");
+            if (label) label.textContent = "Payout tracking";
+            if (strong) strong.textContent = "Unavailable";
+            if (small) small.textContent = "Financial data could not be loaded.";
+        }
+        if (payoutDetails) {
+            payoutDetails.innerHTML = `
+                <div class="payout-detail-row"><span>Collected payments</span><strong>Unavailable</strong></div>
+                <div class="payout-detail-row"><span>Pending / processing</span><strong>Unavailable</strong></div>
+                <div class="payout-detail-row"><span>Estimated platform fees</span><strong>Unavailable</strong></div>
+                <div class="payout-detail-row total"><span>Estimated after-fee amount</span><strong>Unavailable</strong></div>
+            `;
         }
     }
 
