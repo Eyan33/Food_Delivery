@@ -85,33 +85,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (earningsTableBody) {
             earningsTableBody.innerHTML = `
-                <tr>
-                    <td colspan="7">Loading payment transactions...</td>
-                </tr>
+                <tr><td colspan="7">Loading payment transactions…</td></tr>
             `;
         }
 
         try {
-            const [paymentsResult, profileResult] = await Promise.all([
+            const [paymentsOutcome, profileOutcome] = await Promise.allSettled([
                 apiRequest("/payments/restaurant"),
                 apiRequest("/restaurants/owner/me")
             ]);
 
-            payments = Array.isArray(paymentsResult.data?.payments)
-                ? paymentsResult.data.payments
-                : Array.isArray(paymentsResult.payments)
-                    ? paymentsResult.payments
-                    : [];
+            if (profileOutcome.status === "fulfilled") {
+                const profileResult = profileOutcome.value;
+                const restaurant = profileResult.data?.restaurant || profileResult.restaurant;
+                try {
+                    renderRestaurantProfile(restaurant);
+                } catch (error) {
+                    console.error("Loading restaurant profile failed:", error);
+                    showEarningsMessage(error.message, "error");
+                }
+            } else {
+                console.error("Loading restaurant profile failed:", profileOutcome.reason);
+                showEarningsMessage(
+                    "Restaurant profile could not be loaded. Financial data is handled separately.",
+                    "error"
+                );
+            }
 
-            const restaurant = profileResult.restaurant || profileResult.data?.restaurant || profileResult.data || profileResult;
-            renderRestaurantProfile(restaurant);
-            updateEarningsPeriod();
-        } catch (error) {
-            console.error("Loading earnings failed:", error);
-            payments = [];
-            filteredPayments = [];
-            renderUnavailable(error.message);
-            showEarningsMessage(error.message, "error");
+            if (paymentsOutcome.status === "fulfilled") {
+                const paymentsResult = paymentsOutcome.value;
+                payments = Array.isArray(paymentsResult.data?.payments)
+                    ? paymentsResult.data.payments
+                    : Array.isArray(paymentsResult.payments)
+                        ? paymentsResult.payments
+                        : [];
+                updateEarningsPeriod();
+            } else {
+                const error = paymentsOutcome.reason || new Error("Financial data could not be loaded.");
+                console.error("Loading earnings failed:", error);
+                payments = [];
+                filteredPayments = [];
+                renderUnavailable(error.message);
+                showEarningsMessage(error.message, "error");
+            }
         } finally {
             loading = false;
         }
@@ -305,15 +321,16 @@ document.addEventListener("DOMContentLoaded", () => {
             const status = String(payment.payment_status || "unknown")
                 .toLowerCase();
 
-            const isPayout = false;
             const amount = amountOf(payment);
-
-            /*
-             * No platform fee is calculated here because the project does
-             * not currently provide a configured, authoritative fee rule.
-             */
-            const fee = null;
-            const net = null;
+            const configuredRate = payment.platform_fee_rate === null ||
+                payment.platform_fee_rate === undefined ||
+                payment.platform_fee_rate === ""
+                    ? null
+                    : Number(payment.platform_fee_rate);
+            const fee = configuredRate !== null && Number.isFinite(configuredRate) && configuredRate >= 0
+                ? (isCompletedPayment(payment) ? amount * configuredRate / 100 : 0)
+                : null;
+            const net = fee === null ? null : amount - fee;
 
             row.innerHTML = `
                 <td>
@@ -712,7 +729,10 @@ document.addEventListener("DOMContentLoaded", () => {
             "Order Number",
             "Date",
             "Payment Method",
-            "Amount",
+            "Gross Amount",
+            "Platform Fee Rate (%)",
+            "Platform Fee",
+            "Net Amount After Platform Fee",
             "Payment Status",
             "Order Status",
             "Transaction Reference"
@@ -724,6 +744,13 @@ document.addEventListener("DOMContentLoaded", () => {
             formatDate(getPaymentDate(payment)),
             payment.payment_method,
             amountOf(payment),
+            payment.platform_fee_rate ?? "",
+            payment.platform_fee_rate === null || payment.platform_fee_rate === undefined || payment.platform_fee_rate === ""
+                ? ""
+                : (isCompletedPayment(payment) ? amountOf(payment) * Number(payment.platform_fee_rate) / 100 : 0),
+            payment.platform_fee_rate === null || payment.platform_fee_rate === undefined || payment.platform_fee_rate === ""
+                ? ""
+                : amountOf(payment) - (isCompletedPayment(payment) ? amountOf(payment) * Number(payment.platform_fee_rate) / 100 : 0),
             payment.payment_status,
             payment.order_status,
             payment.transaction_reference
