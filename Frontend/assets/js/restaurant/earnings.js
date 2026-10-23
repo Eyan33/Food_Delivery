@@ -649,30 +649,33 @@ document.addEventListener("DOMContentLoaded", () => {
     */
 
     function renderPayoutSummary() {
-        /*
-         * Payment records are not payout records. Do not display the
-         * sample payout balances and dates as if they came from the backend.
-         */
+        const completed = getCompletedPayments();
+        const grossCollected = sumAmounts(completed);
+        const configuredRate = completed.find((payment) =>
+            payment.platform_fee_rate !== null &&
+            payment.platform_fee_rate !== undefined &&
+            payment.platform_fee_rate !== ""
+        )?.platform_fee_rate;
+        const feeRate = configuredRate === undefined ? null : Number(configuredRate);
+        const feeTotal = feeRate !== null && Number.isFinite(feeRate) && feeRate >= 0
+            ? grossCollected * feeRate / 100
+            : null;
+
         if (payoutStatus) {
             const strong = payoutStatus.querySelector("strong");
             const small = payoutStatus.querySelector("small");
             const label = payoutStatus.querySelector("span");
-
             if (label) label.textContent = "Payout tracking";
-            if (strong) strong.textContent = "Not configured";
-            if (small) {
-                small.textContent =
-                    "Payout records are not currently available from the backend.";
-            }
+            if (strong) strong.textContent = "Not available";
+            if (small) small.textContent = "The backend has no persisted payout schedule or transfer history.";
         }
 
         if (payoutDetails) {
             payoutDetails.innerHTML = `
                 <div class="payout-detail-row">
                     <span>Collected payments</span>
-                    <strong>${formatMoney(sumAmounts(getCompletedPayments()))}</strong>
+                    <strong>${formatMoney(grossCollected)}</strong>
                 </div>
-
                 <div class="payout-detail-row">
                     <span>Pending / processing</span>
                     <strong>${formatMoney(sumAmounts(
@@ -683,29 +686,24 @@ document.addEventListener("DOMContentLoaded", () => {
                         )
                     ))}</strong>
                 </div>
-
                 <div class="payout-detail-row">
-                    <span>Platform fees</span>
-                    <strong>Not configured</strong>
+                    <span>Estimated platform fees</span>
+                    <strong>${feeTotal === null ? "Not configured" : formatMoney(feeTotal)}</strong>
                 </div>
-
                 <div class="payout-detail-row total">
-                    <span>Actual payouts</span>
-                    <strong>Not available</strong>
+                    <span>Estimated after-fee amount (not a payout balance)</span>
+                    <strong>${feeTotal === null ? "Not configured" : formatMoney(grossCollected - feeTotal)}</strong>
                 </div>
             `;
         }
     }
 
-    document.querySelector(".earnings-payout-button")?.addEventListener(
-        "click",
-        () => {
-            showEarningsMessage(
-                "Payout history is not available yet because payout records are not implemented in the backend.",
-                "info"
-            );
-        }
-    );
+    document.querySelector(".earnings-payout-button")?.addEventListener("click", () => {
+        showEarningsMessage(
+            "Payout history cannot be shown because the backend does not yet store payout transfers. No payout data has been fabricated.",
+            "info"
+        );
+    });
 
     /*
     |--------------------------------------------------------------------------
@@ -780,7 +778,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function csvEscape(value) {
-        const text = String(value ?? "");
+        let text = String(value ?? "");
+        if (/^[=+@-]/.test(text)) text = "'" + text;
         return `"${text.replace(/"/g, '""')}"`;
     }
 
