@@ -33,12 +33,10 @@
         <!-- Rider profile -->
         <div class="rider-profile">
 
-            <div class="rider-profile-avatar">
-                J
-            </div>
+            <div class="rider-profile-avatar" aria-hidden="true">R</div>
 
             <div class="rider-profile-info">
-                <strong>John Kamau</strong>
+                <strong>Loading rider…</strong>
                 <span>Delivery Rider</span>
             </div>
 
@@ -55,7 +53,7 @@
             <a href="orders.html" class="rider-nav-link">
                 <span class="rider-nav-icon">▤</span>
                 <span>Available Orders</span>
-                <span class="rider-nav-badge">4</span>
+                
             </a>
 
             <a href="deliveries.html" class="rider-nav-link active">
@@ -115,26 +113,23 @@
             <div class="rider-topbar-right">
 
                 <!-- Online status -->
-                <div class="rider-status-button online">
+                <div class="rider-status-button offline" aria-label="Loading rider availability">
                     <span class="status-dot"></span>
-                    <span>You're Online</span>
+                    <span>Checking status…</span>
                 </div>
 
                 <!-- Notification -->
-                <button class="rider-notification-button" type="button">
-                    <span>🔔</span>
-                    <span class="notification-badge">3</span>
+                <button class="rider-notification-button" type="button" aria-label="Notifications unavailable" title="Notifications are not available yet" disabled hidden>
+                    <span aria-hidden="true">🔔</span>
                 </button>
 
                 <!-- Profile -->
                 <div class="rider-topbar-profile">
 
-                    <div class="rider-topbar-avatar">
-                        J
-                    </div>
+                    <div class="rider-topbar-avatar" aria-hidden="true">R</div>
 
                     <div class="rider-topbar-profile-info">
-                        <strong>John Kamau</strong>
+                        <strong>Loading rider…</strong>
                         <span>Delivery Rider</span>
                     </div>
 
@@ -179,7 +174,7 @@
 
                     <div>
                         <span>Active Delivery</span>
-                        <strong>1</strong>
+                        <strong>—</strong>
                     </div>
 
                 </div>
@@ -193,7 +188,7 @@
 
                     <div>
                         <span>Completed Today</span>
-                        <strong>6</strong>
+                        <strong>—</strong>
                     </div>
 
                 </div>
@@ -207,7 +202,7 @@
 
                     <div>
                         <span>Today's Earnings</span>
-                        <strong>KSh 2,850</strong>
+                        <strong>—</strong>
                     </div>
 
                 </div>
@@ -221,7 +216,7 @@
 
                     <div>
                         <span>Success Rate</span>
-                        <strong>98%</strong>
+                        <strong>—</strong>
                     </div>
 
                 </div>
@@ -289,190 +284,7 @@
             </div>
 
 
-            <article class="rider-active-delivery">
-
-                <!-- Delivery header -->
-                <div class="rider-delivery-header">
-
-                    <div class="rider-delivery-restaurant">
-
-                        <div class="rider-delivery-icon">
-                            ◈
-                        </div>
-
-                        <div>
-
-                            <span class="rider-delivery-order-number">
-                                Order #FD-1048
-                            </span>
-
-                            <h3>
-                                Artcaffe
-                            </h3>
-
-                            <small>
-                                Accepted 12 minutes ago
-                            </small>
-
-                        </div>
-
-                    </div>
-
-
-                    <span class="rider-delivery-status active">
-                        In Progress
-                    </span>
-
-                </div>
-
-
-                <!-- Progress -->
-                <div class="rider-delivery-progress">
-
-                    <div class="rider-progress-step completed">
-
-                        <div class="rider-progress-dot">
-                            ✓
-                        </div>
-
-                        <div>
-                            <strong>Order Accepted</strong>
-                            <span>11:42 AM</span>
-                        </div>
-
-                    </div>
-
-
-                    <div class="rider-progress-line completed"></div>
-
-
-                    <div class="rider-progress-step completed">
-
-                        <div class="rider-progress-dot">
-                            ✓
-                        </div>
-
-                        <div>
-                            <strong>Picked Up</strong>
-                            <span>11:51 AM</span>
-                        </div>
-
-                    </div>
-
-
-                    <div class="rider-progress-line"></div>
-
-
-                    <div class="rider-progress-step current">
-
-                        <div class="rider-progress-dot">
-                            3
-                        </div>
-
-                        <div>
-                            <strong>On the Way</strong>
-                            <span>Current</span>
-                        </div>
-
-                    </div>
-
-
-                    <div class="rider-progress-line"></div>
-
-
-                    <div class="rider-progress-step">
-
-                        <div class="rider-progress-dot">
-                            4
-                        </div>
-
-                        <div>
-                            <strong>Delivered</strong>
-                            <span>Pending</span>
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Route -->
-                <div class="rider-delivery-route">
-
-                    <div class="rider-route-location">
-
-                        <span class="route-label">
-                            PICKUP
-                        </span>
-
-                        <strong>
-                            Artcaffe
-                        </strong>
-
-                        <p>
-                            Waiyaki Way, Nairobi
-                        </p>
-
-                    </div>
-
-
-                    <div class="rider-route-arrow">
-                        →
-                    </div>
-
-
-                    <div class="rider-route-location">
-
-                        <span class="route-label">
-                            DELIVERY
-                        </span>
-
-                        <strong>
-                            David Otieno
-                        </strong>
-
-                        <p>
-                            Westlands, Nairobi
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Footer -->
-                <div class="rider-delivery-footer">
-
-                    <div class="rider-delivery-meta">
-
-                        <span>● 2 items</span>
-                        <span>● Cashless</span>
-                        <span>● 2.1 km remaining</span>
-
-                    </div>
-
-
-                    <div class="rider-delivery-actions">
-
-                        <button
-                            type="button"
-                            class="rider-secondary-button"
-                        >
-                            View Details
-                        </button>
-
-                        <button
-                            type="button"
-                            class="rider-primary-button"
-                        >
-                            Mark as Delivered
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </article>
+            <article class="rider-active-delivery" hidden aria-live="polite" aria-label="Active deliveries"></article>
 
 
             <!-- ==============================
@@ -494,263 +306,15 @@
             </div>
 
 
-            <div class="rider-deliveries-container">
-
-                <!-- Delivery 1 -->
-                <article class="rider-delivery-card">
-
-                    <div class="rider-delivery-card-main">
-
-                        <div class="rider-delivery-icon">
-                            ◈
-                        </div>
-
-                        <div class="rider-delivery-info">
-
-                            <strong>Order #FD-1047</strong>
-                            <span>Java House</span>
-                            <small>Koinange Street → Kilimani</small>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="rider-delivery-card-center">
-
-                        <span class="rider-delivery-card-label">
-                            Completed
-                        </span>
-
-                        <strong>
-                            11:18 AM
-                        </strong>
-
-                    </div>
-
-
-                    <div class="rider-delivery-card-amount">
-
-                        <strong>
-                            KSh 750
-                        </strong>
-
-                        <span class="rider-delivery-status completed">
-                            Completed
-                        </span>
-
-                    </div>
-
-
-                    <div class="rider-delivery-card-action">
-
-                        <button class="rider-secondary-button">
-                            View
-                        </button>
-
-                    </div>
-
-                </article>
-
-
-                <!-- Delivery 2 -->
-                <article class="rider-delivery-card">
-
-                    <div class="rider-delivery-card-main">
-
-                        <div class="rider-delivery-icon">
-                            ◈
-                        </div>
-
-                        <div class="rider-delivery-info">
-
-                            <strong>Order #FD-1046</strong>
-                            <span>KFC</span>
-                            <small>Kenyatta Avenue → Lavington</small>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="rider-delivery-card-center">
-
-                        <span class="rider-delivery-card-label">
-                            Completed
-                        </span>
-
-                        <strong>
-                            10:42 AM
-                        </strong>
-
-                    </div>
-
-
-                    <div class="rider-delivery-card-amount">
-
-                        <strong>
-                            KSh 620
-                        </strong>
-
-                        <span class="rider-delivery-status completed">
-                            Completed
-                        </span>
-
-                    </div>
-
-
-                    <div class="rider-delivery-card-action">
-
-                        <button class="rider-secondary-button">
-                            View
-                        </button>
-
-                    </div>
-
-                </article>
-
-
-                <!-- Delivery 3 -->
-                <article class="rider-delivery-card">
-
-                    <div class="rider-delivery-card-main">
-
-                        <div class="rider-delivery-icon">
-                            ◈
-                        </div>
-
-                        <div class="rider-delivery-info">
-
-                            <strong>Order #FD-1045</strong>
-                            <span>Chicken Inn</span>
-                            <small>Kimathi Street → Kilimani</small>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="rider-delivery-card-center">
-
-                        <span class="rider-delivery-card-label">
-                            Completed
-                        </span>
-
-                        <strong>
-                            9:56 AM
-                        </strong>
-
-                    </div>
-
-
-                    <div class="rider-delivery-card-amount">
-
-                        <strong>
-                            KSh 920
-                        </strong>
-
-                        <span class="rider-delivery-status completed">
-                            Completed
-                        </span>
-
-                    </div>
-
-
-                    <div class="rider-delivery-card-action">
-
-                        <button class="rider-secondary-button">
-                            View
-                        </button>
-
-                    </div>
-
-                </article>
-
-
-                <!-- Delivery 4 -->
-                <article class="rider-delivery-card cancelled">
-
-                    <div class="rider-delivery-card-main">
-
-                        <div class="rider-delivery-icon">
-                            ◈
-                        </div>
-
-                        <div class="rider-delivery-info">
-
-                            <strong>Order #FD-1042</strong>
-                            <span>Mama Oliech</span>
-                            <small>Dagoretti Road → Kilimani</small>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="rider-delivery-card-center">
-
-                        <span class="rider-delivery-card-label">
-                            Cancelled
-                        </span>
-
-                        <strong>
-                            Yesterday
-                        </strong>
-
-                    </div>
-
-
-                    <div class="rider-delivery-card-amount">
-
-                        <strong>
-                            KSh 540
-                        </strong>
-
-                        <span class="rider-delivery-status cancelled">
-                            Cancelled
-                        </span>
-
-                    </div>
-
-
-                    <div class="rider-delivery-card-action">
-
-                        <button class="rider-secondary-button">
-                            View
-                        </button>
-
-                    </div>
-
-                </article>
-
-            </div>
-
-
-            <!-- ==============================
-                 EMPTY STATE
-            =============================== -->
-
-            <div class="rider-empty-deliveries">
-
-                <div class="rider-empty-deliveries-icon">
-                    ◈
+            <div class="rider-deliveries-container" aria-live="polite" aria-busy="true">
+                <div class="rider-empty-deliveries">
+                    <h3>Loading deliveries…</h3>
+                    <p>Your delivery history will appear here.</p>
                 </div>
-
-                <h3>
-                    No Deliveries Found
-                </h3>
-
-                <p>
-                    No deliveries match your current search or filters.
-                </p>
-
-                <button class="rider-secondary-button">
-                    Clear Filters
-                </button>
-
             </div>
 
-        </section>
+            <p class="rider-message" role="status" aria-live="polite" style="display:none"></p>
+            </section>
 
     </main>
     <script src="../../assets/js/api-config.js"></script>
