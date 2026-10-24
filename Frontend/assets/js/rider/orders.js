@@ -323,7 +323,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (
                 minAmount !== "all" &&
-                amount < Number(minAmount)
+                (order.delivery_fee == null || amount < Number(minAmount))
             ) {
                 return false;
             }
@@ -659,8 +659,8 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
 
             <div class="rider-order-details-row">
-                <span>Order value</span>
-                <strong>${money(order.delivery_fee)}</strong>
+                <span>Rider delivery fee</span>
+                <strong>${order.delivery_fee == null ? "Not provided" : money(order.delivery_fee)}</strong>
             </div>
 
             <div class="rider-order-details-row">
@@ -914,6 +914,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             await loadRiderProfile();
             await refreshOrders();
+            if (!refreshTimer) refreshTimer = setInterval(refreshOrders, 30000);
         } catch (error) {
             console.error("Available Orders initialization failed:", error);
             showMessage(error.message, "error");
