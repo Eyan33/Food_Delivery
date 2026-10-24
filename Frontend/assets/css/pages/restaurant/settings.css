@@ -814,3 +814,69 @@
         font-size: 10px;
     }
 }
+
+
+/* Settings page: explicit styling for Reset and Save Changes buttons */
+.settings-actions .restaurant-primary-button,
+.settings-actions .restaurant-secondary-button {
+    appearance: none;
+    -webkit-appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 20px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.settings-actions .restaurant-primary-button {
+    color: #fff;
+    background: #ff5a1f;
+    border-color: #ff5a1f;
+    box-shadow: 0 3px 8px rgba(255, 90, 31, 0.16);
+}
+
+.settings-actions .restaurant-primary-button:hover {
+    color: #fff;
+    background: #e94b13;
+    border-color: #e94b13;
+    box-shadow: 0 5px 12px rgba(255, 90, 31, 0.22);
+}
+
+.settings-actions .restaurant-secondary-button {
+    color: #343434;
+    background: #fff;
+    border-color: #d1d5db;
+}
+
+.settings-actions .restaurant-secondary-button:hover {
+    background: #f8fafc;
+    border-color: #9ca3af;
+}
+
+.settings-actions .restaurant-primary-button:focus-visible,
+.settings-actions .restaurant-secondary-button:focus-visible {
+    outline: 3px solid rgba(255, 90, 31, 0.28);
+    outline-offset: 2px;
+}
+
+.settings-actions .restaurant-primary-button:disabled,
+.settings-actions .restaurant-secondary-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+@media (max-width: 500px) {
+    .settings-actions .restaurant-primary-button,
+    .settings-actions .restaurant-secondary-button {
+        width: 100%;
+    }
+}
