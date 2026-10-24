@@ -455,52 +455,55 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
     }
 
-    function renderEmptyState() {
-        if (!elements.container) return;
+    
+function renderEmptyState() {
+    if (!elements.container) return;
 
-        const search = elements.search?.value.trim() || "";
-        const filtered =
-            search ||
-            (elements.earningFilter && elements.earningFilter.value !== "all") ||
+    const search = elements.search?.value.trim() || "";
+    const filtered = Boolean(
+        search ||
+        (elements.earningFilter &&
+            elements.earningFilter.value !== "all")
+    );
 
-
-        elements.container.innerHTML = `
-            <div class="rider-empty-orders">
-                <div class="rider-empty-orders-icon">◈</div>
-                <h3>${filtered ? "No matching orders" : "No available orders"}</h3>
-                <p>
-                    ${
-                        filtered
-                            ? "Try changing your search or filters."
-                            : "New orders will appear here when they are ready for pickup and have no rider assigned."
-                    }
-                </p>
+    elements.container.innerHTML = `
+        <div class="rider-empty-orders">
+            <div class="rider-empty-orders-icon">◈</div>
+            <h3>${filtered ? "No matching orders" : "No available orders"}</h3>
+            <p>
                 ${
                     filtered
-                        ? `<button type="button"
-                                   class="rider-secondary-button"
-                                   id="emptyClearFilters">
-                               Clear Filters
-                           </button>`
-                        : `<button type="button"
-                                   class="rider-secondary-button"
-                                   id="refreshAvailableOrders">
-                               Refresh Orders
-                           </button>`
+                        ? "Try changing your search or filters."
+                        : "New orders will appear here when they are ready for pickup and have no rider assigned."
                 }
-            </div>
-        `;
+            </p>
+            ${
+                filtered
+                    ? `<button type="button"
+                               class="rider-secondary-button"
+                               id="emptyClearFilters">
+                           Clear Filters
+                       </button>`
+                    : `<button type="button"
+                               class="rider-secondary-button"
+                               id="refreshAvailableOrders">
+                           Refresh Orders
+                       </button>`
+            }
+        </div>
+    `;
 
-        document.getElementById("emptyClearFilters")
-            ?.addEventListener("click", clearFilters);
+    document.getElementById("emptyClearFilters")
+        ?.addEventListener("click", clearFilters);
 
-        document.getElementById("refreshAvailableOrders")
-            ?.addEventListener("click", refreshOrders);
+    document.getElementById("refreshAvailableOrders")
+        ?.addEventListener("click", refreshOrders);
 
-        if (elements.emptyState) {
-            elements.emptyState.hidden = true;
-        }
+    if (elements.emptyState) {
+        elements.emptyState.hidden = true;
     }
+}
+
 
     function updateCount(count) {
         if (elements.badge) {
