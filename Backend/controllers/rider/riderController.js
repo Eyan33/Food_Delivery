@@ -356,6 +356,22 @@ const markDelivered = endpoint(
     }
 );
 
+// PATCH /api/riders/my-orders/:id/cash-payment-complete
+const markCashPaymentComplete = endpoint(
+    "Failed to confirm cash payment",
+    async (req, res) => {
+        const payment = await riderService.markRiderCashPaymentComplete(
+            req.params.id,
+            req.user.id
+        );
+        return res.status(200).json({
+            success: true,
+            message: "Cash payment confirmed",
+            data: { payment }
+        });
+    }
+);
+
 // GET /api/riders/me
 const getMyProfile = endpoint(
     "Failed to retrieve rider profile",
@@ -454,6 +470,7 @@ module.exports = {
     getMyEarnings,
     markOutForDelivery,
     markDelivered,
+    markCashPaymentComplete,
 
     updateMyProfile,
     getMyProfile,

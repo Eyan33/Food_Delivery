@@ -698,6 +698,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 });
             });
+
+        container.querySelectorAll("[data-confirm-history-payment]")
+            .forEach(button => {
+                button.addEventListener("click", event => markCashPaymentComplete(
+                    event.currentTarget.dataset.confirmHistoryPayment,
+                    event.currentTarget
+                ));
+            });
     }
 
     function renderDeliveryCard(order) {
@@ -767,6 +775,11 @@ document.addEventListener("DOMContentLoaded", () => {
                             data-view-history="${escapeHTML(order.id)}">
                         View
                     </button>
+                    ${completed && String(order.payment_method || "").toLowerCase() === "cash"
+                        ? String(order.payment_status || "pending").toLowerCase() === "completed"
+                            ? '<span class="rider-delivery-status completed">Payment Confirmed</span>'
+                            : `<button type="button" class="rider-primary-button" data-confirm-history-payment="${escapeHTML(order.id)}">Confirm Payment</button>`
+                        : ""}
                 </div>
             </article>
         `;
@@ -889,6 +902,34 @@ document.addEventListener("DOMContentLoaded", () => {
                 button.disabled = false;
                 button.textContent = originalText || "Try Again";
             }
+        }
+    }
+
+    async function markCashPaymentComplete(orderId, button) {
+        if (button?.disabled) return;
+        const order = deliveries.find(item => String(item.id) === String(orderId));
+        if (!order || getStatus(order) !== "delivered") {
+            showMessage("Mark the order as delivered before confirming payment.", "error");
+            return;
+        }
+        if (String(order.payment_method || "").toLowerCase() !== "cash") {
+            showMessage("Only cash orders can be confirmed here.", "error");
+            return;
+        }
+        if (String(order.payment_status || "").toLowerCase() === "completed") {
+            showMessage("This payment is already confirmed.", "info");
+            return;
+        }
+        if (!window.confirm(`Confirm that you received ${money(order.total_amount)} in cash from the customer for order ${getOrderNumber(order)}.`)) return;
+        const originalText = button?.textContent;
+        if (button) { button.disabled = true; button.textContent = "Saving..."; }
+        try {
+            await apiRequest(`/riders/my-orders/${encodeURIComponent(orderId)}/cash-payment-complete`, { method: "PATCH" });
+            showMessage("Cash payment confirmed.", "success");
+            await refreshDeliveries();
+        } catch (error) {
+            showMessage(error.message || "Could not confirm cash payment.", "error");
+            if (button) { button.disabled = false; button.textContent = originalText || "Confirm Payment"; }
         }
     }
 
