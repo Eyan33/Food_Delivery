@@ -94,9 +94,9 @@
                 </button>
 
                 <div>
-                    <h1>My Deliveries</h1>
+                    <h1>My Profile</h1>
                     <p>
-                        Track and manage your current and completed deliveries.
+                        Manage your personal details and rider account.
                     </p>
                 </div>
 
@@ -106,15 +106,14 @@
             <div class="rider-topbar-right">
 
                 <!-- Online status -->
-                <div class="rider-status-button online">
+                <div class="rider-status-button" id="riderAvailabilityStatus">
                     <span class="status-dot"></span>
                     <span>You're Online</span>
                 </div>
 
                 <!-- Notification -->
                 <button class="rider-notification-button" type="button">
-                    <span>🔔</span>
-                    <span class="notification-badge">3</span>
+                    <span aria-hidden="true">🔔</span><span class="notification-label">Notifications</span>
                 </button>
 
                 <!-- Profile -->
@@ -146,10 +145,7 @@
                     <p>Manage your personal information and rider account.</p>
                 </div>
 
-                <div class="profile-status">
-                    <span class="status-dot"></span>
-                    Active Rider
-                </div>
+                <div class="profile-status" id="profileAccountStatus">Account status loading…</div>
             </div>
 
 
@@ -162,9 +158,7 @@
                     <div class="profile-cover"></div>
 
                     <div class="profile-avatar-wrapper">
-                        <div class="profile-avatar">
-                            JK
-                        </div>
+                        <div class="profile-avatar" id="profileAvatar">—</div>
 
                         <button class="avatar-edit-btn" type="button">
                             Edit
@@ -173,20 +167,20 @@
 
                     <div class="profile-overview-content">
 
-                        <h2>John Kamau</h2>
+                        <h2 id="profileFullName">—</h2>
 
                         <p class="profile-role">
                             Delivery Rider
                         </p>
 
                         <p class="profile-member">
-                            Rider ID: RID-1024
+                            Rider ID: <span id="profileRiderId">—</span>
                         </p>
 
                         <div class="profile-rating">
-                            <span class="rating-value">4.8</span>
+                            <span class="rating-value" id="profileRating">—</span>
                             <span class="rating-stars">★★★★★</span>
-                            <span class="rating-count">(126 deliveries)</span>
+                            <span class="rating-count" id="profileRatingCount">(0 ratings)</span>
                         </div>
 
                     </div>
@@ -194,18 +188,18 @@
                     <div class="profile-stats">
 
                         <div class="profile-stat">
-                            <strong>126</strong>
+                            <strong id="profileDeliveries">0</strong>
                             <span>Deliveries</span>
                         </div>
 
                         <div class="profile-stat">
-                            <strong>4.8</strong>
+                            <strong id="profileRatingStat">—</strong>
                             <span>Rating</span>
                         </div>
 
                         <div class="profile-stat">
-                            <strong>8 mo.</strong>
-                            <span>Experience</span>
+                            <strong id="profileExperience">—</strong>
+                            <span>Membership</span>
                         </div>
 
                     </div>
@@ -235,43 +229,43 @@
                             <div class="form-group">
                                 <label for="first-name">First Name</label>
 
-                                <input type="text" id="first-name" name="first_name" value="John">
+                                <input type="text" id="first-name" name="first_name" value="">
                             </div>
 
                             <div class="form-group">
                                 <label for="last-name">Last Name</label>
 
-                                <input type="text" id="last-name" name="last_name" value="Kamau">
+                                <input type="text" id="last-name" name="last_name" value="">
                             </div>
 
                             <div class="form-group">
                                 <label for="email">Email Address</label>
 
-                                <input type="email" id="email" name="email" value="john.kamau@example.com">
+                                <input type="email" id="email" name="email" value="">
                             </div>
 
                             <div class="form-group">
                                 <label for="phone">Phone Number</label>
 
-                                <input type="tel" id="phone" name="phone" value="+254 712 345 678">
+                                <input type="tel" id="phone" name="phone" value="">
                             </div>
 
                             <div class="form-group full-width">
                                 <label for="address">Address</label>
 
-                                <input type="text" id="address" name="address" value="Westlands, Nairobi">
+                                <input type="text" id="address" name="address" value="" maxlength="250">
                             </div>
 
                             <div class="form-group">
                                 <label for="city">City</label>
 
-                                <input type="text" id="city" name="city" value="Nairobi">
+                                <input type="text" id="city" name="city" value="" maxlength="120">
                             </div>
 
                             <div class="form-group">
                                 <label for="postal-code">Postal Code</label>
 
-                                <input type="text" id="postal-code" name="postal_code" value="00100">
+                                <input type="text" id="postal-code" name="postal_code" value="" maxlength="20">
                             </div>
 
                         </div>
@@ -308,34 +302,32 @@
 
                     <div class="info-item">
                         <span class="info-label">Rider ID</span>
-                        <strong>RID-1024</strong>
+                        <strong id="riderInfoId">—</strong>
                     </div>
 
                     <div class="info-item">
                         <span class="info-label">Vehicle Type</span>
-                        <strong>Motorcycle</strong>
+                        <strong id="riderVehicleType">Not provided</strong>
                     </div>
 
                     <div class="info-item">
                         <span class="info-label">Vehicle Registration</span>
-                        <strong>KDA 245X</strong>
+                        <strong id="riderVehiclePlate">Not provided</strong>
                     </div>
 
                     <div class="info-item">
                         <span class="info-label">License Number</span>
-                        <strong>DL-458921</strong>
+                        <strong>Not stored</strong>
                     </div>
 
                     <div class="info-item">
                         <span class="info-label">Joined Date</span>
-                        <strong>January 15, 2026</strong>
+                        <strong id="riderJoinedDate">—</strong>
                     </div>
 
                     <div class="info-item">
                         <span class="info-label">Account Status</span>
-                        <span class="account-status">
-                            Active
-                        </span>
+                        <span class="account-status" id="riderInfoStatus">—</span>
                     </div>
 
                 </div>
@@ -360,7 +352,7 @@
                             Contact Name
                         </label>
 
-                        <input type="text" id="emergency-name" value="Mary Kamau">
+                        <input type="text" id="emergency-name" value="">
                     </div>
 
                     <div class="form-group">
@@ -368,7 +360,7 @@
                             Contact Phone
                         </label>
 
-                        <input type="tel" id="emergency-phone" value="+254 722 456 789">
+                        <input type="tel" id="emergency-phone" value="">
                     </div>
 
                     <div class="form-group">
@@ -377,7 +369,8 @@
                         </label>
 
                         <select id="emergency-relation">
-                            <option selected>Spouse</option>
+                            <option value="">Select relationship</option>
+                            <option>Spouse</option>
                             <option>Parent</option>
                             <option>Sibling</option>
                             <option>Friend</option>
@@ -414,7 +407,7 @@
 
                     <div class="security-info">
                         <strong>Password</strong>
-                        <span>Last changed 30 days ago</span>
+                        <span id="passwordChangedAt">Change your password regularly.</span>
                     </div>
 
                     <button type="button" class="security-btn">
