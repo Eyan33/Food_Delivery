@@ -141,12 +141,16 @@ const RIDER_ORDER_SELECT = `
         o.delivery_instructions,
         o.total_amount,
         o.delivery_fee,
+        p.payment_method,
+        p.payment_status,
+        p.paid_at,
         o.ready_at,
         o.out_for_delivery_at,
         o.delivered_at,
         o.placed_at
     FROM orders o
     LEFT JOIN restaurants r ON r.id = o.restaurant_id
+    LEFT JOIN payments p ON p.order_id = o.id
 `;
 
 /*
@@ -1477,6 +1481,75 @@ async function updateRiderOrderStatus(orderId, riderId, newStatus) {
 }
 
 /*
+ * Rider confirms cash was physically collected from the customer.
+ * The rider must be assigned to the order, and only cash payments can
+ * be completed through this endpoint.
+ */
+async function markRiderCashPaymentComplete(orderId, riderId) {
+    const validatedOrderId = validateId(orderId, "Order ID");
+    const validatedRiderId = validateId(riderId, "Rider ID");
+
+    return inTransaction(async (client) => {
+        const result = await client.query(
+            `
+            SELECT
+                o.id,
+                o.status AS order_status,
+                p.id AS payment_id,
+                p.payment_method,
+                p.payment_status
+            FROM orders o
+            LEFT JOIN payments p ON p.order_id = o.id
+            WHERE o.id = $1
+              AND o.rider_id = $2
+            FOR UPDATE OF o
+            `,
+            [validatedOrderId, validatedRiderId]
+        );
+
+        if (!result.rows.length) {
+            throw apiError("Assigned order not found", 404);
+        }
+
+        const order = result.rows[0];
+
+        if (!["out_for_delivery", "delivered"].includes(order.order_status)) {
+            throw apiError("Cash can only be confirmed when the order is out for delivery or delivered", 409);
+        }
+
+        if (!order.payment_id) {
+            throw apiError("No payment record exists for this order. Ask an administrator to check the order payment.", 409);
+        }
+
+        if (order.payment_method !== "cash") {
+            throw apiError("Only cash payments can be marked complete by the rider", 409);
+        }
+
+        if (order.payment_status === "completed") {
+            throw apiError("This cash payment is already marked complete", 409);
+        }
+
+        if (!["pending", "processing"].includes(order.payment_status)) {
+            throw apiError(`Cannot complete a payment with status ${order.payment_status}`, 409);
+        }
+
+        const paymentResult = await client.query(
+            `
+            UPDATE payments
+            SET payment_status = 'completed',
+                paid_at = COALESCE(paid_at, CURRENT_TIMESTAMP),
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $1
+            RETURNING id, order_id, payment_method, payment_status, amount, paid_at
+            `,
+            [order.payment_id]
+        );
+
+        return paymentResult.rows[0];
+    });
+}
+
+/*
 |--------------------------------------------------------------------------
 | Rider dashboard: available orders
 |--------------------------------------------------------------------------
@@ -1832,6 +1905,7 @@ module.exports = {
     getRiderOrders,
     getRiderOrderById,
     updateRiderOrderStatus,
+    markRiderCashPaymentComplete,
     getMyEarnings,
 
     getAvailableOrders,
