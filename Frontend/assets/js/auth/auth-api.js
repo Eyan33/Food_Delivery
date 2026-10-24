@@ -14,6 +14,9 @@
     const tokenKey = "foodDeliveryAccessToken";
     const userKey = "foodDeliveryUser";
     const loginPagePath = "/pages/auth/login.html";
+    const EXPIRY_CHECK_INTERVAL_MS = 60 * 1000;
+    let expiryTimer = null;
+    let expiryRedirecting = false;
 
     function showGlobalMessage(message, type = "error") {
         const messageBox = document.getElementById("adminMessage");
@@ -35,6 +38,56 @@
         localStorage.removeItem(userKey);
         sessionStorage.removeItem(tokenKey);
         sessionStorage.removeItem(userKey);
+        if (expiryTimer !== null) {
+            window.clearTimeout(expiryTimer);
+            expiryTimer = null;
+        }
+    }
+
+    function getTokenExpiryMs(token) {
+        try {
+            const parts = String(token || "").split(".");
+            if (parts.length !== 3) return null;
+            const payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+            const decoded = atob(payload.padEnd(payload.length + ((4 - payload.length % 4) % 4), "="));
+            const claims = JSON.parse(decoded);
+            return Number.isFinite(Number(claims.exp)) ? Number(claims.exp) * 1000 : null;
+        } catch {
+            return null;
+        }
+    }
+
+    function expireSession() {
+        if (expiryRedirecting) return;
+        expiryRedirecting = true;
+        clearSession();
+        window.alert("Your session has expired. Please log in again.");
+        redirectToLogin();
+    }
+
+    function scheduleSessionExpiryCheck() {
+        if (expiryTimer !== null) {
+            window.clearTimeout(expiryTimer);
+            expiryTimer = null;
+        }
+
+        const token = getToken();
+        if (!token) return;
+
+        const expiryMs = getTokenExpiryMs(token);
+        // The server remains authoritative for tokens without a readable JWT expiry.
+        if (expiryMs === null) return;
+
+        const remaining = expiryMs - Date.now();
+        if (remaining <= 0) {
+            expireSession();
+            return;
+        }
+
+        expiryTimer = window.setTimeout(
+            scheduleSessionExpiryCheck,
+            Math.min(remaining, EXPIRY_CHECK_INTERVAL_MS)
+        );
     }
 
     function redirectToLogin() {
@@ -67,7 +120,14 @@
             const token = getToken();
 
             if (!token) {
+                redirectToLogin();
                 throw new Error("Please log in to continue.");
+            }
+
+            const expiryMs = getTokenExpiryMs(token);
+            if (expiryMs !== null && expiryMs <= Date.now()) {
+                expireSession();
+                throw new Error("Your session has expired. Please log in again.");
             }
 
             headers.Authorization = `Bearer ${token}`;
@@ -135,6 +195,8 @@
         const storage = rememberMe ? localStorage : sessionStorage;
         storage.setItem(tokenKey, session.token);
         storage.setItem(userKey, JSON.stringify(session.user));
+        expiryRedirecting = false;
+        scheduleSessionExpiryCheck();
     }
 
     function getCurrentUser() {
@@ -150,6 +212,15 @@
             return null;
         }
     }
+
+    window.addEventListener("storage", (event) => {
+        if (event.key === tokenKey || event.key === null) {
+            expiryRedirecting = false;
+            scheduleSessionExpiryCheck();
+        }
+    });
+
+    scheduleSessionExpiryCheck();
 
     window.FoodDeliveryAuthApi = {
         request,
