@@ -171,7 +171,10 @@ document.addEventListener("DOMContentLoaded", () => {
             first_name: firstNameInput?.value.trim() || "",
             last_name: lastNameInput?.value.trim() || "",
             email: emailInput?.value.trim() || "",
-            phone: phoneInput?.value.trim() || ""
+            phone: phoneInput?.value.trim() || "",
+            address: addressInput?.value.trim() || "",
+            city: cityInput?.value.trim() || "",
+            postal_code: postalCodeInput?.value.trim() || ""
         };
     }
 
@@ -198,6 +201,10 @@ document.addEventListener("DOMContentLoaded", () => {
     /* =====================================================
        PROFILE DISPLAY
     ====================================================== */
+
+    function initialsFor(firstName = "", lastName = "") {
+        return `${String(firstName || "").trim().charAt(0)}${String(lastName || "").trim().charAt(0)}`.toUpperCase() || "—";
+    }
 
     function updateProfileDisplay(firstName, lastName) {
         const fullName = `${firstName} ${lastName}`.trim();
@@ -255,6 +262,57 @@ document.addEventListener("DOMContentLoaded", () => {
         if (profile.phone != null && phoneInput) {
             phoneInput.value = profile.phone;
         }
+        if (profile.address != null && addressInput) addressInput.value = profile.address;
+        if (profile.city != null && cityInput) cityInput.value = profile.city;
+        if ((profile.postal_code ?? profile.postalCode) != null && postalCodeInput) {
+            postalCodeInput.value = profile.postal_code ?? profile.postalCode;
+        }
+
+        const setText = (selector, value, fallback = "—") => {
+            const element = document.querySelector(selector);
+            if (element) element.textContent = value == null || value === "" ? fallback : String(value);
+        };
+        const riderId = profile.id ?? profile.user_id;
+        setText("#profileRiderId", riderId ? `RID-${riderId}` : "—");
+        setText("#riderInfoId", riderId ? `RID-${riderId}` : "—");
+        setText("#profileDeliveries", Number(profile.deliveries || 0).toLocaleString());
+        setText("#profileRating", profile.rating == null ? "Not rated" : Number(profile.rating).toFixed(1));
+        setText("#profileRatingStat", profile.rating == null ? "Not rated" : Number(profile.rating).toFixed(1));
+        setText("#profileRatingCount", `(${Number(profile.rating_count || 0)} ratings)`);
+        setText("#riderVehicleType", profile.vehicle_type ? String(profile.vehicle_type).replaceAll("_", " ").replace(/^./, s => s.toUpperCase()) : "Not provided");
+        setText("#riderVehiclePlate", profile.vehicle_plate || "Not provided");
+        setText("#riderJoinedDate", profile.created_at ? new Date(profile.created_at).toLocaleDateString(undefined, {year:"numeric",month:"long",day:"numeric"}) : "Unavailable");
+        const joined = profile.created_at ? new Date(profile.created_at) : null;
+        setText("#profileExperience", joined && !Number.isNaN(joined.getTime()) ? (() => { const months = Math.max(0, (new Date().getFullYear()-joined.getFullYear())*12 + new Date().getMonth()-joined.getMonth()); return months < 1 ? "<1 mo." : months < 12 ? `${months} mo.` : `${Math.floor(months/12)} yr.`; })() : "Unavailable");
+        const statusText = profile.is_active === false ? "Inactive" : (profile.approval_status || "pending").replace(/^./, s => s.toUpperCase());
+        setText("#profileAccountStatus", statusText);
+        setText("#riderInfoStatus", statusText);
+        const availability = profile.availability || "offline";
+        const availabilityEl = document.querySelector("#riderAvailabilityStatus");
+        if (availabilityEl) {
+            availabilityEl.classList.toggle("online", availability === "available" || availability === "on_delivery");
+            availabilityEl.replaceChildren();
+            const dot = document.createElement("span"); dot.className = "status-dot";
+            const label = document.createElement("span");
+            label.textContent = availability === "available" ? "Available" : availability === "on_delivery" ? "On delivery" : "Offline";
+            availabilityEl.append(dot, label);
+        }
+        const avatarUrl = profile.avatar_url || profile.avatarUrl;
+        const avatar = document.querySelector("#profileAvatar");
+        if (avatar) {
+            avatar.textContent = "";
+            if (avatarUrl) {
+                const img = document.createElement("img");
+                img.src = avatarUrl; img.alt = "Rider profile photo"; img.referrerPolicy = "no-referrer";
+                img.onerror = () => { avatar.textContent = initialsFor(firstNameInput?.value, lastNameInput?.value); };
+                avatar.appendChild(img);
+            } else avatar.textContent = initialsFor(firstNameInput?.value, lastNameInput?.value);
+        }
+        if (profile.emergency_contact_name != null && emergencyName) emergencyName.value = profile.emergency_contact_name;
+        if (profile.emergency_contact_phone != null && emergencyPhone) emergencyPhone.value = profile.emergency_contact_phone;
+        if (profile.emergency_contact_relationship != null && emergencyRelation) emergencyRelation.value = profile.emergency_contact_relationship;
+        const passwordChanged = document.querySelector("#passwordChangedAt");
+        if (passwordChanged) passwordChanged.textContent = profile.password_changed_at ? `Last changed ${new Date(profile.password_changed_at).toLocaleDateString()}` : "Change history unavailable";
 
         if (profile.address != null && addressInput) {
             addressInput.value = profile.address;
@@ -368,13 +426,11 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (error) {
             console.error("Could not load rider profile:", error);
 
-            // Keep the existing page values if the API cannot load.
-            if (
-                error.message.toLowerCase().includes("log in") ||
-                error.message.toLowerCase().includes("token")
-            ) {
-                showMessage(error.message, "error");
-            }
+            document.querySelectorAll(".profile-form input").forEach(input => { input.value = ""; });
+            document.querySelectorAll(".profile-overview-content h2").forEach(el => { el.textContent = "Profile unavailable"; });
+            const status = document.querySelector("#profileAccountStatus");
+            if (status) status.textContent = "Could not load account";
+            showMessage(error.message || "Could not load your profile. Please refresh or log in again.", "error");
         }
     }
 
@@ -488,11 +544,23 @@ document.addEventListener("DOMContentLoaded", () => {
        AVATAR EDIT
     ====================================================== */
 
-    avatarEditButton?.addEventListener("click", () => {
-        showMessage(
-            "Profile photo upload is not connected to the backend yet.",
-            "info"
-        );
+    avatarEditButton?.addEventListener("click", async () => {
+        const current = document.querySelector("#profileAvatar")?.querySelector("img")?.src || "";
+        const url = window.prompt("Enter a publicly accessible HTTPS image URL for your profile photo. Uploading a file is not supported yet.", current);
+        if (url === null) return;
+        if (url && !/^https:\/\//i.test(url)) {
+            showMessage("Use an HTTPS image URL.", "error"); return;
+        }
+        avatarEditButton.disabled = true;
+        try {
+            const result = await apiRequest("/riders/me", { method:"PATCH", body:JSON.stringify({avatar_url:url}) });
+            const profile = result?.rider || result?.profile || result?.user || result;
+            if (profile && typeof profile === "object") applyProfileData(profile);
+            else await loadProfile();
+            showMessage("Profile photo URL saved.", "success");
+        } catch (error) {
+            showMessage(error.message || "Could not save profile photo URL.", "error");
+        } finally { avatarEditButton.disabled = false; }
     });
 
     /* =====================================================
@@ -500,46 +568,25 @@ document.addEventListener("DOMContentLoaded", () => {
        No emergency-contact API endpoint is wired here yet.
     ====================================================== */
 
-    emergencySaveButton?.addEventListener("click", () => {
-        const name = emergencyName?.value.trim();
-        const phone = emergencyPhone?.value.trim();
-        const relation = emergencyRelation?.value;
-
-        emergencyInputs.forEach(input => {
-            input.classList.remove("input-error");
-        });
-
-        if (!name) {
-            emergencyName?.classList.add("input-error");
-            showMessage("Please enter the emergency contact name.", "error");
-            emergencyName?.focus();
-            return;
-        }
-
-        if (!phone) {
-            emergencyPhone?.classList.add("input-error");
-            showMessage(
-                "Please enter the emergency contact phone number.",
-                "error"
-            );
-            emergencyPhone?.focus();
-            return;
-        }
-
-        if (!relation) {
-            emergencyRelation?.classList.add("input-error");
-            showMessage(
-                "Please select an emergency contact relationship.",
-                "error"
-            );
-            emergencyRelation?.focus();
-            return;
-        }
-
-        showMessage(
-            "Emergency contact validation passed, but saving is not connected to the backend yet.",
-            "info"
-        );
+    emergencySaveButton?.addEventListener("click", async () => {
+        const name = emergencyName?.value.trim() || "";
+        const phone = emergencyPhone?.value.trim() || "";
+        const relation = emergencyRelation?.value || "";
+        emergencyInputs.forEach(input => input.classList.remove("input-error"));
+        if (name && name.length < 2) { emergencyName?.classList.add("input-error"); showMessage("Enter a contact name with at least 2 characters.", "error"); return; }
+        if (phone && !/^[+0-9() .-]{7,25}$/.test(phone)) { emergencyPhone?.classList.add("input-error"); showMessage("Enter a valid emergency contact phone number.", "error"); return; }
+        if (relation && !["Spouse","Parent","Sibling","Friend","Other"].includes(relation)) { showMessage("Select a valid relationship.", "error"); return; }
+        emergencySaveButton.disabled = true;
+        const oldText = emergencySaveButton.textContent;
+        emergencySaveButton.textContent = "Saving...";
+        try {
+            await apiRequest("/riders/me", {method:"PATCH", body:JSON.stringify({
+                emergency_contact_name:name, emergency_contact_phone:phone, emergency_contact_relationship:relation
+            })});
+            showMessage("Emergency contact saved.", "success");
+        } catch (error) {
+            showMessage(error.message || "Could not save emergency contact.", "error");
+        } finally { emergencySaveButton.disabled = false; emergencySaveButton.textContent = oldText; }
     });
 
     emergencyInputs.forEach(input => {
