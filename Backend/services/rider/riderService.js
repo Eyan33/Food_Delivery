@@ -105,6 +105,14 @@ const RIDER_SELECT = `
 
         rp.vehicle_type,
         rp.vehicle_plate,
+        rp.address,
+        rp.city,
+        rp.postal_code,
+        rp.emergency_contact_name,
+        rp.emergency_contact_phone,
+        rp.emergency_contact_relationship,
+        u.avatar_url,
+        u.password_changed_at,
         COALESCE(rp.availability, 'offline') AS availability,
         COALESCE(rp.approval_status, 'pending') AS approval_status,
         rp.rejection_reason,
@@ -1728,24 +1736,77 @@ async function getMyEarnings(riderId, options = {}) {
 */
 
 async function updateMyProfile(riderId, input) {
-    const validatedRiderId = validateId(riderId, "Rider ID");
+    const id = validateId(riderId, "Rider ID");
     const data = requireObject(input);
+    const allowed = [
+        "first_name", "last_name", "email", "phone",
+        "address", "city", "postal_code",
+        "vehicle_type", "vehicle_plate",
+        "emergency_contact_name", "emergency_contact_phone",
+        "emergency_contact_relationship", "avatar_url"
+    ];
+    checkAllowedFields(data, allowed);
+    if (!Object.keys(data).length) throw apiError("Provide at least one profile field to update");
 
-    checkAllowedFields(data, [
-        "first_name",
-        "last_name",
-        "email",
-        "phone"
-    ]);
-
-    if (Object.keys(data).length === 0) {
-        throw apiError("Provide at least one profile field to update");
+    const userFields = {};
+    const profileFields = {};
+    const { firstName, lastName } = resolveNames(data, { required: false });
+    if (firstName !== undefined) userFields.first_name = firstName;
+    if (lastName !== undefined) userFields.last_name = lastName;
+    if (hasField(data, "email")) userFields.email = validateEmail(data.email);
+    if (hasField(data, "phone")) userFields.phone = validatePhone(data.phone, { required: true });
+    if (hasField(data, "avatar_url")) {
+        const value = String(data.avatar_url ?? "").trim();
+        if (value && (!/^https:\/\//i.test(value) || value.length > 2048)) {
+            throw apiError("Profile photo URL must be a valid HTTPS URL");
+        }
+        userFields.avatar_url = value || null;
     }
+    for (const field of ["address", "city", "postal_code", "emergency_contact_name", "emergency_contact_phone", "emergency_contact_relationship"]) {
+        if (hasField(data, field)) {
+            const value = String(data[field] ?? "").trim();
+            if (value.length > (field === "address" ? 250 : 120)) throw apiError(`${field.replaceAll("_", " ")} is too long`);
+            profileFields[field] = value || null;
+        }
+    }
+    if (hasField(data, "emergency_contact_name") && profileFields.emergency_contact_name && profileFields.emergency_contact_name.length < 2) throw apiError("Emergency contact name must contain at least 2 characters");
+    if (hasField(data, "emergency_contact_phone")) {
+        const value = profileFields.emergency_contact_phone;
+        if (value && !isValidPhone(value)) throw apiError("Enter a valid emergency contact phone number");
+    }
+    if (hasField(data, "emergency_contact_relationship")) {
+        const value = profileFields.emergency_contact_relationship;
+        if (value && !["Spouse", "Parent", "Sibling", "Friend", "Other"].includes(value)) throw apiError("Select a valid emergency contact relationship");
+    }
+    if (hasField(data, "vehicle_type")) profileFields.vehicle_type = data.vehicle_type ? validateVehicleType(data.vehicle_type) : null;
+    if (hasField(data, "vehicle_plate")) profileFields.vehicle_plate = data.vehicle_plate ? validateVehiclePlate(data.vehicle_plate) : null;
 
-    // Reuse existing name, email, and phone validation and database logic.
-    return updateRider(validatedRiderId, data);
+    return inTransaction(async (client) => {
+        const exists = await client.query("SELECT id FROM users WHERE id = $1 AND role = 'rider' FOR UPDATE", [id]);
+        if (!exists.rowCount) return null;
+        const userKeys = Object.keys(userFields);
+        if (userKeys.length) {
+            const values = userKeys.map(key => userFields[key]);
+            values.push(id);
+            await client.query(
+                `UPDATE users SET ${userKeys.map((key, i) => `${key} = $${i + 1}`).join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = $${values.length} AND role = 'rider'`,
+                values
+            );
+        }
+        if (Object.keys(profileFields).length) {
+            const keys = Object.keys(profileFields);
+            const values = [id, ...keys.map(key => profileFields[key])];
+            const columns = keys.join(", ");
+            const placeholders = keys.map((_, i) => `$${i + 2}`).join(", ");
+            const updates = keys.map(key => `${key} = EXCLUDED.${key}`).join(", ");
+            await client.query(
+                `INSERT INTO rider_profiles (user_id, ${columns}) VALUES ($1, ${placeholders}) ON CONFLICT (user_id) DO UPDATE SET ${updates}, updated_at = CURRENT_TIMESTAMP`,
+                values
+            );
+        }
+        return true;
+    }).then(async (found) => found ? getRiderById(id) : null);
 }
-
 
 
 module.exports = {
