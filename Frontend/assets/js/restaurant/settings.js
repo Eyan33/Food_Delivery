@@ -739,7 +739,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (changePasswordButton) {
 
-        changePasswordButton.addEventListener("click", () => {
+        changePasswordButton.addEventListener("click", async () => {
 
             const current =
                 currentPassword
@@ -889,88 +889,15 @@ document.addEventListener("DOMContentLoaded", () => {
     ========================================================== */
 
     if (saveOrderSettingsButton) {
-
         saveOrderSettingsButton.addEventListener("click", () => {
-
-            const preparationTime =
-                defaultPreparationTime
-                    ? Number(defaultPreparationTime.value)
-                    : 0;
-
-            const maxOrders =
-                maximumOrders
-                    ? Number(maximumOrders.value)
-                    : 0;
-
-
-            if (
-                !Number.isFinite(preparationTime) ||
-                preparationTime < 1
-            ) {
-
-                showMessage(
-                    "Preparation time must be at least 1 minute.",
-                    "error"
-                );
-
-                defaultPreparationTime?.focus();
-
-                return;
-
-            }
-
-
-            if (
-                !Number.isFinite(maxOrders) ||
-                maxOrders < 1
-            ) {
-
-                showMessage(
-                    "Maximum active orders must be at least 1.",
-                    "error"
-                );
-
-                maximumOrders?.focus();
-
-                return;
-
-            }
-
-
             const orderSettings = {
-
-                preparationTime,
-
-                maximumOrders: maxOrders,
-
-                orderSound:
-                    orderSound
-                        ? orderSound.value
-                        : "default",
-
-                browserNotifications:
-                    browserNotifications
-                        ? browserNotifications.checked
-                        : false,
-
-                newOrdersTop:
-                    newOrdersTop
-                        ? newOrdersTop.checked
-                        : false
-
+                orderSound: orderSound ? orderSound.value : "default",
+                browserNotifications: browserNotifications ? browserNotifications.checked : false,
+                newOrdersTop: newOrdersTop ? newOrdersTop.checked : false
             };
-
-
-            localStorage.setItem(
-                "restaurantOrderSettings",
-                JSON.stringify(orderSettings)
-            );
-
-
-            showMessage("Order display preferences saved in this browser only; these do not change server-side order processing.");
-
+            localStorage.setItem("restaurantOrderSettings", JSON.stringify(orderSettings));
+            showMessage("Order display preferences saved in this browser only; they do not change server-side order processing.");
         });
-
     }
 
 
