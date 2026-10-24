@@ -196,6 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
         renderRevenueBreakdown();
         renderPerformance();
         renderPayoutSummary();
+        renderPlatformFeeCalculation();
     }
 
     /*
@@ -670,6 +671,53 @@ document.addEventListener("DOMContentLoaded", () => {
     | PAYOUT SUMMARY
     |--------------------------------------------------------------------------
     */
+
+    function renderPlatformFeeCalculation() {
+        const container = $("platformFeeCalculationDetails");
+        if (!container) return;
+
+        const completed = getCompletedPayments();
+        const foodRevenue = sumAmounts(completed);
+        const fees = completed.reduce((sum, payment) => sum + platformFeeOf(payment), 0);
+        const net = Math.max(0, foodRevenue - fees);
+        const rates = completed
+            .map(configuredPlatformFeeRate)
+            .filter(rate => rate !== null);
+        const uniqueRates = [...new Set(rates)];
+        const rateText = uniqueRates.length === 0
+            ? "Not configured"
+            : uniqueRates.length === 1
+                ? `${uniqueRates[0]}%`
+                : "Multiple rates";
+        const calculationText = uniqueRates.length === 1
+            ? `${formatMoney(foodRevenue)} × ${uniqueRates[0]}% ÷ 100`
+            : uniqueRates.length > 1
+                ? "Sum of each completed order's food revenue × its fee rate"
+                : "Configure a platform fee in Admin → Operations";
+
+        container.innerHTML = `
+            <div class="payout-detail-row">
+                <span>Food revenue (delivery fee excluded)</span>
+                <strong>${formatMoney(foodRevenue)}</strong>
+            </div>
+            <div class="payout-detail-row">
+                <span>Platform fee rate</span>
+                <strong>${rateText}</strong>
+            </div>
+            <div class="payout-detail-row">
+                <span>Platform fee calculation</span>
+                <strong>${calculationText}</strong>
+            </div>
+            <div class="payout-detail-row total">
+                <span>Total platform fees</span>
+                <strong>${formatMoney(fees)}</strong>
+            </div>
+            <div class="payout-detail-row">
+                <span>Net food earnings after fee</span>
+                <strong>${formatMoney(net)}</strong>
+            </div>
+        `;
+    }
 
     function renderPayoutSummary() {
         const completed = getCompletedPayments();
