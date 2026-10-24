@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
         paymentTotal: document.querySelector(".payment-total strong"),
         paymentRows: document.querySelectorAll(".payment-row"),
         profileNames: document.querySelectorAll(
-            ".rider-profile-info strong, .rider-profile strong"
+            ".rider-profile-info strong, .rider-profile strong, .rider-topbar-profile-info strong"
         ),
         weeklyBreakdown: findWeeklyBreakdown()
     };
@@ -33,7 +33,8 @@ document.addEventListener("DOMContentLoaded", () => {
         rider: null,
         earnings: null,
         period: "This Week",
-        loading: false
+        loading: false,
+        requestVersion: 0
     };
 
     function findWeeklyBreakdown() {
@@ -240,57 +241,63 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================================================
 
     async function loadEarnings() {
-        if (state.loading) return;
-
+        const requestVersion = ++state.requestVersion;
         state.loading = true;
-
-        if (elements.downloadButton) {
-            elements.downloadButton.disabled = true;
-        }
-
+        state.earnings = null;
+        clearEarningsDisplay();
+        if (elements.downloadButton) elements.downloadButton.disabled = true;
         try {
-            const query = new URLSearchParams({
-                period: state.period
-            });
-
-            const result = await apiRequest(
-                `/riders/my-earnings?${query.toString()}`
-            );
-
-            const earnings =
-                result?.data?.earnings ||
-                result?.earnings;
-
-            if (!earnings || !earnings.summary) {
-                throw new Error(
-                    "The server returned an invalid earnings response."
-                );
+            const query = new URLSearchParams({ period: state.period });
+            const result = await apiRequest(`/riders/my-earnings?${query.toString()}`);
+            const earnings = result?.data?.earnings || result?.earnings;
+            if (requestVersion !== state.requestVersion) return;
+            if (!earnings || !earnings.summary || !Array.isArray(earnings.chart) || !Array.isArray(earnings.history)) {
+                throw new Error("The server returned an invalid earnings response.");
             }
-
             state.earnings = earnings;
-
             renderSummary();
             renderPaymentSummary();
             renderChart();
             renderHistory();
             renderWeeklyBreakdown();
         } catch (error) {
+            if (requestVersion !== state.requestVersion) return;
             console.error("Failed to load rider earnings:", error);
             showMessage(error.message, "error");
-
-            renderEmptyHistory(
-                "Earnings could not be loaded. Refresh the page to try again."
-            );
-
-            renderEmptyWeeklyBreakdown(
-                "Weekly earnings could not be loaded."
-            );
+            clearEarningsDisplay();
+            renderEmptyHistory("Earnings could not be loaded. Please retry.");
+            renderEmptyWeeklyBreakdown("Weekly earnings could not be loaded.");
+            if (elements.chartDescription) elements.chartDescription.textContent = "Earnings data is unavailable.";
         } finally {
-            state.loading = false;
-
-            if (elements.downloadButton) {
-                elements.downloadButton.disabled = false;
+            if (requestVersion === state.requestVersion) {
+                state.loading = false;
+                if (elements.downloadButton) elements.downloadButton.disabled = !state.earnings;
             }
+        }
+    }
+
+    function clearEarningsDisplay() {
+        elements.summaryCards.forEach(card => {
+            const amount = card.querySelector("h2");
+            if (amount) amount.textContent = "—";
+            const detail = card.querySelector(".earning-change, .earning-subtext");
+            if (detail) detail.textContent = "Waiting for earnings data";
+        });
+        if (elements.paymentTotal) elements.paymentTotal.textContent = "—";
+        elements.paymentRows.forEach(row => {
+            const value = row.querySelector("strong");
+            if (value) value.textContent = "—";
+        });
+        if (elements.chartBars) elements.chartBars.innerHTML = "";
+        document.querySelectorAll(".chart-y-axis span").forEach(label => { label.textContent = "—"; });
+        if (elements.weeklyBreakdown) {
+            const list = elements.weeklyBreakdown.querySelector(".weekly-breakdown-data, .weekly-list");
+            if (list) list.innerHTML = "";
+        }
+        if (elements.transactionTable) {
+            const header = elements.transactionTable.querySelector(".table-header");
+            elements.transactionTable.innerHTML = "";
+            if (header) elements.transactionTable.appendChild(header);
         }
     }
 
@@ -397,149 +404,46 @@ document.addEventListener("DOMContentLoaded", () => {
     // CHART
     // =====================================================
 
-    function getChartDays() {
-        const now = new Date();
-        const days = [];
-
-        if (state.period === "This Week") {
-            const monday = new Date(
-                now.getFullYear(),
-                now.getMonth(),
-                now.getDate()
-            );
-
-            const weekday = monday.getDay();
-            monday.setDate(
-                monday.getDate() + (weekday === 0 ? -6 : 1 - weekday)
-            );
-
-            for (let index = 0; index < 7; index += 1) {
-                const date = new Date(monday);
-                date.setDate(monday.getDate() + index);
-                days.push(dateKey(date));
-            }
-
-            return days;
-        }
-
-        let start;
-        let end;
-
-        if (state.period === "This Month") {
-            start = new Date(now.getFullYear(), now.getMonth(), 1);
-            end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        } else if (state.period === "Last Month") {
-            start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-            end = new Date(now.getFullYear(), now.getMonth(), 0);
-        } else {
-            start = new Date(now.getFullYear(), now.getMonth() - 2, 1);
-            end = now;
-        }
-
-        const totalDays = Math.floor(
-            (
-                new Date(end.getFullYear(), end.getMonth(), end.getDate()) -
-                new Date(start.getFullYear(), start.getMonth(), start.getDate())
-            ) / 86400000
-        ) + 1;
-
-        const step = totalDays > 31 ? 7 : 1;
-
-        for (let offset = 0; offset < totalDays; offset += step) {
-            const date = new Date(start);
-            date.setDate(start.getDate() + offset);
-            days.push(dateKey(date));
-        }
-
-        const finalKey = dateKey(end);
-
-        if (days[days.length - 1] !== finalKey) {
-            days.push(finalKey);
-        }
-
-        return days;
-    }
-
     function getChartValues() {
         const chart = state.earnings?.chart || [];
-
-        const byDate = new Map(
-            chart.map(entry => [
-                String(entry.date).slice(0, 10),
-                Number(entry.earnings) || 0
-            ])
-        );
-
-        const days = getChartDays();
-
-        const values = days.map(key => {
-            if (byDate.has(key)) return byDate.get(key);
-
-            if (
-                state.period === "Last 3 Months" &&
-                days.length <= 15
-            ) {
-                const start = localDateFromKey(key);
-                const next = new Date(start);
-                next.setDate(next.getDate() + 7);
-
-                let total = 0;
-
-                byDate.forEach((amount, entryKey) => {
-                    const date = localDateFromKey(entryKey);
-
-                    if (date >= start && date < next) {
-                        total += amount;
-                    }
-                });
-
-                return total;
-            }
-
-            return 0;
-        });
-
-        return { days, values };
+        const byDate = new Map(chart.map(entry => [String(entry.date).slice(0, 10), Number(entry.earnings) || 0]));
+        const days = Array.from(byDate.keys()).sort();
+        if (state.period === "Last 3 Months" && days.length > 31) {
+            const weekly = new Map();
+            days.forEach(key => {
+                const date = localDateFromKey(key);
+                const weekday = date.getDay();
+                date.setDate(date.getDate() + (weekday === 0 ? -6 : 1 - weekday));
+                const weekKey = dateKey(date);
+                weekly.set(weekKey, (weekly.get(weekKey) || 0) + (byDate.get(key) || 0));
+            });
+            const keys = Array.from(weekly.keys()).sort();
+            return { days: keys, values: keys.map(key => weekly.get(key)) };
+        }
+        return { days, values: days.map(key => byDate.get(key) || 0) };
     }
 
     function renderChart() {
         if (!elements.chartBars || !state.earnings) return;
-
         const { days, values } = getChartValues();
         const max = Math.max(...values, 1);
-
         elements.chartBars.innerHTML = days.map((key, index) => {
             const amount = values[index];
-            const height = amount > 0
-                ? Math.max(3, (amount / max) * 100)
-                : 0;
-
+            const height = amount > 0 ? Math.max(3, (amount / max) * 100) : 0;
             return `
-                <div class="bar-column"
-                     title="${escapeHTML(formatDayLabel(key, state.period))}: ${escapeHTML(money(amount))}">
+                <div class="bar-column" title="${escapeHTML(formatDayLabel(key, state.period))}: ${escapeHTML(money(amount))}">
                     <div class="bar" style="height: ${height}%;"></div>
                     <span>${escapeHTML(formatDayLabel(key, state.period))}</span>
-                </div>
-            `;
+                </div>`;
         }).join("");
-
         if (elements.chartDescription) {
-            elements.chartDescription.textContent =
-                `Completed delivery earnings for ${state.period.toLowerCase()}.`;
+            elements.chartDescription.textContent = `Completed delivery earnings for ${state.period.toLowerCase()}.`;
         }
-
         const yAxis = document.querySelectorAll(".chart-y-axis span");
-
         if (yAxis.length) {
             const top = Math.ceil(max / 500) * 500 || 500;
-
             yAxis.forEach((label, index) => {
-                const value = top * (
-                    1 - index / Math.max(yAxis.length - 1, 1)
-                );
-
-                label.textContent =
-                    Math.round(value).toLocaleString("en-KE");
+                label.textContent = Math.round(top * (1 - index / Math.max(yAxis.length - 1, 1))).toLocaleString("en-KE");
             });
         }
     }
@@ -787,7 +691,7 @@ document.addEventListener("DOMContentLoaded", () => {
         link.click();
         link.remove();
 
-        URL.revokeObjectURL(url);
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 
         showMessage("Earnings report downloaded.", "success");
     }
@@ -831,10 +735,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Notifications are not implemented by the backend; hide the fake control.
     if (elements.notificationButton) {
-        elements.notificationButton.addEventListener("click", () => {
-            showMessage("You have no new earnings notifications.", "info");
-        });
+        elements.notificationButton.hidden = true;
+        elements.notificationButton.setAttribute("aria-hidden", "true");
     }
 
     // =====================================================
