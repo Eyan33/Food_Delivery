@@ -572,12 +572,6 @@ document.addEventListener("DOMContentLoaded", () => {
             ));
         });
 
-        container.querySelectorAll("[data-mark-cash-paid]").forEach(button => {
-            button.addEventListener("click", event => markCashPaymentComplete(
-                event.currentTarget.dataset.markCashPaid,
-                event.currentTarget
-            ));
-        });
     }
 
     function renderActiveDeliveryCard(order) {
@@ -619,13 +613,6 @@ document.addEventListener("DOMContentLoaded", () => {
             ? "Not provided"
             : money(order.delivery_fee);
 
-        const paymentMethod = String(order.payment_method || "").toLowerCase();
-        const paymentStatus = String(order.payment_status || "pending").toLowerCase();
-        const cashPaymentButton = paymentMethod === "cash"
-            ? paymentStatus === "completed"
-                ? '<span class="rider-delivery-status completed">Cash received · Paid</span>'
-                : `<button type="button" class="rider-secondary-button" data-mark-cash-paid="${escapeHTML(order.id)}">Mark Cash Received</button>`
-            : "";
 
         return `
             <section class="rider-active-delivery-card">
@@ -647,7 +634,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div class="rider-delivery-actions">
                         <button type="button" class="rider-secondary-button" data-view-delivery="${escapeHTML(order.id)}">View Details</button>
                         ${actionButton}
-                        ${cashPaymentButton}
                     </div>
                 </div>
             </section>
@@ -713,6 +699,14 @@ document.addEventListener("DOMContentLoaded", () => {
                         viewDeliveryDetails(order);
                     }
                 });
+            });
+
+        container.querySelectorAll("[data-confirm-history-payment]")
+            .forEach(button => {
+                button.addEventListener("click", event => markCashPaymentComplete(
+                    event.currentTarget.dataset.confirmHistoryPayment,
+                    event.currentTarget
+                ));
             });
     }
 
@@ -783,6 +777,13 @@ document.addEventListener("DOMContentLoaded", () => {
                             data-view-history="${escapeHTML(order.id)}">
                         View
                     </button>
+                    ${completed && String(order.payment_method || "").toLowerCase() === "cash"
+                        ? String(order.payment_status || "pending").toLowerCase() === "completed"
+                            ? '<span class="rider-delivery-status completed">Payment Confirmed</span>'
+                            : `<button type="button"
+                                       class="rider-primary-button"
+                                       data-confirm-history-payment="${escapeHTML(order.id)}">Confirm Payment</button>`
+                        : ""}
                 </div>
             </article>
         `;
@@ -914,6 +915,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const order = deliveries.find(item => String(item.id) === String(orderId));
         if (!order || String(order.payment_method || "").toLowerCase() !== "cash") {
             showMessage("This order is not recorded as a cash payment.", "error");
+            return;
+        }
+
+        if (getStatus(order) !== "delivered") {
+            showMessage("Complete the delivery first. Confirm payment is the final step.", "error");
             return;
         }
 
