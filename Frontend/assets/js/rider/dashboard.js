@@ -723,18 +723,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 return false;
             }
 
-            // updated_at is a fallback only. A dedicated cancelled_at
-            // timestamp is more accurate when available from the API.
-            return isToday(order.cancelled_at || order.updated_at);
+            // Do not treat updated_at as cancellation time: unrelated edits
+            // can change it. Count only cancellations with a real timestamp.
+            return isToday(order.cancelled_at);
         });
 
         const activeOrders = myOrders.filter(order =>
             ["ready", "out_for_delivery"].includes(getStatus(order))
         );
 
+        const completedFromTodayAssignments = todayOrders.filter(order =>
+            getStatus(order) === "delivered" && isToday(order.delivered_at)
+        );
         const completionRate = todayOrders.length > 0
             ? Math.round(
-                (completedToday.length / todayOrders.length) * 100
+                (completedFromTodayAssignments.length / todayOrders.length) * 100
             )
             : 0;
 
