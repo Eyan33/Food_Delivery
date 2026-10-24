@@ -59,6 +59,12 @@ router.patch(
     riderController.markDelivered
 );
 
+router.patch(
+    "/my-orders/:id/cash-payment-complete",
+    ...asRider,
+    riderController.markCashPaymentComplete
+);
+
 /*
 |--------------------------------------------------------------------------
 | Admin - order assignment
