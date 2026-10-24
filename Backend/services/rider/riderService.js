@@ -1631,14 +1631,14 @@ async function getMyEarnings(riderId, options = {}) {
     const summaryResult = await pool.query(
         `
         SELECT
-            COALESCE(SUM(delivery_fee) FILTER (WHERE delivered_at::date >= ${today} AND delivered_at::date < (${today} + 1)), 0) AS today,
-            COALESCE(SUM(delivery_fee) FILTER (WHERE delivered_at::date >= ${periods["This Week"].start} AND delivered_at::date < ${periods["This Week"].end}), 0) AS this_week,
-            COALESCE(SUM(delivery_fee) FILTER (WHERE delivered_at::date >= ${periods["This Month"].start} AND delivered_at::date < ${periods["This Month"].end}), 0) AS this_month,
-            COUNT(*) FILTER (WHERE delivered_at::date >= ${periods["This Month"].start} AND delivered_at::date < ${periods["This Month"].end}) AS month_deliveries,
+            COALESCE(SUM(delivery_fee) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${today} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < (${today} + 1)), 0) AS today,
+            COALESCE(SUM(delivery_fee) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${periods["This Week"].start} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < ${periods["This Week"].end}), 0) AS this_week,
+            COALESCE(SUM(delivery_fee) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${periods["This Month"].start} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < ${periods["This Month"].end}), 0) AS this_month,
+            COUNT(*) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${periods["This Month"].start} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < ${periods["This Month"].end}) AS month_deliveries,
             COALESCE(SUM(delivery_fee), 0) AS all_time,
             COUNT(*) AS all_time_deliveries,
-            COALESCE(SUM(delivery_fee) FILTER (WHERE delivered_at::date >= ${selected.start} AND delivered_at::date < ${selected.end}), 0) AS selected_period_earnings,
-            COUNT(*) FILTER (WHERE delivered_at::date >= ${selected.start} AND delivered_at::date < ${selected.end}) AS selected_period_deliveries
+            COALESCE(SUM(delivery_fee) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${selected.start} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < ${selected.end}), 0) AS selected_period_earnings,
+            COUNT(*) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${selected.start} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < ${selected.end}) AS selected_period_deliveries
         FROM orders
         WHERE rider_id = $1 AND status = 'delivered' AND delivered_at IS NOT NULL
         `,
@@ -1655,8 +1655,8 @@ async function getMyEarnings(riderId, options = {}) {
         LEFT JOIN restaurants r ON r.id = o.restaurant_id
         WHERE o.rider_id = $1 AND o.status = 'delivered'
           AND o.delivered_at IS NOT NULL
-          AND o.delivered_at::date >= ${selected.start}
-          AND o.delivered_at::date < ${selected.end}
+          AND ((o.delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${selected.start}
+          AND ((o.delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < ${selected.end}
         ORDER BY o.delivered_at DESC, o.id DESC
         `,
         [validatedRiderId]
@@ -1673,15 +1673,15 @@ async function getMyEarnings(riderId, options = {}) {
             FROM bounds
         ),
         daily AS (
-            SELECT delivered_at::date AS earning_date,
+            SELECT ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date AS earning_date,
                    COALESCE(SUM(delivery_fee), 0) AS earnings,
                    COUNT(*) AS deliveries
             FROM orders, bounds
             WHERE rider_id = $1 AND status = 'delivered'
               AND delivered_at IS NOT NULL
-              AND delivered_at::date >= bounds.start_date
-              AND delivered_at::date < bounds.end_date
-            GROUP BY delivered_at::date
+              AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= bounds.start_date
+              AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < bounds.end_date
+            GROUP BY ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date
         )
         SELECT days.earning_date, COALESCE(daily.earnings, 0) AS earnings,
                COALESCE(daily.deliveries, 0) AS deliveries
