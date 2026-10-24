@@ -36,7 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const profileMessage = $("profileMessage");
 
     const profileAvatar = document.querySelector(".profile-large-avatar");
-    const overviewAvatar = document.querySelector(".profile-large-avatar");
     const topbarAvatar = document.querySelector(".topbar-avatar");
 
     const profileFields = [
@@ -148,15 +147,8 @@ document.addEventListener("DOMContentLoaded", () => {
         restaurantIsOpen = data.is_open === true;
 
         updateRestaurantName(data.name);
+        updateRestaurantSummary(data);
         updateRestaurantStatusUI();
-
-        /*
-         * These fields are not persisted by the current backend:
-         * restaurantCategory, restaurantCounty, restaurantLandmark,
-         * deliveryRadius and estimatedDelivery.
-         *
-         * Do not overwrite them with invented database values.
-         */
     }
 
     function setValue(element, value) {
@@ -443,7 +435,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 };
             }
 
-            restaurantIsOpen = newStatus;
+            restaurantIsOpen = restaurant?.is_open === true;
             updateRestaurantStatusUI();
 
             showMessage(
@@ -506,8 +498,50 @@ document.addEventListener("DOMContentLoaded", () => {
         const initials = getInitials(name);
 
         if (profileAvatar) profileAvatar.textContent = initials;
-        if (overviewAvatar) overviewAvatar.textContent = initials;
         if (topbarAvatar) topbarAvatar.textContent = initials;
+    }
+
+    function updateRestaurantSummary(data) {
+        const idElement = $("restaurantIdText");
+        const sinceElement = $("memberSinceText");
+        const ordersElement = $("totalOrdersText");
+        const activeStatus = document.querySelector(".profile-active-status");
+
+        if (idElement) {
+            idElement.textContent = data.id ? `Restaurant ID: REST-${String(data.id).padStart(4, "0")}` : "Restaurant ID: —";
+        }
+
+        if (sinceElement) {
+            if (data.created_at) {
+                const date = new Date(data.created_at);
+                sinceElement.textContent = Number.isNaN(date.getTime())
+                    ? "—"
+                    : date.toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "long",
+                        day: "2-digit"
+                    });
+            } else {
+                sinceElement.textContent = "—";
+            }
+        }
+
+        if (ordersElement) {
+            const count = Number(data.total_orders);
+            ordersElement.textContent = Number.isFinite(count) ? String(count) : "0";
+        }
+
+        if (activeStatus) {
+            const approvedAndActive = data.is_active === true && data.approval_status === "approved";
+            activeStatus.textContent = approvedAndActive
+                ? "Active Restaurant"
+                : (data.approval_status === "pending"
+                    ? "Awaiting Approval"
+                    : (data.approval_status === "rejected"
+                        ? "Approval Rejected"
+                        : "Inactive Restaurant"));
+            activeStatus.classList.toggle("inactive", !approvedAndActive);
+        }
     }
 
     /*
@@ -529,49 +563,6 @@ document.addEventListener("DOMContentLoaded", () => {
             restoreOriginalValues();
             hideMessage();
         });
-
-    /*
-    |--------------------------------------------------------------------------
-    | WARN ABOUT FEATURES NOT YET SUPPORTED BY BACKEND
-    |--------------------------------------------------------------------------
-    */
-
-    const categoryInput = $("restaurantCategory");
-
-    categoryInput?.addEventListener("change", () => {
-        showMessage(
-            "Restaurant category is not currently stored by the backend. This selection will not be saved.",
-            "info"
-        );
-    });
-
-    $("restaurantCounty")?.addEventListener("change", () => {
-        showMessage(
-            "County is not currently stored by the backend. The supported location fields are address and city.",
-            "info"
-        );
-    });
-
-    $("restaurantLandmark")?.addEventListener("change", () => {
-        showMessage(
-            "Landmark is not currently stored by the backend.",
-            "info"
-        );
-    });
-
-    $("deliveryRadius")?.addEventListener("change", () => {
-        showMessage(
-            "Delivery radius is not currently stored by the backend.",
-            "info"
-        );
-    });
-
-    $("estimatedDelivery")?.addEventListener("change", () => {
-        showMessage(
-            "Estimated delivery time is not currently stored by the backend.",
-            "info"
-        );
-    });
 
     /*
     |--------------------------------------------------------------------------
