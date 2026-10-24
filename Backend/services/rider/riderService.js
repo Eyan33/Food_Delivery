@@ -1698,6 +1698,8 @@ async function getMyEarnings(riderId, options = {}) {
     const summaryResult = await pool.query(
         `
         SELECT
+            COALESCE((SELECT NULLIF(settings #>> '{payments,transactionFee}', '')::numeric FROM admin_settings WHERE id = 1), 0) AS platform_fee_rate,
+            COALESCE(SUM(GREATEST(COALESCE(total_amount, 0) - COALESCE(delivery_fee, 0), 0)) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${selected.start} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < ${selected.end}), 0) AS selected_food_revenue,
             COALESCE(SUM(delivery_fee) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${today} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < (${today} + 1)), 0) AS today,
             COALESCE(SUM(delivery_fee) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${periods["This Week"].start} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < ${periods["This Week"].end}), 0) AS this_week,
             COALESCE(SUM(delivery_fee) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${periods["This Month"].start} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < ${periods["This Month"].end}), 0) AS this_month,
@@ -1775,6 +1777,11 @@ async function getMyEarnings(riderId, options = {}) {
         selectedPeriod: {
             earnings: Number(summary.selected_period_earnings || 0),
             deliveries: Number(summary.selected_period_deliveries || 0)
+        },
+        platformFees: {
+            foodRevenue: Number(summary.selected_food_revenue || 0),
+            rate: Number(summary.platform_fee_rate || 0),
+            total: Number(summary.selected_food_revenue || 0) * Number(summary.platform_fee_rate || 0) / 100
         },
         history: historyResult.rows.map(order => ({ ...order, delivery_fee: Number(order.delivery_fee || 0) })),
         chart: chartResult.rows.map(day => ({
