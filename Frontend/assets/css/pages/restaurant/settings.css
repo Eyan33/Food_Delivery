@@ -814,3 +814,88 @@
         font-size: 10px;
     }
 }
+
+
+/* =========================================================
+   SETTINGS ACTION BUTTONS
+   Explicit styles prevent browser-default button rendering.
+========================================================= */
+.settings-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border, #e5e7eb);
+}
+
+.settings-actions button,
+.settings-actions .restaurant-primary-button,
+.settings-actions .restaurant-secondary-button {
+    appearance: none;
+    -webkit-appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 20px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.settings-actions .restaurant-primary-button {
+    background: var(--primary, #ff5a1f);
+    border-color: var(--primary, #ff5a1f);
+    color: #fff;
+    box-shadow: 0 3px 8px rgba(255, 90, 31, 0.16);
+}
+
+.settings-actions .restaurant-primary-button:hover {
+    background: #e94b13;
+    border-color: #e94b13;
+    box-shadow: 0 5px 12px rgba(255, 90, 31, 0.22);
+}
+
+.settings-actions .restaurant-secondary-button {
+    background: #fff;
+    border-color: var(--border, #d1d5db);
+    color: var(--text, #222);
+}
+
+.settings-actions .restaurant-secondary-button:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.settings-actions button:focus-visible {
+    outline: 3px solid rgba(255, 90, 31, 0.25);
+    outline-offset: 2px;
+}
+
+.settings-actions button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+@media (max-width: 500px) {
+    .settings-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .settings-actions button,
+    .settings-actions .restaurant-primary-button,
+    .settings-actions .restaurant-secondary-button {
+        width: 100%;
+    }
+}
