@@ -1616,189 +1616,100 @@ async function acceptAvailableOrder(orderId, riderId) {
 
 async function getMyEarnings(riderId, options = {}) {
     const validatedRiderId = validateId(riderId, "Rider ID");
-
-    const allowedPeriods = {
-        "This Week": `
-            delivered_at >= DATE_TRUNC('week', CURRENT_DATE)
-            AND delivered_at < DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '1 week'
-        `,
-        "This Month": `
-            delivered_at >= DATE_TRUNC('month', CURRENT_DATE)
-            AND delivered_at < DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month'
-        `,
-        "Last Month": `
-            delivered_at >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '1 month'
-            AND delivered_at < DATE_TRUNC('month', CURRENT_DATE)
-        `,
-        "Last 3 Months": `
-            delivered_at >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '2 months'
-            AND delivered_at < DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month'
-        `
+    const today = "(CURRENT_TIMESTAMP AT TIME ZONE 'Africa/Nairobi')::date";
+    const periods = {
+        "This Week": { start: "DATE_TRUNC('week', " + today + ")::date", end: "(DATE_TRUNC('week', " + today + ") + INTERVAL '1 week')::date" },
+        "This Month": { start: "DATE_TRUNC('month', " + today + ")::date", end: "(DATE_TRUNC('month', " + today + ") + INTERVAL '1 month')::date" },
+        "Last Month": { start: "(DATE_TRUNC('month', " + today + ") - INTERVAL '1 month')::date", end: "DATE_TRUNC('month', " + today + ")::date" },
+        "Last 3 Months": { start: "(DATE_TRUNC('month', " + today + ") - INTERVAL '2 months')::date", end: "(DATE_TRUNC('month', " + today + ") + INTERVAL '1 month')::date" }
     };
+    const requested = String(options.period || "This Week");
+    const period = Object.prototype.hasOwnProperty.call(periods, requested) ? requested : "This Week";
+    const selected = periods[period];
 
-    const requestedPeriod = String(options.period || "This Week");
-    const period = Object.prototype.hasOwnProperty.call(
-        allowedPeriods,
-        requestedPeriod
-    )
-        ? requestedPeriod
-        : "This Week";
-
-    const periodCondition = allowedPeriods[period];
-
-    /*
-     * Summary cards and selected-period totals.
-     * The period SQL fragment is selected exclusively from the allowlist above.
-     */
+    // Compare business dates in Africa/Nairobi consistently with the UI.
     const summaryResult = await pool.query(
         `
         SELECT
-            COALESCE(
-                SUM(delivery_fee) FILTER (
-                    WHERE delivered_at >= CURRENT_DATE
-                      AND delivered_at < CURRENT_DATE + INTERVAL '1 day'
-                ),
-                0
-            ) AS today,
-
-            COALESCE(
-                SUM(delivery_fee) FILTER (
-                    WHERE delivered_at >= DATE_TRUNC('week', CURRENT_DATE)
-                      AND delivered_at < DATE_TRUNC('week', CURRENT_DATE)
-                          + INTERVAL '1 week'
-                ),
-                0
-            ) AS this_week,
-
-            COALESCE(
-                SUM(delivery_fee) FILTER (
-                    WHERE delivered_at >= DATE_TRUNC('month', CURRENT_DATE)
-                      AND delivered_at < DATE_TRUNC('month', CURRENT_DATE)
-                          + INTERVAL '1 month'
-                ),
-                0
-            ) AS this_month,
-
-            COUNT(*) FILTER (
-                WHERE delivered_at >= DATE_TRUNC('month', CURRENT_DATE)
-                  AND delivered_at < DATE_TRUNC('month', CURRENT_DATE)
-                      + INTERVAL '1 month'
-            ) AS month_deliveries,
-
+            COALESCE(SUM(delivery_fee) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${today} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < (${today} + 1)), 0) AS today,
+            COALESCE(SUM(delivery_fee) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${periods["This Week"].start} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < ${periods["This Week"].end}), 0) AS this_week,
+            COALESCE(SUM(delivery_fee) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${periods["This Month"].start} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < ${periods["This Month"].end}), 0) AS this_month,
+            COUNT(*) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${periods["This Month"].start} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < ${periods["This Month"].end}) AS month_deliveries,
             COALESCE(SUM(delivery_fee), 0) AS all_time,
-
             COUNT(*) AS all_time_deliveries,
-
-            COALESCE(
-                SUM(delivery_fee) FILTER (WHERE ${periodCondition}),
-                0
-            ) AS selected_period_earnings,
-
-            COUNT(*) FILTER (WHERE ${periodCondition})
-                AS selected_period_deliveries
-
+            COALESCE(SUM(delivery_fee) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${selected.start} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < ${selected.end}), 0) AS selected_period_earnings,
+            COUNT(*) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${selected.start} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < ${selected.end}) AS selected_period_deliveries
         FROM orders
-        WHERE rider_id = $1
-          AND status = 'delivered'
-          AND delivered_at IS NOT NULL
+        WHERE rider_id = $1 AND status = 'delivered' AND delivered_at IS NOT NULL
         `,
         [validatedRiderId]
     );
+    const summary = summaryResult.rows[0];
 
-    const summaryRow = summaryResult.rows[0];
-
-    const allTimeEarnings = Number(summaryRow.all_time || 0);
-    const allTimeDeliveries = Number(summaryRow.all_time_deliveries || 0);
-
-    /*
-     * Most recent delivered orders.
-     * Each history entry shows the delivery fee earned for that order.
-     */
+    // History is scoped to the selected period and is complete for that period.
     const historyResult = await pool.query(
         `
-        SELECT
-            o.id,
-            o.order_number,
-            o.restaurant_id,
-            r.name AS restaurant_name,
-            o.status,
-            o.delivery_fee,
-            o.delivered_at
+        SELECT o.id, o.order_number, o.restaurant_id, r.name AS restaurant_name,
+               o.status, o.delivery_fee, o.delivered_at
         FROM orders o
         LEFT JOIN restaurants r ON r.id = o.restaurant_id
-        WHERE o.rider_id = $1
-          AND o.status = 'delivered'
+        WHERE o.rider_id = $1 AND o.status = 'delivered'
           AND o.delivered_at IS NOT NULL
+          AND ((o.delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${selected.start}
+          AND ((o.delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < ${selected.end}
         ORDER BY o.delivered_at DESC, o.id DESC
-        LIMIT 100
         `,
         [validatedRiderId]
     );
 
-    /*
-     * Daily earnings for the last seven days, including today.
-     * Days without deliveries are returned with zero earnings.
-     */
+    // Return daily totals for the entire selected period, not just the last week.
     const chartResult = await pool.query(
         `
-        WITH days AS (
-            SELECT generate_series(
-                CURRENT_DATE - INTERVAL '6 days',
-                CURRENT_DATE,
-                INTERVAL '1 day'
-            )::date AS earning_date
+        WITH bounds AS (
+            SELECT ${selected.start} AS start_date, ${selected.end} AS end_date
         ),
-        daily_earnings AS (
-            SELECT
-                delivered_at::date AS earning_date,
-                COALESCE(SUM(delivery_fee), 0) AS earnings,
-                COUNT(*) AS deliveries
-            FROM orders
-            WHERE rider_id = $1
-              AND status = 'delivered'
+        days AS (
+            SELECT generate_series(start_date, end_date - 1, INTERVAL '1 day')::date AS earning_date
+            FROM bounds
+        ),
+        daily AS (
+            SELECT ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date AS earning_date,
+                   COALESCE(SUM(delivery_fee), 0) AS earnings,
+                   COUNT(*) AS deliveries
+            FROM orders, bounds
+            WHERE rider_id = $1 AND status = 'delivered'
               AND delivered_at IS NOT NULL
-              AND delivered_at >= CURRENT_DATE - INTERVAL '6 days'
-              AND delivered_at < CURRENT_DATE + INTERVAL '1 day'
-            GROUP BY delivered_at::date
+              AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= bounds.start_date
+              AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < bounds.end_date
+            GROUP BY ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date
         )
-        SELECT
-            days.earning_date,
-            COALESCE(daily_earnings.earnings, 0) AS earnings,
-            COALESCE(daily_earnings.deliveries, 0) AS deliveries
-        FROM days
-        LEFT JOIN daily_earnings
-            ON daily_earnings.earning_date = days.earning_date
+        SELECT days.earning_date, COALESCE(daily.earnings, 0) AS earnings,
+               COALESCE(daily.deliveries, 0) AS deliveries
+        FROM days LEFT JOIN daily USING (earning_date)
         ORDER BY days.earning_date ASC
         `,
         [validatedRiderId]
     );
 
+    const allTime = Number(summary.all_time || 0);
+    const allTimeDeliveries = Number(summary.all_time_deliveries || 0);
     return {
         currency: "KSh",
         period,
-
         summary: {
-            today: Number(summaryRow.today || 0),
-            thisWeek: Number(summaryRow.this_week || 0),
-            thisMonth: Number(summaryRow.this_month || 0),
-            monthDeliveries: Number(summaryRow.month_deliveries || 0),
-            allTime: allTimeEarnings,
+            today: Number(summary.today || 0),
+            thisWeek: Number(summary.this_week || 0),
+            thisMonth: Number(summary.this_month || 0),
+            monthDeliveries: Number(summary.month_deliveries || 0),
+            allTime,
             allTimeDeliveries,
-            averagePerDelivery: allTimeDeliveries > 0
-                ? Number((allTimeEarnings / allTimeDeliveries).toFixed(2))
-                : 0
+            averagePerDelivery: allTimeDeliveries > 0 ? Number((allTime / allTimeDeliveries).toFixed(2)) : 0
         },
-
         selectedPeriod: {
-            earnings: Number(summaryRow.selected_period_earnings || 0),
-            deliveries: Number(summaryRow.selected_period_deliveries || 0)
+            earnings: Number(summary.selected_period_earnings || 0),
+            deliveries: Number(summary.selected_period_deliveries || 0)
         },
-
-        history: historyResult.rows.map(order => ({
-            ...order,
-            delivery_fee: Number(order.delivery_fee || 0)
-        })),
-
+        history: historyResult.rows.map(order => ({ ...order, delivery_fee: Number(order.delivery_fee || 0) })),
         chart: chartResult.rows.map(day => ({
             date: day.earning_date,
             earnings: Number(day.earnings || 0),
@@ -1806,7 +1717,6 @@ async function getMyEarnings(riderId, options = {}) {
         }))
     };
 }
-
 
 /*
 |--------------------------------------------------------------------------
