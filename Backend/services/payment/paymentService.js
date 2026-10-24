@@ -546,6 +546,12 @@ async function getRestaurantPayments(restaurantOwnerId) {
 
                 o.order_number,
                 o.status AS order_status,
+                COALESCE(o.delivery_fee, 0)::numeric AS delivery_fee,
+                COALESCE(o.subtotal, 0)::numeric AS food_subtotal,
+                GREATEST(
+                    COALESCE(o.total_amount, p.amount) - COALESCE(o.delivery_fee, 0),
+                    0
+                )::numeric AS food_revenue_amount,
 
                 r.id AS restaurant_id,
                 r.name AS restaurant_name,
