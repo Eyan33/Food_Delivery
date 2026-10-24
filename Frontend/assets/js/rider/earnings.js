@@ -258,6 +258,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             state.earnings = earnings;
             renderSummary();
+            renderPlatformFeeCard();
             renderPaymentSummary();
             renderChart();
             renderHistory();
@@ -306,6 +307,23 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================================================
     // SUMMARY CARDS
     // =====================================================
+
+    function renderPlatformFeeCard() {
+        const feeData = state.earnings?.platformFees || {};
+        const foodRevenue = Number(feeData.foodRevenue || 0);
+        const rate = Number(feeData.rate || 0);
+        const feeTotal = Number(feeData.total ?? (foodRevenue * rate / 100));
+        const selectedEarnings = Number(state.earnings?.selectedPeriod?.earnings || 0);
+        const setText = (id, value) => {
+            const element = document.getElementById(id);
+            if (element) element.textContent = value;
+        };
+        setText("riderFeeFoodRevenue", money(foodRevenue));
+        setText("riderFeeRate", `${rate}%`);
+        setText("riderFeeFormula", `${money(foodRevenue)} × ${rate}% ÷ 100`);
+        setText("riderFeeTotal", money(feeTotal));
+        setText("riderFeeCardEarnings", money(selectedEarnings));
+    }
 
     function renderSummary() {
         const summary = state.earnings?.summary;
