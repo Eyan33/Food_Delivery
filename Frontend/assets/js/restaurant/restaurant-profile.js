@@ -473,8 +473,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (hoursStatus) {
             hoursStatus.textContent = restaurantIsOpen
-                ? "Currently Open"
-                : "Currently Closed";
+                ? "Order acceptance: Open"
+                : "Order acceptance: Closed";
         }
     }
 
