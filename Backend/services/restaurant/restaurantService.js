@@ -1025,35 +1025,54 @@ async function updateRestaurantStatus(
         );
     }
 
-    const result = await pool.query(
-        `
-        UPDATE restaurants
-        SET
-            is_open = $1,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE owner_id = $2
-        RETURNING
-            id,
-            owner_id,
-            name,
-            is_open,
-            is_active,
-            updated_at
-        `,
-        [
-            newStatus,
-            owner
-        ]
-    );
-
-    if (result.rows.length === 0) {
-        throw apiError(
-            "Restaurant profile not found",
-            404
+    return inTransaction(async (client) => {
+        const existingResult = await client.query(
+            `
+            SELECT id, is_active, approval_status
+            FROM restaurants
+            WHERE owner_id = $1
+            FOR UPDATE
+            `,
+            [owner]
         );
-    }
 
-    return result.rows[0];
+        const existing = existingResult.rows[0];
+
+        if (!existing) {
+            throw apiError("Restaurant profile not found", 404);
+        }
+
+        if (
+            newStatus === true &&
+            (!existing.is_active || existing.approval_status !== "approved")
+        ) {
+            throw apiError(
+                "Only approved, active restaurants can be opened. Contact the platform administrator if you need approval or activation.",
+                409
+            );
+        }
+
+        const result = await client.query(
+            `
+            UPDATE restaurants
+            SET
+                is_open = $1,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $2
+            RETURNING
+                id,
+                owner_id,
+                name,
+                is_open,
+                is_active,
+                approval_status,
+                updated_at
+            `,
+            [newStatus, existing.id]
+        );
+
+        return result.rows[0];
+    });
 }
 
 async function resubmitRestaurant(
