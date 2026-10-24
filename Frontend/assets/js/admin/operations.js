@@ -1384,10 +1384,10 @@ form.reset();
                 ...paymentSettingsCache,
                 transactionFee: fee
             };
+            // The shared API request helper JSON-encodes object bodies itself.
             const response = await request("/admins/settings", {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ payments })
+                body: { payments }
             });
             const saved = response?.data?.settings?.payments || payments;
             paymentSettingsCache = { ...saved };
