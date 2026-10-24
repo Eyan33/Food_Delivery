@@ -153,14 +153,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function formatDate(value) {
         if (!value) return "Date unavailable";
-
         const date = new Date(value);
-
-        if (Number.isNaN(date.getTime())) {
-            return "Date unavailable";
-        }
-
+        if (Number.isNaN(date.getTime())) return "Date unavailable";
         return date.toLocaleString("en-KE", {
+            timeZone: "Africa/Nairobi",
             day: "numeric",
             month: "short",
             year: "numeric",
@@ -170,15 +166,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function dateKey(value) {
+        // PostgreSQL date columns arrive as YYYY-MM-DD; preserve that date
+        // rather than converting it through the browser's local timezone.
+        if (typeof value === "string" && /^\\d{4}-\\d{2}-\\d{2}/.test(value)) {
+            return value.slice(0, 10);
+        }
         const date = new Date(value);
-
         if (Number.isNaN(date.getTime())) return "";
-
-        return [
-            date.getFullYear(),
-            String(date.getMonth() + 1).padStart(2, "0"),
-            String(date.getDate()).padStart(2, "0")
-        ].join("-");
+        const parts = new Intl.DateTimeFormat("en-CA", {
+            timeZone: "Africa/Nairobi",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+        }).formatToParts(date);
+        const part = type => parts.find(item => item.type === type)?.value || "";
+        return `${part("year")}-${part("month")}-${part("day")}`;
     }
 
     function localDateFromKey(key) {
