@@ -1699,7 +1699,7 @@ async function getMyEarnings(riderId, options = {}) {
         `
         SELECT
             COALESCE((SELECT NULLIF(settings #>> '{payments,transactionFee}', '')::numeric FROM admin_settings WHERE id = 1), 0) AS platform_fee_rate,
-            COALESCE(SUM(GREATEST(COALESCE(total_amount, 0) - COALESCE(delivery_fee, 0), 0)) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${selected.start} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < ${selected.end}), 0) AS selected_food_revenue,
+            COALESCE(SUM(GREATEST(COALESCE(subtotal, 0) - COALESCE(discount, 0), 0)) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${selected.start} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < ${selected.end}), 0) AS selected_food_revenue,
             COALESCE(SUM(delivery_fee) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${today} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < (${today} + 1)), 0) AS today,
             COALESCE(SUM(delivery_fee) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${periods["This Week"].start} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < ${periods["This Week"].end}), 0) AS this_week,
             COALESCE(SUM(delivery_fee) FILTER (WHERE ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date >= ${periods["This Month"].start} AND ((delivered_at AT TIME ZONE 'UTC') AT TIME ZONE 'Africa/Nairobi')::date < ${periods["This Month"].end}), 0) AS this_month,
