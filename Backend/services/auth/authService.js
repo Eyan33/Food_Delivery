@@ -421,7 +421,7 @@ async function changeCurrentUserPassword(userId, currentPassword, newPassword) {
 
     await pool.query(
         `UPDATE users
-         SET password_hash = $1, updated_at = CURRENT_TIMESTAMP
+         SET password_hash = $1, password_changed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
          WHERE id = $2`,
         [passwordHash, userId]
     );
