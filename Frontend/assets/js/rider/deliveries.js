@@ -571,6 +571,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 event.currentTarget
             ));
         });
+
+        container.querySelectorAll("[data-mark-cash-paid]").forEach(button => {
+            button.addEventListener("click", event => markCashPaymentComplete(
+                event.currentTarget.dataset.markCashPaid,
+                event.currentTarget
+            ));
+        });
     }
 
     function renderActiveDeliveryCard(order) {
@@ -612,6 +619,14 @@ document.addEventListener("DOMContentLoaded", () => {
             ? "Not provided"
             : money(order.delivery_fee);
 
+        const paymentMethod = String(order.payment_method || "").toLowerCase();
+        const paymentStatus = String(order.payment_status || "pending").toLowerCase();
+        const cashPaymentButton = paymentMethod === "cash"
+            ? paymentStatus === "completed"
+                ? '<span class="rider-delivery-status completed">Cash received · Paid</span>'
+                : `<button type="button" class="rider-secondary-button" data-mark-cash-paid="${escapeHTML(order.id)}">Mark Cash Received</button>`
+            : "";
+
         return `
             <section class="rider-active-delivery-card">
                 <div class="rider-delivery-header">
@@ -632,6 +647,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div class="rider-delivery-actions">
                         <button type="button" class="rider-secondary-button" data-view-delivery="${escapeHTML(order.id)}">View Details</button>
                         ${actionButton}
+                        ${cashPaymentButton}
                     </div>
                 </div>
             </section>
@@ -892,6 +908,47 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    async function markCashPaymentComplete(orderId, button) {
+        if (button?.disabled) return;
+
+        const order = deliveries.find(item => String(item.id) === String(orderId));
+        if (!order || String(order.payment_method || "").toLowerCase() !== "cash") {
+            showMessage("This order is not recorded as a cash payment.", "error");
+            return;
+        }
+
+        if (String(order.payment_status || "").toLowerCase() === "completed") {
+            showMessage("This cash payment is already marked complete.", "info");
+            return;
+        }
+
+        const amount = money(order.total_amount);
+        if (!window.confirm(`Confirm that you physically received ${amount} in cash from the customer for order ${getOrderNumber(order)}. This will mark the payment as completed.`)) {
+            return;
+        }
+
+        const oldText = button?.textContent;
+        if (button) {
+            button.disabled = true;
+            button.textContent = "Saving...";
+        }
+
+        try {
+            await apiRequest(`/riders/my-orders/${encodeURIComponent(orderId)}/cash-payment-complete`, {
+                method: "PATCH"
+            });
+            showMessage("Cash payment marked complete.", "success");
+            await refreshDeliveries();
+        } catch (error) {
+            console.error("Failed to complete cash payment:", error);
+            showMessage(error.message || "Could not update the cash payment.", "error");
+            if (button) {
+                button.disabled = false;
+                button.textContent = oldText || "Mark Cash Received";
+            }
+        }
+    }
+
     // =========================================================
     // DELIVERY DETAILS MODAL
     // =========================================================
@@ -952,6 +1009,11 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="rider-delivery-details-row">
                 <span>Customer order value</span>
                 <strong>${money(order.total_amount)}</strong>
+            </div>
+
+            <div class="rider-delivery-details-row">
+                <span>Payment</span>
+                <strong>${escapeHTML(String(order.payment_method || "Not recorded").toUpperCase())} · ${escapeHTML(String(order.payment_status || "unknown").replaceAll("_", " "))}</strong>
             </div>
 
             <div class="rider-delivery-details-row">
