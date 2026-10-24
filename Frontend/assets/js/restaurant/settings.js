@@ -287,20 +287,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 restaurantStatusButton.disabled = false;
             }
 
-            if (showRestaurantOpen) {
-
-                showRestaurantOpen.checked =
-                    restaurantOpen;
-
-            }
-
             updateRestaurantStatus();
-
-            showMessage(
-                restaurantOpen
-                    ? "Restaurant is now open."
-                    : "Restaurant is now closed."
-            );
+            showMessage(restaurantOpen ? "Restaurant is now open." : "Restaurant is now closed.");
 
         });
 
@@ -395,7 +383,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (saveGeneralButton) {
 
-        saveGeneralButton.addEventListener("click", () => {
+        saveGeneralButton.addEventListener("click", async () => {
 
             const name =
                 restaurantName
@@ -533,15 +521,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
 
-            restaurantOpen =
-                generalSettings.showRestaurantOpen;
-
-            updateRestaurantStatus();
-
-
-            showMessage(
-                "General settings saved successfully."
-            );
+            showMessage("Restaurant details saved to your account.");
 
         });
 
@@ -603,9 +583,7 @@ document.addEventListener("DOMContentLoaded", () => {
             loadServerSettings().catch(error => showMessage(error.message, "error"));
 
 
-            showMessage(
-                "General settings have been reset."
-            );
+            showMessage("Restaurant details reloaded from the server.");
 
         });
 
@@ -618,7 +596,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (saveAccountButton) {
 
-        saveAccountButton.addEventListener("click", () => {
+        saveAccountButton.addEventListener("click", async () => {
 
             const firstName =
                 adminFirstName
@@ -702,9 +680,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
 
-            showMessage(
-                "Account information saved successfully."
-            );
+            showMessage("Account information saved to your account.");
 
         });
 
