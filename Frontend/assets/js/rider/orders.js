@@ -459,9 +459,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!elements.container) return;
 
         const search = elements.search?.value.trim() || "";
-        const filtered =
+        const filtered = Boolean(
             search ||
-            (elements.earningFilter && elements.earningFilter.value !== "all") ||
+            (elements.earningFilter && elements.earningFilter.value !== "all")
+        );
 
 
         elements.container.innerHTML = `
