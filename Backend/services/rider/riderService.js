@@ -1804,8 +1804,8 @@ async function updateMyProfile(riderId, input) {
                 values
             );
         }
-        return getRiderById(id);
-    });
+        return true;
+    }).then(async (found) => found ? getRiderById(id) : null);
 }
 
 
