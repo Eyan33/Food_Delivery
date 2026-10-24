@@ -1386,6 +1386,7 @@ form.reset();
             };
             // FoodDeliveryAuthApi.request serializes object bodies itself.
             // Pass a plain object here; JSON.stringify would double-encode it.
+            // The shared API request helper JSON-encodes object bodies itself.
             const response = await request("/admins/settings", {
                 method: "PUT",
                 body: { payments }

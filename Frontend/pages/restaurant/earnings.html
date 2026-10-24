@@ -114,7 +114,7 @@
                     <div class="restaurant-page-heading">
                         <h1>Earnings</h1>
 
-                        <p>Track your restaurant revenue and financial performance.</p>
+                        <p>Track food revenue, configured platform fees, and net earnings. Delivery fees are excluded.</p>
                     </div>
                 </div>
 
@@ -156,7 +156,7 @@
                     <div>
                         <h2>Earnings Overview</h2>
 
-                        <p>Monitor payment activity and collected revenue for the selected period.</p>
+                        <p>Food revenue excludes delivery fees. Platform fees are calculated only on the food portion of completed orders.</p>
                     </div>
 
                     <div class="earnings-period-selector">
@@ -209,7 +209,7 @@
 
                             <strong>Loading…</strong>
 
-                            <small> After platform fees </small>
+                            <small>Food revenue less configured platform fee</small>
                         </div>
                     </div>
 
@@ -243,10 +243,41 @@
 
                             <strong>Loading…</strong>
 
-                            <small> Average order value </small>
+                            <small>Average food value; delivery fee excluded</small>
                         </div>
                     </div>
                 </div>
+
+                <section class="restaurant-dashboard-card platform-fee-calculation-card" aria-labelledby="platformFeeCalculationTitle">
+                    <div class="dashboard-card-header">
+                        <div>
+                            <h3 id="platformFeeCalculationTitle">Platform Fees Calculation</h3>
+                            <p>How the platform fee is deducted from food revenue for the selected period.</p>
+                        </div>
+                    </div>
+                    <div class="payout-details" id="platformFeeCalculationDetails" aria-live="polite">
+                        <div class="payout-detail-row">
+                            <span>Food revenue (delivery fee excluded)</span>
+                            <strong>Loading…</strong>
+                        </div>
+                        <div class="payout-detail-row">
+                            <span>Platform fee rate</span>
+                            <strong>Loading…</strong>
+                        </div>
+                        <div class="payout-detail-row">
+                            <span>Platform fee calculation</span>
+                            <strong>Loading…</strong>
+                        </div>
+                        <div class="payout-detail-row total">
+                            <span>Total platform fees</span>
+                            <strong>Loading…</strong>
+                        </div>
+                        <div class="payout-detail-row">
+                            <span>Net food earnings after fee</span>
+                            <strong>Loading…</strong>
+                        </div>
+                    </div>
+                </section>
 
                 <!-- =================================================
                      EARNINGS GRID
@@ -262,7 +293,7 @@
                             <div>
                                 <h3>Revenue Overview</h3>
 
-                                <p>Completed payments in the selected period.</p>
+                                <p>Completed food revenue in the selected period; delivery fees excluded.</p>
                             </div>
 
                             <div class="chart-legend">
@@ -388,7 +419,7 @@
 
                                     <th>Date</th>
 
-                                    <th>Amount</th>
+                                    <th>Food Revenue</th>
 
                                     <th>Fees</th>
 
@@ -416,7 +447,7 @@
                             <div>
                                 <h3>Payment Breakdown</h3>
 
-                                <p>Payment status breakdown for the selected period.</p>
+                                <p>Payment breakdown by status; revenue values exclude delivery fees.</p>
                             </div>
                         </div>
 

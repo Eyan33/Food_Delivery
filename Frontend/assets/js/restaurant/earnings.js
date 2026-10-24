@@ -196,6 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
         renderRevenueBreakdown();
         renderPerformance();
         renderPayoutSummary();
+        renderPlatformFeeCalculation();
     }
 
     /*
@@ -203,13 +204,13 @@ document.addEventListener("DOMContentLoaded", () => {
     | FINANCIAL RULES
     |--------------------------------------------------------------------------
     |
+    | Revenue is the food portion of the order only: order total minus
+    | delivery fee. The configured platform fee percentage is applied to
+    | that food revenue, never to the delivery fee.
+    |
     | Only completed payments on non-cancelled orders count as collected
     | revenue. Pending, processing, failed, and refunded payments are not
     | counted as collected revenue.
-    |
-    | This project does not yet configure a platform fee percentage or
-    | persist verified payout records. We therefore do not invent those
-    | figures.
     |--------------------------------------------------------------------------
     */
 
@@ -230,9 +231,32 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function amountOf(payment) {
-        const amount = Number(payment.amount);
+        const rawFoodRevenue = payment.food_revenue_amount;
+        const amount = rawFoodRevenue !== undefined && rawFoodRevenue !== null && rawFoodRevenue !== ""
+            ? Number(rawFoodRevenue)
+            : Number(payment.amount) - Number(payment.delivery_fee || 0);
 
         return Number.isFinite(amount) && amount > 0 ? amount : 0;
+    }
+
+    function configuredPlatformFeeRate(payment) {
+        const value = payment.platform_fee_rate;
+        if (value === null || value === undefined || value === "") return null;
+        const rate = Number(value);
+        return Number.isFinite(rate) && rate >= 0 ? rate : null;
+    }
+
+    function platformFeeOf(payment) {
+        const rate = configuredPlatformFeeRate(payment);
+        return rate === null || !isCompletedPayment(payment)
+            ? 0
+            : amountOf(payment) * rate / 100;
+    }
+
+    function netFoodRevenueOf(payment) {
+        return isCompletedPayment(payment)
+            ? Math.max(0, amountOf(payment) - platformFeeOf(payment))
+            : 0;
     }
 
     function getCompletedPayments(list = filteredPayments) {
@@ -251,26 +275,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderSummary() {
         const completed = getCompletedPayments();
-        const revenue = sumAmounts(completed);
+        const foodRevenue = sumAmounts(completed);
+        const totalPlatformFees = completed.reduce(
+            (total, payment) => total + platformFeeOf(payment), 0
+        );
+        const netEarnings = Math.max(0, foodRevenue - totalPlatformFees);
         const completedOrders = new Set(
             completed.map((payment) => String(payment.order_id))
         );
-
         const averageOrder = completedOrders.size
-            ? revenue / completedOrders.size
+            ? foodRevenue / completedOrders.size
             : 0;
+        const rates = completed
+            .map(configuredPlatformFeeRate)
+            .filter(rate => rate !== null);
+        const rateDescription = rates.length
+            ? `Configured platform fee: ${rates[0]}% of food revenue`
+            : "Platform fee is not configured";
 
-        setSummaryCard(0, "Total Revenue", formatMoney(revenue),
-            "Completed payments, excluding cancelled orders");
-
-        setSummaryCard(1, "Completed Payments", String(completed.length),
-            "Payments marked completed");
-
-        setSummaryCard(2, "Orders with Completed Payments", String(completedOrders.size),
-            "Distinct orders with completed payments");
-
-        setSummaryCard(3, "Average Order", formatMoney(averageOrder),
-            "Revenue divided by completed orders");
+        setSummaryCard(0, "Total Food Revenue", formatMoney(foodRevenue),
+            "Completed food orders only; delivery fees excluded");
+        setSummaryCard(1, "Net Earnings", formatMoney(netEarnings),
+            `After platform fees: ${formatMoney(totalPlatformFees)}`);
+        setSummaryCard(2, "Completed Orders", String(completedOrders.size),
+            "Orders with completed payments");
+        setSummaryCard(3, "Average Food Order", formatMoney(averageOrder),
+            rateDescription);
     }
 
     function setSummaryCard(index, label, value, description) {
@@ -322,15 +352,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 .toLowerCase();
 
             const amount = amountOf(payment);
-            const configuredRate = payment.platform_fee_rate === null ||
-                payment.platform_fee_rate === undefined ||
-                payment.platform_fee_rate === ""
-                    ? null
-                    : Number(payment.platform_fee_rate);
-            const fee = configuredRate !== null && Number.isFinite(configuredRate) && configuredRate >= 0
+            const configuredRate = configuredPlatformFeeRate(payment);
+            const fee = configuredRate !== null
                 ? (isCompletedPayment(payment) ? amount * configuredRate / 100 : 0)
                 : null;
-            const net = fee === null ? null : amount - fee;
+            const net = fee === null ? null : Math.max(0, amount - fee);
 
             row.innerHTML = `
                 <td>
@@ -347,7 +373,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 <td>${escapeHtml(formatDate(getPaymentDate(payment)))}</td>
 
-                <td><strong>${formatMoney(amount)}</strong></td>
+                <td><strong>${formatMoney(amount)}</strong><small class="earnings-amount-note">Food only</small></td>
 
                 <td>${fee === null ? "Not configured" : formatMoney(fee)}</td>
 
@@ -646,6 +672,53 @@ document.addEventListener("DOMContentLoaded", () => {
     |--------------------------------------------------------------------------
     */
 
+    function renderPlatformFeeCalculation() {
+        const container = $("platformFeeCalculationDetails");
+        if (!container) return;
+
+        const completed = getCompletedPayments();
+        const foodRevenue = sumAmounts(completed);
+        const fees = completed.reduce((sum, payment) => sum + platformFeeOf(payment), 0);
+        const net = Math.max(0, foodRevenue - fees);
+        const rates = completed
+            .map(configuredPlatformFeeRate)
+            .filter(rate => rate !== null);
+        const uniqueRates = [...new Set(rates)];
+        const rateText = uniqueRates.length === 0
+            ? "Not configured"
+            : uniqueRates.length === 1
+                ? `${uniqueRates[0]}%`
+                : "Multiple rates";
+        const calculationText = uniqueRates.length === 1
+            ? `${formatMoney(foodRevenue)} × ${uniqueRates[0]}% ÷ 100`
+            : uniqueRates.length > 1
+                ? "Sum of each completed order's food revenue × its fee rate"
+                : "Configure a platform fee in Admin → Operations";
+
+        container.innerHTML = `
+            <div class="payout-detail-row">
+                <span>Food revenue (delivery fee excluded)</span>
+                <strong>${formatMoney(foodRevenue)}</strong>
+            </div>
+            <div class="payout-detail-row">
+                <span>Platform fee rate</span>
+                <strong>${rateText}</strong>
+            </div>
+            <div class="payout-detail-row">
+                <span>Platform fee calculation</span>
+                <strong>${calculationText}</strong>
+            </div>
+            <div class="payout-detail-row total">
+                <span>Total platform fees</span>
+                <strong>${formatMoney(fees)}</strong>
+            </div>
+            <div class="payout-detail-row">
+                <span>Net food earnings after fee</span>
+                <strong>${formatMoney(net)}</strong>
+            </div>
+        `;
+    }
+
     function renderPayoutSummary() {
         const completed = getCompletedPayments();
         const grossCollected = sumAmounts(completed);
@@ -725,7 +798,8 @@ document.addEventListener("DOMContentLoaded", () => {
             "Order Number",
             "Date",
             "Payment Method",
-            "Gross Amount",
+            "Food Revenue (Delivery Excluded)",
+            "Delivery Fee (Excluded)",
             "Platform Fee Rate (%)",
             "Platform Fee",
             "Net Amount After Platform Fee",
@@ -740,13 +814,14 @@ document.addEventListener("DOMContentLoaded", () => {
             formatDate(getPaymentDate(payment)),
             payment.payment_method,
             amountOf(payment),
+            Number(payment.delivery_fee || 0),
             payment.platform_fee_rate ?? "",
-            payment.platform_fee_rate === null || payment.platform_fee_rate === undefined || payment.platform_fee_rate === ""
+            configuredPlatformFeeRate(payment) === null
                 ? ""
-                : (isCompletedPayment(payment) ? amountOf(payment) * Number(payment.platform_fee_rate) / 100 : 0),
-            payment.platform_fee_rate === null || payment.platform_fee_rate === undefined || payment.platform_fee_rate === ""
+                : platformFeeOf(payment),
+            configuredPlatformFeeRate(payment) === null
                 ? ""
-                : amountOf(payment) - (isCompletedPayment(payment) ? amountOf(payment) * Number(payment.platform_fee_rate) / 100 : 0),
+                : netFoodRevenueOf(payment),
             payment.payment_status,
             payment.order_status,
             payment.transaction_reference
