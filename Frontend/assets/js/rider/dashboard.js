@@ -22,12 +22,18 @@ document.addEventListener("DOMContentLoaded", () => {
         ),
         recentTable: document.querySelector(".rider-table tbody"),
         summaryList: document.querySelector(".rider-summary-list"),
-        statCards: document.querySelectorAll(".rider-stat-card")
+        statCards: document.querySelectorAll(".rider-stat-card"),
+        notificationButton: document.querySelector(".rider-notification-button"),
+        notificationBadge: document.querySelector(".rider-notification-button .notification-badge"),
+        greeting: document.querySelector(".rider-page-header h2"),
+        availableBadge: document.querySelector(".rider-nav-badge")
     };
 
     let rider = null;
     let availableOrders = [];
     let myOrders = [];
+    let earnings = null;
+    let refreshTimer = null;
     let messageTimeout = null;
     let isRefreshing = false;
 
@@ -241,7 +247,29 @@ document.addEventListener("DOMContentLoaded", () => {
             throw new Error("The rider profile could not be loaded.");
         }
 
+        renderRiderIdentity();
         renderAvailability();
+    }
+
+    function renderRiderIdentity() {
+        const first = rider?.first_name || rider?.user?.first_name || "";
+        const last = rider?.last_name || rider?.user?.last_name || "";
+        const fullName = [first, last].filter(Boolean).join(" ").trim();
+        const displayName = fullName || rider?.name || "Rider";
+        const initials = displayName.split(/\s+/).map(part => part[0]).join("").slice(0, 2).toUpperCase() || "R";
+
+        document.querySelectorAll(".rider-profile-info strong, .rider-topbar-profile-info strong").forEach(el => {
+            el.textContent = displayName;
+        });
+        document.querySelectorAll(".rider-profile-avatar, .rider-topbar-avatar").forEach(el => {
+            el.textContent = initials;
+            el.setAttribute("aria-label", displayName);
+        });
+        if (elements.greeting) {
+            const hour = new Date().getHours();
+            const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+            elements.greeting.textContent = greeting + ", " + displayName;
+        }
     }
 
     async function toggleAvailability() {
@@ -695,18 +723,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 return false;
             }
 
-            // updated_at is a fallback only. A dedicated cancelled_at
-            // timestamp is more accurate when available from the API.
-            return isToday(order.cancelled_at || order.updated_at);
+            // Do not treat updated_at as cancellation time: unrelated edits
+            // can change it. Count only cancellations with a real timestamp.
+            return isToday(order.cancelled_at);
         });
 
         const activeOrders = myOrders.filter(order =>
             ["ready", "out_for_delivery"].includes(getStatus(order))
         );
 
+        const completedFromTodayAssignments = todayOrders.filter(order =>
+            getStatus(order) === "delivered" && isToday(order.delivered_at)
+        );
         const completionRate = todayOrders.length > 0
             ? Math.round(
-                (completedToday.length / todayOrders.length) * 100
+                (completedFromTodayAssignments.length / todayOrders.length) * 100
             )
             : 0;
 
@@ -715,12 +746,13 @@ document.addEventListener("DOMContentLoaded", () => {
             ? elements.summaryList.querySelectorAll(".rider-summary-item")
             : [];
 
+        const todayEarnings = Number(earnings?.summary?.today);
         const summaryValues = [
             String(todayOrders.length),
             String(completedToday.length),
             String(cancelledToday.length),
             "Not tracked",
-            "Not available"
+            Number.isFinite(todayEarnings) ? money(todayEarnings) : "Unavailable"
         ];
 
         summaryItems.forEach((item, index) => {
@@ -745,12 +777,11 @@ document.addEventListener("DOMContentLoaded", () => {
             `${completionRate}% of today's assigned orders`
         );
 
-        // Third statistic: real payout data is not provided by the current
-        // rider order response, so don't display the old sample earnings.
+        // Earnings come from the backend's delivered-order payout calculation.
         setStatValue(
             2,
-            "Not available",
-            "Payout data is not connected"
+            Number.isFinite(todayEarnings) ? money(todayEarnings) : "Unavailable",
+            Number.isFinite(todayEarnings) ? "From completed deliveries" : "Earnings data could not be loaded"
         );
 
         // Fourth statistic: active deliveries.
@@ -769,30 +800,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function loadDashboardData() {
         if (isRefreshing) return;
-
         isRefreshing = true;
 
         try {
-            const [availableResult, myOrdersResult] = await Promise.all([
+            const [availableResult, myOrdersResult, earningsResult] = await Promise.allSettled([
                 apiRequest("/riders/available-orders"),
-                apiRequest("/riders/my-orders")
+                apiRequest("/riders/my-orders"),
+                apiRequest("/riders/my-earnings?period=This%20Week")
             ]);
 
-            availableOrders = getResponseData(
-                availableResult,
-                "orders"
-            );
+            if (availableResult.status === "fulfilled") {
+                availableOrders = getResponseData(availableResult.value, "orders");
+                renderAvailableOrders();
+            } else {
+                if (elements.availableList) elements.availableList.innerHTML = '<p class="rider-empty-state">Available orders could not be loaded. Please refresh to try again.</p>';
+                if (elements.availableBadge) elements.availableBadge.hidden = true;
+                showMessage(availableResult.reason?.message || "Could not load available orders.", "error");
+            }
 
-            myOrders = getResponseData(
-                myOrdersResult,
-                "orders"
-            );
+            if (myOrdersResult.status === "fulfilled") {
+                myOrders = getResponseData(myOrdersResult.value, "orders");
+                renderMyDelivery();
+                renderRecentDeliveries();
+            } else {
+                if (elements.deliveryContent) elements.deliveryContent.innerHTML = '<p class="rider-empty-state">Your delivery information could not be loaded.</p>';
+                if (elements.recentTable) elements.recentTable.innerHTML = '<tr><td colspan="4">Recent deliveries could not be loaded.</td></tr>';
+                showMessage(myOrdersResult.reason?.message || "Could not load your deliveries.", "error");
+            }
 
-            renderAvailableOrders();
-            renderMyDelivery();
-            renderRecentDeliveries();
-            renderTodaySummary();
-            updateAvailableOrderBadge();
+            earnings = earningsResult.status === "fulfilled"
+                ? (earningsResult.value?.data?.earnings || earningsResult.value?.earnings || null)
+                : null;
+
+            if (availableResult.status === "fulfilled" || myOrdersResult.status === "fulfilled") {
+                renderTodaySummary();
+            }
         } finally {
             isRefreshing = false;
         }
@@ -842,17 +884,51 @@ document.addEventListener("DOMContentLoaded", () => {
     // INITIALIZATION
     // =========================================================
 
+    function clearSampleContent() {
+        if (elements.statusButton) elements.statusButton.disabled = true;
+        if (elements.availableList) elements.availableList.innerHTML = '<p class="rider-empty-state">Loading available orders…</p>';
+        if (elements.deliveryContent) elements.deliveryContent.innerHTML = '<p class="rider-empty-state">Loading your active delivery…</p>';
+        if (elements.recentTable) elements.recentTable.innerHTML = '<tr><td colspan="4">Loading recent deliveries…</td></tr>';
+        if (elements.availableBadge) {
+            elements.availableBadge.textContent = "…";
+            elements.availableBadge.hidden = false;
+        }
+        elements.statCards.forEach(card => {
+            const strong = card.querySelector(".rider-stat-content strong");
+            const small = card.querySelector(".rider-stat-content small");
+            if (strong) strong.textContent = "—";
+            if (small) small.textContent = "Loading…";
+        });
+        if (elements.summaryList) elements.summaryList.querySelectorAll("strong").forEach(el => el.textContent = "—");
+        if (elements.notificationBadge) elements.notificationBadge.hidden = true;
+        if (elements.notificationButton) {
+            elements.notificationButton.title = "Notifications are not available yet";
+            elements.notificationButton.addEventListener("click", () => showMessage("Rider notifications are not connected yet.", "info"));
+        }
+    }
+
     async function initialize() {
+        clearSampleContent();
         if (!getToken()) {
             showMessage("Please sign in to access your rider dashboard.", "error");
+            if (elements.availableList) elements.availableList.innerHTML = '<p class="rider-empty-state">Sign in to view available orders.</p>';
+            if (elements.deliveryContent) elements.deliveryContent.innerHTML = '<p class="rider-empty-state">Sign in to view your deliveries.</p>';
             return;
         }
 
         try {
             await loadProfile();
             await loadDashboardData();
+            if (elements.statusButton && rider?.availability !== "on_delivery") elements.statusButton.disabled = false;
+            if (refreshTimer) clearInterval(refreshTimer);
+            refreshTimer = setInterval(() => {
+                if (!document.hidden) loadDashboardData().catch(error => console.error("Automatic rider dashboard refresh failed:", error));
+            }, 30000);
         } catch (error) {
             console.error("Rider dashboard loading failed:", error);
+            if (elements.availableList) elements.availableList.innerHTML = '<p class="rider-empty-state">Dashboard data could not be loaded. Check your connection and refresh.</p>';
+            if (elements.deliveryContent) elements.deliveryContent.innerHTML = '<p class="rider-empty-state">Dashboard data could not be loaded.</p>';
+            if (elements.recentTable) elements.recentTable.innerHTML = '<tr><td colspan="4">Dashboard data could not be loaded.</td></tr>';
             showMessage(error.message, "error");
         }
     }
