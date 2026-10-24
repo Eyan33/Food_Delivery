@@ -359,6 +359,7 @@ const markDelivered = endpoint(
 // PATCH /api/riders/my-orders/:id/cash-payment-complete
 const markCashPaymentComplete = endpoint(
     "Failed to mark cash payment complete",
+    "Failed to confirm cash payment",
     async (req, res) => {
         const payment = await riderService.markRiderCashPaymentComplete(
             req.params.id,
@@ -368,6 +369,9 @@ const markCashPaymentComplete = endpoint(
         return res.status(200).json({
             success: true,
             message: "Cash payment marked complete",
+        return res.status(200).json({
+            success: true,
+            message: "Cash payment confirmed",
             data: { payment }
         });
     }

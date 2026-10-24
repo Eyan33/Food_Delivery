@@ -36,6 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let foodSearchTimer = null;
     let reviewSearchTimer = null;
     let catalogEditTrigger = null;
+    let paymentSettingsCache = {};
 
     const listPages = {
         admins: 1,
@@ -1332,6 +1333,79 @@ form.reset();
     );
 
     // =======================================================
+    // Platform fee settings
+    // =======================================================
+
+    async function loadPlatformFees() {
+        const input = byId("platformTransactionFee");
+        const saveButton = byId("savePlatformFee");
+        if (!input) return;
+
+        if (saveButton) saveButton.disabled = true;
+        try {
+            const response = await request("/admins/settings");
+            const settingsRow = response?.data || response;
+            const settings = settingsRow?.settings || {};
+            paymentSettingsCache = settings.payments && typeof settings.payments === "object"
+                ? { ...settings.payments }
+                : {};
+
+            const rawFee = paymentSettingsCache.transactionFee;
+            input.value = rawFee === undefined || rawFee === null || rawFee === ""
+                ? "5"
+                : String(rawFee);
+            showMessage("");
+        } catch (error) {
+            showMessage(error.message || "Could not load platform fee settings.", true);
+        } finally {
+            if (saveButton) saveButton.disabled = false;
+        }
+    }
+
+    async function savePlatformFees(event) {
+        event.preventDefault();
+        const input = byId("platformTransactionFee");
+        const saveButton = byId("savePlatformFee");
+        const fee = Number(input?.value);
+
+        if (!Number.isFinite(fee) || fee < 0 || fee > 100) {
+            showMessage("Platform transaction fee must be between 0 and 100 percent.", true);
+            input?.focus();
+            return;
+        }
+
+        if (saveButton) {
+            saveButton.disabled = true;
+            saveButton.textContent = "Saving...";
+        }
+
+        try {
+            const payments = {
+                ...paymentSettingsCache,
+                transactionFee: fee
+            };
+            const response = await request("/admins/settings", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ payments })
+            });
+            const saved = response?.data?.settings?.payments || payments;
+            paymentSettingsCache = { ...saved };
+            input.value = String(saved.transactionFee ?? fee);
+            showMessage("Platform transaction fee saved successfully.");
+        } catch (error) {
+            showMessage(error.message || "Could not save platform fee.", true);
+        } finally {
+            if (saveButton) {
+                saveButton.disabled = false;
+                saveButton.textContent = "Save platform fee";
+            }
+        }
+    }
+
+    byId("platformFeeForm")?.addEventListener("submit", savePlatformFees);
+
+    // =======================================================
     // Tabs
     // =======================================================
 
@@ -1361,6 +1435,10 @@ form.reset();
                     try {
                         if (tab.dataset.panel === "catalog") {
                             await loadCatalog();
+                        }
+
+                        if (tab.dataset.panel === "platform-fees") {
+                            await loadPlatformFees();
                         }
 
                         if (tab.dataset.panel === "admins") {

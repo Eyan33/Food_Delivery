@@ -1484,6 +1484,8 @@ async function updateRiderOrderStatus(orderId, riderId, newStatus) {
  * Rider confirms cash was physically collected from the customer.
  * The rider must be assigned to the order, and only cash payments can
  * be completed through this endpoint.
+ * Confirm cash collection for an order assigned to this rider.
+ * Payment confirmation is allowed only after delivery is marked complete.
  */
 async function markRiderCashPaymentComplete(orderId, riderId) {
     const validatedOrderId = validateId(orderId, "Order ID");
@@ -1502,6 +1504,11 @@ async function markRiderCashPaymentComplete(orderId, riderId) {
             LEFT JOIN payments p ON p.order_id = o.id
             WHERE o.id = $1
               AND o.rider_id = $2
+            SELECT o.id, o.status AS order_status,
+                   p.id AS payment_id, p.payment_method, p.payment_status
+            FROM orders o
+            LEFT JOIN payments p ON p.order_id = o.id
+            WHERE o.id = $1 AND o.rider_id = $2
             FOR UPDATE OF o
             `,
             [validatedOrderId, validatedRiderId]
@@ -1529,11 +1536,27 @@ async function markRiderCashPaymentComplete(orderId, riderId) {
             throw apiError("This cash payment is already marked complete", 409);
         }
 
+        if (!result.rows.length) throw apiError("Assigned order not found", 404);
+        const order = result.rows[0];
+
+        if (order.order_status !== "delivered") {
+            throw apiError("Mark the order as delivered before confirming payment", 409);
+        }
+        if (!order.payment_id) {
+            throw apiError("No payment record exists for this order. Ask an administrator to check the order payment.", 409);
+        }
+        if (String(order.payment_method || "").toLowerCase() !== "cash") {
+            throw apiError("Only cash payments can be confirmed by the rider", 409);
+        }
+        if (order.payment_status === "completed") {
+            throw apiError("This cash payment is already marked complete", 409);
+        }
         if (!["pending", "processing"].includes(order.payment_status)) {
             throw apiError(`Cannot complete a payment with status ${order.payment_status}`, 409);
         }
 
         const paymentResult = await client.query(
+        const updated = await client.query(
             `
             UPDATE payments
             SET payment_status = 'completed',
@@ -1546,6 +1569,7 @@ async function markRiderCashPaymentComplete(orderId, riderId) {
         );
 
         return paymentResult.rows[0];
+        return updated.rows[0];
     });
 }
 
