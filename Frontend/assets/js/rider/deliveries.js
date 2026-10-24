@@ -212,10 +212,24 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    function nairobiDateKey(value) {
+        const date = value instanceof Date ? value : new Date(value);
+        if (Number.isNaN(date.getTime())) return null;
+
+        const parts = new Intl.DateTimeFormat("en-CA", {
+            timeZone: "Africa/Nairobi",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+        }).formatToParts(date);
+
+        const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+        return `${values.year}-${values.month}-${values.day}`;
+    }
+
     function isSameDay(first, second) {
-        return first.getFullYear() === second.getFullYear() &&
-            first.getMonth() === second.getMonth() &&
-            first.getDate() === second.getDate();
+        return nairobiDateKey(first) !== null &&
+            nairobiDateKey(first) === nairobiDateKey(second);
     }
 
     function isWithinDateFilter(order) {
@@ -230,24 +244,27 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const now = new Date();
+        const dateKey = nairobiDateKey(date);
+        const nowKey = nairobiDateKey(now);
 
-        if (currentDateFilter === "today") {
-            return isSameDay(date, now);
-        }
+        if (!dateKey || !nowKey) return false;
+        if (currentDateFilter === "today") return dateKey === nowKey;
+
+        const dateParts = dateKey.split("-").map(Number);
+        const nowParts = nowKey.split("-").map(Number);
+        const dateUtc = Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]);
+        const nowUtc = Date.UTC(nowParts[0], nowParts[1] - 1, nowParts[2]);
 
         if (currentDateFilter === "week") {
-            const startOfWeek = new Date(now);
-            const day = (now.getDay() + 6) % 7;
-
-            startOfWeek.setDate(now.getDate() - day);
-            startOfWeek.setHours(0, 0, 0, 0);
-
-            return date >= startOfWeek && date <= now;
+            const nowDate = new Date(nowUtc);
+            const daysSinceMonday = (nowDate.getUTCDay() + 6) % 7;
+            const startUtc = nowUtc - daysSinceMonday * 86400000;
+            return dateUtc >= startUtc && dateUtc <= nowUtc;
         }
 
         if (currentDateFilter === "month") {
-            return date.getFullYear() === now.getFullYear() &&
-                date.getMonth() === now.getMonth();
+            return dateParts[0] === nowParts[0] &&
+                dateParts[1] === nowParts[1];
         }
 
         return true;
@@ -427,8 +444,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const search = elements.search?.value.trim().toLowerCase() || "";
 
         return deliveries.filter(order => {
-            const status = getStatus(order);
-
             const searchableText = [
                 order.order_number,
                 order.restaurant_name,
@@ -519,209 +534,108 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderActiveDelivery() {
         const container = elements.activeDelivery;
-
-        if (!container) {
-            return;
-        }
+        if (!container) return;
 
         const activeOrders = getFilteredDeliveries().filter(isActive);
-        const order = activeOrders[0];
 
-        if (!order) {
+        if (!activeOrders.length) {
             container.hidden = true;
             container.style.display = "none";
+            container.innerHTML = "";
             return;
         }
 
         container.hidden = false;
         container.style.display = "";
+        container.innerHTML = activeOrders.map(renderActiveDeliveryCard).join("");
 
+        container.querySelectorAll("[data-view-delivery]").forEach(button => {
+            const order = activeOrders.find(item =>
+                String(item.id) === button.dataset.viewDelivery
+            );
+            if (order) button.addEventListener("click", () => viewDeliveryDetails(order));
+        });
+
+        container.querySelectorAll("[data-start-delivery]").forEach(button => {
+            button.addEventListener("click", event => updateDeliveryStatus(
+                event.currentTarget.dataset.startDelivery,
+                "out_for_delivery",
+                event.currentTarget
+            ));
+        });
+
+        container.querySelectorAll("[data-mark-delivered]").forEach(button => {
+            button.addEventListener("click", event => updateDeliveryStatus(
+                event.currentTarget.dataset.markDelivered,
+                "delivered",
+                event.currentTarget
+            ));
+        });
+    }
+
+    function renderActiveDeliveryCard(order) {
         const status = getStatus(order);
-        const restaurant = escapeHTML(
-            order.restaurant_name || "Restaurant"
-        );
-
-        const pickupAddress = escapeHTML(
-            order.restaurant_address || "Pickup location not provided"
-        );
-
+        const restaurant = escapeHTML(order.restaurant_name || "Restaurant");
+        const pickupAddress = escapeHTML(order.restaurant_address || "Pickup location not provided");
         const deliveryAddress = escapeHTML(
-            [
-                order.delivery_address,
-                order.delivery_city
-            ].filter(Boolean).join(", ") || "Delivery address not provided"
+            [order.delivery_address, order.delivery_city].filter(Boolean).join(", ") ||
+            "Delivery address not provided"
         );
-
         const recipient = escapeHTML(order.recipient_name || "Customer");
         const orderNumber = escapeHTML(getOrderNumber(order));
+        const readyAt = order.ready_at ? formatTime(order.ready_at) : null;
+        const startedAt = order.out_for_delivery_at ? formatTime(order.out_for_delivery_at) : null;
 
-        const readyAt = formatTime(order.ready_at);
-        const outForDeliveryAt = formatTime(order.out_for_delivery_at);
-        const deliveredAt = formatTime(order.delivered_at);
-
-        const progress = status === "out_for_delivery"
-            ? `
-                <div class="rider-progress-step completed">
-                    <div class="rider-progress-dot">✓</div>
-                    <div>
-                        <strong>Order Ready</strong>
-                        <span>${escapeHTML(readyAt)}</span>
-                    </div>
-                </div>
-                <div class="rider-progress-line completed"></div>
-                <div class="rider-progress-step completed">
-                    <div class="rider-progress-dot">✓</div>
-                    <div>
-                        <strong>Picked Up</strong>
-                        <span>${escapeHTML(outForDeliveryAt)}</span>
-                    </div>
-                </div>
-                <div class="rider-progress-line completed"></div>
-                <div class="rider-progress-step current">
-                    <div class="rider-progress-dot">3</div>
-                    <div>
-                        <strong>On the Way</strong>
-                        <span>In progress</span>
-                    </div>
-                </div>
-                <div class="rider-progress-line"></div>
-                <div class="rider-progress-step">
-                    <div class="rider-progress-dot">4</div>
-                    <div>
-                        <strong>Delivered</strong>
-                        <span>Pending</span>
-                    </div>
-                </div>
-            `
-            : `
-                <div class="rider-progress-step completed">
-                    <div class="rider-progress-dot">✓</div>
-                    <div>
-                        <strong>Order Ready</strong>
-                        <span>${escapeHTML(readyAt)}</span>
-                    </div>
-                </div>
-                <div class="rider-progress-line completed"></div>
-                <div class="rider-progress-step current">
-                    <div class="rider-progress-dot">2</div>
-                    <div>
-                        <strong>Ready for Pickup</strong>
-                        <span>Waiting for pickup</span>
-                    </div>
-                </div>
-                <div class="rider-progress-line"></div>
-                <div class="rider-progress-step">
-                    <div class="rider-progress-dot">3</div>
-                    <div>
-                        <strong>On the Way</strong>
-                        <span>Pending</span>
-                    </div>
-                </div>
-                <div class="rider-progress-line"></div>
-                <div class="rider-progress-step">
-                    <div class="rider-progress-dot">4</div>
-                    <div>
-                        <strong>Delivered</strong>
-                        <span>Pending</span>
-                    </div>
-                </div>
-            `;
-
-        const actionButton = status === "ready"
-            ? `
-                <button type="button"
-                        class="rider-primary-button"
-                        data-start-delivery="${escapeHTML(order.id)}">
-                    Start Delivery
-                </button>
-            `
-            : `
-                <button type="button"
-                        class="rider-primary-button"
-                        data-mark-delivered="${escapeHTML(order.id)}">
-                    Mark as Delivered
-                </button>
-            `;
-
-        container.innerHTML = `
-            <div class="rider-delivery-header">
-                <div class="rider-delivery-restaurant">
-                    <div class="rider-delivery-icon">◈</div>
-                    <div>
-                        <span class="rider-delivery-order-number">
-                            Order ${orderNumber}
-                        </span>
-                        <h3>${restaurant}</h3>
-                        <small>
-                            ${status === "ready"
-                                ? "Ready for pickup"
-                                : `Picked up at ${escapeHTML(outForDeliveryAt)}`}
-                        </small>
-                    </div>
-                </div>
-
-                <span class="rider-delivery-status active">
-                    ${status === "ready" ? "Ready for Pickup" : "In Progress"}
-                </span>
-            </div>
-
-            <div class="rider-delivery-progress">
-                ${progress}
-            </div>
-
-            <div class="rider-delivery-route">
-                <div class="rider-route-location">
-                    <span class="route-label">PICKUP</span>
-                    <strong>${restaurant}</strong>
-                    <p>${pickupAddress}</p>
-                </div>
-
-                <div class="rider-route-arrow">→</div>
-
-                <div class="rider-route-location">
-                    <span class="route-label">DELIVERY</span>
-                    <strong>${recipient}</strong>
-                    <p>${deliveryAddress}</p>
-                </div>
-            </div>
-
-            <div class="rider-delivery-footer">
-                <div class="rider-delivery-meta">
-                    <span>● ${money(order.total_amount)} order value</span>
-                    <span>● ${escapeHTML(status.replaceAll("_", " "))}</span>
-                </div>
-
-                <div class="rider-delivery-actions">
-                    <button type="button"
-                            class="rider-secondary-button"
-                            data-view-delivery="${escapeHTML(order.id)}">
-                        View Details
-                    </button>
-                    ${actionButton}
-                </div>
-            </div>
+        const progress = status === "out_for_delivery" ? `
+            <div class="rider-progress-step completed"><div class="rider-progress-dot">✓</div><div><strong>Order Ready</strong><span>${escapeHTML(readyAt || "Time not recorded")}</span></div></div>
+            <div class="rider-progress-line completed"></div>
+            <div class="rider-progress-step completed"><div class="rider-progress-dot">✓</div><div><strong>Delivery Started</strong><span>${escapeHTML(startedAt || "Start time not recorded")}</span></div></div>
+            <div class="rider-progress-line completed"></div>
+            <div class="rider-progress-step current"><div class="rider-progress-dot">3</div><div><strong>On the Way</strong><span>In progress</span></div></div>
+            <div class="rider-progress-line"></div>
+            <div class="rider-progress-step"><div class="rider-progress-dot">4</div><div><strong>Delivered</strong><span>Not yet delivered</span></div></div>
+        ` : `
+            <div class="rider-progress-step completed"><div class="rider-progress-dot">✓</div><div><strong>Order Ready</strong><span>${escapeHTML(readyAt || "Time not recorded")}</span></div></div>
+            <div class="rider-progress-line completed"></div>
+            <div class="rider-progress-step current"><div class="rider-progress-dot">2</div><div><strong>Ready for Pickup</strong><span>Waiting for you to start delivery</span></div></div>
+            <div class="rider-progress-line"></div>
+            <div class="rider-progress-step"><div class="rider-progress-dot">3</div><div><strong>On the Way</strong><span>Not started</span></div></div>
+            <div class="rider-progress-line"></div>
+            <div class="rider-progress-step"><div class="rider-progress-dot">4</div><div><strong>Delivered</strong><span>Not yet delivered</span></div></div>
         `;
 
-        container.querySelector("[data-view-delivery]")
-            ?.addEventListener("click", () => viewDeliveryDetails(order));
+        const actionButton = status === "ready"
+            ? `<button type="button" class="rider-primary-button" data-start-delivery="${escapeHTML(order.id)}">Start Delivery</button>`
+            : `<button type="button" class="rider-primary-button" data-mark-delivered="${escapeHTML(order.id)}">Mark as Delivered</button>`;
 
-        container.querySelector("[data-start-delivery]")
-            ?.addEventListener("click", event => {
-                updateDeliveryStatus(
-                    event.currentTarget.dataset.startDelivery,
-                    "out_for_delivery",
-                    event.currentTarget
-                );
-            });
+        const fee = order.delivery_fee === null || order.delivery_fee === undefined
+            ? "Not provided"
+            : money(order.delivery_fee);
 
-        container.querySelector("[data-mark-delivered]")
-            ?.addEventListener("click", event => {
-                updateDeliveryStatus(
-                    event.currentTarget.dataset.markDelivered,
-                    "delivered",
-                    event.currentTarget
-                );
-            });
+        return `
+            <section class="rider-active-delivery-card">
+                <div class="rider-delivery-header">
+                    <div class="rider-delivery-restaurant">
+                        <div class="rider-delivery-icon">◈</div>
+                        <div><span class="rider-delivery-order-number">Order ${orderNumber}</span><h3>${restaurant}</h3><small>${status === "ready" ? "Ready for pickup" : `Delivery started at ${escapeHTML(startedAt || "time not recorded")}`}</small></div>
+                    </div>
+                    <span class="rider-delivery-status active">${status === "ready" ? "Ready for Pickup" : "In Progress"}</span>
+                </div>
+                <div class="rider-delivery-progress">${progress}</div>
+                <div class="rider-delivery-route">
+                    <div class="rider-route-location"><span class="route-label">PICKUP</span><strong>${restaurant}</strong><p>${pickupAddress}</p></div>
+                    <div class="rider-route-arrow">→</div>
+                    <div class="rider-route-location"><span class="route-label">DELIVERY</span><strong>${recipient}</strong><p>${deliveryAddress}</p></div>
+                </div>
+                <div class="rider-delivery-footer">
+                    <div class="rider-delivery-meta"><span>Order value: ${money(order.total_amount)}</span><span>Rider delivery fee: ${escapeHTML(fee)}</span></div>
+                    <div class="rider-delivery-actions">
+                        <button type="button" class="rider-secondary-button" data-view-delivery="${escapeHTML(order.id)}">View Details</button>
+                        ${actionButton}
+                    </div>
+                </div>
+            </section>
+        `;
     }
 
     // =========================================================
@@ -838,7 +752,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
 
                 <div class="rider-delivery-card-amount">
-                    <strong>${money(order.total_amount)}</strong>
+                    <strong>${order.delivery_fee === null || order.delivery_fee === undefined ? "—" : money(order.delivery_fee)}</strong>
+                    <small>Rider fee</small>
                     <span class="rider-delivery-status ${
                         completed ? "completed" : cancelled ? "cancelled" : "active"
                     }">
@@ -897,13 +812,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (thirdValue) {
-            // This is delivered order value, not rider earnings.
-            const deliveredValue = completedToday.reduce(
-                (total, order) => total + (Number(order.total_amount) || 0),
-                0
+            const earnings = completedToday.reduce((total, order) => {
+                const fee = Number(order.delivery_fee);
+                return total + (Number.isFinite(fee) ? fee : 0);
+            }, 0);
+            const hasMissingFee = completedToday.some(order =>
+                order.delivery_fee === null || order.delivery_fee === undefined ||
+                order.delivery_fee === ""
             );
-
-            thirdValue.textContent = money(deliveredValue);
+            thirdValue.textContent = money(earnings) + (hasMissingFee ? " *" : "");
+            thirdValue.title = hasMissingFee
+                ? "Some completed deliveries have no delivery fee recorded; displayed total may be incomplete."
+                : "Sum of recorded delivery fees for deliveries completed today.";
         }
 
         if (fourthValue) {
@@ -1030,8 +950,13 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
 
             <div class="rider-delivery-details-row">
-                <span>Order value</span>
+                <span>Customer order value</span>
                 <strong>${money(order.total_amount)}</strong>
+            </div>
+
+            <div class="rider-delivery-details-row">
+                <span>Rider delivery fee</span>
+                <strong>${order.delivery_fee === null || order.delivery_fee === undefined ? "Not recorded" : money(order.delivery_fee)}</strong>
             </div>
 
             <div class="rider-delivery-details-row">
@@ -1202,9 +1127,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // NOTIFICATIONS
     // =========================================================
 
-    elements.notificationButton?.addEventListener("click", () => {
-        showMessage("Notifications are not connected yet.", "info");
-    });
+    // Notifications are not exposed by the current rider API. The HTML control
+    // is disabled and no fabricated notification count is displayed.
 
     // =========================================================
     // MODAL STYLES
@@ -1317,6 +1241,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 error.message || "Unable to initialize your deliveries.",
                 "error"
             );
+            renderLoadError();
+            elements.summaryCards.forEach(card => {
+                const value = card.querySelector("strong");
+                if (value) value.textContent = "—";
+            });
         }
     }
 
