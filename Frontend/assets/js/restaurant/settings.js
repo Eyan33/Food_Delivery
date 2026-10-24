@@ -22,8 +22,58 @@ document.addEventListener("DOMContentLoaded", () => {
     const settingsSections =
         document.querySelectorAll(".settings-section");
 
-    const settingsMessage =
-        document.getElementById("settingsMessage");
+    const settingsMessage = document.getElementById("settingsMessage");
+    const API_BASE = (window.FOOD_DELIVERY_API_BASE || "http://localhost:5000/api").replace(/\/+$/, "");
+    const TOKEN_KEY = "foodDeliveryAccessToken";
+    let restaurantRecord = null;
+    let ownerRecord = null;
+
+    async function apiRequest(path, options = {}) {
+        const token = localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
+        if (!token) throw new Error("Your session has expired. Please log in again.");
+        const response = await fetch(API_BASE + path, {
+            ...options,
+            headers: { Accept: "application/json", Authorization: "Bearer " + token,
+                ...(options.body ? { "Content-Type": "application/json" } : {}), ...(options.headers || {}) }
+        });
+        let result;
+        try { result = await response.json(); } catch { throw new Error("The server returned an invalid response."); }
+        if (!response.ok || result.success === false) throw new Error(result.message || "Request failed (" + response.status + ").");
+        return result;
+    }
+    function setField(id, value) { const el = document.getElementById(id); if (el) el.value = value == null ? "" : String(value); }
+    function paintStatus(isOpen) {
+        if (restaurantStatusButton) {
+            restaurantStatusButton.disabled = false;
+            restaurantStatusButton.classList.toggle("open", isOpen);
+            restaurantStatusButton.classList.toggle("closed", !isOpen);
+            restaurantStatusButton.setAttribute("aria-pressed", String(isOpen));
+        }
+        if (restaurantStatusText) restaurantStatusText.textContent = isOpen ? "Restaurant Open" : "Restaurant Closed";
+    }
+    function paintIdentity() {
+        const name = restaurantRecord?.name || "Restaurant";
+        const owner = [ownerRecord?.first_name, ownerRecord?.last_name].filter(Boolean).join(" ") || "Restaurant account";
+        ["sidebarRestaurantName", "topbarRestaurantName"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = name; });
+        ["accountDisplayName", "topbarOwnerName"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = owner; });
+        const initials = owner.split(/\s+/).map(part => part[0]).join("").slice(0, 2).toUpperCase() || "R";
+        document.querySelectorAll(".restaurant-avatar, .restaurant-topbar-avatar, .settings-profile-avatar").forEach(el => el.textContent = initials);
+    }
+    async function loadServerSettings() {
+        const [rr, ur] = await Promise.all([apiRequest("/restaurants/owner/me"), apiRequest("/auth/me")]);
+        restaurantRecord = rr.data?.restaurant;
+        ownerRecord = ur.data?.user;
+        if (!restaurantRecord || !ownerRecord) throw new Error("Your restaurant or account profile was not returned.");
+        setField("restaurantName", restaurantRecord.name);
+        setField("restaurantEmail", restaurantRecord.email);
+        setField("restaurantPhone", restaurantRecord.phone);
+        setField("restaurantAddress", restaurantRecord.address);
+        setField("adminFirstName", ownerRecord.first_name);
+        setField("adminLastName", ownerRecord.last_name);
+        setField("adminEmail", ownerRecord.email);
+        paintStatus(restaurantRecord.is_open === true);
+        paintIdentity();
+    }
 
 
     /* =========================================================
@@ -185,7 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
        RESTAURANT OPEN / CLOSED STATUS
     ========================================================== */
 
-    let restaurantOpen = true;
+    let restaurantOpen = false;
 
     function updateRestaurantStatus() {
 
@@ -221,9 +271,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (restaurantStatusButton) {
 
-        restaurantStatusButton.addEventListener("click", () => {
-
-            restaurantOpen = !restaurantOpen;
+        restaurantStatusButton.addEventListener("click", async () => {
+            if (!restaurantRecord) return showMessage("Restaurant details have not loaded yet.", "error");
+            restaurantStatusButton.disabled = true;
+            try {
+                const result = await apiRequest("/restaurants/owner/status", {
+                    method: "PATCH",
+                    body: JSON.stringify({ is_open: restaurantRecord.is_open !== true })
+                });
+                restaurantRecord = result.data?.restaurant || { ...restaurantRecord, is_open: restaurantRecord.is_open !== true };
+                restaurantOpen = restaurantRecord.is_open === true;
+            } catch (error) {
+                showMessage(error.message, "error");
+            } finally {
+                restaurantStatusButton.disabled = false;
+            }
 
             if (showRestaurantOpen) {
 
@@ -458,10 +520,17 @@ document.addEventListener("DOMContentLoaded", () => {
             };
 
 
-            localStorage.setItem(
-                "restaurantGeneralSettings",
-                JSON.stringify(generalSettings)
-            );
+            try {
+                const result = await apiRequest("/restaurants/owner/me", {
+                    method: "PUT",
+                    body: JSON.stringify({ name, email: email || null, phone: phone || null, address })
+                });
+                restaurantRecord = result.data?.restaurant || { ...restaurantRecord, name, email, phone, address };
+                paintIdentity();
+            } catch (error) {
+                showMessage(error.message, "error");
+                return;
+            }
 
 
             restaurantOpen =
@@ -497,25 +566,13 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
 
-            if (restaurantName) {
-                restaurantName.value =
-                    "Mama's Kitchen";
-            }
+            // Reset unsaved edits by reloading the saved restaurant record.
 
-            if (restaurantEmail) {
-                restaurantEmail.value =
-                    "mamakitchen@example.com";
-            }
 
-            if (restaurantPhone) {
-                restaurantPhone.value =
-                    "+254 712 345 678";
-            }
 
-            if (restaurantAddress) {
-                restaurantAddress.value =
-                    "Nairobi, Kenya";
-            }
+
+
+
 
             if (restaurantCurrency) {
                 restaurantCurrency.value =
@@ -543,9 +600,7 @@ document.addEventListener("DOMContentLoaded", () => {
             updateRestaurantStatus();
 
 
-            localStorage.removeItem(
-                "restaurantGeneralSettings"
-            );
+            loadServerSettings().catch(error => showMessage(error.message, "error"));
 
 
             showMessage(
@@ -634,10 +689,17 @@ document.addEventListener("DOMContentLoaded", () => {
             };
 
 
-            localStorage.setItem(
-                "restaurantAccountSettings",
-                JSON.stringify(accountSettings)
-            );
+            try {
+                const result = await apiRequest("/auth/me", {
+                    method: "PUT",
+                    body: JSON.stringify({ first_name: firstName, last_name: lastName, email })
+                });
+                ownerRecord = result.data?.user || { ...ownerRecord, first_name: firstName, last_name: lastName, email };
+                paintIdentity();
+            } catch (error) {
+                showMessage(error.message, "error");
+                return;
+            }
 
 
             showMessage(
@@ -688,9 +750,7 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
 
-            showMessage(
-                "Notification preferences saved successfully."
-            );
+            showMessage("Preferences saved in this browser only; server-side and email notifications are not configured.");
 
         });
 
@@ -805,18 +865,15 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
 
-            /*
-             * Frontend demonstration only.
-             *
-             * Password verification and password
-             * changes should eventually be handled
-             * by the backend.
-             */
-
-            localStorage.setItem(
-                "restaurantPasswordChanged",
-                "true"
-            );
+            try {
+                await apiRequest("/auth/me/password", {
+                    method: "PATCH",
+                    body: JSON.stringify({ currentPassword: current, newPassword: newPass })
+                });
+            } catch (error) {
+                showMessage(error.message, "error");
+                return;
+            }
 
 
             currentPassword.value = "";
@@ -934,9 +991,7 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
 
-            showMessage(
-                "Order settings saved successfully."
-            );
+            showMessage("Order display preferences saved in this browser only; these do not change server-side order processing.");
 
         });
 
@@ -1395,6 +1450,11 @@ document.addEventListener("DOMContentLoaded", () => {
     ========================================================== */
 
     loadSavedSettings();
+    loadServerSettings().catch(error => {
+        console.error("Could not load settings from the server:", error);
+        showMessage(error.message, "error");
+        if (restaurantStatusButton) restaurantStatusButton.disabled = true;
+    });
 
     showSettingsSection("general");
 
