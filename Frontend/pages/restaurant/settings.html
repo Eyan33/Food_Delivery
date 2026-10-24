@@ -30,11 +30,11 @@
         <div class="restaurant-profile-mini">
 
             <div class="restaurant-avatar">
-                MK
+                R
             </div>
 
             <div class="restaurant-profile-info">
-                <strong>Mama's Kitchen</strong>
+                <strong id="sidebarRestaurantName">Loading restaurant…</strong>
                 <span>Restaurant</span>
             </div>
 
@@ -53,7 +53,7 @@
             <a href="orders.html" class="restaurant-nav-link">
                 <span class="nav-icon">🛍</span>
                 <span>Orders</span>
-                <span class="nav-badge">5</span>
+                
             </a>
 
             <p class="restaurant-nav-title">BUSINESS</p>
@@ -126,7 +126,7 @@
                 <button type="button" class="restaurant-notification-button" aria-label="Notifications">
 
                     <span>🔔</span>
-                    <span class="notification-badge">3</span>
+                    
 
                 </button>
 
@@ -134,12 +134,12 @@
                 <div class="restaurant-topbar-profile">
 
                     <div class="restaurant-topbar-avatar">
-                        M
+                        R
                     </div>
 
                     <div class="restaurant-topbar-profile-info">
-                        <strong>Mama's Kitchen</strong>
-                        <span>Restaurant Admin</span>
+                        <strong id="topbarRestaurantName">Loading restaurant…</strong>
+                        <span id="topbarOwnerName">Restaurant account</span>
                     </div>
 
                 </div>
@@ -160,7 +160,7 @@
                 <div>
                     <h2>Settings</h2>
                     <p>
-                        Manage your restaurant preferences, account and notifications.
+                        Restaurant and account changes are saved to your account. Browser preferences are saved on this device.
                     </p>
                 </div>
 
@@ -271,7 +271,7 @@
                                         Restaurant Name
                                     </label>
 
-                                    <input type="text" id="restaurantName" value="Mama's Kitchen"
+                                    <input type="text" id="restaurantName" value=""
                                         placeholder="Enter restaurant name">
 
                                 </div>
@@ -285,7 +285,7 @@
                                             Restaurant Email
                                         </label>
 
-                                        <input type="email" id="restaurantEmail" value="mamakitchen@example.com"
+                                        <input type="email" id="restaurantEmail" value=""
                                             placeholder="Enter email">
 
                                     </div>
@@ -297,7 +297,7 @@
                                             Phone Number
                                         </label>
 
-                                        <input type="tel" id="restaurantPhone" value="+254 712 345 678"
+                                        <input type="tel" id="restaurantPhone" value=""
                                             placeholder="Enter phone number">
 
                                     </div>
@@ -311,120 +311,20 @@
                                         Restaurant Address
                                     </label>
 
-                                    <input type="text" id="restaurantAddress" value="Nairobi, Kenya"
+                                    <input type="text" id="restaurantAddress" value=""
                                         placeholder="Enter restaurant address">
 
                                 </div>
 
 
-                                <div class="settings-form-grid">
 
-                                    <div class="settings-form-group">
-
-                                        <label for="restaurantCurrency">
-                                            Currency
-                                        </label>
-
-                                        <select id="restaurantCurrency">
-
-                                            <option value="KES" selected>
-                                                Kenyan Shilling (KSh)
-                                            </option>
-
-                                            <option value="USD">
-                                                US Dollar ($)
-                                            </option>
-
-                                        </select>
-
-                                    </div>
-
-
-                                    <div class="settings-form-group">
-
-                                        <label for="restaurantTimezone">
-                                            Time Zone
-                                        </label>
-
-                                        <select id="restaurantTimezone">
-
-                                            <option value="Africa/Nairobi" selected>
-                                                East Africa Time (EAT)
-                                            </option>
-
-                                            <option value="UTC">
-                                                UTC
-                                            </option>
-
-                                        </select>
-
-                                    </div>
-
-                                </div>
 
                             </div>
 
                         </div>
 
 
-                        <!-- AUTO ACCEPT ORDERS -->
-                        <div class="restaurant-content-card">
 
-                            <div class="restaurant-card-header">
-
-                                <div>
-                                    <h3>Order Preferences</h3>
-
-                                    <p>
-                                        Configure how your restaurant handles incoming orders.
-                                    </p>
-                                </div>
-
-                            </div>
-
-
-                            <div class="settings-option-list">
-
-                                <label class="settings-toggle-option">
-
-                                    <span class="settings-option-content">
-
-                                        <strong>Accept Orders Automatically</strong>
-
-                                        <small>
-                                            New orders will be accepted automatically when your restaurant is open.
-                                        </small>
-
-                                    </span>
-
-                                    <input type="checkbox" id="autoAcceptOrders" checked>
-
-                                    <span class="settings-toggle"></span>
-
-                                </label>
-
-
-                                <label class="settings-toggle-option">
-
-                                    <span class="settings-option-content">
-
-                                        <strong>Show Restaurant as Open</strong>
-
-                                        <small>
-                                            Allow customers to place orders while your restaurant is open.
-                                        </small>
-
-                                    </span>
-
-                                    <input type="checkbox" id="showRestaurantOpen" checked>
-
-                                    <span class="settings-toggle"></span>
-
-                                </label>
-
-                            </div>
-
-                        </div>
 
 
                         <div class="settings-actions">
@@ -467,12 +367,12 @@
                                 <div class="settings-profile">
 
                                     <div class="settings-profile-avatar">
-                                        M
+                                        R
                                     </div>
 
                                     <div>
 
-                                        <strong>Mama's Kitchen</strong>
+                                        <strong id="sidebarRestaurantName">Loading restaurant…</strong>
 
                                         <span>
                                             Restaurant Administrator
@@ -491,7 +391,7 @@
                                             First Name
                                         </label>
 
-                                        <input type="text" id="adminFirstName" value="Mama">
+                                        <input type="text" id="adminFirstName" value="">
 
                                     </div>
 
@@ -502,7 +402,7 @@
                                             Last Name
                                         </label>
 
-                                        <input type="text" id="adminLastName" value="Kitchen">
+                                        <input type="text" id="adminLastName" value="">
 
                                     </div>
 
@@ -515,7 +415,7 @@
                                         Account Email
                                     </label>
 
-                                    <input type="email" id="adminEmail" value="admin@mamakitchen.com">
+                                    <input type="email" id="adminEmail" value="">
 
                                 </div>
 
@@ -548,7 +448,7 @@
                                     <h3>Notification Preferences</h3>
 
                                     <p>
-                                        Choose which notifications you want to receive.
+                                        These preferences are stored in this browser. They do not enable email or server-side notifications unless those features are implemented.
                                     </p>
                                 </div>
 
@@ -568,7 +468,7 @@
                                         <strong>New Orders</strong>
 
                                         <small>
-                                            Receive a notification whenever a new order is placed.
+                                            Browser preference only; order alerts must be supported by the Orders page.
                                         </small>
 
                                     </span>
@@ -591,7 +491,7 @@
                                         <strong>Order Updates</strong>
 
                                         <small>
-                                            Receive updates when customers or the system modify an order.
+                                            Preference only; does not control server-side notifications.
                                         </small>
 
                                     </span>
@@ -614,7 +514,7 @@
                                         <strong>Promotions</strong>
 
                                         <small>
-                                            Receive information about FoodDelivery promotions and offers.
+                                            This preference is stored locally; promotional delivery is not configured here.
                                         </small>
 
                                     </span>
@@ -637,7 +537,7 @@
                                         <strong>Email Notifications</strong>
 
                                         <small>
-                                            Receive important restaurant updates through email.
+                                            This preference is stored locally; email notification delivery is not configured here.
                                         </small>
 
                                     </span>
@@ -755,7 +655,7 @@
                                         <strong>Login Notifications</strong>
 
                                         <small>
-                                            Get notified when your account is accessed from a new device.
+                                            This setting is stored locally; server-side login notifications are not implemented by this page.
                                         </small>
 
                                     </span>
@@ -788,79 +688,12 @@
                     <div class="settings-section" id="ordersSection" data-settings-section="orders">
 
                         <div class="restaurant-content-card">
-
                             <div class="restaurant-card-header">
-
                                 <div>
-                                    <h3>Order Settings</h3>
-
-                                    <p>
-                                        Configure how incoming orders are handled.
-                                    </p>
+                                    <h3>Order Display Preferences</h3>
+                                    <p>These settings are saved in this browser only. They do not enforce order limits or change preparation-time calculations on the server.</p>
                                 </div>
-
                             </div>
-
-
-                            <div class="settings-form">
-
-                                <div class="settings-form-grid">
-
-                                    <div class="settings-form-group">
-
-                                        <label for="defaultPreparationTime">
-                                            Default Preparation Time
-                                        </label>
-
-                                        <div class="settings-input-with-suffix">
-
-                                            <input type="number" id="defaultPreparationTime" value="25" min="1">
-
-                                            <span>min</span>
-
-                                        </div>
-
-                                    </div>
-
-
-                                    <div class="settings-form-group">
-
-                                        <label for="maximumOrders">
-                                            Maximum Active Orders
-                                        </label>
-
-                                        <input type="number" id="maximumOrders" value="20" min="1">
-
-                                    </div>
-
-                                </div>
-
-
-                                <div class="settings-form-group">
-
-                                    <label for="orderSound">
-                                        New Order Sound
-                                    </label>
-
-                                    <select id="orderSound">
-
-                                        <option value="default" selected>
-                                            Default Notification
-                                        </option>
-
-                                        <option value="silent">
-                                            Silent
-                                        </option>
-
-                                    </select>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
                         <div class="restaurant-content-card">
 
                             <div class="restaurant-card-header">
@@ -885,7 +718,7 @@
                                         <strong>Browser Notifications</strong>
 
                                         <small>
-                                            Show new order alerts in the browser.
+                                            Allows browser permission to be requested. Actual alerts require an Orders-page notification listener.
                                         </small>
 
                                     </span>
@@ -904,7 +737,7 @@
                                         <strong>Keep New Orders at the Top</strong>
 
                                         <small>
-                                            Display the newest orders first on the orders page.
+                                            Saved in this browser; the Orders page must read this preference to apply sorting.
                                         </small>
 
                                     </span>
