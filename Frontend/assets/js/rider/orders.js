@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const elements = {
         search: document.getElementById("orderSearch"),
-        distanceFilter: document.getElementById("distanceFilter"),
+        
         earningFilter: document.getElementById("earningFilter"),
         container: document.querySelector(".rider-orders-container"),
         emptyState: document.getElementById("riderEmptyOrders"),
@@ -303,7 +303,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function getFilteredOrders() {
         const search = elements.search?.value.trim().toLowerCase() || "";
-        const maxDistance = elements.distanceFilter?.value || "all";
+        
         const minAmount = elements.earningFilter?.value || "all";
 
         return availableOrders.filter(order => {
@@ -319,17 +319,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 return false;
             }
 
-            /*
-             * The current API does not provide a verified distance.
-             * Do not exclude orders based on a fabricated distance.
-             * A distance filter other than "all" is therefore not applied.
-             */
-
-            const amount = Number(order.total_amount || 0);
+            const amount = Number(order.delivery_fee ?? 0);
 
             if (
                 minAmount !== "all" &&
-                amount < Number(minAmount)
+                (order.delivery_fee == null || amount < Number(minAmount))
             ) {
                 return false;
             }
@@ -380,7 +374,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             });
 
-        updateCount(filteredOrders.length);
+        updateCount(availableOrders.length);
     }
 
     function renderOrderCard(order) {
@@ -396,7 +390,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "Delivery address not provided"
         );
         const recipient = escapeHTML(order.recipient_name || "Customer");
-        const amount = money(order.total_amount);
+        const amount = order.delivery_fee == null ? "Delivery fee unavailable" : money(order.delivery_fee);
         const online = rider?.availability === "available";
 
         return `
@@ -414,7 +408,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
 
                     <div class="rider-order-earning">
-                        <span>Order Value</span>
+                        <span>Rider Delivery Fee</span>
                         <strong>${amount}</strong>
                     </div>
                 </div>
@@ -438,7 +432,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="rider-available-order-footer">
                     <div class="rider-order-meta">
                         <span>● Ready for pickup</span>
-                        <span>● ${amount} order value</span>
+                        <span>● ${amount} delivery fee</span>
                     </div>
 
                     <div class="rider-order-actions">
@@ -468,7 +462,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const filtered =
             search ||
             (elements.earningFilter && elements.earningFilter.value !== "all") ||
-            (elements.distanceFilter && elements.distanceFilter.value !== "all");
+
 
         elements.container.innerHTML = `
             <div class="rider-empty-orders">
@@ -517,7 +511,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function clearFilters() {
         if (elements.search) elements.search.value = "";
-        if (elements.distanceFilter) elements.distanceFilter.value = "all";
+        
         if (elements.earningFilter) elements.earningFilter.value = "all";
 
         renderOrders();
@@ -544,18 +538,19 @@ document.addEventListener("DOMContentLoaded", () => {
             nearestElement.textContent = "Not available";
         }
 
-        // Card 3: highest order value among currently available orders.
+        // Card 3: highest delivery fee among currently available orders.
         const highestElement = cards[2]?.querySelector("strong");
 
         if (highestElement) {
-            const highest = availableOrders.reduce(
-                (max, order) => Math.max(max, Number(order.total_amount) || 0),
+            const fees = availableOrders.filter(order => order.delivery_fee != null);
+            const highest = fees.reduce(
+                (max, order) => Math.max(max, Number(order.delivery_fee) || 0),
                 0
             );
 
-            highestElement.textContent = availableOrders.length
+            highestElement.textContent = fees.length
                 ? money(highest)
-                : "KSh 0";
+                : "Not provided";
         }
 
         // Card 4: persisted rider availability.
@@ -604,6 +599,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Refresh from the server so the order disappears only after
             // the backend confirms that it has been assigned.
             await refreshOrders();
+            if (!refreshTimer) refreshTimer = setInterval(refreshOrders, 30000);
         } catch (error) {
             showMessage(error.message, "error");
 
@@ -663,8 +659,8 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
 
             <div class="rider-order-details-row">
-                <span>Order value</span>
-                <strong>${money(order.total_amount)}</strong>
+                <span>Rider delivery fee</span>
+                <strong>${order.delivery_fee == null ? "Not provided" : money(order.delivery_fee)}</strong>
             </div>
 
             <div class="rider-order-details-row">
@@ -743,7 +739,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // =========================================================
 
     elements.search?.addEventListener("input", renderOrders);
-    elements.distanceFilter?.addEventListener("change", renderOrders);
+    
     elements.earningFilter?.addEventListener("change", renderOrders);
     elements.clearFilters?.addEventListener("click", clearFilters);
 
@@ -897,6 +893,20 @@ document.addEventListener("DOMContentLoaded", () => {
     document.head.appendChild(modalStyles);
 
     // =========================================================
+    // AUTO REFRESH
+    // =========================================================
+
+    let refreshTimer = null;
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+            if (refreshTimer) clearInterval(refreshTimer);
+            refreshTimer = null;
+        } else if (!refreshTimer) {
+            refreshTimer = setInterval(refreshOrders, 30000);
+        }
+    });
+
+    // =========================================================
     // INITIALIZE
     // =========================================================
 
@@ -904,6 +914,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             await loadRiderProfile();
             await refreshOrders();
+            if (!refreshTimer) refreshTimer = setInterval(refreshOrders, 30000);
         } catch (error) {
             console.error("Available Orders initialization failed:", error);
             showMessage(error.message, "error");

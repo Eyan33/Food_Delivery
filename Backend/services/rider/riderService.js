@@ -132,6 +132,7 @@ const RIDER_ORDER_SELECT = `
         o.recipient_phone,
         o.delivery_instructions,
         o.total_amount,
+        o.delivery_fee,
         o.ready_at,
         o.out_for_delivery_at,
         o.delivered_at,
