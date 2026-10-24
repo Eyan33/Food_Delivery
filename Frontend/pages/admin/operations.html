@@ -102,6 +102,7 @@
 
       <nav class="operations-tabs" aria-label="Operations sections">
         <button type="button" class="active" data-panel="catalog">Catalog</button>
+        <button type="button" data-panel="platform-fees">Platform fees</button>
         <button type="button" data-panel="admins">Admin accounts</button>
         <button type="button" data-panel="reviews">Reviews</button>
         <button type="button" data-panel="audit">Audit history</button>
@@ -109,6 +110,31 @@
 
       <div id="operationsMessage" class="operations-message"
         role="status" aria-live="polite"></div>
+
+      <!-- PLATFORM FEES -->
+      <section class="admin-content-card operations-panel" id="panel-platform-fees" hidden>
+        <div class="admin-card-header">
+          <div>
+            <h3>Platform fees</h3>
+            <p>Set the percentage the platform charges as a transaction fee. This value is saved in PostgreSQL and used by platform payment reporting.</p>
+          </div>
+        </div>
+
+        <form id="platformFeeForm" class="operations-form">
+          <label for="platformTransactionFee">
+            Platform transaction fee (%)
+            <input id="platformTransactionFee" name="transactionFee"
+              type="number" min="0" max="100" step="0.1"
+              required inputmode="decimal" />
+          </label>
+          <button id="savePlatformFee" class="admin-primary-button" type="submit">
+            Save platform fee
+          </button>
+        </form>
+        <p id="platformFeeHelp" class="operations-help">
+          Enter a percentage from 0 to 100. Saving changes the platform fee setting; it does not retroactively change existing orders.
+        </p>
+      </section>
 
       <!-- CATALOG -->
       <section class="admin-content-card operations-panel" id="panel-catalog">
