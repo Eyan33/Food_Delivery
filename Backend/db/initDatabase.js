@@ -219,10 +219,28 @@ async function ensureAdminSupportSchema() {
     `);
 }
 
+async function ensureRiderProfileSchema() {
+    // Keep existing production databases in sync with additive rider-profile fields.
+    // Every statement is idempotent, so this is safe on each backend startup.
+    await pool.query(`
+        ALTER TABLE public.rider_profiles
+            ADD COLUMN IF NOT EXISTS address varchar(250),
+            ADD COLUMN IF NOT EXISTS city varchar(120),
+            ADD COLUMN IF NOT EXISTS postal_code varchar(20),
+            ADD COLUMN IF NOT EXISTS emergency_contact_name varchar(120),
+            ADD COLUMN IF NOT EXISTS emergency_contact_phone varchar(40),
+            ADD COLUMN IF NOT EXISTS emergency_contact_relationship varchar(30);
+
+        ALTER TABLE public.users
+            ADD COLUMN IF NOT EXISTS password_changed_at timestamptz;
+    `);
+}
+
 async function initializeDatabase() {
     await waitForDatabase();
     await ensureSchema();
     await ensureAdminSupportSchema();
+    await ensureRiderProfileSchema();
     await seedAdmin();
 }
 
