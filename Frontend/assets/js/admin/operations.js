@@ -1384,10 +1384,11 @@ form.reset();
                 ...paymentSettingsCache,
                 transactionFee: fee
             };
+            // FoodDeliveryAuthApi.request serializes object bodies itself.
+            // Pass a plain object here; JSON.stringify would double-encode it.
             const response = await request("/admins/settings", {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ payments })
+                body: { payments }
             });
             const saved = response?.data?.settings?.payments || payments;
             paymentSettingsCache = { ...saved };
