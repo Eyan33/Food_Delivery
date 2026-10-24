@@ -1777,11 +1777,6 @@ async function getMyEarnings(riderId, options = {}) {
             earnings: Number(summary.selected_period_earnings || 0),
             deliveries: Number(summary.selected_period_deliveries || 0)
         },
-        platformFees: {
-            riderRevenue: Number(summary.selected_period_earnings || 0),
-            rate: Number(summary.platform_fee_rate || 0),
-            total: Number(summary.selected_period_earnings || 0) * Number(summary.platform_fee_rate || 0) / 100
-        },
         history: historyResult.rows.map(order => ({ ...order, delivery_fee: Number(order.delivery_fee || 0) })),
         chart: chartResult.rows.map(day => ({
             date: day.earning_date,

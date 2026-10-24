@@ -258,7 +258,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             state.earnings = earnings;
             renderSummary();
-            renderPlatformFeeCard();
             renderPaymentSummary();
             renderChart();
             renderHistory();
@@ -307,26 +306,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================================================
     // SUMMARY CARDS
     // =====================================================
-
-    function renderPlatformFeeCard() {
-        const feeData = state.earnings?.platformFees || {};
-        const riderRevenue = Number(feeData.riderRevenue || 0);
-        const rawRate = feeData.rate;
-        const rate = rawRate === null || rawRate === undefined || rawRate === ""
-            ? null
-            : Number(rawRate);
-        const feeTotal = Number(feeData.total ?? (riderRevenue * (rate ?? 0) / 100));
-        const selectedEarnings = Number(state.earnings?.selectedPeriod?.earnings || 0);
-        const setText = (id, value) => {
-            const element = document.getElementById(id);
-            if (element) element.textContent = value;
-        };
-        setText("riderFeeFoodRevenue", money(riderRevenue));
-        setText("riderFeeRate", rate === null || !Number.isFinite(rate) ? "Not configured" : `${rate}%`);
-        setText("riderFeeFormula", rate === null || !Number.isFinite(rate) ? "Configure the fee in Admin → Operations" : `${money(riderRevenue)} × ${rate}% ÷ 100`);
-        setText("riderFeeTotal", money(feeTotal));
-        setText("riderFeeCardEarnings", money(selectedEarnings));
-    }
 
     function renderSummary() {
         const summary = state.earnings?.summary;
