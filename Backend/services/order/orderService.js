@@ -264,6 +264,8 @@ async function createOrder(customerId, data) {
         notes,
         items,
         address_id,
+        delivery_latitude,
+        delivery_longitude,
         expected_delivery_fee,
     } = data;
 
@@ -495,8 +497,8 @@ async function createOrder(customerId, data) {
                 customerId,
                 restaurant_id,
                 savedAddress ? savedAddress.id : null,
-                savedAddress ? savedAddress.latitude : null,
-                savedAddress ? savedAddress.longitude : null,
+                savedAddress ? savedAddress.latitude : (Number.isFinite(Number(delivery_latitude)) && delivery_latitude !== null && delivery_latitude !== "" ? Number(delivery_latitude) : null),
+                savedAddress ? savedAddress.longitude : (Number.isFinite(Number(delivery_longitude)) && delivery_longitude !== null && delivery_longitude !== "" ? Number(delivery_longitude) : null),
                 savedAddress ? savedAddress.address_line : delivery_address,
                 savedAddress ? savedAddress.city : delivery_city,
                 savedAddress ? savedAddress.recipient_name : recipient_name,
