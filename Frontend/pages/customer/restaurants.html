@@ -130,9 +130,8 @@
                     <input type="search" id="restaurantSearch" placeholder="Search restaurants or cuisines..."
                         autocomplete="off">
 
-                    <button type="submit">
-                        Search
-                    </button>
+                    <button type="submit">Search</button>
+                    <button type="button" id="clearRestaurantSearch" class="restaurant-clear-search">Clear</button>
 
                 </form>
 
@@ -148,364 +147,45 @@
 
             <div class="restaurant-discovery-layout">
 
-                <!-- =========================
-                     FILTER SIDEBAR
-                ========================== -->
+                <aside class="restaurant-filters" aria-label="Restaurant filters">
+                    <h3>Filter restaurants</h3>
+                    <label for="restaurantAvailability">Availability</label>
+                    <select id="restaurantAvailability">
+                        <option value="all">All restaurants</option>
+                        <option value="open">Open now</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                    <label for="restaurantCuisine">Cuisine</label>
+                    <select id="restaurantCuisine">
+                        <option value="all">All cuisines</option>
+                    </select>
+                    <button type="button" id="resetRestaurantFilters" class="restaurant-reset-filters">Reset filters</button>
+                </aside>
 
-
-                <!-- =========================
-                     RESTAURANT RESULTS
-                ========================== -->
                 <div class="restaurant-results">
 
                     <!-- Results Header -->
                     <div class="restaurant-results-header">
-
                         <div>
-                            <span class="section-label">
-                                Restaurants
-                            </span>
-
-                            <h2>
-                                Restaurants near you
-                            </h2>
-
-                            <p id="restaurantResultsCount">
-                                6 restaurants available
-                            </p>
+                            <span class="section-label">Restaurants</span>
+                            <h2>Restaurants near you</h2>
+                            <p id="restaurantResultsCount" aria-live="polite">Loading restaurants…</p>
                         </div>
-
+                        <div class="restaurant-sort">
+                            <label for="restaurantSort">Sort by</label>
+                            <select id="restaurantSort">
+                                <option value="recommended">Recommended</option>
+                                <option value="name">Name (A–Z)</option>
+                                <option value="rating">Highest rated</option>
+                                <option value="delivery-fee">Lowest delivery fee</option>
+                            </select>
+                        </div>
                     </div>
 
-
-                    <!-- =========================
-                         RESTAURANT GRID
-                    ========================== -->
-                    <div class="restaurant-grid" id="restaurantGrid">
-
-                        <!-- Restaurant 1 -->
-                        <article class="restaurant-card" data-name="Mama's Kitchen"
-                            data-cuisine="African Food Fast Food" data-rating="4.8" data-delivery-time="30"
-                            data-delivery-fee="100">
-
-                            <div class="restaurant-image">
-
-                                <!--- <img src="../../assets/images/restaurants/restaurant-placeholder.jpg"
-                                    alt="Mama's Kitchen"> -->
-
-                                <span class="restaurant-status">
-                                    Open
-                                </span>
-
-                            </div>
-
-                            <div class="restaurant-info">
-
-                                <div class="restaurant-title-row">
-
-                                    <h3>
-                                        Mama's Kitchen
-                                    </h3>
-
-                                    <span class="rating">
-                                        ★ 4.8
-                                    </span>
-
-                                </div>
-
-                                <p class="restaurant-category">
-                                    African Food • Fast Food
-                                </p>
-
-                                <div class="restaurant-meta">
-
-                                    <span>
-                                        20–30 min
-                                    </span>
-
-                                    <span>
-                                        KSh 100 delivery
-                                    </span>
-
-                                </div>
-
-                                <a href="restaurant.html" class="view-restaurant-button">
-                                    View Restaurant
-                                </a>
-
-                            </div>
-
-                        </article>
-
-
-                        <!-- Restaurant 2 -->
-                        <article class="restaurant-card" data-name="Urban Bites" data-cuisine="Burgers Fast Food"
-                            data-rating="4.6" data-delivery-time="35" data-delivery-fee="120">
-
-                            <div class="restaurant-image">
-
-                                <!-- <img src="../../assets/images/restaurants/restaurant-placeholder.jpg" alt="Urban Bites"> -->
-
-                                <span class="restaurant-status">
-                                    Open
-                                </span>
-
-                            </div>
-
-                            <div class="restaurant-info">
-
-                                <div class="restaurant-title-row">
-
-                                    <h3>
-                                        Urban Bites
-                                    </h3>
-
-                                    <span class="rating">
-                                        ★ 4.6
-                                    </span>
-
-                                </div>
-
-                                <p class="restaurant-category">
-                                    Burgers • Fast Food
-                                </p>
-
-                                <div class="restaurant-meta">
-
-                                    <span>
-                                        25–35 min
-                                    </span>
-
-                                    <span>
-                                        KSh 120 delivery
-                                    </span>
-
-                                </div>
-
-                                <a href="restaurant.html" class="view-restaurant-button">
-                                    View Restaurant
-                                </a>
-
-                            </div>
-
-                        </article>
-
-
-                        <!-- Restaurant 3 -->
-                        <article class="restaurant-card" data-name="Pizza House" data-cuisine="Pizza Italian"
-                            data-rating="4.7" data-delivery-time="40" data-delivery-fee="150">
-
-                            <div class="restaurant-image">
-
-                                <!-- <img src="../../assets/images/restaurants/restaurant-placeholder.jpg" alt="Pizza House"> -->
-
-                                <span class="restaurant-status">
-                                    Open
-                                </span>
-
-                            </div>
-
-                            <div class="restaurant-info">
-
-                                <div class="restaurant-title-row">
-
-                                    <h3>
-                                        Pizza House
-                                    </h3>
-
-                                    <span class="rating">
-                                        ★ 4.7
-                                    </span>
-
-                                </div>
-
-                                <p class="restaurant-category">
-                                    Pizza • Italian
-                                </p>
-
-                                <div class="restaurant-meta">
-
-                                    <span>
-                                        25–40 min
-                                    </span>
-
-                                    <span>
-                                        KSh 150 delivery
-                                    </span>
-
-                                </div>
-
-                                <a href="restaurant.html" class="view-restaurant-button">
-                                    View Restaurant
-                                </a>
-
-                            </div>
-
-                        </article>
-
-
-                        <!-- Restaurant 4 -->
-                        <article class="restaurant-card" data-name="Chicken Corner" data-cuisine="Chicken Fast Food"
-                            data-rating="4.5" data-delivery-time="30" data-delivery-fee="100">
-
-                            <div class="restaurant-image">
-
-                                <!-- <img src="../../assets/images/restaurants/restaurant-placeholder.jpg"
-                                    alt="Chicken Corner"> -->
-
-                                <span class="restaurant-status">
-                                    Open
-                                </span>
-
-                            </div>
-
-                            <div class="restaurant-info">
-
-                                <div class="restaurant-title-row">
-
-                                    <h3>
-                                        Chicken Corner
-                                    </h3>
-
-                                    <span class="rating">
-                                        ★ 4.5
-                                    </span>
-
-                                </div>
-
-                                <p class="restaurant-category">
-                                    Chicken • Fast Food
-                                </p>
-
-                                <div class="restaurant-meta">
-
-                                    <span>
-                                        20–30 min
-                                    </span>
-
-                                    <span>
-                                        KSh 100 delivery
-                                    </span>
-
-                                </div>
-
-                                <a href="restaurant.html" class="view-restaurant-button">
-                                    View Restaurant
-                                </a>
-
-                            </div>
-
-                        </article>
-
-
-                        <!-- Restaurant 5 -->
-                        <article class="restaurant-card" data-name="Taste of Africa" data-cuisine="African Food"
-                            data-rating="4.9" data-delivery-time="45" data-delivery-fee="80">
-
-                            <div class="restaurant-image">
-
-                                <!-- <img src="../../assets/images/restaurants/restaurant-placeholder.jpg"
-                                    alt="Taste of Africa"> -->
-
-                                <span class="restaurant-status">
-                                    Open
-                                </span>
-
-                            </div>
-
-                            <div class="restaurant-info">
-
-                                <div class="restaurant-title-row">
-
-                                    <h3>
-                                        Taste of Africa
-                                    </h3>
-
-                                    <span class="rating">
-                                        ★ 4.9
-                                    </span>
-
-                                </div>
-
-                                <p class="restaurant-category">
-                                    African Food
-                                </p>
-
-                                <div class="restaurant-meta">
-
-                                    <span>
-                                        30–45 min
-                                    </span>
-
-                                    <span>
-                                        KSh 80 delivery
-                                    </span>
-
-                                </div>
-
-                                <a href="restaurant.html" class="view-restaurant-button">
-                                    View Restaurant
-                                </a>
-
-                            </div>
-
-                        </article>
-
-
-                        <!-- Restaurant 6 -->
-                        <article class="restaurant-card" data-name="Fresh Bites" data-cuisine="Drinks Fast Food"
-                            data-rating="4.4" data-delivery-time="25" data-delivery-fee="70">
-
-                            <div class="restaurant-image">
-
-                                <!-- <img src="../../assets/images/restaurants/restaurant-placeholder.jpg" alt="Fresh Bites"> -->
-
-                                <span class="restaurant-status">
-                                    Open
-                                </span>
-
-                            </div>
-
-                            <div class="restaurant-info">
-
-                                <div class="restaurant-title-row">
-
-                                    <h3>
-                                        Fresh Bites
-                                    </h3>
-
-                                    <span class="rating">
-                                        ★ 4.4
-                                    </span>
-
-                                </div>
-
-                                <p class="restaurant-category">
-                                    Drinks • Fast Food
-                                </p>
-
-                                <div class="restaurant-meta">
-
-                                    <span>
-                                        15–25 min
-                                    </span>
-
-                                    <span>
-                                        KSh 70 delivery
-                                    </span>
-
-                                </div>
-
-                                <a href="restaurant.html" class="view-restaurant-button">
-                                    View Restaurant
-                                </a>
-
-                            </div>
-
-                        </article>
-
+                    <!-- Cards are rendered from the API; no stale demo cards. -->
+                    <div class="restaurant-grid" id="restaurantGrid" aria-live="polite">
+                        <p class="restaurant-grid-message">Loading restaurants…</p>
                     </div>
-
 
                     <!-- No Results -->
                     <div class="no-results" id="noRestaurantsMessage" hidden>
@@ -514,9 +194,8 @@
                             No restaurants found
                         </h3>
 
-                        <p>
-                            Try changing your search or filters.
-                        </p>
+                        <p>Try changing your search or filters.</p>
+                        <button type="button" id="clearRestaurantFilters" class="restaurant-reset-filters">Clear search and filters</button>
 
                     </div>
 
