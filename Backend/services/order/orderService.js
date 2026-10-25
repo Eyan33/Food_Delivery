@@ -300,7 +300,7 @@ async function createOrder(customerId, data) {
         if (address_id !== undefined && address_id !== null && address_id !== "") {
             if (!/^[1-9][0-9]*$/.test(String(address_id))) throw new Error("Selected delivery address is invalid");
             const addressResult = await client.query(
-                "SELECT id, recipient_name, phone, address_line, city, delivery_instructions FROM addresses WHERE id = $1 AND user_id = $2 AND is_active = TRUE LIMIT 1",
+                "SELECT id, recipient_name, phone, address_line, city, delivery_instructions, latitude, longitude FROM addresses WHERE id = $1 AND user_id = $2 AND is_active = TRUE LIMIT 1",
                 [address_id, customerId],
             );
             if (addressResult.rows.length === 0) throw new Error("Selected saved address was not found. Please choose another address.");
@@ -453,6 +453,8 @@ async function createOrder(customerId, data) {
                 customer_id,
                 restaurant_id,
                 address_id,
+                delivery_latitude,
+                delivery_longitude,
                 status,
                 delivery_address,
                 delivery_city,
@@ -471,9 +473,9 @@ async function createOrder(customerId, data) {
                 $2,
                 $3,
                 $4,
-                'pending',
                 $5,
                 $6,
+                'pending',
                 $7,
                 $8,
                 $9,
@@ -482,6 +484,8 @@ async function createOrder(customerId, data) {
                 $12,
                 $13,
                 $14,
+                $15,
+                $16,
                 CURRENT_TIMESTAMP
             )
             RETURNING *
@@ -491,6 +495,8 @@ async function createOrder(customerId, data) {
                 customerId,
                 restaurant_id,
                 savedAddress ? savedAddress.id : null,
+                savedAddress ? savedAddress.latitude : null,
+                savedAddress ? savedAddress.longitude : null,
                 savedAddress ? savedAddress.address_line : delivery_address,
                 savedAddress ? savedAddress.city : delivery_city,
                 savedAddress ? savedAddress.recipient_name : recipient_name,
