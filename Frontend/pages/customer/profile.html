@@ -27,15 +27,15 @@
             </a>
 
             <!-- Delivery Location -->
-            <a href="addresses.html">
-                <button type="button" class="delivery-location">
+            <a href="addresses.html" class="delivery-location-link" aria-label="Manage delivery addresses">
+                <span class="delivery-location">
                     <span class="location-icon">📍</span>
 
                     <span class="location-text">
                         <small>Deliver to</small>
                         <strong>Select location</strong>
                     </span>
-                </button>
+                </span>
             </a>
 
             <nav class="customer-navigation">
@@ -56,7 +56,7 @@
                     Profile
                 </a>
 
-                <a href="../auth/login.html">
+                <a href="../auth/login.html" data-customer-logout>
                     Logout
                 </a>
 
@@ -176,8 +176,8 @@
                                     Full Name
                                 </label>
 
-                                <input type="text" id="fullName" name="fullName" value="Eyan"
-                                    placeholder="Enter your full name" required>
+                                <input type="text" id="fullName" name="fullName"
+                                    placeholder="Enter your full name" required disabled autocomplete="name">
 
                             </div>
 
@@ -190,8 +190,8 @@
                                     Email Address
                                 </label>
 
-                                <input type="email" id="email" name="email" value="eyan@example.com"
-                                    placeholder="Enter your email address" required>
+                                <input type="email" id="email" name="email"
+                                    placeholder="Enter your email address" required disabled autocomplete="email">
 
                             </div>
 
@@ -201,11 +201,11 @@
                             <div class="profile-form-group">
 
                                 <label for="phone">
-                                    Phone Number
+                                    Phone Number (optional)
                                 </label>
 
-                                <input type="tel" id="phone" name="phone" value="+254 700 000 000"
-                                    placeholder="Enter your phone number" required>
+                                <input type="tel" id="phone" name="phone"
+                                    placeholder="Enter your phone number" disabled autocomplete="tel">
 
                             </div>
 
@@ -214,7 +214,7 @@
 
                             <div class="profile-form-actions">
 
-                                <button type="submit" class="profile-primary-button">
+                                <button type="submit" class="profile-primary-button" disabled>
                                     Save Changes
                                 </button>
 
@@ -223,7 +223,8 @@
                         </form>
 
 
-                        <div id="profileMessage" class="profile-message" role="status" aria-live="polite"></div>
+                        <div id="profileMessage" class="profile-message show" role="status" aria-live="polite">Loading your profile…</div>
+                        <button type="button" id="profileRetryButton" class="profile-secondary-button" hidden>Retry loading profile</button>
 
                     </section>
 
@@ -263,7 +264,7 @@
                                 </label>
 
                                 <input type="password" id="currentPassword" name="currentPassword"
-                                    placeholder="Enter your current password" required>
+                                    placeholder="Enter your current password" required autocomplete="current-password" disabled>
 
                             </div>
 
@@ -277,7 +278,7 @@
                                 </label>
 
                                 <input type="password" id="newPassword" name="newPassword"
-                                    placeholder="Enter your new password" required>
+                                    placeholder="Enter your new password" required minlength="8" autocomplete="new-password" disabled>
 
                             </div>
 
@@ -291,14 +292,14 @@
                                 </label>
 
                                 <input type="password" id="confirmPassword" name="confirmPassword"
-                                    placeholder="Confirm your new password" required>
+                                    placeholder="Confirm your new password" required minlength="8" autocomplete="new-password" disabled>
 
                             </div>
 
 
                             <div class="profile-form-actions">
 
-                                <button type="submit" class="profile-primary-button">
+                                <button type="submit" class="profile-primary-button" disabled>
                                     Update Password
                                 </button>
 
@@ -394,7 +395,7 @@
 
                             <!-- Logout -->
 
-                            <a href="../auth/login.html" class="account-action account-action-danger">
+                            <a href="../auth/login.html" data-customer-logout class="account-action account-action-danger">
 
                                 <div class="account-action-icon">
                                     ↪
@@ -436,21 +437,13 @@
 
                     <section class="profile-card profile-summary-card">
 
-                        <div class="profile-avatar">
-                            E
-                        </div>
+                        <div class="profile-avatar" id="profileAvatar" aria-hidden="true">U</div>
 
-                        <h2>
-                            Eyan
-                        </h2>
+                        <h2 id="profileSummaryName">Loading profile…</h2>
 
-                        <p>
-                            eyan@example.com
-                        </p>
+                        <p id="profileSummaryEmail"></p>
 
-                        <span class="member-since">
-                            FoodDelivery Customer
-                        </span>
+                        <span class="member-since" id="profileMemberSince">Member since —</span>
 
                     </section>
 
@@ -506,9 +499,7 @@
                             Contact our support team if you need assistance with your account or orders.
                         </p>
 
-                        <button type="button" id="contactSupportButton" class="profile-secondary-button">
-                            Contact Support
-                        </button>
+                        <p id="supportMessage" class="support-message" role="status" aria-live="polite">Support contact details are not configured on this page.</p>
 
                     </section>
 
