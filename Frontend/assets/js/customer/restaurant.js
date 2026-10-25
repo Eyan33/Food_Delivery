@@ -21,6 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("restaurantDescription");
     const restaurantStatus = document.getElementById("restaurantStatus");
     const restaurantRating = document.getElementById("restaurantRating");
+    const restaurantCuisine = document.getElementById("restaurantCuisine");
+    const restaurantDeliveryTime = document.getElementById("restaurantDeliveryTime");
 
     // Menu elements
     const menuSearchForm = document.getElementById("menuSearchForm");
@@ -70,6 +72,17 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         return url;
+    }
+
+    function normalizeBoolean(value, fallback = false) {
+        if (value === true || value === 1) return true;
+        if (value === false || value === 0 || value == null) return false;
+        if (typeof value === "string") {
+            const normalized = value.trim().toLowerCase();
+            if (["true", "1", "yes", "open", "available"].includes(normalized)) return true;
+            if (["false", "0", "no", "closed", "unavailable", ""].includes(normalized)) return false;
+        }
+        return fallback;
     }
 
     function normalizeCategory(value) {
@@ -146,12 +159,12 @@ document.addEventListener("DOMContentLoaded", () => {
     function addToCart(food, button) {
         if (!restaurant || !food) return;
 
-        if (restaurant.is_open === false) {
+        if (!normalizeBoolean(restaurant.is_open)) {
             alert("This restaurant is currently closed.");
             return;
         }
 
-        if (food.is_available === false) {
+        if (!normalizeBoolean(food.is_available, true)) {
             alert("This food item is currently unavailable.");
             return;
         }
@@ -242,13 +255,17 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (restaurantStatus) {
-            const isOpen = data.is_open === true;
+            const isOpen = normalizeBoolean(data.is_open);
             restaurantStatus.textContent = isOpen ? "Open" : "Closed";
             restaurantStatus.classList.toggle("closed", !isOpen);
             restaurantStatus.setAttribute(
                 "aria-label",
                 isOpen ? "Restaurant is open" : "Restaurant is closed"
             );
+        }
+
+        if (restaurantCuisine) {
+            restaurantCuisine.textContent = data.cuisine || data.cuisine_name || data.category_name || "Restaurant";
         }
 
         if (restaurantRating) {
@@ -278,6 +295,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (key.includes("delivery") && !key.includes("time")) {
                 value.textContent = formatPrice(data.delivery_fee);
+            } else if (key.includes("delivery") && key.includes("time")) {
+                value.textContent = data.delivery_time || data.estimated_delivery_time || "Not provided";
             } else if (key.includes("minimum")) {
                 value.textContent = formatPrice(data.minimum_order);
             }
@@ -356,7 +375,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 getImageUrl(food.image_url, FOOD_PLACEHOLDER)
             );
             const id = escapeHTML(food.id);
-            const available = food.is_available !== false;
+            const available = normalizeBoolean(food.is_available, true);
 
             return `
                 <article
@@ -392,11 +411,21 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
         }).join("");
 
+        menuFoodGrid.querySelectorAll("img[data-fallback]").forEach(image => {
+            image.addEventListener("error", () => {
+                image.onerror = null;
+                image.removeAttribute("data-fallback");
+                image.alt = `${image.alt || "Food image"} (image unavailable)`;
+                image.style.display = "none";
+                image.parentElement?.classList.add("image-unavailable");
+            }, { once: true });
+        });
+
         filterMenu();
     }
 
     async function loadFoods(restaurantId) {
-        const result = await fetchJSON(`${API_BASE}/foods`);
+        const result = await fetchJSON(`${API_BASE}/foods?restaurant_id=${encodeURIComponent(restaurantId)}`);
 
         const responseData = result.data?.foods ?? result.foods ?? result.data;
         let foodList;
@@ -413,7 +442,7 @@ document.addEventListener("DOMContentLoaded", () => {
         foods = foodList.filter(food =>
             food &&
             String(food.restaurant_id) === String(restaurantId) &&
-            food.is_available !== false
+            normalizeBoolean(food.is_available, true)
         );
 
         buildCategoryButtons();
@@ -544,9 +573,10 @@ document.addEventListener("DOMContentLoaded", () => {
             if (restaurantName) restaurantName.textContent = "Restaurant not found";
 
             if (menuFoodGrid) {
-                menuFoodGrid.innerHTML =
-                    '<p class="home-message">Please return to the restaurants page and select a restaurant.</p>';
+                menuFoodGrid.innerHTML = '<p class="home-message">Please return to the restaurants page and select a restaurant.</p>';
             }
+            const hero = document.querySelector(".restaurant-details-card");
+            if (hero) hero.hidden = true;
 
             console.error("Missing or invalid restaurant ID in page URL.");
             return;
@@ -554,17 +584,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             await loadRestaurant(id);
+        } catch (error) {
+            console.error("Failed to load restaurant details:", error);
+            if (restaurantName) restaurantName.textContent = "Restaurant unavailable";
+            if (restaurantDescription) restaurantDescription.textContent = "We could not load this restaurant. Return to the restaurant list and try again.";
+            if (menuFoodGrid) menuFoodGrid.innerHTML = '<p class="home-message">Restaurant details could not be loaded. <a href="restaurants.html">Back to restaurants</a>.</p>';
+            return;
+        }
+
+        try {
             await loadFoods(id);
         } catch (error) {
             console.error("Failed to load restaurant page:", error);
 
             if (menuFoodGrid) {
-                menuFoodGrid.innerHTML =
-                    '<p class="home-message">We could not load this restaurant or its menu. Please refresh and try again.</p>';
-            }
-
-            if (restaurantName && !restaurant) {
-                restaurantName.textContent = "Unable to load restaurant";
+                menuFoodGrid.innerHTML = '<p class="home-message">We could not load this menu. Please refresh and try again, or <a href="restaurants.html">choose another restaurant</a>.</p>';
             }
         }
     }
