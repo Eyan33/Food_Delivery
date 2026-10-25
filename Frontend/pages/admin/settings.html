@@ -167,7 +167,7 @@
             >
               <span>🔔</span>
 
-              <span class="admin-notification-badge"> 5 </span>
+              <span class="admin-notification-badge" hidden></span>
             </button>
 
             <!-- Admin Profile -->
@@ -296,7 +296,7 @@
                   <div class="admin-settings-field">
                     <label for="platformName"> Platform Name </label>
 
-                    <input type="text" id="platformName" value="FoodDelivery" />
+                    <input type="text" id="platformName" placeholder="Loading saved setting…" />
                   </div>
 
                   <!-- Support Email -->
@@ -306,7 +306,7 @@
                     <input
                       type="email"
                       id="supportEmail"
-                      value="support@fooddelivery.com"
+                      placeholder="Loading saved setting…"
                     />
                   </div>
 
@@ -317,7 +317,7 @@
                     <input
                       type="tel"
                       id="supportPhone"
-                      value="+254 700 000 000"
+                      placeholder="Loading account…"
                     />
                   </div>
 
@@ -326,7 +326,8 @@
                     <label for="currency"> Currency </label>
 
                     <select id="currency">
-                      <option selected>Kenyan Shilling (KSh)</option>
+                      <option value="" selected disabled>Loading saved setting…</option>
+                      <option value="KES">Kenyan Shilling (KSh)</option>
 
                       <option>US Dollar (USD)</option>
 
@@ -339,7 +340,8 @@
                     <label for="timezone"> Timezone </label>
 
                     <select id="timezone">
-                      <option selected>Africa/Nairobi</option>
+                      <option value="" selected disabled>Loading saved setting…</option>
+                      <option value="Africa/Nairobi">Africa/Nairobi</option>
 
                       <option>Africa/Kampala</option>
 
@@ -353,9 +355,7 @@
                       Platform Description
                     </label>
 
-                    <textarea id="platformDescription" rows="4">
-FoodDelivery is an online platform that connects customers with restaurants and delivery riders.</textarea
-                    >
+                    <textarea id="platformDescription" rows="4" placeholder="Loading saved setting…"></textarea>
                   </div>
                 </div>
 
@@ -407,7 +407,7 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                   <div class="admin-settings-field">
                     <label for="adminName"> Full Name </label>
 
-                    <input type="text" id="adminName" value="Admin User" />
+                    <input type="text" id="adminName" placeholder="Loading account…" />
                   </div>
 
                   <!-- Email -->
@@ -417,7 +417,7 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                     <input
                       type="email"
                       id="adminEmail"
-                      value="admin@fooddelivery.com"
+                      placeholder="Loading account…"
                     />
                   </div>
 
@@ -439,7 +439,7 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                     <input
                       type="text"
                       id="adminRole"
-                      value="Administrator"
+                      placeholder="Loaded from account"
                       disabled
                     />
                   </div>
@@ -483,7 +483,7 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                   </div>
 
                   <label class="admin-toggle">
-                    <input type="checkbox" id="mpesaEnabled" checked />
+                    <input type="checkbox" id="mpesaEnabled" />
 
                     <span class="admin-toggle-slider"></span>
                   </label>
@@ -502,7 +502,7 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                   </div>
 
                   <label class="admin-toggle">
-                    <input type="checkbox" id="cardEnabled" checked />
+                    <input type="checkbox" id="cardEnabled" />
 
                     <span class="admin-toggle-slider"></span>
                   </label>
@@ -521,7 +521,7 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                   </div>
 
                   <label class="admin-toggle">
-                    <input type="checkbox" id="cashEnabled" checked />
+                    <input type="checkbox" id="cashEnabled" />
 
                     <span class="admin-toggle-slider"></span>
                   </label>
@@ -537,7 +537,7 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                     <input
                       type="number"
                       id="transactionFee"
-                      value="5"
+                      placeholder="Loading saved setting…"
                       min="0"
                       max="100"
                       step="0.1"
@@ -581,7 +581,7 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                       <input
                         type="number"
                         id="deliveryFee"
-                        value="150"
+                        placeholder="Loading saved setting…"
                         min="0"
                       />
                     </div>
@@ -597,7 +597,7 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                       <input
                         type="number"
                         id="distanceFee"
-                        value="30"
+                        placeholder="Loading saved setting…"
                         min="0"
                       />
                     </div>
@@ -613,7 +613,7 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                       <input
                         type="number"
                         id="freeDelivery"
-                        value="2500"
+                        placeholder="Loading saved setting…"
                         min="0"
                       />
                     </div>
@@ -627,7 +627,7 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                       <input
                         type="number"
                         id="maxDistance"
-                        value="15"
+                        placeholder="Loading saved setting…"
                         min="1"
                       />
 
@@ -645,7 +645,7 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                       <input
                         type="number"
                         id="minimumOrder"
-                        value="300"
+                        placeholder="Loading saved setting…"
                         min="0"
                       />
                     </div>
@@ -659,7 +659,7 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                       <input
                         type="number"
                         id="deliveryTime"
-                        value="45"
+                        placeholder="Loading saved setting…"
                         min="1"
                       />
 
@@ -710,7 +710,7 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                   </div>
 
                   <label class="admin-toggle">
-                    <input type="checkbox" id="newOrderAlerts" checked />
+                    <input type="checkbox" id="newOrderAlerts" />
 
                     <span class="admin-toggle-slider"></span>
                   </label>
@@ -732,7 +732,7 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                   </div>
 
                   <label class="admin-toggle">
-                    <input type="checkbox" id="paymentNotifications" checked />
+                    <input type="checkbox" id="paymentNotifications" />
 
                     <span class="admin-toggle-slider"></span>
                   </label>
@@ -751,7 +751,7 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                   </div>
 
                   <label class="admin-toggle">
-                    <input type="checkbox" id="restaurantRegistration" checked />
+                    <input type="checkbox" id="restaurantRegistration" />
 
                     <span class="admin-toggle-slider"></span>
                   </label>
@@ -770,7 +770,7 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                   </div>
 
                   <label class="admin-toggle">
-                    <input type="checkbox" id="riderRegistration" checked />
+                    <input type="checkbox" id="riderRegistration" />
 
                     <span class="admin-toggle-slider"></span>
                   </label>
@@ -789,7 +789,7 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                   </div>
 
                   <label class="admin-toggle">
-                    <input type="checkbox" id="systemAlerts" checked />
+                    <input type="checkbox" id="systemAlerts" />
 
                     <span class="admin-toggle-slider"></span>
                   </label>
@@ -865,7 +865,7 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                   </div>
 
                   <label class="admin-toggle">
-                    <input type="checkbox" id="loginAlerts" checked />
+                    <input type="checkbox" id="loginAlerts" />
 
                     <span class="admin-toggle-slider"></span>
                   </label>
@@ -879,7 +879,8 @@ FoodDelivery is an online platform that connects customers with restaurants and 
                     <select id="sessionTimeout">
                       <option>15 Minutes</option>
 
-                      <option selected>30 Minutes</option>
+                      <option value="" selected disabled>Loading saved setting…</option>
+                      <option value="30">30 Minutes</option>
 
                       <option>1 Hour</option>
 
