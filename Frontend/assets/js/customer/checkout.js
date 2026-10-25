@@ -253,9 +253,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     parts.county || parts.state_district || parts.state || parts.country || "";
                 const formattedAddress = String(data.display_name || "").trim();
                 // GPS selection fills both required fields; customers do not need to type their location.
-                if (address) address.value = formattedAddress ||
-                    `GPS location (${currentCoordinates.latitude.toFixed(6)}, ${currentCoordinates.longitude.toFixed(6)})`;
-                if (area) area.value = locality || "GPS location";
+                if (address) address.value = formattedAddress || "Current location";
+                if (area) area.value = locality || "Current location";
                 if (savedAddressSelect) savedAddressSelect.value = "";
                 selectedAddressId = null;
                 locationAddressReady = Boolean(address?.value.trim() && area?.value.trim());
@@ -265,13 +264,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     : "GPS coordinates filled automatically. The street address could not be resolved; add delivery instructions if needed.");
             } catch {
                 // Keep GPS usable even if reverse geocoding is temporarily unavailable.
-                if (address) address.value = `GPS location (${currentCoordinates.latitude.toFixed(6)}, ${currentCoordinates.longitude.toFixed(6)})`;
-                if (area) area.value = "GPS location";
+                if (address) address.value = "Current location";
+                if (area) area.value = "Current location";
                 if (savedAddressSelect) savedAddressSelect.value = "";
                 selectedAddressId = null;
                 locationAddressReady = true;
                 if (saveCheckoutLocationButton) saveCheckoutLocationButton.disabled = false;
-                setLocationStatus("Live GPS coordinates filled automatically. The readable street address could not be loaded; the rider can use the coordinates.");
+                setLocationStatus("Current location filled automatically. The rider's GPS coordinates are saved with the order.");
             } finally {
                 setLocationButtonBusy(false);
             }
