@@ -487,12 +487,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!response.ok) throw new Error("Reverse geocoding failed");
                 const result = await response.json();
                 const parts = result.address || {};
-                if (addressLine && result.display_name) addressLine.value = result.display_name;
-                const city = parts.city || parts.town || parts.village || parts.suburb || parts.county || "";
-                if (addressCity && city) addressCity.value = city;
-                if (locationStatus) locationStatus.textContent = "GPS coordinates attached. Check the address and add estate, building, floor or gate details before saving.";
+                const locality = parts.neighbourhood || parts.suburb || parts.city_district ||
+                    parts.city || parts.town || parts.village || parts.municipality ||
+                    parts.county || parts.state_district || parts.state || parts.country || "";
+                const formattedAddress = String(result.display_name || "").trim();
+                // Populate required address fields from GPS; no manual location entry is needed.
+                if (addressLine) addressLine.value = formattedAddress ||
+                    `GPS location (${latitude.toFixed(6)}, ${longitude.toFixed(6)})`;
+                if (addressCity) addressCity.value = locality || "GPS location";
+                if (locationStatus) locationStatus.textContent = formattedAddress
+                    ? "Live location filled automatically. Add estate, building, floor or gate details only if useful."
+                    : "GPS coordinates and location fields filled automatically. The readable street address could not be resolved.";
             } catch {
-                if (locationStatus) locationStatus.textContent = "GPS coordinates captured, but address lookup failed. Enter the address and area manually.";
+                if (addressLine) addressLine.value = `GPS location (${latitude.toFixed(6)}, ${longitude.toFixed(6)})`;
+                if (addressCity) addressCity.value = "GPS location";
+                if (locationStatus) locationStatus.textContent = "Live GPS coordinates and required location fields filled automatically. The readable street address could not be loaded.";
             } finally {
                 if (useCurrentLocationButton) {
                     useCurrentLocationButton.disabled = false;
