@@ -29,7 +29,6 @@ forgotPasswordForm.addEventListener("submit", async (event) => {
 
         forgotPasswordMessage.textContent =
             result.message || "If an active account exists for that email, password-reset instructions will be sent.";
-            result.message || "If an account exists for that email, password-reset instructions will be sent.";
         forgotPasswordMessage.classList.add("success");
     } catch (error) {
         forgotPasswordMessage.textContent =
