@@ -856,3 +856,18 @@
     }
 
 }
+
+/* Payment filters, wide tables and status/action controls */
+.admin-payments-card, .admin-payment-tools, .admin-table-footer, .admin-payment-performance { min-width: 0; }
+.admin-table-wrapper { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.admin-payment-tools { display: flex; flex-wrap: wrap; gap: 10px; }
+.admin-payment-tools > *, .admin-search input { min-width: 0; max-width: 100%; }
+.admin-table-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.admin-payment-info { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+ .admin-payment-tools { align-items: stretch; }
+ .admin-payment-tools > *, .admin-payment-tools .admin-search { width: 100%; }
+ .admin-payment-tabs { flex-wrap: wrap; }
+ .admin-table-footer { flex-wrap: wrap; gap: 10px; }
+ .admin-pagination { flex-wrap: wrap; }
+}
