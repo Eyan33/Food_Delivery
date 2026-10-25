@@ -632,9 +632,9 @@ async function updateFood(
             (image_mime_type === "image/webp" && imageBuffer.length >= 12 && imageBuffer.toString("ascii", 0, 4) === "RIFF" && imageBuffer.toString("ascii", 8, 12) === "WEBP");
         if (!validSignature) throw apiError("The selected file is not a valid JPEG, PNG, or WebP image");
         values.push(imageBuffer);
-        updates.push(`image_data = ${values.length}`);
+        updates.push(`image_data = $${values.length}`);
         values.push(image_mime_type);
-        updates.push(`image_mime_type = ${values.length}`);
+        updates.push(`image_mime_type = $${values.length}`);
         updates.push("image_url = NULL");
     }
     if (preparation_time !== undefined) {
