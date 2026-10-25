@@ -155,6 +155,11 @@ async function updateAddress(userId, addressId, data = {}) {
         );
         if (!existing.rows[0]) throw validationError("Address not found", 404);
 
+        if (input.is_default === false && existing.rows[0].is_default) {
+            // Keep the current default until the user explicitly selects another.
+            delete input.is_default;
+        }
+
         if (input.is_default === true) {
             await client.query(
                 "UPDATE addresses SET is_default = false WHERE user_id = $1 AND is_default = true",
