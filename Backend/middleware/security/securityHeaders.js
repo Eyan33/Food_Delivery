@@ -16,11 +16,12 @@
 
 const BASE_DIRECTIVES = [
     "default-src 'self'",
-    "script-src 'self'",
+    "script-src 'self' https://accounts.google.com/gsi/client https://accounts.google.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com data:",
     "img-src 'self' data: blob: https:",
-    "connect-src 'self' https://food-delivery-ljy7.onrender.com",
+    "connect-src 'self' https://accounts.google.com https://www.googleapis.com https://food-delivery-ljy7.onrender.com",
+    "frame-src 'self' https://accounts.google.com",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
