@@ -303,6 +303,56 @@
 
     scheduleSessionExpiryCheck();
 
+
+    function mountGooglePasswordSetup() {
+        if (sessionStorage.getItem("foodDeliveryGooglePasswordSetupPending") !== "true") return;
+        if (!/\/pages\/(?:admin|customer|restaurant|rider)\//i.test(window.location.pathname)) return;
+        if (document.getElementById("googlePasswordSetupNotice")) return;
+        const notice = document.createElement("section");
+        notice.id = "googlePasswordSetupNotice";
+        notice.setAttribute("role", "region");
+        notice.style.cssText = "margin:16px auto;padding:18px;max-width:900px;border:1px solid #ff5a1f;border-radius:10px;background:#fff7f2;color:#222";
+        notice.innerHTML = '<h2 style="margin-top:0">Secure your new account</h2><p>Create a Food Delivery password if you want to sign in without Google in the future. This setup option is available until your first logout.</p><form id="googlePasswordSetupForm"><label for="googleNewPassword">New password (at least 8 characters)</label><input id="googleNewPassword" type="password" minlength="8" autocomplete="new-password" required style="display:block;width:100%;max-width:420px;padding:10px;margin:8px 0 12px"><label for="googleConfirmPassword">Confirm password</label><input id="googleConfirmPassword" type="password" minlength="8" autocomplete="new-password" required style="display:block;width:100%;max-width:420px;padding:10px;margin:8px 0 12px"><button type="submit" style="padding:10px 16px;cursor:pointer">Set Password</button><p id="googlePasswordSetupMessage" aria-live="polite"></p></form>';
+        const main = document.querySelector("main");
+        if (main) main.prepend(notice); else document.body.prepend(notice);
+        notice.querySelector("form").addEventListener("submit", async event => {
+            event.preventDefault();
+            const password = notice.querySelector("#googleNewPassword").value;
+            const confirmation = notice.querySelector("#googleConfirmPassword").value;
+            const message = notice.querySelector("#googlePasswordSetupMessage");
+            if (password !== confirmation) { message.textContent = "Passwords do not match."; return; }
+            try {
+                await request("/auth/google/set-password", { method: "POST", body: { newPassword: password }, authenticated: true });
+                sessionStorage.removeItem("foodDeliveryGooglePasswordSetupPending");
+                notice.remove();
+                window.alert("Your Food Delivery password has been created.");
+            } catch (error) {
+                message.textContent = error.message || "Unable to set password.";
+            }
+        });
+    }
+
+    document.addEventListener("click", async event => {
+        if (sessionStorage.getItem("foodDeliveryGooglePasswordSetupPending") !== "true") return;
+        const link = event.target.closest("a");
+        if (!link || !/logout|sign out/i.test(link.textContent || "")) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        const destination = link.href || "/pages/auth/login.html";
+        try {
+            await request("/auth/google/finish-first-session", { method: "POST", authenticated: true });
+        } catch (error) {
+            console.warn("Could not clear Google first-session status:", error);
+        } finally {
+            sessionStorage.removeItem("foodDeliveryGooglePasswordSetupPending");
+            clearSession();
+            window.location.assign(destination);
+        }
+    }, true);
+
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mountGooglePasswordSetup);
+    else mountGooglePasswordSetup();
+
     // Reuse the last saved administrator-configured timeout on all portals
     // in this browser. Fall back to 30 minutes if no setting is cached yet.
     const cachedTimeout = localStorage.getItem(ADMIN_TIMEOUT_STORAGE_KEY);
