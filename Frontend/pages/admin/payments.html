@@ -33,8 +33,8 @@
             <div class="admin-profile-avatar">A</div>
 
             <div class="admin-profile-info">
-                <strong>Admin User</strong>
-                <span>Administrator</span>
+                <strong>Loading account…</strong>
+                <span>Loading role…</span>
             </div>
         </div>
 
@@ -47,7 +47,7 @@
             <a href="orders.html" class="admin-nav-link">
                 <span class="admin-nav-icon">▤</span>
                 <span>Orders</span>
-                <span class="admin-nav-badge">12</span>
+                <span class="admin-nav-badge" hidden></span>
             </a>
 
             <a href="customers.html" class="admin-nav-link">
@@ -127,9 +127,9 @@
                     <div class="admin-topbar-avatar">A</div>
 
                     <div class="admin-topbar-profile-info">
-                        <strong>Admin User</strong>
+                        <strong>Loading account…</strong>
 
-                        <span>Administrator</span>
+                        <span>Loading role…</span>
                     </div>
                 </div>
             </div>
@@ -291,282 +291,8 @@
                         </thead>
 
                         <tbody>
-                            <!-- PAYMENT 1 -->
-
-                            <tr>
-                                <td>
-                                    <div class="admin-payment">
-                                        <div class="admin-payment-icon">KSh</div>
-
-                                        <div class="admin-payment-info">
-                                            <strong> TXN-10001 </strong>
-
-                                            <span> M-Pesa </span>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>John Kamau</td>
-
-                                <td>#ORD-1001</td>
-
-                                <td>
-                                    <span class="admin-payment-method"> M-Pesa </span>
-                                </td>
-
-                                <td>
-                                    <strong class="admin-amount"> KSh 2,450 </strong>
-                                </td>
-
-                                <td>17 Sep 2026</td>
-
-                                <td>
-                                    <span class="admin-status success"> Completed </span>
-                                </td>
-
-                                <td>
-                                    <div class="admin-table-actions">
-                                        <button type="button" class="admin-table-action" aria-label="View payment">
-                                            ◉
-                                        </button>
-
-                                        <button type="button" class="admin-table-action" aria-label="Download receipt">
-                                            ↓
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <!-- PAYMENT 2 -->
-
-                            <tr>
-                                <td>
-                                    <div class="admin-payment">
-                                        <div class="admin-payment-icon">KSh</div>
-
-                                        <div class="admin-payment-info">
-                                            <strong> TXN-10002 </strong>
-
-                                            <span> M-Pesa </span>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>Mary Wanjiku</td>
-
-                                <td>#ORD-1002</td>
-
-                                <td>
-                                    <span class="admin-payment-method"> M-Pesa </span>
-                                </td>
-
-                                <td>
-                                    <strong class="admin-amount"> KSh 1,850 </strong>
-                                </td>
-
-                                <td>17 Sep 2026</td>
-
-                                <td>
-                                    <span class="admin-status success"> Completed </span>
-                                </td>
-
-                                <td>
-                                    <div class="admin-table-actions">
-                                        <button type="button" class="admin-table-action" aria-label="View payment">
-                                            ◉
-                                        </button>
-
-                                        <button type="button" class="admin-table-action" aria-label="Download receipt">
-                                            ↓
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <!-- PAYMENT 3 -->
-
-                            <tr>
-                                <td>
-                                    <div class="admin-payment">
-                                        <div class="admin-payment-icon">KSh</div>
-
-                                        <div class="admin-payment-info">
-                                            <strong> TXN-10003 </strong>
-
-                                            <span> Card </span>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>Peter Mwangi</td>
-
-                                <td>#ORD-1003</td>
-
-                                <td>
-                                    <span class="admin-payment-method"> Card </span>
-                                </td>
-
-                                <td>
-                                    <strong class="admin-amount"> KSh 3,200 </strong>
-                                </td>
-
-                                <td>17 Sep 2026</td>
-
-                                <td>
-                                    <span class="admin-status warning"> Pending </span>
-                                </td>
-
-                                <td>
-                                    <div class="admin-table-actions">
-                                        <button type="button" class="admin-table-action" aria-label="View payment">
-                                            ◉
-                                        </button>
-
-                                        <button type="button" class="admin-table-action" aria-label="Download receipt">
-                                            ↓
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <!-- PAYMENT 4 -->
-
-                            <tr>
-                                <td>
-                                    <div class="admin-payment">
-                                        <div class="admin-payment-icon">KSh</div>
-
-                                        <div class="admin-payment-info">
-                                            <strong> TXN-10004 </strong>
-
-                                            <span> M-Pesa </span>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>Alice Njeri</td>
-
-                                <td>#ORD-1004</td>
-
-                                <td>
-                                    <span class="admin-payment-method"> M-Pesa </span>
-                                </td>
-
-                                <td>
-                                    <strong class="admin-amount"> KSh 980 </strong>
-                                </td>
-
-                                <td>16 Sep 2026</td>
-
-                                <td>
-                                    <span class="admin-status danger"> Failed </span>
-                                </td>
-
-                                <td>
-                                    <div class="admin-table-actions">
-                                        <button type="button" class="admin-table-action" aria-label="View payment">
-                                            ◉
-                                        </button>
-
-                                        <button type="button" class="admin-table-action" aria-label="Download receipt">
-                                            ↓
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <!-- PAYMENT 5 -->
-
-                            <tr>
-                                <td>
-                                    <div class="admin-payment">
-                                        <div class="admin-payment-icon">KSh</div>
-
-                                        <div class="admin-payment-info">
-                                            <strong> TXN-10005 </strong>
-
-                                            <span> M-Pesa </span>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>Daniel Otieno</td>
-
-                                <td>#ORD-1005</td>
-
-                                <td>
-                                    <span class="admin-payment-method"> M-Pesa </span>
-                                </td>
-
-                                <td>
-                                    <strong class="admin-amount"> KSh 1,650 </strong>
-                                </td>
-
-                                <td>16 Sep 2026</td>
-
-                                <td>
-                                    <span class="admin-status info"> Refunded </span>
-                                </td>
-
-                                <td>
-                                    <div class="admin-table-actions">
-                                        <button type="button" class="admin-table-action" aria-label="View payment">
-                                            ◉
-                                        </button>
-
-                                        <button type="button" class="admin-table-action" aria-label="Download receipt">
-                                            ↓
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <!-- PAYMENT 6 -->
-
-                            <tr>
-                                <td>
-                                    <div class="admin-payment">
-                                        <div class="admin-payment-icon">KSh</div>
-
-                                        <div class="admin-payment-info">
-                                            <strong> TXN-10006 </strong>
-
-                                            <span> Card </span>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>Brian Kariuki</td>
-
-                                <td>#ORD-1006</td>
-
-                                <td>
-                                    <span class="admin-payment-method"> Card </span>
-                                </td>
-
-                                <td>
-                                    <strong class="admin-amount"> KSh 2,750 </strong>
-                                </td>
-
-                                <td>15 Sep 2026</td>
-
-                                <td>
-                                    <span class="admin-status success"> Completed </span>
-                                </td>
-
-                                <td>
-                                    <div class="admin-table-actions">
-                                        <button type="button" class="admin-table-action" aria-label="View payment">
-                                            ◉
-                                        </button>
-
-                                        <button type="button" class="admin-table-action" aria-label="Download receipt">
-                                            ↓
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
+  <tr class="admin-loading-row"><td colspan="10">Loading records from the server…</td></tr>
+</tbody>
                     </table>
                 </div>
 
