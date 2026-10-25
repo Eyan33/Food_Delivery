@@ -26,6 +26,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let savedAddresses = [];
     let selectedAddressId = null;
     let isSubmitting = false;
+    let currentCoordinates = null;
+    let locationAddressReady = false;
 
     /* =====================================================
        HELPERS
@@ -203,6 +205,129 @@ document.addEventListener("DOMContentLoaded", () => {
             placeOrderButton.disabled = false;
         }
     }
+
+    /* =====================================================
+       LIVE LOCATION AND SAVING TO ADDRESS BOOK
+    ===================================================== */
+
+    const useCheckoutLocationButton = document.getElementById("useCheckoutLocationButton");
+    const saveCheckoutLocationButton = document.getElementById("saveCheckoutLocationButton");
+    const checkoutLocationStatus = document.getElementById("checkoutLocationStatus");
+    const savedAddressSelect = document.getElementById("savedAddressSelect");
+
+    function setLocationStatus(message) {
+        if (checkoutLocationStatus) checkoutLocationStatus.textContent = message;
+    }
+
+    function setLocationButtonBusy(busy) {
+        if (!useCheckoutLocationButton) return;
+        useCheckoutLocationButton.disabled = busy;
+        useCheckoutLocationButton.textContent = busy ? "Finding location…" : "Use My Current Location";
+    }
+
+    function requestCheckoutLocation() {
+        if (!navigator.geolocation) {
+            setLocationStatus("This browser does not support GPS location. Enter your address manually.");
+            return;
+        }
+        setLocationButtonBusy(true);
+        setLocationStatus("Requesting location permission…");
+        navigator.geolocation.getCurrentPosition(async position => {
+            currentCoordinates = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
+            };
+            locationAddressReady = false;
+            if (saveCheckoutLocationButton) saveCheckoutLocationButton.disabled = true;
+            setLocationStatus("Location found. Looking up the address…");
+            try {
+                const response = await fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" +
+                    encodeURIComponent(currentCoordinates.latitude) + "&lon=" +
+                    encodeURIComponent(currentCoordinates.longitude) + "&zoom=18&addressdetails=1",
+                    { headers: { Accept: "application/json" } });
+                if (!response.ok) throw new Error("Address lookup failed");
+                const data = await response.json();
+                const parts = data.address || {};
+                if (address && data.display_name) address.value = data.display_name;
+                const city = parts.city || parts.town || parts.village || parts.suburb || parts.county || "";
+                if (area && city) area.value = city;
+                if (savedAddressSelect) savedAddressSelect.value = "";
+                selectedAddressId = null;
+                locationAddressReady = Boolean(address?.value.trim() && area?.value.trim());
+                if (saveCheckoutLocationButton) saveCheckoutLocationButton.disabled = !locationAddressReady;
+                setLocationStatus(locationAddressReady
+                    ? "Location captured. Review the address and area, then save it to your address book to attach GPS coordinates to this order."
+                    : "GPS captured, but the address lookup was incomplete. Enter the address and area manually before saving.");
+            } catch {
+                setLocationStatus("GPS coordinates were captured, but the address lookup failed. Enter your address and area manually; then you can save the address with coordinates.");
+                locationAddressReady = Boolean(address?.value.trim() && area?.value.trim());
+                if (saveCheckoutLocationButton) saveCheckoutLocationButton.disabled = !locationAddressReady;
+            } finally {
+                setLocationButtonBusy(false);
+            }
+        }, error => {
+            setLocationStatus(error.code === 1
+                ? "Location permission denied. Allow location access in your browser or enter your address manually."
+                : "Unable to determine your location. Check device location services or enter the address manually.");
+            setLocationButtonBusy(false);
+        }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 });
+    }
+
+    async function saveCurrentLocationAddress() {
+        const token = getToken();
+        if (!token) {
+            setLocationStatus("Please log in before saving a delivery address.");
+            return;
+        }
+        if (!currentCoordinates || !address?.value.trim() || !area?.value.trim() ||
+            !fullName?.value.trim() || !phone?.value.trim()) {
+            setLocationStatus("Enter your name, phone, delivery address and area before saving this location.");
+            return;
+        }
+        saveCheckoutLocationButton.disabled = true;
+        saveCheckoutLocationButton.textContent = "Saving address…";
+        try {
+            const response = await fetch(`${API_BASE}/addresses`, {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    label: "Other",
+                    recipient_name: fullName.value.trim(),
+                    phone: phone.value.trim(),
+                    address_line: address.value.trim(),
+                    city: area.value.trim(),
+                    delivery_instructions: deliveryNotes?.value.trim() || "",
+                    latitude: currentCoordinates.latitude,
+                    longitude: currentCoordinates.longitude,
+                    is_default: false
+                })
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok || result.success !== true || !result.data?.address) {
+                throw new Error(result.message || "Could not save this location.");
+            }
+            const saved = result.data.address;
+            savedAddresses.push(saved);
+            if (savedAddressSelect) {
+                savedAddressSelect.add(new Option(`${saved.label || "Address"}: ${saved.address_line}, ${saved.city}`, String(saved.id)));
+                savedAddressSelect.value = String(saved.id);
+            }
+            applySavedAddress(saved);
+            setLocationStatus("Location saved to My Addresses and selected for this order.");
+        } catch (error) {
+            setLocationStatus(error.message || "Could not save this location. Please try again.");
+            saveCheckoutLocationButton.disabled = false;
+        } finally {
+            saveCheckoutLocationButton.textContent = "Save Current Location to My Addresses";
+        }
+    }
+
+    useCheckoutLocationButton?.addEventListener("click", requestCheckoutLocation);
+    saveCheckoutLocationButton?.addEventListener("click", saveCurrentLocationAddress);
 
     /* =====================================================
        FORM VALIDATION
@@ -523,6 +648,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function applySavedAddress(item) {
         if (!item) return;
         selectedAddressId = String(item.id);
+        currentCoordinates = item.latitude != null && item.longitude != null
+            ? { latitude: Number(item.latitude), longitude: Number(item.longitude) }
+            : null;
         if (fullName) fullName.value = item.recipient_name || fullName.value;
         if (phone) phone.value = item.phone || phone.value;
         if (address) address.value = item.address_line || "";
@@ -538,7 +666,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (id) {
             applySavedAddress(savedAddresses.find(item => String(item.id) === id));
         } else {
-            if (fullName) fullName.value = "";
+            currentCoordinates = null;\n            locationAddressReady = false;\n            if (saveCheckoutLocationButton) saveCheckoutLocationButton.disabled = true;\n            if (fullName) fullName.value = "";
             if (phone) phone.value = "";
             if (address) address.value = "";
             if (area) area.value = "";
