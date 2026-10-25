@@ -46,8 +46,13 @@ document.addEventListener("DOMContentLoaded", () => {
     ===================================================== */
 
     function getToken() {
-        return localStorage.getItem(TOKEN_KEY)
-            || sessionStorage.getItem(TOKEN_KEY);
+        try {
+            return localStorage.getItem(TOKEN_KEY)
+                || sessionStorage.getItem(TOKEN_KEY);
+        } catch (error) {
+            console.error("Unable to read the customer session:", error);
+            return null;
+        }
     }
 
     async function apiRequest(path, options = {}) {
@@ -86,6 +91,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!response.ok) {
             if (response.status === 401) {
+                try {
+                    localStorage.removeItem(TOKEN_KEY);
+                    sessionStorage.removeItem(TOKEN_KEY);
+                } catch (error) {
+                    console.error("Unable to clear the expired session:", error);
+                }
                 throw new Error("Your session has expired. Please log in again.");
             }
 
@@ -338,8 +349,18 @@ document.addEventListener("DOMContentLoaded", () => {
             renderAddresses();
         } catch (error) {
             addresses = [];
-            renderAddresses();
-
+            if (addressList) {
+                addressList.hidden = false;
+                addressList.innerHTML = `
+                    <div class="address-load-error" role="alert">
+                        <p>We couldn’t load your saved addresses.</p>
+                        <p class="address-load-error-detail">${escapeHTML(error.message)}</p>
+                        <button type="button" class="retry-addresses-button">Retry</button>
+                    </div>
+                `;
+            }
+            if (emptyAddresses) emptyAddresses.hidden = true;
+            if (addressCount) addressCount.textContent = "Addresses unavailable";
             showMessage(error.message, "error");
         }
     }
@@ -449,7 +470,8 @@ document.addEventListener("DOMContentLoaded", () => {
             return false;
         }
 
-        if (!phone || !/^[0-9+\s()-]{7,20}$/.test(phone)) {
+        const phoneDigits = phone.replace(/\D/g, "");
+        if (!phone || !/^[0-9+()\s.-]+$/.test(phone) || phoneDigits.length < 7 || phoneDigits.length > 15) {
             showFormMessage("Please enter a valid phone number.");
             addressPhone?.focus();
             return false;
@@ -543,12 +565,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     );
                 }
 
+                const wasEditing = Boolean(editingAddressId);
                 closeModal();
                 await loadAddresses();
 
                 showMessage(
                     result.message || (
-                        editingAddressId
+                        wasEditing
                             ? "Address updated successfully."
                             : "Address added successfully."
                     ),
@@ -627,6 +650,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (addressList) {
         addressList.addEventListener("click", event => {
+            const retryButton = event.target.closest(".retry-addresses-button");
+            if (retryButton) {
+                loadAddresses();
+                return;
+            }
+
             const editButton = event.target.closest(".edit-address-button");
             const deleteButton = event.target.closest(".delete-address-button");
             const defaultButton = event.target.closest(".set-default-button");
