@@ -775,3 +775,24 @@
         font-size: 14px;
     }
 }
+
+/* Checkout GPS location controls */
+.checkout-location-tools { display: grid; gap: 9px; }
+.checkout-location-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 10px 14px;
+    border: 1px solid var(--primary, #ff5a1f);
+    border-radius: 8px;
+    background: var(--primary, #ff5a1f);
+    color: #fff;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.checkout-location-button.secondary { background: #fff; color: var(--primary, #ff5a1f); }
+.checkout-location-button:disabled { opacity: .55; cursor: not-allowed; }
+.checkout-location-tools small { color: var(--text-light, #666); line-height: 1.5; }
