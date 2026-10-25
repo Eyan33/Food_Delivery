@@ -876,3 +876,45 @@
     }
 
 }
+
+/* Address loading and recovery states */
+.address-load-error {
+    padding: 24px;
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 10px;
+    background: var(--white, #fff);
+    text-align: center;
+}
+
+.address-load-error p {
+    margin: 0 0 10px;
+}
+
+.address-load-error-detail {
+    color: var(--text-light, #6b7280);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.retry-addresses-button {
+    min-height: 38px;
+    padding: 9px 16px;
+    border: 0;
+    border-radius: 7px;
+    background: var(--primary, #e85d04);
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.retry-addresses-button:focus-visible {
+    outline: 3px solid currentColor;
+    outline-offset: 3px;
+}
+
+.address-action-button:disabled,
+.retry-addresses-button:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
