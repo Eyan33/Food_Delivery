@@ -273,6 +273,15 @@ async function ensurePasswordResetSchema() {
     `);
 }
 
+
+async function ensureOrderLocationSchema() {
+    await pool.query(`
+        ALTER TABLE public.orders
+            ADD COLUMN IF NOT EXISTS delivery_latitude numeric(10,8),
+            ADD COLUMN IF NOT EXISTS delivery_longitude numeric(11,8);
+    `);
+}
+
 async function initializeDatabase() {
     await waitForDatabase();
     await ensureSchema();
@@ -281,6 +290,7 @@ async function initializeDatabase() {
     await ensureRiderProfileSchema();
     await ensurePasswordResetSchema();
     await ensureGooglePasswordSetupSchema();
+    await ensureOrderLocationSchema();
     await seedAdmin();
 }
 
