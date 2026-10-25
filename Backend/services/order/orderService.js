@@ -258,6 +258,8 @@ async function createOrder(customerId, data) {
         delivery_instructions,
         notes,
         items,
+        address_id,
+        expected_delivery_fee,
     } = data;
 
     if (!restaurant_id) {
@@ -288,6 +290,17 @@ async function createOrder(customerId, data) {
 
     try {
         await client.query("BEGIN");
+
+        let savedAddress = null;
+        if (address_id !== undefined && address_id !== null && address_id !== "") {
+            if (!/^[1-9][0-9]*$/.test(String(address_id))) throw new Error("Selected delivery address is invalid");
+            const addressResult = await client.query(
+                "SELECT id, recipient_name, phone, address_line, city, delivery_instructions FROM addresses WHERE id = $1 AND user_id = $2 AND is_active = TRUE LIMIT 1",
+                [address_id, customerId],
+            );
+            if (addressResult.rows.length === 0) throw new Error("Selected saved address was not found. Please choose another address.");
+            savedAddress = addressResult.rows[0];
+        }
 
         const restaurantResult = await client.query(
             `
@@ -383,6 +396,14 @@ async function createOrder(customerId, data) {
             }
 
             const unitPrice = Number(food.price);
+            if (requestedItem.expected_price !== undefined && requestedItem.expected_price !== null) {
+                const expectedPrice = Number(requestedItem.expected_price);
+                if (!Number.isFinite(expectedPrice) || Math.abs(expectedPrice - unitPrice) > 0.009) {
+                    const priceError = new Error(`${food.name} price has changed from KSh ${expectedPrice.toFixed(2)} to KSh ${unitPrice.toFixed(2)}. Review your cart and place the order again.`);
+                    priceError.statusCode = 409;
+                    throw priceError;
+                }
+            }
             const itemSubtotal = unitPrice * quantity;
 
             subtotal += itemSubtotal;
@@ -397,6 +418,14 @@ async function createOrder(customerId, data) {
         }
 
         const deliveryFee = Number(restaurant.delivery_fee || 0);
+        if (expected_delivery_fee !== undefined && expected_delivery_fee !== null && expected_delivery_fee !== "") {
+            const expectedFee = Number(expected_delivery_fee);
+            if (!Number.isFinite(expectedFee) || Math.abs(expectedFee - deliveryFee) > 0.009) {
+                const feeError = new Error(`Delivery fee has changed from KSh ${expectedFee.toFixed(2)} to KSh ${deliveryFee.toFixed(2)}. Review your cart and place the order again.`);
+                feeError.statusCode = 409;
+                throw feeError;
+            }
+        }
         const discount = 0;
         const totalAmount = subtotal + deliveryFee - discount;
 
@@ -418,6 +447,7 @@ async function createOrder(customerId, data) {
                 order_number,
                 customer_id,
                 restaurant_id,
+                address_id,
                 status,
                 delivery_address,
                 delivery_city,
@@ -435,8 +465,8 @@ async function createOrder(customerId, data) {
                 $1,
                 $2,
                 $3,
-                'pending',
                 $4,
+                'pending',
                 $5,
                 $6,
                 $7,
@@ -446,6 +476,7 @@ async function createOrder(customerId, data) {
                 $11,
                 $12,
                 $13,
+                $14,
                 CURRENT_TIMESTAMP
             )
             RETURNING *
@@ -454,11 +485,12 @@ async function createOrder(customerId, data) {
                 orderNumber,
                 customerId,
                 restaurant_id,
-                delivery_address,
-                delivery_city,
-                recipient_name,
-                delivery_phone,
-                delivery_instructions || null,
+                savedAddress ? savedAddress.id : null,
+                savedAddress ? savedAddress.address_line : delivery_address,
+                savedAddress ? savedAddress.city : delivery_city,
+                savedAddress ? savedAddress.recipient_name : recipient_name,
+                savedAddress ? savedAddress.phone : delivery_phone,
+                savedAddress ? (savedAddress.delivery_instructions || delivery_instructions || null) : (delivery_instructions || null),
                 subtotal,
                 deliveryFee,
                 discount,
@@ -499,6 +531,13 @@ async function createOrder(customerId, data) {
                 ],
             );
         }
+
+        // Persist the initial cash-on-delivery payment in the same transaction.
+        await client.query(
+            `INSERT INTO payments (order_id, payment_method, payment_status, amount)
+             VALUES ($1, 'cash', 'pending', $2)`,
+            [order.id, totalAmount],
+        );
 
         await client.query("COMMIT");
 
