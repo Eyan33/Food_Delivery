@@ -441,6 +441,21 @@
           />
         </label>
 
+        <div id="catalogEditFoodOptions" hidden>
+          <label for="catalogEditImage">
+            Replace food image (optional)
+            <input id="catalogEditImage" type="file"
+              accept="image/jpeg,image/png,image/webp" />
+          </label>
+          <small>Leave empty to keep the current image. JPEG, PNG, or WebP; maximum 5 MB.</small>
+          <img id="catalogEditImagePreview" class="food-image-preview"
+            alt="Current or replacement food image" hidden />
+          <label class="catalog-featured-option" for="catalogEditFeatured">
+            <input id="catalogEditFeatured" type="checkbox" />
+            Show in Popular Foods on the customer home page
+          </label>
+        </div>
+
         <p
           id="catalogEditError"
           class="catalog-modal-error"
