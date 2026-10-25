@@ -10,6 +10,8 @@ router.post("/register", authController.register);
 router.post("/login", authController.login);
 router.get("/google-config", authController.googleConfig);
 router.post("/google", authController.googleLogin);
+router.post("/google/set-password", authenticateToken, authController.setGooglePassword);
+router.post("/google/finish-first-session", authenticateToken, authController.finishGoogleFirstSession);
 router.post("/forgot-password", authController.forgotPassword);
 router.post("/reset-password", authController.resetPassword);
 
