@@ -207,14 +207,33 @@ document.addEventListener("DOMContentLoaded", () => {
                 throw new Error(result?.message || `Request failed (HTTP ${response.status}).`);
             }
 
-            const candidates = [
-                result?.data?.restaurants,
-                result?.restaurants,
-                result?.data,
-                result?.data?.data?.restaurants
-            ];
-            const list = candidates.find(Array.isArray);
-            if (!list) throw new Error("The API response did not contain a restaurant list.");
+            // The current backend returns { success: true, data: { restaurants: [...] } }.
+            // Also accept common wrappers used by older deployments or API gateways.
+            function extractRestaurantList(value, depth = 0) {
+                if (Array.isArray(value)) return value;
+                if (!value || typeof value !== "object" || depth > 5) return null;
+
+                for (const key of ["restaurants", "items", "results", "records", "rows", "data"]) {
+                    if (Object.prototype.hasOwnProperty.call(value, key)) {
+                        const found = extractRestaurantList(value[key], depth + 1);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            }
+
+            const list = extractRestaurantList(result);
+            if (!list) {
+                const responseShape = result && typeof result === "object"
+                    ? Object.fromEntries(Object.entries(result).map(([key, value]) => [
+                        key,
+                        Array.isArray(value) ? `array(${value.length})` :
+                            value === null ? "null" : typeof value === "object" ? Object.keys(value).slice(0, 12) : typeof value
+                    ]))
+                    : typeof result;
+                console.error("Unexpected restaurants API response shape:", responseShape, result);
+                throw new Error("The API response did not contain a restaurant list. Check the response shape in the console.");
+            }
 
             restaurants = list.filter((restaurant) => {
                 if (!restaurant || typeof restaurant !== "object") return false;
