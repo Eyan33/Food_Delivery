@@ -272,18 +272,21 @@
             const errorMessage =
                 result.error || result.message || `Request failed (${response.status}).`;
 
-            if (response.status === 401) {
+            // A 401 from the login endpoint means the credentials were rejected,
+            // not that an existing session expired. Only clear a session when an
+            // authenticated request is rejected.
+            if (response.status === 401 && authenticated) {
                 clearSession();
                 showGlobalMessage("Your session has expired. Please log in again.", "error");
                 redirectToLogin();
                 throw new Error("Your session has expired. Please log in again.");
             }
 
+            // A 403 is an authorization failure (for example, the wrong role).
+            // Preserve the session and show the server's actual message.
             if (response.status === 403) {
-                clearSession();
-                showGlobalMessage("You do not have permission to access this page.", "error");
-                redirectToLogin();
-                throw new Error("You do not have permission to access this page.");
+                showGlobalMessage(errorMessage || "You do not have permission to access this page.", "error");
+                throw new Error(errorMessage || "You do not have permission to access this page.");
             }
 
             showGlobalMessage(errorMessage, "error");
