@@ -90,6 +90,82 @@
         );
     }
 
+    const ADMIN_TIMEOUT_STORAGE_KEY = "foodDeliveryAdminSessionTimeout";
+    const ACTIVITY_EVENTS = ["pointerdown", "keydown", "mousemove", "scroll", "touchstart"];
+
+    let inactivityTimer = null;
+    let adminTimeoutMinutes = 30;
+    let adminSettingsLoaded = false;
+
+    function isAdminPage() {
+        return /\/pages\/admin\//i.test(window.location.pathname);
+    }
+
+    function parseTimeoutMinutes(value) {
+        if (value === "Never") return 0;
+        const match = String(value || "").match(/^\s*(15|30)\s*Minutes\s*$|^\s*(1)\s*Hour\s*$|^\s*(4)\s*Hours\s*$/i);
+        if (!match) return 30;
+        if (match[1]) return Number(match[1]);
+        if (match[2]) return 60;
+        if (match[3]) return 240;
+        return 30;
+    }
+
+    function clearInactivityTimer() {
+        if (inactivityTimer !== null) {
+            window.clearTimeout(inactivityTimer);
+            inactivityTimer = null;
+        }
+    }
+
+    function scheduleInactivityLogout() {
+        clearInactivityTimer();
+        if (!isAdminPage() || !getToken() || adminTimeoutMinutes <= 0) return;
+        inactivityTimer = window.setTimeout(() => {
+            clearSession();
+            window.alert("You have been logged out due to inactivity.");
+            redirectToLogin();
+        }, adminTimeoutMinutes * 60 * 1000);
+    }
+
+    function noteAdminActivity() {
+        if (isAdminPage()) scheduleInactivityLogout();
+    }
+
+    async function loadAdminSessionTimeout() {
+        if (!isAdminPage() || !getToken() || adminSettingsLoaded) return;
+        adminSettingsLoaded = true;
+        try {
+            const response = await fetch(`${apiBaseUrl}/admins/settings`, {
+                headers: { Accept: "application/json", Authorization: `Bearer ${getToken()}` }
+            });
+            if (!response.ok) return;
+            const result = await response.json();
+            const settings = result?.data?.settings || result?.settings || {};
+            const timeoutValue = settings?.security?.sessionTimeout;
+            if (timeoutValue !== undefined && timeoutValue !== null && timeoutValue !== "") {
+                adminTimeoutMinutes = parseTimeoutMinutes(timeoutValue);
+                localStorage.setItem(ADMIN_TIMEOUT_STORAGE_KEY, String(adminTimeoutMinutes));
+            } else {
+                const stored = localStorage.getItem(ADMIN_TIMEOUT_STORAGE_KEY);
+                if (stored !== null && Number.isFinite(Number(stored))) adminTimeoutMinutes = Number(stored);
+            }
+            scheduleInactivityLogout();
+        } catch (error) {
+            console.warn("Could not load admin session timeout setting:", error);
+        }
+    }
+
+    ACTIVITY_EVENTS.forEach((eventName) => {
+        window.addEventListener(eventName, noteAdminActivity, { passive: true });
+    });
+
+    window.addEventListener("admin-session-timeout-updated", (event) => {
+        adminTimeoutMinutes = parseTimeoutMinutes(event.detail?.value);
+        localStorage.setItem(ADMIN_TIMEOUT_STORAGE_KEY, String(adminTimeoutMinutes));
+        scheduleInactivityLogout();
+    });
+
     function redirectToLogin() {
         const currentPath = window.location.pathname || "/";
 
@@ -221,6 +297,7 @@
     });
 
     scheduleSessionExpiryCheck();
+    loadAdminSessionTimeout();
 
     window.FoodDeliveryAuthApi = {
         request,
