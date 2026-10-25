@@ -947,3 +947,36 @@
 .admin-settings-section.active {
     display: block;
 }
+
+/* Responsive settings layout and keyboard/focus safety */
+.admin-settings-layout,
+.admin-settings-content,
+.admin-settings-section,
+.admin-settings-form,
+.admin-settings-profile,
+.admin-settings-security-block { min-width: 0; }
+.admin-settings-form { width: 100%; }
+.admin-settings-field input,
+.admin-settings-field select,
+.admin-settings-field textarea { width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box; }
+.admin-settings-nav-link,
+.admin-settings-option,
+.admin-settings-footer { min-width: 0; overflow-wrap: anywhere; }
+.admin-settings-sidebar { align-self: start; }
+.admin-settings-section[hidden] { display: none !important; }
+.admin-settings-nav-link:focus-visible,
+.admin-primary-button:focus-visible,
+.admin-secondary-button:focus-visible { outline: 3px solid rgba(255,90,31,.35); outline-offset: 2px; }
+@media (max-width: 700px) {
+ .admin-settings-layout { grid-template-columns: minmax(0,1fr); gap: 18px; }
+ .admin-settings-sidebar { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+ .admin-settings-nav-title { grid-column: 1 / -1; }
+ .admin-settings-content { width: 100%; }
+ .admin-settings-footer { flex-wrap: wrap; gap: 10px; }
+}
+@media (max-width: 450px) {
+ .admin-settings-sidebar { grid-template-columns: minmax(0,1fr); }
+ .admin-settings-field { min-width: 0; }
+ .admin-settings-profile { flex-wrap: wrap; }
+ .admin-settings-footer > button { width: 100%; }
+}
