@@ -1,16 +1,40 @@
 const forgotPasswordForm = document.getElementById("forgotPasswordForm");
 const forgotPasswordMessage = document.getElementById("forgotPasswordMessage");
+const forgotPasswordButton = document.getElementById("forgotPasswordButton");
 
-/*
- * Password reset by email is not implemented on the backend yet (there is
- * no reset endpoint and no email service). Until it is, do not tell users a
- * reset link was sent: say plainly what to do instead.
- */
-forgotPasswordForm.addEventListener("submit", (event) => {
+forgotPasswordForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    forgotPasswordMessage.textContent =
-        "Password reset by email is not available yet. Please contact support to reset your password.";
-    forgotPasswordMessage.classList.remove("success");
-    forgotPasswordMessage.classList.add("error");
+    const email = document.getElementById("email").value.trim();
+    const originalButtonText = forgotPasswordButton.textContent;
+
+    forgotPasswordMessage.textContent = "";
+    forgotPasswordMessage.classList.remove("success", "error");
+    forgotPasswordButton.disabled = true;
+    forgotPasswordButton.textContent = "Sending...";
+
+    try {
+        const apiBase = String(window.FOOD_DELIVERY_API_BASE || "/api").replace(/\/+$/, "");
+        const response = await fetch(`${apiBase}/auth/forgot-password`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email })
+        });
+
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(result.message || "We could not process your request. Please try again.");
+        }
+
+        forgotPasswordMessage.textContent =
+            result.message || "If an active account exists for that email, password-reset instructions will be sent.";
+        forgotPasswordMessage.classList.add("success");
+    } catch (error) {
+        forgotPasswordMessage.textContent =
+            error.message || "Unable to contact the server. Please try again.";
+        forgotPasswordMessage.classList.add("error");
+    } finally {
+        forgotPasswordButton.disabled = false;
+        forgotPasswordButton.textContent = originalButtonText;
+    }
 });
