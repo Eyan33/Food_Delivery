@@ -802,3 +802,12 @@
     }
 
 }
+
+/* Order details loading, refresh, and empty states */
+.order-load-message { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin:0 0 22px; padding:14px 16px; border:1px solid var(--border); border-radius:9px; background:var(--white); color:var(--text-light); font-size:13px; line-height:1.5; }
+.order-load-message.error { border-color:#fecaca; color:#b91c1c; }
+.order-load-message .secondary-action-button { min-height:36px; padding:7px 12px; }
+.order-detail-actions .secondary-action-button:disabled { opacity:.6; cursor:wait; }
+.order-empty-state { color:var(--text-light); font-size:13px; }
+.payment-status-paid, .payment-status-completed, .payment-status-succeeded { background:#ecfdf3; color:#15803d !important; }
+.payment-status-failed, .payment-status-cancelled, .payment-status-canceled { background:#fef2f2; color:#b91c1c !important; }
