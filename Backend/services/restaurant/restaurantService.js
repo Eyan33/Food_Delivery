@@ -543,12 +543,22 @@ function cleanRestaurantFields(
     }
 
     if (provided("logo_url")) {
-        fields.logo_url =
-            validateOptionalText(
-                data.logo_url,
-                "Logo URL",
-                500
-            );
+        const logoValue = isEmpty(data.logo_url) ? null : data.logo_url;
+        if (logoValue !== null && typeof logoValue !== "string") {
+            throw apiError("Restaurant image must be a valid image string");
+        }
+        if (logoValue && logoValue.startsWith("data:")) {
+            const match = logoValue.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
+            if (!match) {
+                throw apiError("Restaurant image must be a base64 JPEG, PNG or WebP image");
+            }
+            if (logoValue.length > 7_000_000) {
+                throw apiError("Restaurant image must be 5 MB or smaller");
+            }
+        } else if (logoValue && logoValue.length > 500) {
+            throw apiError("Logo URL is too long");
+        }
+        fields.logo_url = logoValue;
     }
 
     if (provided("cover_image_url")) {

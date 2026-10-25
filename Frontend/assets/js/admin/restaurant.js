@@ -982,6 +982,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
 
 
+                <div class="admin-form-field admin-form-field-full">
+                    <label for="restaurantImage">Restaurant image <span>*</span></label>
+                    <input id="restaurantImage" name="restaurantImage" type="file"
+                        accept="image/jpeg,image/png,image/webp" />
+                    <small class="admin-form-hint">JPEG, PNG or WebP. Maximum 5 MB. Required when creating a restaurant; optional when editing.</small>
+                    <div id="restaurantImagePreviewWrap" hidden style="margin-top:10px;">
+                        <img id="restaurantImagePreview" alt="Restaurant image preview"
+                            style="display:block;width:100%;max-height:190px;object-fit:cover;border-radius:10px;border:1px solid #e5e7eb;" />
+                        <button type="button" id="clearRestaurantImage" class="admin-secondary-button" style="margin-top:8px;">Remove selected image</button>
+                    </div>
+                    <small class="admin-form-error" id="restaurantImageError"></small>
+                </div>
+
                 <div class="admin-form-field">
 
                     <label for="restaurantPhone">
@@ -1408,6 +1421,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = modal.querySelector("#restaurantForm");
 
   const formGrid = modal.querySelector("#restaurantFormGrid");
+  const restaurantImageInput = modal.querySelector("#restaurantImage");
+  const restaurantImagePreviewWrap = modal.querySelector("#restaurantImagePreviewWrap");
+  const restaurantImagePreview = modal.querySelector("#restaurantImagePreview");
+  const clearRestaurantImageButton = modal.querySelector("#clearRestaurantImage");
+  const restaurantImageError = modal.querySelector("#restaurantImageError");
+  let selectedRestaurantImageData = "";
 
   const modalTitle = modal.querySelector("#restaurantModalTitle");
 
@@ -1724,6 +1743,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     valid = validateEmailInput("ownerEmail", "Owner email") && valid;
 
+    if (restaurantModal.mode === "add" && !selectedRestaurantImageData) {
+      restaurantImageError.textContent = "Choose a restaurant image before creating the restaurant.";
+      valid = false;
+    }
+
     const restaurantEmail = modal.querySelector("#restaurantEmail");
 
     if (restaurantEmail.value.trim() && !restaurantEmail.validity.valid) {
@@ -1745,6 +1769,13 @@ document.addEventListener("DOMContentLoaded", () => {
     setInputValue("restaurantName", restaurant.name);
 
     setInputValue("restaurantDescription", restaurant.description);
+    selectedRestaurantImageData = "";
+    restaurantImageInput.value = "";
+    restaurantImagePreviewWrap.hidden = true;
+    if (restaurant.logo_url && /^data:image\/(jpeg|png|webp);base64,/i.test(restaurant.logo_url)) {
+      restaurantImagePreview.src = restaurant.logo_url;
+      restaurantImagePreviewWrap.hidden = false;
+    }
 
     setInputValue("restaurantPhone", restaurant.phone);
 
@@ -1800,6 +1831,10 @@ document.addEventListener("DOMContentLoaded", () => {
     restaurantModal.restaurant = null;
 
     form.reset();
+    selectedRestaurantImageData = "";
+    restaurantImagePreview.removeAttribute("src");
+    restaurantImagePreviewWrap.hidden = true;
+    restaurantImageError.textContent = "";
 
     clearFormErrors();
     clearModalMessage();
@@ -1985,6 +2020,8 @@ document.addEventListener("DOMContentLoaded", () => {
         name: form.elements.restaurantName.value.trim(),
 
         description: form.elements.restaurantDescription.value.trim() || null,
+
+        logo_url: selectedRestaurantImageData || restaurantModal.restaurant?.logo_url || null,
 
         phone: form.elements.restaurantPhone.value.trim() || null,
 
@@ -2263,6 +2300,53 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.target === modal && !restaurantModal.showingCredentials) {
       closeDialog();
     }
+  });
+
+  restaurantImageInput.addEventListener("change", () => {
+    restaurantImageError.textContent = "";
+    const file = restaurantImageInput.files?.[0];
+    if (!file) {
+      selectedRestaurantImageData = "";
+      restaurantImagePreviewWrap.hidden = true;
+      restaurantImagePreview.removeAttribute("src");
+      return;
+    }
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      restaurantImageInput.value = "";
+      selectedRestaurantImageData = "";
+      restaurantImageError.textContent = "Use a JPEG, PNG or WebP image.";
+      restaurantImagePreviewWrap.hidden = true;
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      restaurantImageInput.value = "";
+      selectedRestaurantImageData = "";
+      restaurantImageError.textContent = "Image must be 5 MB or smaller.";
+      restaurantImagePreviewWrap.hidden = true;
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      selectedRestaurantImageData = String(reader.result || "");
+      restaurantImagePreview.src = selectedRestaurantImageData;
+      restaurantImagePreviewWrap.hidden = false;
+    };
+    reader.onerror = () => {
+      selectedRestaurantImageData = "";
+      restaurantImageError.textContent = "Could not read the selected image. Please try again.";
+    };
+    reader.readAsDataURL(file);
+  });
+
+  clearRestaurantImageButton.addEventListener("click", () => {
+    restaurantImageInput.value = "";
+    selectedRestaurantImageData = "";
+    restaurantImagePreview.removeAttribute("src");
+    restaurantImagePreviewWrap.hidden = true;
+    restaurantImageError.textContent = restaurantModal.mode === "add"
+      ? "A restaurant image is required."
+      : "";
   });
 
   /*
