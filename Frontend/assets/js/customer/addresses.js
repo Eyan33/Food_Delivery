@@ -36,6 +36,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const addressCity = document.getElementById("addressCity");
     const addressInstructions = document.getElementById("addressInstructions");
     const setDefaultAddressCheckbox = document.getElementById("setDefaultAddress");
+    const useCurrentLocationButton = document.getElementById("useCurrentLocationButton");
+    const locationStatus = document.getElementById("locationStatus");
+    const addressLatitude = document.getElementById("addressLatitude");
+    const addressLongitude = document.getElementById("addressLongitude");
+    let selectedCoordinates = null;
 
     let addresses = [];
     let editingAddressId = null;
@@ -406,6 +411,12 @@ document.addEventListener("DOMContentLoaded", () => {
             addressLine.value = address.address;
             addressCity.value = address.city;
             addressInstructions.value = address.instructions || "";
+            if (address.latitude != null && address.longitude != null) {
+                selectedCoordinates = { latitude: Number(address.latitude), longitude: Number(address.longitude) };
+                if (addressLatitude) addressLatitude.value = selectedCoordinates.latitude;
+                if (addressLongitude) addressLongitude.value = selectedCoordinates.longitude;
+                if (locationStatus) locationStatus.textContent = "Saved GPS coordinates are attached to this address.";
+            }
 
             if (setDefaultAddressCheckbox) {
                 setDefaultAddressCheckbox.checked = address.isDefault;
@@ -451,6 +462,54 @@ document.addEventListener("DOMContentLoaded", () => {
     /* =====================================================
        FORM VALIDATION
     ===================================================== */
+
+    async function useCurrentLocation() {
+        if (!navigator.geolocation) {
+            showFormMessage("This browser does not support location. Enter your address manually.");
+            return;
+        }
+        if (locationStatus) locationStatus.textContent = "Requesting device location…";
+        if (useCurrentLocationButton) {
+            useCurrentLocationButton.disabled = true;
+            useCurrentLocationButton.textContent = "Finding location…";
+        }
+        navigator.geolocation.getCurrentPosition(async position => {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            selectedCoordinates = { latitude, longitude };
+            if (addressLatitude) addressLatitude.value = String(latitude);
+            if (addressLongitude) addressLongitude.value = String(longitude);
+            if (locationStatus) locationStatus.textContent = "GPS found. Looking up the street address…";
+            try {
+                const response = await fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" +
+                    encodeURIComponent(latitude) + "&lon=" + encodeURIComponent(longitude) + "&zoom=18&addressdetails=1",
+                    { headers: { Accept: "application/json" } });
+                if (!response.ok) throw new Error("Reverse geocoding failed");
+                const result = await response.json();
+                const parts = result.address || {};
+                if (addressLine && result.display_name) addressLine.value = result.display_name;
+                const city = parts.city || parts.town || parts.village || parts.suburb || parts.county || "";
+                if (addressCity && city) addressCity.value = city;
+                if (locationStatus) locationStatus.textContent = "GPS coordinates attached. Check the address and add estate, building, floor or gate details before saving.";
+            } catch {
+                if (locationStatus) locationStatus.textContent = "GPS coordinates captured, but address lookup failed. Enter the address and area manually.";
+            } finally {
+                if (useCurrentLocationButton) {
+                    useCurrentLocationButton.disabled = false;
+                    useCurrentLocationButton.textContent = "Use My Current Location";
+                }
+            }
+        }, error => {
+            if (locationStatus) locationStatus.textContent = error.code === 1
+                ? "Location permission denied. Allow location access or enter the address manually."
+                : "Could not get your location. Check device location services and try again, or enter it manually.";
+            if (useCurrentLocationButton) {
+                useCurrentLocationButton.disabled = false;
+                useCurrentLocationButton.textContent = "Use My Current Location";
+            }
+        }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 });
+    }
+    useCurrentLocationButton?.addEventListener("click", useCurrentLocation);
 
     function validateForm() {
         const fullName = addressFullName?.value.trim() || "";
