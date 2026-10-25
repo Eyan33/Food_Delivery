@@ -669,3 +669,18 @@
     }
 
 }
+
+/* Image fallback state and unavailable menu actions */
+.menu-food-image.image-unavailable {
+    display: grid;
+    place-items: center;
+    color: var(--text-light);
+}
+.menu-food-image.image-unavailable::after {
+    content: "Image unavailable";
+    font-size: 13px;
+}
+.add-food-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
