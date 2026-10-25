@@ -223,7 +223,16 @@ async function getRestaurantIdByOwnerId(ownerId) {
 |--------------------------------------------------------------------------
 */
 
-async function getAllFoods() {
+async function getAllFoods(restaurantId) {
+    const values = [];
+    let restaurantFilter = "TRUE";
+
+    if (restaurantId !== undefined && restaurantId !== "") {
+        const validRestaurantId = parsePositiveInteger(restaurantId, "Restaurant ID");
+        values.push(validRestaurantId);
+        restaurantFilter = `f.restaurant_id = ${values.length}`;
+    }
+
     const result = await pool.query(
         `
         SELECT
@@ -252,9 +261,11 @@ async function getAllFoods() {
             ON r.id = f.restaurant_id
 
         WHERE r.is_active = TRUE
+          AND ${restaurantFilter}
 
         ORDER BY f.created_at DESC
-        `
+        `,
+        values
     );
 
     return result.rows;

@@ -7,7 +7,7 @@ const foodService = require("../../services/food/foodService");
 */
 async function getFoods(req, res) {
     try {
-        const foods = await foodService.getAllFoods();
+        const foods = await foodService.getAllFoods(req.query.restaurant_id);
 
         return res.status(200).json({
             success: true,
