@@ -239,6 +239,12 @@ document.addEventListener("DOMContentLoaded", () => {
             return false;
         }
 
+        const storedDeliveryFee = cart[0].delivery_fee ?? cart[0].deliveryFee;
+        if (storedDeliveryFee == null || storedDeliveryFee === "" || !Number.isFinite(Number(storedDeliveryFee)) || Number(storedDeliveryFee) < 0) {
+            showMessage("Your delivery fee cannot be verified yet. Return to your cart, refresh or re-add the items, then try checkout again.");
+            return false;
+        }
+
         if (cart.some(item =>
             !Number.isInteger(Number(item.quantity)) ||
             Number(item.quantity) < 1 ||
@@ -529,8 +535,16 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("savedAddressSelect")?.addEventListener("change", event => {
         const id = event.target.value;
         selectedAddressId = id || null;
-        if (id) applySavedAddress(savedAddresses.find(item => String(item.id) === id));
-        else address?.focus();
+        if (id) {
+            applySavedAddress(savedAddresses.find(item => String(item.id) === id));
+        } else {
+            if (fullName) fullName.value = "";
+            if (phone) phone.value = "";
+            if (address) address.value = "";
+            if (area) area.value = "";
+            if (deliveryNotes) deliveryNotes.value = "";
+            address?.focus();
+        }
     });
 
     /* =====================================================
