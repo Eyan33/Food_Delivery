@@ -242,7 +242,7 @@ async function getAllFoods(restaurantId) {
             f.name,
             f.description,
             f.price,
-            f.image_url,
+            CASE WHEN f.image_data IS NOT NULL THEN '/api/foods/' || f.id || '/image' ELSE f.image_url END AS image_url,
             f.preparation_time,
             f.is_available,
             f.is_featured,
@@ -287,7 +287,7 @@ async function getFoodById(foodId) {
             f.name,
             f.description,
             f.price,
-            f.image_url,
+            CASE WHEN f.image_data IS NOT NULL THEN '/api/foods/' || f.id || '/image' ELSE f.image_url END AS image_url,
             f.preparation_time,
             f.is_available,
             f.is_featured,
@@ -343,7 +343,7 @@ async function getMyFoods(ownerId) {
             f.name,
             f.description,
             f.price,
-            f.image_url,
+            CASE WHEN f.image_data IS NOT NULL THEN '/api/foods/' || f.id || '/image' ELSE f.image_url END AS image_url,
             f.preparation_time,
             f.is_available,
             f.is_featured,
@@ -1354,7 +1354,7 @@ async function getAdminFoods(options = {}) {
                     f.name,
                     f.description,
                     f.price,
-                    f.image_url,
+                    CASE WHEN f.image_data IS NOT NULL THEN '/api/foods/' || f.id || '/image' ELSE f.image_url END AS image_url,
                     f.preparation_time,
                     f.is_available,
                     f.is_featured,
@@ -1481,7 +1481,7 @@ async function getAdminFoodById(
                 f.name,
                 f.description,
                 f.price,
-                f.image_url,
+                CASE WHEN f.image_data IS NOT NULL THEN '/api/foods/' || f.id || '/image' ELSE f.image_url END AS image_url,
                 f.preparation_time,
                 f.is_available,
                 f.is_featured,
@@ -1524,147 +1524,79 @@ async function getAdminFoodById(
 |--------------------------------------------------------------------------
 */
 
-async function createAdminFood(
-    data
-) {
+async function createAdminFood(data) {
     const {
-        restaurant_id,
-        category_id,
-        name,
-        description,
-        price,
-        image_url,
-        preparation_time,
-        is_available,
-        is_featured
+        restaurant_id, category_id, name, description, price,
+        image_data, image_mime_type, preparation_time, is_available, is_featured
     } = data;
 
-    const restaurantId =
-        parsePositiveInteger(
-            restaurant_id,
-            "Restaurant ID"
-        );
+    const restaurantId = parsePositiveInteger(restaurant_id, "Restaurant ID");
+    const restaurant = await getRestaurantById(restaurantId);
+    if (!restaurant) throw apiError("Restaurant not found", 404);
 
-    const restaurant =
-        await getRestaurantById(
-            restaurantId
-        );
+    const foodName = validateName(name, "Food name");
+    const foodPrice = parseNonNegativeNumber(price, "Food price");
+    const preparationTime = parseOptionalNonNegativeInteger(preparation_time, "Preparation time");
+    if (is_available !== undefined && typeof is_available !== "boolean") throw apiError("is_available must be a boolean");
+    if (is_featured !== undefined && typeof is_featured !== "boolean") throw apiError("is_featured must be a boolean");
 
-    if (!restaurant) {
-        throw apiError(
-            "Restaurant not found",
-            404
-        );
+    const categoryId = parseOptionalPositiveInteger(category_id, "Category ID");
+    await validateCategoryForRestaurant(categoryId, restaurantId);
+
+    if (typeof image_mime_type !== "string" ||
+        !["image/jpeg", "image/png", "image/webp"].includes(image_mime_type)) {
+        throw apiError("A JPEG, PNG, or WebP image is required");
+    }
+    if (typeof image_data !== "string" ||
+        !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(image_data)) {
+        throw apiError("A valid food image is required");
     }
 
-    const foodName =
-        validateName(
-            name,
-            "Food name"
-        );
-
-    const foodPrice =
-        parseNonNegativeNumber(
-            price,
-            "Food price"
-        );
-
-    const preparationTime =
-        parseOptionalNonNegativeInteger(
-            preparation_time,
-            "Preparation time"
-        );
-
-    if (
-        is_available !== undefined &&
-        typeof is_available !== "boolean"
-    ) {
-        throw apiError(
-            "is_available must be a boolean"
-        );
+    const imageBuffer = Buffer.from(image_data, "base64");
+    if (!imageBuffer.length || imageBuffer.length > 5 * 1024 * 1024) {
+        throw apiError("Food image must be smaller than 5 MB");
     }
+    // Verify file signatures; do not trust the browser-provided MIME type alone.
+    const validSignature =
+        (image_mime_type === "image/jpeg" && imageBuffer.length >= 3 &&
+            imageBuffer[0] === 0xff && imageBuffer[1] === 0xd8 && imageBuffer[2] === 0xff) ||
+        (image_mime_type === "image/png" && imageBuffer.length >= 8 &&
+            imageBuffer.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10]))) ||
+        (image_mime_type === "image/webp" && imageBuffer.length >= 12 &&
+            imageBuffer.toString("ascii", 0, 4) === "RIFF" &&
+            imageBuffer.toString("ascii", 8, 12) === "WEBP");
+    if (!validSignature) throw apiError("The selected file is not a valid JPEG, PNG, or WebP image");
 
-    if (
-        is_featured !== undefined &&
-        typeof is_featured !== "boolean"
-    ) {
-        throw apiError(
-            "is_featured must be a boolean"
-        );
-    }
-
-    const categoryId =
-        parseOptionalPositiveInteger(
-            category_id,
-            "Category ID"
-        );
-
-    await validateCategoryForRestaurant(
-        categoryId,
-        restaurantId
+    const result = await pool.query(
+        `
+        INSERT INTO foods (
+            restaurant_id, category_id, name, description, price, image_url,
+            image_data, image_mime_type, preparation_time, is_available, is_featured
+        )
+        VALUES ($1, $2, $3, $4, $5, NULL, $6, $7, $8, $9, $10)
+        RETURNING id, restaurant_id, category_id, name, description, price,
+            '/api/foods/' || id || '/image' AS image_url,
+            preparation_time, is_available, is_featured, created_at, updated_at
+        `,
+        [
+            restaurantId, categoryId, foodName,
+            description !== undefined ? description : null,
+            foodPrice, imageBuffer, image_mime_type, preparationTime,
+            is_available !== undefined ? is_available : true,
+            is_featured !== undefined ? is_featured : false
+        ]
     );
-
-    const result =
-        await pool.query(
-            `
-            INSERT INTO foods (
-                restaurant_id,
-                category_id,
-                name,
-                description,
-                price,
-                image_url,
-                preparation_time,
-                is_available,
-                is_featured
-            )
-
-            VALUES (
-                $1,
-                $2,
-                $3,
-                $4,
-                $5,
-                $6,
-                $7,
-                $8,
-                $9
-            )
-
-            RETURNING *
-            `,
-            [
-                restaurantId,
-                categoryId,
-                foodName,
-
-                description !==
-                undefined
-                    ? description
-                    : null,
-
-                foodPrice,
-
-                image_url !==
-                undefined
-                    ? image_url
-                    : null,
-
-                preparationTime,
-
-                is_available !==
-                undefined
-                    ? is_available
-                    : true,
-
-                is_featured !==
-                undefined
-                    ? is_featured
-                    : false
-            ]
-        );
-
     return result.rows[0];
+}
+
+async function getFoodImage(foodId) {
+    const validFoodId = parsePositiveInteger(foodId, "Food ID");
+    const result = await pool.query(
+        `SELECT image_data, image_mime_type FROM foods WHERE id = $1 LIMIT 1`,
+        [validFoodId]
+    );
+    const food = result.rows[0];
+    return food && food.image_data ? food : null;
 }
 
 /*
@@ -2604,6 +2536,7 @@ async function deleteAdminCategory(
 module.exports = {
     getAllFoods,
     getFoodById,
+    getFoodImage,
 
     getMyFoods,
     createFood,
