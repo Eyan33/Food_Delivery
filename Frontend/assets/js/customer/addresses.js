@@ -492,16 +492,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     parts.county || parts.state_district || parts.state || parts.country || "";
                 const formattedAddress = String(result.display_name || "").trim();
                 // Populate required address fields from GPS; no manual location entry is needed.
-                if (addressLine) addressLine.value = formattedAddress ||
-                    `GPS location (${latitude.toFixed(6)}, ${longitude.toFixed(6)})`;
-                if (addressCity) addressCity.value = locality || "GPS location";
+                if (addressLine) addressLine.value = formattedAddress || "Current location";
+                if (addressCity) addressCity.value = locality || "Current location";
                 if (locationStatus) locationStatus.textContent = formattedAddress
                     ? "Live location filled automatically. Add estate, building, floor or gate details only if useful."
                     : "GPS coordinates and location fields filled automatically. The readable street address could not be resolved.";
             } catch {
-                if (addressLine) addressLine.value = `GPS location (${latitude.toFixed(6)}, ${longitude.toFixed(6)})`;
-                if (addressCity) addressCity.value = "GPS location";
-                if (locationStatus) locationStatus.textContent = "Live GPS coordinates and required location fields filled automatically. The readable street address could not be loaded.";
+                if (addressLine) addressLine.value = "Current location";
+                if (addressCity) addressCity.value = "Current location";
+                if (locationStatus) locationStatus.textContent = "Current location filled automatically. GPS coordinates are saved with this address.";
             } finally {
                 if (useCurrentLocationButton) {
                     useCurrentLocationButton.disabled = false;
