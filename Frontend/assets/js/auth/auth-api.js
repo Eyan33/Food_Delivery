@@ -184,6 +184,38 @@
         window.location.href = loginPagePath;
     }
 
+    function isProtectedPortalPage() {
+        const path = (window.location.pathname || "").toLowerCase();
+        return /\\/pages\\/rider\\//.test(path) ||
+            /\\/pages\\/customer\\/(?:cart|checkout|orders|profile|settings)(?:[/.]|$)/.test(path);
+    }
+
+    function enforceSessionOnProtectedPage() {
+        if (!isProtectedPortalPage()) return;
+        const token = getToken();
+        if (!token) {
+            clearSession();
+            redirectToLogin();
+            return;
+        }
+        const expiryMs = getTokenExpiryMs(token);
+        if (expiryMs !== null && expiryMs <= Date.now()) expireSession();
+    }
+
+    // Re-check when a suspended tab becomes active. Timers can be delayed by
+    // browsers, and API calls may not happen while a dashboard is idle.
+    window.addEventListener("pageshow", enforceSessionOnProtectedPage);
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+            scheduleSessionExpiryCheck();
+            enforceSessionOnProtectedPage();
+        }
+    });
+    window.addEventListener("focus", () => {
+        scheduleSessionExpiryCheck();
+        enforceSessionOnProtectedPage();
+    });
+
     function getToken() {
         return localStorage.getItem(tokenKey) || sessionStorage.getItem(tokenKey);
     }
