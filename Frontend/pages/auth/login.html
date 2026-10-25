@@ -85,10 +85,8 @@
                 </button>
             </form>
 
-            <!-- Create an account without entering login credentials -->
-            <a href="register.html" class="auth-button create-account-email-button">
-                Create Account with Email
-            </a>
+            <div class="auth-divider" aria-hidden="true"><span>OR</span></div>
+            <div id="googleSignInButton" class="google-signin-container"></div>
 
             <!-- Register Link -->
 
@@ -109,6 +107,7 @@
         <p>&copy; 2026 Food Delivery. All rights reserved.</p>
     </footer>
 
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="../../assets/js/api-config.js"></script>
     <script src="../../assets/js/auth/auth-api.js"></script>
     <script src="../../assets/js/auth/auth.js"></script>
