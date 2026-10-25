@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Mama's Kitchen - FoodDelivery</title>
+  <title>Restaurant | FoodDelivery</title>
 
   <link rel="stylesheet" href="../../assets/css/style.css" />
   <link rel="stylesheet" href="../../assets/css/pages/customer/customer.css" />
@@ -115,29 +115,29 @@
         <div class="restaurant-details-card">
           <!-- Restaurant Image -->
           <div class="restaurant-details-image">
-            <img src="../../assets/images/restaurants/restaurant-placeholder.jpg" alt="Mama's Kitchen"
+            <img src="../../assets/images/restaurants/restaurant-placeholder.jpg" alt="Restaurant"
               id="restaurantImage" />
 
             <span class="restaurant-status" id="restaurantStatus">
-              Open
+              Checking status
             </span>
           </div>
 
           <!-- Restaurant Info -->
           <div class="restaurant-details-info">
-            <span class="section-label"> African Food </span>
+            <span class="section-label" id="restaurantCuisine">Restaurant</span>
 
-            <h1 id="restaurantName">Mama's Kitchen</h1>
+            <h1 id="restaurantName">Loading restaurant…</h1>
 
             <p class="restaurant-description" id="restaurantDescription">
-              Delicious African meals and fast food prepared fresh for you.
+              Restaurant details will appear here once loaded.
             </p>
 
             <!-- Rating -->
             <div class="restaurant-rating">
               <span class="rating-stars"> ★ </span>
 
-              <strong id="restaurantRating"> 4.8 </strong>
+              <strong id="restaurantRating">—</strong>
 
               <span> rating </span>
             </div>
@@ -147,19 +147,19 @@
               <div class="meta-item">
                 <span class="meta-label"> Delivery </span>
 
-                <strong> KSh 100 </strong>
+                <strong id="restaurantDeliveryFee">—</strong>
               </div>
 
               <div class="meta-item">
                 <span class="meta-label"> Delivery time </span>
 
-                <strong> 20–30 min </strong>
+                <strong id="restaurantDeliveryTime">Not provided</strong>
               </div>
 
               <div class="meta-item">
                 <span class="meta-label"> Minimum order </span>
 
-                <strong> KSh 200 </strong>
+                <strong id="restaurantMinimumOrder">—</strong>
               </div>
             </div>
           </div>
@@ -192,160 +192,14 @@
                      MENU CATEGORIES
                 ========================== -->
         <div class="menu-categories" id="menuCategories">
-          <button type="button" class="menu-category active" data-category="all">
-            All
-          </button>
-
-          <button type="button" class="menu-category" data-category="chicken">
-            Chicken
-          </button>
-
-          <button type="button" class="menu-category" data-category="beef">
-            Beef
-          </button>
-
-          <button type="button" class="menu-category" data-category="vegetarian">
-            Vegetarian
-          </button>
-
-          <button type="button" class="menu-category" data-category="drinks">
-            Drinks
-          </button>
+          <button type="button" class="menu-category active" data-category="all">All</button>
         </div>
 
         <!-- =========================
                      MENU GRID
                 ========================== -->
-        <div class="menu-food-grid" id="menuFoodGrid">
-          <!-- Food Item 1 -->
-          <article class="menu-food-card" data-food-name="Grilled Chicken" data-category="chicken">
-            <div class="menu-food-image">
-              <img src="../../assets/images/food/food-placeholder.jpg" alt="Grilled Chicken" />
-            </div>
-
-            <div class="menu-food-info">
-              <h3>Grilled Chicken</h3>
-
-              <p>
-                Tender grilled chicken served with fries and fresh vegetables.
-              </p>
-
-              <div class="menu-food-bottom">
-                <strong> KSh 650 </strong>
-
-                <button type="button" class="add-food-button" data-food-id="1">
-                  Add
-                </button>
-              </div>
-            </div>
-          </article>
-
-          <!-- Food Item 2 -->
-          <article class="menu-food-card" data-food-name="Beef Stew" data-category="beef">
-            <div class="menu-food-image">
-              <img src="../../assets/images/food/food-placeholder.jpg" alt="Beef Stew" />
-            </div>
-
-            <div class="menu-food-info">
-              <h3>Beef Stew</h3>
-
-              <p>Slow-cooked beef stew served with rice and vegetables.</p>
-
-              <div class="menu-food-bottom">
-                <strong> KSh 550 </strong>
-
-                <button type="button" class="add-food-button" data-food-id="2">
-                  Add
-                </button>
-              </div>
-            </div>
-          </article>
-
-          <!-- Food Item 3 -->
-          <article class="menu-food-card" data-food-name="Vegetable Rice" data-category="vegetarian">
-            <div class="menu-food-image">
-              <img src="../../assets/images/food/food-placeholder.jpg" alt="Vegetable Rice" />
-            </div>
-
-            <div class="menu-food-info">
-              <h3>Vegetable Rice</h3>
-
-              <p>Flavoured rice served with fresh seasonal vegetables.</p>
-
-              <div class="menu-food-bottom">
-                <strong> KSh 400 </strong>
-
-                <button type="button" class="add-food-button" data-food-id="3">
-                  Add
-                </button>
-              </div>
-            </div>
-          </article>
-
-          <!-- Food Item 4 -->
-          <article class="menu-food-card" data-food-name="Chicken Wings" data-category="chicken">
-            <div class="menu-food-image">
-              <img src="../../assets/images/food/food-placeholder.jpg" alt="Chicken Wings" />
-            </div>
-
-            <div class="menu-food-info">
-              <h3>Chicken Wings</h3>
-
-              <p>
-                Crispy chicken wings served with our special dipping sauce.
-              </p>
-
-              <div class="menu-food-bottom">
-                <strong> KSh 500 </strong>
-
-                <button type="button" class="add-food-button" data-food-id="4">
-                  Add
-                </button>
-              </div>
-            </div>
-          </article>
-
-          <!-- Food Item 5 -->
-          <article class="menu-food-card" data-food-name="Beef Pilau" data-category="beef">
-            <div class="menu-food-image">
-              <img src="../../assets/images/food/food-placeholder.jpg" alt="Beef Pilau" />
-            </div>
-
-            <div class="menu-food-info">
-              <h3>Beef Pilau</h3>
-
-              <p>Fragrant spiced rice cooked with tender beef.</p>
-
-              <div class="menu-food-bottom">
-                <strong> KSh 600 </strong>
-
-                <button type="button" class="add-food-button" data-food-id="5">
-                  Add
-                </button>
-              </div>
-            </div>
-          </article>
-
-          <!-- Food Item 6 -->
-          <article class="menu-food-card" data-food-name="Fresh Juice" data-category="drinks">
-            <div class="menu-food-image">
-              <img src="../../assets/images/food/food-placeholder.jpg" alt="Fresh Juice" />
-            </div>
-
-            <div class="menu-food-info">
-              <h3>Fresh Juice</h3>
-
-              <p>Freshly prepared seasonal fruit juice.</p>
-
-              <div class="menu-food-bottom">
-                <strong> KSh 200 </strong>
-
-                <button type="button" class="add-food-button" data-food-id="6">
-                  Add
-                </button>
-              </div>
-            </div>
-          </article>
+        <div class="menu-food-grid" id="menuFoodGrid" aria-live="polite">
+          <p class="home-message">Loading this restaurant’s menu…</p>
         </div>
 
         <!-- No Menu Results -->
