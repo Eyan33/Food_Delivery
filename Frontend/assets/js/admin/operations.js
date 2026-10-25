@@ -1323,6 +1323,9 @@ form.reset();
         "submit",
         async (event) => {
             event.preventDefault();
+            // Keep the form reference across awaited API calls; event.currentTarget
+            // is cleared by the browser once the synchronous event dispatch ends.
+            const form = event.currentTarget;
 
             if (selectedRestaurantId == null) {
                 showMessage(
@@ -1353,7 +1356,7 @@ form.reset();
                     },
                 });
 
-                event.currentTarget.reset();
+                form.reset();
 
                 setRestaurantSelects(
                     selectedRestaurantId
