@@ -1033,41 +1033,29 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
 
 
-                <div class="admin-form-field">
-
-                    <label for="restaurantAddress">
-                        Address <span>*</span>
+                <div class="admin-form-field admin-form-field-full">
+                    <label for="restaurantLocationButton">
+                        Restaurant location <span>*</span>
                     </label>
 
-                    <input
-                        id="restaurantAddress"
-                        name="restaurantAddress"
-                        type="text"
-                        placeholder="e.g. 14 Ring Road"
-                        required
-                    />
+                    <button
+                        type="button"
+                        id="restaurantLocationButton"
+                        class="admin-secondary-button"
+                        style="width:100%;"
+                    >
+                        Use Live Location
+                    </button>
 
-                    <small class="admin-form-error"></small>
+                    <small id="restaurantLocationStatus" class="admin-form-hint" role="status" aria-live="polite">
+                        Required. Use this button and allow location access to save the restaurant's GPS coordinates.
+                    </small>
+                    <small id="restaurantLocationError" class="admin-form-error"></small>
 
-                </div>
-
-
-                <div class="admin-form-field">
-
-                    <label for="restaurantCity">
-                        City <span>*</span>
-                    </label>
-
-                    <input
-                        id="restaurantCity"
-                        name="restaurantCity"
-                        type="text"
-                        placeholder="e.g. Nairobi"
-                        required
-                    />
-
-                    <small class="admin-form-error"></small>
-
+                    <input id="restaurantAddress" name="restaurantAddress" type="hidden" required />
+                    <input id="restaurantCity" name="restaurantCity" type="hidden" required />
+                    <input id="restaurantLatitude" name="restaurantLatitude" type="hidden" />
+                    <input id="restaurantLongitude" name="restaurantLongitude" type="hidden" />
                 </div>
 
 
@@ -1428,6 +1416,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const restaurantImagePreview = modal.querySelector("#restaurantImagePreview");
   const clearRestaurantImageButton = modal.querySelector("#clearRestaurantImage");
   const restaurantImageError = modal.querySelector("#restaurantImageError");
+  const restaurantLocationButton = modal.querySelector("#restaurantLocationButton");
+  const restaurantLocationStatus = modal.querySelector("#restaurantLocationStatus");
+  const restaurantLocationError = modal.querySelector("#restaurantLocationError");
   let selectedRestaurantImageData = "";
 
   const modalTitle = modal.querySelector("#restaurantModalTitle");
@@ -1722,6 +1713,61 @@ document.addEventListener("DOMContentLoaded", () => {
     return true;
   }
 
+  async function captureRestaurantLocation() {
+    restaurantLocationError.textContent = "";
+    if (!navigator.geolocation) {
+      restaurantLocationError.textContent = "This browser does not support live location.";
+      return;
+    }
+
+    restaurantLocationButton.disabled = true;
+    restaurantLocationButton.textContent = "Getting location…";
+    restaurantLocationStatus.textContent = "Allow location access when your browser asks.";
+
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      const latitude = Number(position.coords.latitude);
+      const longitude = Number(position.coords.longitude);
+      let address = `GPS location (${latitude.toFixed(6)}, ${longitude.toFixed(6)})`;
+      let city = "GPS location";
+
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}`,
+          { headers: { Accept: "application/json" } }
+        );
+        if (response.ok) {
+          const result = await response.json();
+          const a = result.address || {};
+          address = result.display_name || address;
+          city = a.city || a.town || a.village || a.municipality || a.county || city;
+        }
+      } catch (error) {
+        console.warn("Reverse geocoding failed; saving GPS coordinates.", error);
+      }
+
+      form.elements.restaurantLatitude.value = String(latitude);
+      form.elements.restaurantLongitude.value = String(longitude);
+      form.elements.restaurantAddress.value = address;
+      form.elements.restaurantCity.value = city;
+      restaurantLocationStatus.textContent =
+        `Location selected: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}${city !== "GPS location" ? ` · ${city}` : ""}`;
+      restaurantLocationButton.textContent = "Refresh Live Location";
+      restaurantLocationButton.disabled = false;
+    }, (error) => {
+      const message = error.code === error.PERMISSION_DENIED
+        ? "Location permission was denied. Enable location access in your browser and try again."
+        : error.code === error.POSITION_UNAVAILABLE
+          ? "Your current location is unavailable. Check device location services and retry."
+          : "Location request timed out. Please try again.";
+      restaurantLocationError.textContent = message;
+      restaurantLocationStatus.textContent = "Restaurant location has not been selected.";
+      restaurantLocationButton.textContent = "Use Live Location";
+      restaurantLocationButton.disabled = false;
+    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+  }
+
+  restaurantLocationButton.addEventListener("click", captureRestaurantLocation);
+
   function validateRestaurantForm() {
     clearFormErrors();
 
@@ -1730,12 +1776,15 @@ document.addEventListener("DOMContentLoaded", () => {
     valid =
       validateRequiredInput("restaurantName", "Restaurant name", 2) && valid;
 
-    valid =
-      validateRequiredInput("restaurantAddress", "Restaurant address", 2) &&
-      valid;
-
-    valid =
-      validateRequiredInput("restaurantCity", "Restaurant city", 2) && valid;
+    if (
+      !form.elements.restaurantLatitude.value ||
+      !form.elements.restaurantLongitude.value ||
+      !form.elements.restaurantAddress.value.trim() ||
+      !form.elements.restaurantCity.value.trim()
+    ) {
+      restaurantLocationError.textContent = "Restaurant location is required. Select Use Live Location and allow location access.";
+      valid = false;
+    }
 
     valid =
       validateRequiredInput("ownerFirstName", "Owner first name", 2) && valid;
@@ -1784,8 +1833,17 @@ document.addEventListener("DOMContentLoaded", () => {
     setInputValue("restaurantEmail", restaurant.email);
 
     setInputValue("restaurantAddress", restaurant.address);
-
     setInputValue("restaurantCity", restaurant.city);
+    setInputValue("restaurantLatitude", restaurant.latitude);
+    setInputValue("restaurantLongitude", restaurant.longitude);
+    if (restaurant.latitude != null && restaurant.longitude != null) {
+      restaurantLocationStatus.textContent = `Saved location: ${Number(restaurant.latitude).toFixed(6)}, ${Number(restaurant.longitude).toFixed(6)}`;
+      restaurantLocationButton.textContent = "Refresh Live Location";
+    } else {
+      restaurantLocationStatus.textContent = "No GPS location saved. Select Use Live Location.";
+      restaurantLocationButton.textContent = "Use Live Location";
+    }
+    restaurantLocationError.textContent = "";
 
     setInputValue("restaurantDeliveryFee", restaurant.delivery_fee);
 
@@ -1833,6 +1891,10 @@ document.addEventListener("DOMContentLoaded", () => {
     restaurantModal.restaurant = null;
 
     form.reset();
+    restaurantLocationStatus.textContent = "Required. Use this button and allow location access to save the restaurant's GPS coordinates.";
+    restaurantLocationButton.textContent = "Use Live Location";
+    restaurantLocationButton.disabled = false;
+    restaurantLocationError.textContent = "";
     selectedRestaurantImageData = "";
     restaurantImagePreview.removeAttribute("src");
     restaurantImagePreviewWrap.hidden = true;
@@ -2032,6 +2094,10 @@ document.addEventListener("DOMContentLoaded", () => {
         address: form.elements.restaurantAddress.value.trim(),
 
         city: form.elements.restaurantCity.value.trim(),
+
+        latitude: Number(form.elements.restaurantLatitude.value),
+
+        longitude: Number(form.elements.restaurantLongitude.value),
 
         delivery_fee:
           form.elements.restaurantDeliveryFee.value === ""
