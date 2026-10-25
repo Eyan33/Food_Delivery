@@ -964,3 +964,28 @@
     flex-wrap: wrap;
     gap: 8px;
 }
+
+
+/* Report filters, chart sizing and small-screen label readability */
+.admin-reports-filter-card, .admin-report-filters, .admin-report-chart, .admin-report-chart-area, .admin-report-payment-grid { min-width: 0; }
+.admin-report-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; }
+.admin-report-filter { min-width: 0; max-width: 100%; }
+.admin-report-filter select, .admin-report-filter input { min-width: 0; max-width: 100%; box-sizing: border-box; }
+.admin-report-chart { max-width: 100%; }
+.admin-report-chart-area { overflow-x: auto; overflow-y: hidden; }
+.admin-report-bars { min-width: 0; }
+.admin-report-bar-column { min-width: 18px; }
+.admin-report-ranking-item, .admin-report-status-item, .admin-report-payment-item { min-width: 0; overflow-wrap: anywhere; }
+.admin-report-progress-bar { max-width: 100%; }
+@media (max-width: 900px) {
+ .admin-report-filters { align-items: stretch; }
+ .admin-report-filter { flex: 1 1 180px; }
+ .admin-report-chart-controls { flex-wrap: wrap; }
+}
+@media (max-width: 600px) {
+ .admin-report-filters { flex-direction: column; align-items: stretch; }
+ .admin-report-filter, .admin-report-filter-button { width: 100%; }
+ .admin-report-payment-grid { grid-template-columns: minmax(0,1fr); }
+ .admin-report-chart { padding-left: 10px; padding-right: 10px; }
+ .admin-report-y-axis { flex-shrink: 0; }
+}
