@@ -186,8 +186,8 @@
 
     function isProtectedPortalPage() {
         const path = (window.location.pathname || "").toLowerCase();
-        return /\\/pages\\/rider\\//.test(path) ||
-            /\\/pages\\/customer\\/(?:cart|checkout|orders|profile|settings)(?:[/.]|$)/.test(path);
+        return /\/pages\/rider\//.test(path) ||
+            /\/pages\/customer\/(?:cart|checkout|orders|profile|settings)(?:[/.]|$)/.test(path);
     }
 
     function enforceSessionOnProtectedPage() {
