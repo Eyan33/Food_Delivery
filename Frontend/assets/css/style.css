@@ -931,16 +931,6 @@ input[type="tel"] {
 
 
 
-/* Create-account link on the login page */
-.create-account-email-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 14px;
-    text-align: center;
-    text-decoration: none;
-}
 
-.create-account-email-button:hover {
-    color: var(--white);
-}
+/* Google sign-in on the login page */
+.auth-divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--text-light);font-size:12px}.auth-divider::before,.auth-divider::after{content:"";height:1px;flex:1;background:var(--border)}.google-signin-container{display:flex;justify-content:center;min-height:42px;width:100%}.google-signin-note{color:var(--text-light);font-size:13px;text-align:center}
