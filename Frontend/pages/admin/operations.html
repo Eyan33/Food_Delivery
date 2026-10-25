@@ -196,6 +196,16 @@
                 placeholder="e.g. 25" />
             </label>
 
+            <label class="food-image-field">
+              Food image <span aria-hidden="true">*</span>
+              <input id="foodImage" type="file"
+                accept="image/jpeg,image/png,image/webp" required
+                aria-describedby="foodImageHelp" />
+              <small id="foodImageHelp">Required. JPEG, PNG, or WebP; maximum 5 MB.</small>
+              <img id="foodImagePreview" class="food-image-preview"
+                alt="Preview of selected food image" hidden />
+            </label>
+
             <button class="admin-primary-button" type="submit">
               Add food
             </button>
