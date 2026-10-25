@@ -14,12 +14,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const cartCountElement = document.getElementById("cartCount");
     const searchForm = document.getElementById("homeSearchForm");
     const searchInput = document.getElementById("homeSearchInput");
+    let allRestaurants = [];
+    let allFoods = [];
+    const searchForm = document.getElementById("homeSearchForm");
+    const searchInput = document.getElementById("homeSearchInput");
 
     const RESTAURANT_PLACEHOLDER =
-        "../../assets/images/restaurants/restaurant-placeholder.jpg";
+        "data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22640%22 height=%22400%22%3E%3Crect width=%22640%22 height=%22400%22 fill=%22%23f1f5f9%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%2364748b%22%3ERestaurant%3C/text%3E%3C/svg%3E";
 
     const FOOD_PLACEHOLDER =
-        "../../assets/images/food/food-placeholder.jpg";
+        "data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22640%22 height=%22400%22%3E%3Crect width=%22640%22 height=%22400%22 fill=%22%23f1f5f9%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%2364748b%22%3EFood%20image%20unavailable%3C/text%3E%3C/svg%3E";
 
 
     // Personalized customer greeting
@@ -285,7 +289,8 @@ if (greeting) {
                 ? data.restaurants
                 : [];
 
-            renderRestaurants(restaurants);
+            allRestaurants = restaurants;
+            renderRestaurants(filterBySearch(allRestaurants, "restaurant"));
         } catch (error) {
             console.error("Customer homepage: failed to load restaurants:", error);
 
@@ -364,7 +369,7 @@ if (greeting) {
                                     class="add-food-button"
                                     data-food-id="${escapeHTML(food.id)}"
                                     aria-label="Add ${escapeHTML(name)} to cart"
-                                    title="Cart integration will be connected next"
+                                    title="Add to cart"
                                 >+</button>
                             </div>
                         </div>
@@ -382,8 +387,8 @@ if (greeting) {
         try {
             const data = await fetchPublicData("/foods");
             const foods = Array.isArray(data.foods) ? data.foods : [];
-
-            renderFoods(foods);
+            allFoods = foods;
+            renderFoods(filterBySearch(allFoods, "food"));
         } catch (error) {
             console.error("Customer homepage: failed to load foods:", error);
 
