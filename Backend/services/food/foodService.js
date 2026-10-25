@@ -230,7 +230,7 @@ async function getAllFoods(restaurantId) {
     if (restaurantId !== undefined && restaurantId !== "") {
         const validRestaurantId = parsePositiveInteger(restaurantId, "Restaurant ID");
         values.push(validRestaurantId);
-        restaurantFilter = `f.restaurant_id = ${values.length}`;
+        restaurantFilter = "f.restaurant_id = $1";
     }
 
     const result = await pool.query(
