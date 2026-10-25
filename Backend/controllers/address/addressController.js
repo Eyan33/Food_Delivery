@@ -1,5 +1,19 @@
 const addressService = require("../../services/address/addressService");
 
+function sendMutationError(res, error, operation) {
+    console.error(operation + " error:", error);
+    const status = Number.isInteger(error.statusCode)
+        && error.statusCode >= 400 && error.statusCode < 500
+        ? error.statusCode
+        : 500;
+    return res.status(status).json({
+        success: false,
+        message: status === 500
+            ? "The address could not be saved right now. Please try again."
+            : error.message
+    });
+}
+
 
 /*
  * Get all addresses belonging to the current user.
@@ -101,15 +115,7 @@ async function createAddress(req, res) {
 
     } catch (error) {
 
-        console.error(
-            "Create address error:",
-            error
-        );
-
-        return res.status(400).json({
-            success: false,
-            message: error.message
-        });
+        return sendMutationError(res, error, "Create address");
     }
 }
 
@@ -138,15 +144,7 @@ async function updateAddress(req, res) {
 
     } catch (error) {
 
-        console.error(
-            "Update address error:",
-            error
-        );
-
-        return res.status(400).json({
-            success: false,
-            message: error.message
-        });
+        return sendMutationError(res, error, "Update address");
     }
 }
 
@@ -174,15 +172,7 @@ async function setDefaultAddress(req, res) {
 
     } catch (error) {
 
-        console.error(
-            "Set default address error:",
-            error
-        );
-
-        return res.status(400).json({
-            success: false,
-            message: error.message
-        });
+        return sendMutationError(res, error, "Set default address");
     }
 }
 
@@ -210,15 +200,7 @@ async function deleteAddress(req, res) {
 
     } catch (error) {
 
-        console.error(
-            "Delete address error:",
-            error
-        );
-
-        return res.status(400).json({
-            success: false,
-            message: error.message
-        });
+        return sendMutationError(res, error, "Delete address");
     }
 }
 
