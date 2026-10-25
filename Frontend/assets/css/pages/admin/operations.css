@@ -925,3 +925,26 @@ body.catalog-modal-open {
 #catalogEditImagePreview {
   max-width: 180px;
 }
+
+
+/* Catalog workspace, forms and modal overflow fixes */
+.restaurant-cards, .restaurant-workspace-header, .operations-form, .operations-table { min-width: 0; max-width: 100%; }
+.restaurant-card { min-width: 0; overflow-wrap: anywhere; }
+.operations-form input, .operations-form select, .operations-form textarea { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; }
+.operations-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.catalog-modal { padding: 12px; }
+.catalog-modal-dialog { width: min(720px, 100%); max-width: 100%; max-height: calc(100dvh - 24px); overflow: hidden; display: flex; flex-direction: column; }
+.catalog-modal-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.catalog-modal-header, .catalog-modal-footer { flex-wrap: wrap; gap: 10px; }
+.catalog-modal-footer > button { max-width: 100%; }
+@media (max-width: 768px) {
+ .restaurant-cards { grid-template-columns: repeat(auto-fill,minmax(min(230px,100%),1fr)); }
+ .catalog-modal { padding: 8px; }
+ .catalog-modal-dialog { max-height: calc(100dvh - 16px); }
+}
+@media (max-width: 520px) {
+ .restaurant-cards { grid-template-columns: minmax(0,1fr); }
+ .restaurant-workspace-header { align-items: stretch; flex-direction: column; }
+ .catalog-modal-footer { flex-direction: column-reverse; }
+ .catalog-modal-footer > button { width: 100%; }
+}
