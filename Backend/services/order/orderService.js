@@ -149,7 +149,8 @@ async function getCustomerOrders(customerId) {
             o.created_at,
             o.updated_at,
             r.name AS restaurant_name,
-            r.logo_url AS restaurant_logo
+            r.logo_url AS restaurant_logo,
+            COALESCE((SELECT json_agg(json_build_object('id', oi.id, 'food_id', oi.food_id, 'food_name', oi.food_name, 'quantity', oi.quantity, 'unit_price', oi.unit_price, 'subtotal', oi.subtotal) ORDER BY oi.id ASC) FROM order_items oi WHERE oi.order_id = o.id), '[]'::json) AS items
         FROM orders o
         JOIN restaurants r
             ON r.id = o.restaurant_id
@@ -199,10 +200,14 @@ async function getOrderById(orderId, customerId) {
             o.created_at,
             o.updated_at,
             r.name AS restaurant_name,
-            r.logo_url AS restaurant_logo
+            r.logo_url AS restaurant_logo,
+            p.payment_method,
+            p.payment_status
         FROM orders o
         JOIN restaurants r
             ON r.id = o.restaurant_id
+        LEFT JOIN payments p
+            ON p.order_id = o.id
         WHERE o.id = $1
           AND o.customer_id = $2
         LIMIT 1
