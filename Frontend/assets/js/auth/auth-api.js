@@ -101,6 +101,10 @@
         return /\/pages\/admin\//i.test(window.location.pathname);
     }
 
+    function isAuthenticatedPortalPage() {
+        return /\/pages\/(?:admin|customer|restaurant|rider)\//i.test(window.location.pathname);
+    }
+
     function parseTimeoutMinutes(value) {
         if (value === "Never") return 0;
         const match = String(value || "").match(/^\s*(15|30)\s*Minutes\s*$|^\s*(1)\s*Hour\s*$|^\s*(4)\s*Hours\s*$/i);
@@ -120,7 +124,7 @@
 
     function scheduleInactivityLogout() {
         clearInactivityTimer();
-        if (!isAdminPage() || !getToken() || adminTimeoutMinutes <= 0) return;
+        if (!isAuthenticatedPortalPage() || !getToken() || adminTimeoutMinutes <= 0) return;
         inactivityTimer = window.setTimeout(() => {
             clearSession();
             window.alert("You have been logged out due to inactivity.");
@@ -128,8 +132,8 @@
         }, adminTimeoutMinutes * 60 * 1000);
     }
 
-    function noteAdminActivity() {
-        if (isAdminPage()) scheduleInactivityLogout();
+    function notePortalActivity() {
+        if (isAuthenticatedPortalPage()) scheduleInactivityLogout();
     }
 
     async function loadAdminSessionTimeout() {
@@ -157,7 +161,7 @@
     }
 
     ACTIVITY_EVENTS.forEach((eventName) => {
-        window.addEventListener(eventName, noteAdminActivity, { passive: true });
+        window.addEventListener(eventName, notePortalActivity, { passive: true });
     });
 
     window.addEventListener("admin-session-timeout-updated", (event) => {
@@ -297,6 +301,17 @@
     });
 
     scheduleSessionExpiryCheck();
+
+    // Reuse the last saved administrator-configured timeout on all portals
+    // in this browser. Fall back to 30 minutes if no setting is cached yet.
+    const cachedTimeout = localStorage.getItem(ADMIN_TIMEOUT_STORAGE_KEY);
+    if (cachedTimeout !== null && Number.isFinite(Number(cachedTimeout))) {
+        adminTimeoutMinutes = Number(cachedTimeout);
+    }
+
+    if (isAuthenticatedPortalPage()) {
+        scheduleInactivityLogout();
+    }
     loadAdminSessionTimeout();
 
     window.FoodDeliveryAuthApi = {
