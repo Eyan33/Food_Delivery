@@ -149,6 +149,24 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // Apply the saved platform name to the visible admin branding as well
+    // as the input field. Persisting a preference alone does not update the UI.
+    function applyPlatformName(value) {
+        const platformName = String(value || "").trim();
+        if (!platformName) return;
+
+        const logo = document.querySelector(".admin-logo");
+        if (logo) {
+            logo.textContent = platformName;
+            logo.setAttribute("aria-label", platformName);
+        }
+
+        document.title = document.title.replace(
+            /^(?:Settings|Dashboard|Customers|Restaurants|Riders|Orders|Payments|Reports|Operations)\s*\|\s*.*$/i,
+            (title) => title.split("|")[0].trim() + " | " + platformName + " Admin"
+        );
+    }
+
     /* =====================================================
        SNAPSHOT / CANCEL HELPERS
     ===================================================== */
@@ -464,6 +482,9 @@ function restoreSectionValues(section) {
                     if (field.type === "checkbox") field.checked = Boolean(value);
                     else field.value = value;
                 });
+                if (name === "general") {
+                    applyPlatformName(saved.platformName || getField("platformName")?.value);
+                }
                 rememberSectionValues(section);
             });
         } catch (error) {
@@ -478,10 +499,18 @@ function restoreSectionValues(section) {
         button.disabled = true;
         button.textContent = "Saving…";
         try {
-            await apiRequest("/admins/settings", {
+            const values = readSection(section);
+            const result = await apiRequest("/admins/settings", {
                 method: "PUT",
-                body: { [sectionName]: readSection(section) }
+                body: { [sectionName]: values }
             });
+            if (sectionName === "general") {
+                // Confirm the server returned persisted data before showing the
+                // updated platform name as applied.
+                const savedName = result?.settings?.general?.platformName
+                    || values.platformName;
+                applyPlatformName(savedName);
+            }
             rememberSectionValues(section);
             if (sectionName === "security") {
                 const timeoutField = getField("sessionTimeout");
