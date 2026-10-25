@@ -483,6 +483,14 @@ function restoreSectionValues(section) {
                 body: { [sectionName]: readSection(section) }
             });
             rememberSectionValues(section);
+            if (sectionName === "security") {
+                const timeoutField = getField("sessionTimeout");
+                if (timeoutField) {
+                    window.dispatchEvent(new CustomEvent("admin-session-timeout-updated", {
+                        detail: { value: timeoutField.value }
+                    }));
+                }
+            }
             showMessage("Settings saved successfully.", "success");
         } catch (error) {
             showMessage(getErrorMessage(error, "Could not save settings."), "danger");
