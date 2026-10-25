@@ -666,7 +666,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (id) {
             applySavedAddress(savedAddresses.find(item => String(item.id) === id));
         } else {
-            currentCoordinates = null;\n            locationAddressReady = false;\n            if (saveCheckoutLocationButton) saveCheckoutLocationButton.disabled = true;\n            if (fullName) fullName.value = "";
+            currentCoordinates = null;
+            locationAddressReady = false;
+            if (saveCheckoutLocationButton) saveCheckoutLocationButton.disabled = true;
+            if (fullName) fullName.value = "";
             if (phone) phone.value = "";
             if (address) address.value = "";
             if (area) area.value = "";
