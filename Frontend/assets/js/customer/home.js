@@ -12,6 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const foodGrid = document.getElementById("foodGrid");
     const usernameElement = document.getElementById("username");
     const cartCountElement = document.getElementById("cartCount");
+    const searchForm = document.getElementById("homeSearchForm");
+    const searchInput = document.getElementById("homeSearchInput");
 
     const RESTAURANT_PLACEHOLDER =
         "../../assets/images/restaurants/restaurant-placeholder.jpg";
