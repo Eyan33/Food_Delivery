@@ -591,7 +591,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 address_line: addressLine.value.trim(),
                 city: addressCity.value.trim(),
                 delivery_instructions: addressInstructions?.value.trim() || "",
-                is_default: isDefault
+                is_default: isDefault,
+                latitude: selectedCoordinates ? selectedCoordinates.latitude : null,
+                longitude: selectedCoordinates ? selectedCoordinates.longitude : null
             };
 
             isSaving = true;
