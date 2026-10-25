@@ -248,20 +248,30 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!response.ok) throw new Error("Address lookup failed");
                 const data = await response.json();
                 const parts = data.address || {};
-                if (address && data.display_name) address.value = data.display_name;
-                const city = parts.city || parts.town || parts.village || parts.suburb || parts.county || "";
-                if (area && city) area.value = city;
+                const locality = parts.neighbourhood || parts.suburb || parts.city_district ||
+                    parts.city || parts.town || parts.village || parts.municipality ||
+                    parts.county || parts.state_district || parts.state || parts.country || "";
+                const formattedAddress = String(data.display_name || "").trim();
+                // GPS selection fills both required fields; customers do not need to type their location.
+                if (address) address.value = formattedAddress ||
+                    `GPS location (${currentCoordinates.latitude.toFixed(6)}, ${currentCoordinates.longitude.toFixed(6)})`;
+                if (area) area.value = locality || "GPS location";
                 if (savedAddressSelect) savedAddressSelect.value = "";
                 selectedAddressId = null;
                 locationAddressReady = Boolean(address?.value.trim() && area?.value.trim());
                 if (saveCheckoutLocationButton) saveCheckoutLocationButton.disabled = !locationAddressReady;
-                setLocationStatus(locationAddressReady
-                    ? "Location captured. Review the address and area, then save it to your address book to attach GPS coordinates to this order."
-                    : "GPS captured, but the address lookup was incomplete. Enter the address and area manually before saving.");
+                setLocationStatus(formattedAddress
+                    ? `Live location filled automatically (${currentCoordinates.latitude.toFixed(5)}, ${currentCoordinates.longitude.toFixed(5)}). You can place the order without typing your address.`
+                    : "GPS coordinates filled automatically. The street address could not be resolved; add delivery instructions if needed.");
             } catch {
-                setLocationStatus("GPS coordinates were captured, but the address lookup failed. Enter your address and area manually; then you can save the address with coordinates.");
-                locationAddressReady = Boolean(address?.value.trim() && area?.value.trim());
-                if (saveCheckoutLocationButton) saveCheckoutLocationButton.disabled = !locationAddressReady;
+                // Keep GPS usable even if reverse geocoding is temporarily unavailable.
+                if (address) address.value = `GPS location (${currentCoordinates.latitude.toFixed(6)}, ${currentCoordinates.longitude.toFixed(6)})`;
+                if (area) area.value = "GPS location";
+                if (savedAddressSelect) savedAddressSelect.value = "";
+                selectedAddressId = null;
+                locationAddressReady = true;
+                if (saveCheckoutLocationButton) saveCheckoutLocationButton.disabled = false;
+                setLocationStatus("Live GPS coordinates filled automatically. The readable street address could not be loaded; the rider can use the coordinates.");
             } finally {
                 setLocationButtonBusy(false);
             }
