@@ -161,6 +161,8 @@ document.addEventListener("DOMContentLoaded", () => {
     function addToCart(food, button) {
         if (!restaurant || !food) return;
 
+        const previousCart = cart.map(item => ({ ...item }));
+
         if (!normalizeBoolean(restaurant.is_open)) {
             alert("This restaurant is currently closed.");
             return;
@@ -221,9 +223,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (!saveCart()) {
-            // Restore the in-memory cart as well as the visible badge if storage fails.
-            if (existingItem) existingItem.quantity = Math.max(0, Number(existingItem.quantity) || 1) - 1;
-            else cart = cart.filter(item => !(String(item.id) === String(food.id) && String(item.restaurant_id) === String(food.restaurant_id ?? restaurant.id)));
+            // Restore the entire prior cart, including items cleared after a restaurant switch.
+            cart = previousCart;
             updateCartCount();
             return;
         }
