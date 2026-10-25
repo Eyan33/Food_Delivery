@@ -13,6 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const ordersCount = document.getElementById("ordersCount");
     const noOrders = document.getElementById("noOrders");
     const filterButtons = document.querySelectorAll(".order-filter");
+    const refreshButton = document.getElementById("refreshOrdersButton");
+    let refreshTimer = null;
+    let isLoading = false;
 
     let orders = [];
     let selectedFilter = "all";
@@ -76,14 +79,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    function showMessage(message, type = "error") {
+    function showMessage(message, type = "error", retry = false) {
         if (!ordersList) return;
-
-        ordersList.innerHTML = `
-            <div class="orders-load-message ${type}" role="status">
-                ${escapeHtml(message)}
-            </div>
-        `;
+        ordersList.innerHTML = "<div class=\"orders-load-message " + type + "\" role=\"status\"><p>" + escapeHtml(message) + "</p>" + (retry ? "<button type=\"button\" id=\"retryOrdersButton\" class=\"view-order-button\">Try again</button>" : "") + "</div>";
+        if (noOrders) noOrders.style.display = "none";
     }
 
     function normalizeOrdersResponse(result) {
@@ -138,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
             : "";
 
         const orderId = encodeURIComponent(order.id);
-        const canCancel = status === "pending";
+        const canCancel = ["pending", "confirmed"].includes(status);
 
         return `
             <article class="order-card" data-status="${escapeHtml(status)}">
@@ -237,18 +236,22 @@ document.addEventListener("DOMContentLoaded", () => {
         ordersList.innerHTML = filteredOrders.map(renderOrder).join("");
     }
 
-    async function loadOrders() {
+    async function loadOrders(options = {}) {
+        const quiet = options.quiet === true;
+        if (isLoading) return;
+        isLoading = true;
         const token = getToken();
 
         if (!token) {
             showMessage("Please log in to view your orders.");
-
             if (ordersCount) ordersCount.textContent = "0 orders";
             if (noOrders) noOrders.style.display = "none";
+            isLoading = false;
             return;
         }
 
-        showMessage("Loading your orders...", "loading");
+        if (!quiet) showMessage("Loading your orders...", "loading");
+        if (refreshButton) refreshButton.disabled = true;
 
         try {
             const response = await fetch(`${API_BASE}/orders/my-orders`, {
@@ -286,9 +289,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } catch (error) {
             console.error("Failed to load customer orders:", error);
-            showMessage(
-                error.message || "Unable to load your orders. Please try again."
-            );
+            if (!quiet || orders.length === 0) showMessage(error.message || "Unable to load your orders. Please try again.", "error", true);
+        } finally {
+            isLoading = false;
+            if (refreshButton) refreshButton.disabled = false;
         }
     }
 
@@ -304,6 +308,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (ordersList) {
         ordersList.addEventListener("click", async event => {
+            const retryButton = event.target.closest("#retryOrdersButton");
+            if (retryButton) { await loadOrders(); return; }
             const button = event.target.closest(".cancel-order-button");
             if (!button) return;
 
@@ -377,5 +383,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    if (refreshButton) refreshButton.addEventListener("click", () => loadOrders());
     loadOrders();
+    refreshTimer = window.setInterval(() => loadOrders({ quiet: true }), 30000);
+    window.addEventListener("beforeunload", () => { if (refreshTimer) window.clearInterval(refreshTimer); });
 });
