@@ -533,6 +533,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const priceGroup = byId("catalogEditPriceGroup");
         const priceInput = byId("catalogEditPrice");
         const nameInput = byId("catalogEditName");
+        const foodOptions = byId("catalogEditFoodOptions");
+        const editImageInput = byId("catalogEditImage");
+        const editImagePreview = byId("catalogEditImagePreview");
+        const featuredInput = byId("catalogEditFeatured");
 
         if (
             !modal ||
@@ -567,6 +571,12 @@ form.reset();
         byId("catalogEditId").value = String(item.id);
 
         nameInput.value = item.name || "";
+        if (editImageInput) editImageInput.value = "";
+        if (editImagePreview) {
+            editImagePreview.hidden = !item.image_url;
+            editImagePreview.src = item.image_url || "";
+        }
+        if (foodOptions) foodOptions.hidden = type !== "food";
 
         if (type === "food") {
             byId("catalogEditTitle").textContent =
@@ -583,6 +593,7 @@ form.reset();
             priceGroup.hidden = false;
             priceInput.required = true;
             priceInput.value = String(item.price ?? "");
+            if (featuredInput) featuredInput.checked = item.is_featured === true;
         } else if (type === "category") {
             byId("catalogEditTitle").textContent =
                 "Edit category";
@@ -666,6 +677,30 @@ form.reset();
                 }
 
                 const body = { name };
+                if (type === "food") {
+                    body.is_featured = byId("catalogEditFeatured").checked;
+                    const file = byId("catalogEditImage").files?.[0];
+                    if (file) {
+                        if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
+                            file.size === 0 || file.size > 5 * 1024 * 1024) {
+                            showCatalogEditError("Choose a JPEG, PNG, or WebP image no larger than 5 MB.");
+                            return;
+                        }
+                        const dataUrl = await new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = () => resolve(reader.result);
+                            reader.onerror = () => reject(new Error("Could not read the selected image."));
+                            reader.readAsDataURL(file);
+                        });
+                        const comma = String(dataUrl).indexOf(",");
+                        if (comma < 0) {
+                            showCatalogEditError("Could not prepare the selected image.");
+                            return;
+                        }
+                        body.image_mime_type = file.type;
+                        body.image_data = String(dataUrl).slice(comma + 1);
+                    }
+                }
 
                 if (type === "food") {
                     if (priceValue.trim() === "") {
