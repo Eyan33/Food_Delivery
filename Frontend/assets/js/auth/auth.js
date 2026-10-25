@@ -70,6 +70,7 @@ async function initializeGoogleSignIn() {
                 try {
                     const session = await window.FoodDeliveryAuthApi.request("/auth/google", { method: "POST", body: { credential: response.credential } });
                     window.FoodDeliveryAuthApi.saveSession(session, true);
+                    if (session.newGoogleAccount === true) sessionStorage.setItem("foodDeliveryGooglePasswordSetupPending", "true");
                     setLoginMessage("Google sign-in successful. Redirecting…", "success");
                     window.setTimeout(() => { window.location.href = destinationForRole(session.user.role); }, 400);
                 } catch (error) { setLoginMessage(error.message || "Google sign-in failed. Please try again.", "error"); }
