@@ -465,7 +465,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function useCurrentLocation() {
         if (!navigator.geolocation) {
-            showFormMessage("This browser does not support location. Enter your address manually.");
+            showFormMessage("This browser does not support location services. Use a device and browser that support GPS to save an address.");
             return;
         }
         if (locationStatus) locationStatus.textContent = "Requesting device location…";
@@ -509,8 +509,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }, error => {
             if (locationStatus) locationStatus.textContent = error.code === 1
-                ? "Location permission denied. Allow location access or enter the address manually."
-                : "Could not get your location. Check device location services and try again, or enter it manually.";
+                ? "Location permission denied. Allow location access to save your current location."
+                : "Could not get your location. Check device location services and try again.";
             if (useCurrentLocationButton) {
                 useCurrentLocationButton.disabled = false;
                 useCurrentLocationButton.textContent = "Use My Current Location";
@@ -544,15 +544,9 @@ document.addEventListener("DOMContentLoaded", () => {
             return false;
         }
 
-        if (!line) {
-            showFormMessage("Please enter your delivery address.");
-            addressLine?.focus();
-            return false;
-        }
-
-        if (!city) {
-            showFormMessage("Please enter your city or area.");
-            addressCity?.focus();
+        if (!selectedCoordinates || !line || !city) {
+            showFormMessage("Please select Use My Current Location before saving this address.");
+            useCurrentLocationButton?.focus();
             return false;
         }
 
