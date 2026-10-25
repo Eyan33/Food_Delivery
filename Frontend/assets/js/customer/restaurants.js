@@ -361,6 +361,9 @@ if (!Array.isArray(restaurantList)) {
         }
     }
 
+    const initialSearch = new URLSearchParams(window.location.search).get("search");
+    if (searchInput && initialSearch) searchInput.value = initialSearch;
+
     updateCartCount();
     loadRestaurants();
 });

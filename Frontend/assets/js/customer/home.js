@@ -287,11 +287,8 @@ if (greeting) {
         } catch (error) {
             console.error("Customer homepage: failed to load restaurants:", error);
 
-            showMessage(
-                restaurantGrid,
-                "We couldn't load restaurants. Please check that the backend is running and try again.",
-                "error"
-            );
+            showMessage(restaurantGrid, "We couldn't load restaurants. Please try again.", "error");
+            addRetryButton(restaurantGrid, loadRestaurants);
         }
     }
 
@@ -388,13 +385,47 @@ if (greeting) {
         } catch (error) {
             console.error("Customer homepage: failed to load foods:", error);
 
-            showMessage(
-                foodGrid,
-                "We couldn't load meals. Please check that the backend is running and try again.",
-                "error"
-            );
+            showMessage(foodGrid, "We couldn't load meals. Please try again.", "error");
+            addRetryButton(foodGrid, loadFoods);
         }
     }
+
+    function filterBySearch(items, kind) {
+        const term = (searchInput?.value || "").trim().toLowerCase();
+        if (!term) return items;
+        return items.filter(item => {
+            const restaurantName = kind === "food" ? (item.restaurant_name || allRestaurants.find(r => String(r.id) === String(item.restaurant_id))?.name || "") : "";
+            return [item.name, item.description, item.city, item.address, item.category_name, item.category, restaurantName].filter(Boolean).join(" ").toLowerCase().includes(term);
+        });
+    }
+    function addRetryButton(container, retry) {
+        const button = document.createElement("button"); button.type = "button"; button.className = "home-retry-button"; button.textContent = "Try again";
+        button.addEventListener("click", retry); container.appendChild(button); container.setAttribute("aria-busy", "false");
+    }
+    function updateCartCount() {
+        if (!cartCountElement) return;
+        try { const items = JSON.parse(localStorage.getItem("foodDeliveryCart") || "[]"); cartCountElement.textContent = String(Array.isArray(items) ? items.reduce((sum, item) => sum + Math.max(0, Number(item.quantity) || 0), 0) : 0); } catch { cartCountElement.textContent = "0"; }
+    }
+    function addFoodToCart(foodId, button) {
+        const food = allFoods.find(item => String(item.id) === String(foodId)); if (!food) return;
+        const restaurant = allRestaurants.find(item => String(item.id) === String(food.restaurant_id));
+        if (restaurant && [false, "false", 0].includes(restaurant.is_open)) { showMessage(foodGrid, "This restaurant is currently closed."); return; }
+        if ([false, "false", 0].includes(food.is_available)) { showMessage(foodGrid, "This meal is currently unavailable."); return; }
+        let cart; try { cart = JSON.parse(localStorage.getItem("foodDeliveryCart") || "[]"); } catch { cart = []; } if (!Array.isArray(cart)) cart = [];
+        const restaurantId = food.restaurant_id ?? restaurant?.id;
+        if (cart.length && cart.some(item => item.restaurant_id != null && restaurantId != null && String(item.restaurant_id) !== String(restaurantId))) { if (!window.confirm("Your cart contains items from another restaurant. Clear it and add this meal?")) return; cart = []; }
+        const existing = cart.find(item => String(item.id) === String(food.id) && String(item.restaurant_id) === String(restaurantId));
+        if (existing) existing.quantity = Math.max(1, Number(existing.quantity) || 1) + 1;
+        else cart.push({ id: food.id, restaurant_id: restaurantId, restaurant_name: food.restaurant_name || restaurant?.name || "Restaurant", restaurant_is_open: restaurant?.is_open, delivery_fee: restaurant?.delivery_fee, name: food.name || "Food item", category: food.category_name || food.category || "Other", description: food.description || "", price: Number(food.price) || 0, image: getImageUrl(food.image_url, FOOD_PLACEHOLDER), quantity: 1 });
+        try { localStorage.setItem("foodDeliveryCart", JSON.stringify(cart)); } catch { showMessage(foodGrid, "Could not save your cart. Check browser storage.", "error"); return; }
+        updateCartCount(); if (button) { const old = button.textContent; button.textContent = "✓"; window.setTimeout(() => button.textContent = old, 900); }
+    }
+    searchForm?.addEventListener("submit", event => { event.preventDefault(); const term = (searchInput?.value || "").trim(); if (term) window.location.href = "restaurants.html?search=" + encodeURIComponent(term); });
+    searchInput?.addEventListener("input", () => { renderRestaurants(filterBySearch(allRestaurants, "restaurant")); renderFoods(filterBySearch(allFoods, "food")); });
+    foodGrid?.addEventListener("click", event => { const button = event.target.closest(".add-food-button"); if (button) addFoodToCart(button.dataset.foodId, button); });
+    restaurantGrid?.addEventListener("click", event => { const card = event.target.closest("[data-restaurant-url]"); if (card) window.location.href = card.dataset.restaurantUrl; });
+    restaurantGrid?.addEventListener("keydown", event => { const card = event.target.closest("[data-restaurant-url]"); if (card && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); window.location.href = card.dataset.restaurantUrl; } });
+    window.addEventListener("storage", event => { if (event.key === "foodDeliveryCart") updateCartCount(); });
 
     /* ---------------------------------------------------------
        MOBILE NAVIGATION

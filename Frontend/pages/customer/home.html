@@ -50,13 +50,13 @@
       </nav>
 
       <!-- Mobile Menu -->
-      <button type="button" class="mobile-menu-button" id="mobileMenuButton" aria-label="Open menu">
+      <button type="button" class="mobile-menu-button" id="mobileMenuButton" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNavigation">
         ☰
       </button>
     </div>
 
     <!-- Mobile Navigation -->
-    <nav class="mobile-navigation" id="mobileNavigation">
+    <nav class="mobile-navigation" id="mobileNavigation" aria-label="Mobile navigation">
       <a href="home.html" class="active"> Home </a>
 
       <a href="restaurants.html"> Restaurants </a>
@@ -92,6 +92,11 @@
             Discover delicious meals from restaurants near you and get them
             delivered wherever you are.
           </p>
+          <form class="food-search" id="homeSearchForm" role="search">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <input id="homeSearchInput" type="search" placeholder="Search meals or restaurants..." aria-label="Search meals or restaurants" autocomplete="off">
+            <button type="submit">Search</button>
+          </form>
         </div>
       </div>
     </section>
@@ -129,7 +134,7 @@
         <a href="restaurants.html" class="view-all"> View all </a>
       </div>
 
-      <div class="restaurant-grid" id="restaurantGrid" aria-live="polite">
+      <div class="restaurant-grid" id="restaurantGrid" aria-live="polite" aria-busy="true">
   <p class="home-loading">Loading restaurants...</p>
 </div>
     </section>
@@ -147,9 +152,10 @@
         </div>
       </div>
 
-      <div class="food-grid" id="foodGrid" aria-live="polite">
+      <div class="food-grid" id="foodGrid" aria-live="polite" aria-busy="true">
   <p class="home-loading">Loading meals...</p>
 </div>
+        <a href="restaurants.html" class="view-all">Browse all meals and restaurants</a>
     </section>
   </main>
 
