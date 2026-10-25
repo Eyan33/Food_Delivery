@@ -92,6 +92,24 @@ async function googleLogin(req, res) {
         return res.status(notConfigured ? 503 : 401).json({ success: false, message: error.message || "Google sign-in failed" });
     }
 }
+async function setGooglePassword(req, res) {
+    try {
+        await authService.setGoogleAccountPassword(req.user.id, req.body && req.body.newPassword);
+        return res.status(200).json({ success: true, message: "Password created successfully." });
+    } catch (error) {
+        return res.status(400).json({ success: false, message: error.message });
+    }
+}
+
+async function finishGoogleFirstSession(req, res) {
+    try {
+        await authService.finishGoogleFirstSession(req.user.id);
+        return res.status(200).json({ success: true, message: "First session ended." });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Unable to finish session." });
+    }
+}
+
 async function me(req, res) {
     try {
 
@@ -233,6 +251,8 @@ module.exports = {
     login,
     googleConfig,
     googleLogin,
+    setGooglePassword,
+    finishGoogleFirstSession,
     me,
     updateMe,
     changePassword,
