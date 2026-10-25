@@ -1842,9 +1842,9 @@ async function updateAdminFood(
             throw apiError("The selected file is not a valid JPEG, PNG, or WebP image");
         }
         values.push(imageBuffer);
-        updates.push(`image_data = ${values.length}`);
+        updates.push(`image_data = $${values.length}`);
         values.push(image_mime_type);
-        updates.push(`image_mime_type = ${values.length}`);
+        updates.push(`image_mime_type = $${values.length}`);
         updates.push("image_url = NULL");
     }
 
