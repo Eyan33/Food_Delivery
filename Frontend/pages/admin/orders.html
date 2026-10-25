@@ -191,7 +191,7 @@
 				<div class="admin-orders-card-header">
 					<div>
 						<h3>All Orders</h3>
-						<p>1,248 orders found</p>
+						<p id="adminOrdersFoundCount">Loading orders…</p>
 					</div>
 
 					<div class="admin-orders-actions">
@@ -267,27 +267,9 @@
                       TABLE FOOTER / PAGINATION
                 ================================================== -->
 				<div class="admin-orders-footer">
-					<p>Showing <strong>1–6</strong> of <strong>—</strong> orders</p>
+					<p id="adminOrdersShowingCount">Loading order range…</p>
 
-					<div class="admin-pagination">
-						<button type="button" class="admin-pagination-button disabled" disabled>
-							‹
-						</button>
-
-						<button type="button" class="admin-pagination-button active">
-							1
-						</button>
-
-						<button type="button" class="admin-pagination-button">2</button>
-
-						<button type="button" class="admin-pagination-button">3</button>
-
-						<span class="admin-pagination-dots"> ... </span>
-
-						<button type="button" class="admin-pagination-button">208</button>
-
-						<button type="button" class="admin-pagination-button">›</button>
-					</div>
+					<div class="admin-pagination" aria-label="Orders pagination"></div>
 				</div>
 			</div>
 
