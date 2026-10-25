@@ -222,15 +222,13 @@
                 <!-- Address -->
 
                 <div class="address-form-group">
-                    <label for="addressLine"> Delivery Address </label>
-
-                    <textarea id="addressLine" name="address" rows="3" placeholder="Enter your delivery address"
-                        required></textarea>
+                    <label for="addressLine">Detected Delivery Location</label>
+                    <textarea id="addressLine" name="address" rows="2" placeholder="Use current location to detect your address" readonly required></textarea>
                 </div>
 
                 <div class="address-form-group location-picker-group">
                     <button type="button" class="use-current-location-button" id="useCurrentLocationButton">Use My Current Location</button>
-                    <p id="locationStatus" class="location-status" role="status" aria-live="polite">Use device GPS to fill the address automatically. Review it before saving.</p>
+                    <p id="locationStatus" class="location-status" role="status" aria-live="polite">Use current location to fill the address automatically. You do not need to type your location.</p>
                     <input type="hidden" id="addressLatitude" name="latitude" />
                     <input type="hidden" id="addressLongitude" name="longitude" />
                 </div>
@@ -238,9 +236,8 @@
                 <!-- City -->
 
                 <div class="address-form-group">
-                    <label for="addressCity"> City / Area </label>
-
-                    <input type="text" id="addressCity" name="city" placeholder="e.g. Nairobi" required />
+                    <label for="addressCity">Detected Area</label>
+                    <input type="text" id="addressCity" name="city" placeholder="Detected automatically from GPS" readonly required />
                 </div>
 
                 <!-- Instructions -->
