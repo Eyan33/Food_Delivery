@@ -168,6 +168,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 date: order.preparing_at
             },
             {
+                key: "ready",
+                title: "Ready for Pickup",
+                description: "Your order is ready for the rider",
+                date: order.ready_at
+            },
+            {
                 key: "out_for_delivery",
                 title: "Out for Delivery",
                 description: "Your order is on its way",
@@ -185,9 +191,9 @@ document.addEventListener("DOMContentLoaded", () => {
             pending: 0,
             confirmed: 1,
             preparing: 2,
-            ready: 2,
-            out_for_delivery: 3,
-            delivered: 4,
+            ready: 3,
+            out_for_delivery: 4,
+            delivered: 5,
             cancelled: -1
         };
 
@@ -217,13 +223,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 icon = "✓";
             } else if (index === currentStep) {
                 className += " current";
-            }
-
-            // "Ready" means the kitchen has completed the order,
-            // even if the rider has not collected it yet.
-            if (status === "ready" && index === 2) {
-                className = "timeline-step completed";
-                icon = "✓";
             }
 
             const dateText = step.date
@@ -469,25 +468,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderPayment(order) {
         if (!paymentCard) return;
-
         const statusElement = paymentCard.querySelector(".payment-status");
-
-        if (statusElement) {
-            statusElement.textContent =
-                order.payment_status || "Payment status not available";
-        }
-
+        if (statusElement) statusElement.textContent = order.payment_status ? String(order.payment_status).replaceAll("_", " ") : "Not recorded";
         const paymentInfo = paymentCard.querySelector(".payment-info");
-
         if (paymentInfo) {
-            const methodElement = paymentInfo.querySelector(
-                ".payment-method"
-            );
-
-            if (methodElement) {
-                methodElement.textContent =
-                    order.payment_method || "Not recorded";
-            }
+            const methodElement = paymentInfo.querySelector(".payment-method") || paymentInfo.querySelector("div:nth-child(2) strong");
+            if (methodElement) methodElement.textContent = order.payment_method ? String(order.payment_method).replaceAll("_", " ").toUpperCase() : "Not recorded";
         }
     }
 
