@@ -9,7 +9,7 @@
 
     const style = document.createElement("style");
     style.textContent = `
-      .admin-notification-wrap{position:relative}
+      .admin-notification-badge[hidden]{display:none!important}\n      .admin-notification-wrap{position:relative}
       .admin-notification-panel{position:absolute;right:0;top:calc(100% + 10px);width:min(370px,calc(100vw - 32px));max-height:430px;overflow:auto;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 16px 40px rgba(0,0,0,.16);z-index:2000;color:#171717}
       .admin-notification-panel[hidden]{display:none}
       .admin-notification-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid #eee}
