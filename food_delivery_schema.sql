@@ -312,6 +312,8 @@ CREATE TABLE public.orders (
     customer_id bigint NOT NULL,
     restaurant_id bigint NOT NULL,
     address_id bigint,
+    delivery_latitude numeric(10,8),
+    delivery_longitude numeric(11,8),
     status character varying(30) DEFAULT 'pending'::character varying NOT NULL,
     delivery_address text NOT NULL,
     delivery_city character varying(100) NOT NULL,
