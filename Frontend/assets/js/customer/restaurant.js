@@ -150,14 +150,18 @@ document.addEventListener("DOMContentLoaded", () => {
     function saveCart() {
         try {
             localStorage.setItem("foodDeliveryCart", JSON.stringify(cart));
+            return true;
         } catch (error) {
             console.error("Unable to save cart:", error);
-            alert("Your cart could not be saved in this browser.");
+            alert("Your cart could not be saved in this browser. Check storage settings and available space.");
+            return false;
         }
     }
 
     function addToCart(food, button) {
         if (!restaurant || !food) return;
+
+        const previousCart = cart.map(item => ({ ...item }));
 
         if (!normalizeBoolean(restaurant.is_open)) {
             alert("This restaurant is currently closed.");
@@ -193,13 +197,22 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         if (existingItem) {
-            existingItem.quantity =
-                (Number(existingItem.quantity) || 0) + 1;
+            const currentQuantity = Number(existingItem.quantity) || 0;
+            if (currentQuantity >= 99) {
+                alert("You can add up to 99 of one item per order.");
+                return;
+            }
+            existingItem.quantity = currentQuantity + 1;
         } else {
             cart.push({
                 id: food.id,
-                restaurant_id: food.restaurant_id,
+                restaurant_id: food.restaurant_id ?? restaurant.id,
                 restaurant_name: restaurant.name,
+                restaurant_is_open: normalizeBoolean(restaurant.is_open),
+                delivery_fee: (() => {
+                    const fee = Number(restaurant.delivery_fee ?? restaurant.deliveryFee);
+                    return Number.isFinite(fee) && fee >= 0 ? fee : null;
+                })(),
                 name: food.name,
                 category: food.category_name || "Other",
                 description: food.description || "",
@@ -209,7 +222,12 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
 
-        saveCart();
+        if (!saveCart()) {
+            // Restore the entire prior cart, including items cleared after a restaurant switch.
+            cart = previousCart;
+            updateCartCount();
+            return;
+        }
         updateCartCount();
 
         if (button) {

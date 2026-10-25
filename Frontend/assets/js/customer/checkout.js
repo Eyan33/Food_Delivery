@@ -107,13 +107,10 @@ document.addEventListener("DOMContentLoaded", () => {
     function getDeliveryFee() {
         if (cart.length === 0) return 0;
 
-        const fee = Number(
-            cart[0].delivery_fee ?? cart[0].deliveryFee
-        );
-
-        // Display-only fallback for older cart items.
-        // The backend calculates the actual fee when placing the order.
-        return Number.isFinite(fee) && fee >= 0 ? fee : 100;
+        const raw = cart[0].delivery_fee ?? cart[0].deliveryFee;
+        const fee = raw == null || raw === "" ? NaN : Number(raw);
+        // Do not show a made-up fee. The server calculates the final amount at order creation.
+        return Number.isFinite(fee) && fee >= 0 ? fee : null;
     }
 
     function updateOrderSummary() {
@@ -188,7 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
                 <div class="summary-row">
                     <span>Delivery Fee</span>
-                    <strong>${formatCurrency(deliveryFee)}</strong>
+                    <strong>${deliveryFee == null ? "Calculated at checkout" : formatCurrency(deliveryFee)}</strong>
                 </div>
             `;
         }
@@ -196,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (summaryTotal) {
             summaryTotal.innerHTML = `
                 <span>Total</span>
-                <strong>${formatCurrency(subtotal + deliveryFee)}</strong>
+                <strong>${deliveryFee == null ? "Calculated at checkout" : formatCurrency(subtotal + deliveryFee)}</strong>
             `;
         }
 
@@ -243,6 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (cart.some(item =>
             !Number.isInteger(Number(item.quantity)) ||
             Number(item.quantity) < 1 ||
+            Number(item.quantity) > 99 ||
             !Number.isFinite(Number(item.price)) ||
             Number(item.price) < 0
         )) {

@@ -132,89 +132,14 @@
                             <div>
                                 <span class="restaurant-label"> Restaurant </span>
 
-                                <h2>Mama's Kitchen</h2>
+                                <h2>Your restaurant</h2>
                             </div>
 
-                            <span class="restaurant-status cart-status"> Open </span>
+                            <span class="restaurant-status cart-status">Restaurant</span>
                         </div>
 
-                        <!-- Cart Items -->
-                        <div class="cart-items" id="cartItems">
-                            <!-- Cart Item 1 -->
-                            <article class="cart-item" data-food-id="1" data-price="650">
-                                <div class="cart-item-image">
-                                    <img src="../../assets/images/food/food-placeholder.jpg" alt="Grilled Chicken" />
-                                </div>
-
-                                <div class="cart-item-info">
-                                    <h3>Grilled Chicken</h3>
-
-                                    <p>
-                                        Tender grilled chicken served with fries and fresh
-                                        vegetables.
-                                    </p>
-
-                                    <strong class="cart-item-price"> KSh 650 </strong>
-                                </div>
-
-                                <div class="cart-item-actions">
-                                    <div class="quantity-control">
-                                        <button type="button" class="quantity-button decrease-quantity"
-                                            data-action="decrease" aria-label="Decrease quantity">
-                                            −
-                                        </button>
-
-                                        <span class="quantity"> 1 </span>
-
-                                        <button type="button" class="quantity-button increase-quantity"
-                                            data-action="increase" aria-label="Increase quantity">
-                                            +
-                                        </button>
-                                    </div>
-
-                                    <button type="button" class="remove-item-button">
-                                        Remove
-                                    </button>
-                                </div>
-                            </article>
-
-                            <!-- Cart Item 2 -->
-                            <article class="cart-item" data-food-id="2" data-price="550">
-                                <div class="cart-item-image">
-                                    <img src="../../assets/images/food/food-placeholder.jpg" alt="Beef Stew" />
-                                </div>
-
-                                <div class="cart-item-info">
-                                    <h3>Beef Stew</h3>
-
-                                    <p>
-                                        Slow-cooked beef stew served with rice and vegetables.
-                                    </p>
-
-                                    <strong class="cart-item-price"> KSh 550 </strong>
-                                </div>
-
-                                <div class="cart-item-actions">
-                                    <div class="quantity-control">
-                                        <button type="button" class="quantity-button decrease-quantity"
-                                            data-action="decrease" aria-label="Decrease quantity">
-                                            −
-                                        </button>
-
-                                        <span class="quantity"> 1 </span>
-
-                                        <button type="button" class="quantity-button increase-quantity"
-                                            data-action="increase" aria-label="Increase quantity">
-                                            +
-                                        </button>
-                                    </div>
-
-                                    <button type="button" class="remove-item-button">
-                                        Remove
-                                    </button>
-                                </div>
-                            </article>
-                        </div>
+                        <!-- Items are rendered from the saved cart by cart.js. -->
+                        <div class="cart-items" id="cartItems"></div>
 
                         <!-- Empty Cart -->
                         <div class="empty-cart" id="emptyCart" hidden>
@@ -245,7 +170,7 @@
                         <div class="summary-row">
                             <span> Delivery fee </span>
 
-                            <strong id="cartDeliveryFee"> KSh 100 </strong>
+                            <strong id="cartDeliveryFee">Calculated at checkout</strong>
                         </div>
 
                         <div class="summary-divider"></div>
@@ -253,15 +178,11 @@
                         <div class="summary-row summary-total">
                             <span> Total </span>
 
-                            <strong id="cartTotal"> KSh 1,300 </strong>
+                            <strong id="cartTotal">Calculated at checkout</strong>
                         </div>
 
                         <!-- Checkout -->
-                        <a href="checkout.html">
-                            <button type="button" class="checkout-button" id="checkoutButton">
-                                Proceed to Checkout
-                            </button>
-                        </a>
+                        <button type="button" class="checkout-button" id="checkoutButton" disabled aria-disabled="true">Proceed to Checkout</button>
 
                         <!-- Payment Info -->
                         <div class="payment-note">
