@@ -87,7 +87,11 @@ if (greeting) {
             return fallback;
         }
 
-        // Permit relative project URLs and normal HTTP(S) image URLs.
+        // Permit embedded restaurant images, relative paths and normal HTTP(S) URLs.
+        if (/^data:image\/(jpeg|png|webp);base64,/i.test(imageUrl)) {
+            return imageUrl;
+        }
+
         if (
             imageUrl.startsWith("/") ||
             imageUrl.startsWith("./") ||
