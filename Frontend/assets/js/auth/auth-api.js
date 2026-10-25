@@ -34,6 +34,7 @@
     }
 
     function clearSession() {
+        sessionStorage.removeItem("foodDeliveryGooglePasswordSetupPending");
         localStorage.removeItem(tokenKey);
         localStorage.removeItem(userKey);
         sessionStorage.removeItem(tokenKey);
