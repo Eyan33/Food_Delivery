@@ -22,12 +22,14 @@ forgotPasswordForm.addEventListener("submit", async (event) => {
         });
 
         const result = await response.json().catch(() => ({}));
+
         if (!response.ok) {
             throw new Error(result.message || "We could not process your request. Please try again.");
         }
 
         forgotPasswordMessage.textContent =
             result.message || "If an active account exists for that email, password-reset instructions will be sent.";
+            result.message || "If an account exists for that email, password-reset instructions will be sent.";
         forgotPasswordMessage.classList.add("success");
     } catch (error) {
         forgotPasswordMessage.textContent =
