@@ -228,6 +228,13 @@
                         required></textarea>
                 </div>
 
+                <div class="address-form-group location-picker-group">
+                    <button type="button" class="use-current-location-button" id="useCurrentLocationButton">Use My Current Location</button>
+                    <p id="locationStatus" class="location-status" role="status" aria-live="polite">Use device GPS to fill the address automatically. Review it before saving.</p>
+                    <input type="hidden" id="addressLatitude" name="latitude" />
+                    <input type="hidden" id="addressLongitude" name="longitude" />
+                </div>
+
                 <!-- City -->
 
                 <div class="address-form-group">
