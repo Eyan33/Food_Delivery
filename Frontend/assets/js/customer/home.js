@@ -306,14 +306,16 @@ if (greeting) {
         if (!foodGrid) return;
 
         // Only show food currently marked available.
+        // The homepage Popular Foods section is curated by admins using
+        // the is_featured checkbox in Operations > Catalog > Edit food.
         const availableFoods = foods.filter((food) => {
-            return food && food.is_available === true;
+            return food && food.is_available === true && food.is_featured === true;
         });
 
         if (availableFoods.length === 0) {
             showMessage(
                 foodGrid,
-                "No meals are available right now."
+                "No popular meals are available right now."
             );
             return;
         }

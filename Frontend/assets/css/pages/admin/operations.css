@@ -899,3 +899,29 @@ body.catalog-modal-open {
   align-items: center;
   min-width: 150px;
 }
+
+
+.catalog-featured-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  font-weight: 650;
+}
+.catalog-featured-option input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  accent-color: var(--operations-primary);
+}
+#catalogEditFoodOptions {
+  display: grid;
+  gap: 9px;
+  margin-top: 12px;
+}
+#catalogEditFoodOptions[hidden] {
+  display: none;
+}
+#catalogEditImagePreview {
+  max-width: 180px;
+}
