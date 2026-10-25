@@ -439,7 +439,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div class="admin-restaurant">
 
                         <div class="admin-restaurant-avatar">
-                            ${escapeHtml(getInitials(restaurant.name))}
+                            ${restaurant.logo_url && /^data:image\/(jpeg|png|webp);base64,/i.test(restaurant.logo_url)
+                              ? `<img src="${restaurant.logo_url}" alt="${escapeHtml(restaurant.name)} image" loading="lazy">`
+                              : escapeHtml(getInitials(restaurant.name))}
                         </div>
 
                         <div class="admin-restaurant-info">
