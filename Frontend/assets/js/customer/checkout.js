@@ -404,17 +404,12 @@ document.addEventListener("DOMContentLoaded", () => {
             return false;
         }
 
-        if (!address || address.value.trim().length < 5) {
-            showMessage("Please enter your delivery address.");
-            address?.focus();
+        if (!currentCoordinates || !locationAddressReady) {
+            showMessage("Please select Use My Current Location before placing your order.");
+            useCheckoutLocationButton?.focus();
             return false;
         }
 
-        if (!area || area.value.trim().length < 2) {
-            showMessage("Please enter your city or area.");
-            area?.focus();
-            return false;
-        }
 
         if (getPaymentMethod() !== "cash") {
             showMessage("Cash on delivery is the only payment method currently available.");
