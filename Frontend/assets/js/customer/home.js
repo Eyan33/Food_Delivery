@@ -16,8 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const searchInput = document.getElementById("homeSearchInput");
     let allRestaurants = [];
     let allFoods = [];
-    const searchForm = document.getElementById("homeSearchForm");
-    const searchInput = document.getElementById("homeSearchInput");
+
 
     const RESTAURANT_PLACEHOLDER =
         "data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22640%22 height=%22400%22%3E%3Crect width=%22640%22 height=%22400%22 fill=%22%23f1f5f9%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%2364748b%22%3ERestaurant%3C/text%3E%3C/svg%3E";
