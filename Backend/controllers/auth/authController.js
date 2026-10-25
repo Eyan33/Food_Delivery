@@ -205,9 +205,7 @@ async function resetPassword(req, res) {
         });
     } catch (error) {
         const message = error.message || "Unable to reset password.";
-        const status = /invalid or has expired/i.test(message) ? 400 : 400;
-
-        return res.status(status).json({
+        return res.status(400).json({
             success: false,
             message
         });
