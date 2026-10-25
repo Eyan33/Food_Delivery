@@ -25,6 +25,29 @@ async function getFoods(req, res) {
 
 /*
 |--------------------------------------------------------------------------
+| Public - Get Food Image
+|--------------------------------------------------------------------------
+*/
+async function getFoodImage(req, res) {
+    try {
+        const image = await foodService.getFoodImage(req.params.id);
+        if (!image) {
+            return res.status(404).json({ success: false, message: "Food image not found" });
+        }
+        res.set("Content-Type", image.image_mime_type);
+        res.set("Cache-Control", "public, max-age=3600");
+        res.set("X-Content-Type-Options", "nosniff");
+        return res.status(200).send(image.image_data);
+    } catch (error) {
+        console.error("Get food image error:", error);
+        return res.status(error.statusCode || 400).json({
+            success: false, message: error.message || "Failed to retrieve food image"
+        });
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
 | Public - Get One Food
 |--------------------------------------------------------------------------
 */
@@ -863,6 +886,7 @@ async function deleteAdminCategory(req, res) {
 module.exports = {
     getFoods,
     getFood,
+    getFoodImage,
 
     getMyFoods,
     createFood,
