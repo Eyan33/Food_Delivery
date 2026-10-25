@@ -144,30 +144,21 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="savedAddressSelect">Saved delivery address</label>
-                                <select id="savedAddressSelect" name="savedAddressSelect"><option value="">Enter a new address</option></select>
-                                <small>Choose a saved address or enter a different one below.</small>
-                            </div>
-
-                            <div class="form-group checkout-location-tools">
+                                <div class="form-group checkout-location-tools">
                                 <button type="button" id="useCheckoutLocationButton" class="checkout-location-button">Use My Current Location</button>
-                                <button type="button" id="saveCheckoutLocationButton" class="checkout-location-button secondary" disabled>Save Current Location to My Addresses</button>
-                                <small id="checkoutLocationStatus" role="status" aria-live="polite">Use GPS to fill your delivery address, then save it for this order.</small>
+                                <small id="checkoutLocationStatus" role="status" aria-live="polite">Select your current location to continue. You do not need to type an address.</small>
                             </div>
 
                             <!-- Address -->
                             <div class="form-group">
-                                <label for="address"> Delivery Address </label>
-
-                                <textarea id="address" name="address" rows="3" placeholder="Enter your delivery address"
-                                    required></textarea>
+                                <label for="address">Detected Delivery Location</label>
+                                <textarea id="address" name="address" rows="2" placeholder="Use current location to detect your address" readonly required></textarea>
                             </div>
 
                             <!-- City / Area -->
                             <div class="form-group">
-                                <label for="area"> City / Area </label>
-
-                                <input type="text" id="area" name="area" placeholder="e.g. Nyeri Town" required />
+                                <label for="area">Detected Area</label>
+                                <input type="text" id="area" name="area" placeholder="Detected automatically from GPS" readonly required />
                             </div>
 
                             <!-- Delivery Notes -->
