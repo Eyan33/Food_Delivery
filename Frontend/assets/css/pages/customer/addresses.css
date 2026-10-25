@@ -918,3 +918,23 @@
     cursor: wait;
     opacity: 0.6;
 }
+
+/* Device GPS address selection */
+.use-current-location-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 10px 14px;
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--primary);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.use-current-location-button:hover { background: #fff0ea; }
+.use-current-location-button:disabled { opacity: .65; cursor: wait; }
+.location-status { margin: 8px 0 0; color: var(--text-light); font-size: 12px; line-height: 1.5; }
