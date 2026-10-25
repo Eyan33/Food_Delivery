@@ -1195,3 +1195,22 @@ body.rider-modal-open {
     width: 100%;
     overflow-x: auto;
 }
+
+/* Rider table actions and edit modal fit on narrow screens */
+.admin-riders-card, .admin-rider-tools, .admin-table-footer, .admin-rider-performance { min-width: 0; }
+.admin-table-wrapper { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.admin-table-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.admin-table-action { flex: 0 0 auto; }
+.rider-modal-overlay { padding: 12px; overflow-y: auto; }
+.rider-modal { width: min(680px,100%); max-width: 100%; max-height: calc(100dvh - 24px); overflow-y: auto; box-sizing: border-box; }
+.rider-modal-form input, .rider-modal-form select, .rider-modal-form textarea { min-width: 0; max-width: 100%; box-sizing: border-box; }
+.rider-form-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+@media (max-width: 600px) {
+ .admin-rider-tools { flex-wrap: wrap; }
+ .admin-rider-tools > * { max-width: 100%; min-width: 0; }
+ .rider-modal-overlay { padding: 8px; }
+ .rider-modal { max-height: calc(100dvh - 16px); }
+ .rider-form-grid { grid-template-columns: minmax(0,1fr); }
+ .rider-modal-footer { flex-wrap: wrap; }
+ .rider-modal-footer > button { flex: 1 1 100%; }
+}
