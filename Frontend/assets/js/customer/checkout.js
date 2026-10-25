@@ -23,6 +23,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const placeOrderButton = document.getElementById("placeOrderButton");
 
     let cart = [];
+    let savedAddresses = [];
+    let selectedAddressId = null;
     let isSubmitting = false;
 
     /* =====================================================
@@ -242,7 +244,9 @@ document.addEventListener("DOMContentLoaded", () => {
             Number(item.quantity) < 1 ||
             Number(item.quantity) > 99 ||
             !Number.isFinite(Number(item.price)) ||
-            Number(item.price) < 0
+            Number(item.price) < 0 ||
+            !/^[1-9][0-9]*$/.test(String(item.id ?? "")) ||
+            !/^[1-9][0-9]*$/.test(String(item.restaurant_id ?? ""))
         )) {
             showMessage("Your cart contains an invalid item or quantity. Please review your cart.");
             return false;
@@ -303,9 +307,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 ? deliveryNotes.value.trim()
                 : "",
             notes: null,
+            address_id: selectedAddressId || null,
+            expected_delivery_fee: (() => { const fee = cart[0].delivery_fee ?? cart[0].deliveryFee; return fee == null || fee === "" ? null : Number(fee); })(),
             items: cart.map(item => ({
                 food_id: Number(item.id),
-                quantity: Number(item.quantity)
+                quantity: Number(item.quantity),
+                expected_price: Number(item.price)
             }))
         };
     }
@@ -369,64 +376,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
             }
 
-            /*
-             * Record the selected payment method after the order exists.
-             * If this second request fails, do NOT tell the customer that
-             * the order failed: the order was already committed. Preserve
-             * its ID and redirect so the customer does not accidentally
-             * create a duplicate order by retrying checkout.
-             */
-            let paymentRecordCreated = false;
-            let paymentRecordError = null;
-
-            try {
-                const paymentResponse = await fetch(`${API_BASE}/payments`, {
-                    method: "POST",
-                    headers: {
-                        "Accept": "application/json",
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        order_id: order.id,
-                        payment_method: "cash"
-                    })
-                });
-
-                const paymentResult = await paymentResponse.json().catch(() => ({}));
-
-                if (!paymentResponse.ok || paymentResult.success !== true) {
-                    // A duplicate payment may mean a previous attempt already
-                    // created it. Verify before treating this as a failure.
-                    if (paymentResponse.status === 409) {
-                        const verifyResponse = await fetch(
-                            `${API_BASE}/payments/order/${encodeURIComponent(order.id)}`,
-                            {
-                                headers: {
-                                    "Accept": "application/json",
-                                    "Authorization": `Bearer ${token}`
-                                }
-                            }
-                        );
-                        const verifyResult = await verifyResponse.json().catch(() => ({}));
-                        paymentRecordCreated = verifyResponse.ok &&
-                            verifyResult.success === true &&
-                            Boolean(verifyResult.data?.payment);
-                    }
-
-                    if (!paymentRecordCreated) {
-                        throw new Error(
-                            paymentResult.message ||
-                            `Payment record could not be created (HTTP ${paymentResponse.status}).`
-                        );
-                    }
-                } else {
-                    paymentRecordCreated = Boolean(paymentResult.data?.payment);
-                }
-            } catch (paymentError) {
-                console.error("Order created but cash payment record failed:", paymentError);
-                paymentRecordError = paymentError;
-            }
+            // The backend creates the pending cash payment in the same transaction.
+            const paymentRecordCreated = true;
 
             // Clear cart only after the backend confirms the order.
             localStorage.removeItem(CART_STORAGE_KEY);
@@ -538,11 +489,57 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
+       SAVED DELIVERY ADDRESSES
+    ===================================================== */
+
+    async function loadSavedAddresses() {
+        const select = document.getElementById("savedAddressSelect");
+        if (!select) return;
+        const token = getToken();
+        if (!token) return;
+        try {
+            const response = await fetch(`${API_BASE}/addresses`, { headers: { Accept: "application/json", Authorization: `Bearer ${token}` } });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok || result.success !== true) throw new Error(result.message || "Could not load saved addresses.");
+            const rows = result.data?.addresses;
+            if (!Array.isArray(rows)) throw new Error("The saved address list is invalid.");
+            savedAddresses = rows;
+            select.replaceChildren(new Option("Enter a new address", ""));
+            savedAddresses.forEach(item => select.add(new Option(`${item.label || "Address"}: ${item.address_line}, ${item.city}`, String(item.id))));
+            const preferred = savedAddresses.find(item => item.is_default) || savedAddresses[0];
+            if (preferred) { select.value = String(preferred.id); applySavedAddress(preferred); }
+        } catch (error) {
+            console.warn("Saved addresses could not be loaded:", error);
+            select.replaceChildren(new Option("Saved addresses unavailable — enter address below", ""));
+        }
+    }
+
+    function applySavedAddress(item) {
+        if (!item) return;
+        selectedAddressId = String(item.id);
+        if (fullName) fullName.value = item.recipient_name || fullName.value;
+        if (phone) phone.value = item.phone || phone.value;
+        if (address) address.value = item.address_line || "";
+        if (area) area.value = item.city || "";
+        if (deliveryNotes && item.delivery_instructions) deliveryNotes.value = item.delivery_instructions;
+        const locationText = document.querySelector(".location-text strong");
+        if (locationText) locationText.textContent = item.address_line || item.city || "Saved address";
+    }
+
+    document.getElementById("savedAddressSelect")?.addEventListener("change", event => {
+        const id = event.target.value;
+        selectedAddressId = id || null;
+        if (id) applySavedAddress(savedAddresses.find(item => String(item.id) === id));
+        else address?.focus();
+    });
+
+    /* =====================================================
        INITIALIZE
     ===================================================== */
 
     loadCart();
     updateOrderSummary();
+    loadSavedAddresses();
 
     console.log("Checkout initialized. Cart items:", cart.length);
 });
