@@ -251,12 +251,31 @@ async function ensureRiderProfileSchema() {
     `);
 }
 
+async function ensurePasswordResetSchema() {
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS public.password_reset_tokens (
+            id bigserial PRIMARY KEY,
+            user_id bigint NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+            token_hash char(64) NOT NULL UNIQUE,
+            expires_at timestamptz NOT NULL,
+            created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user_id
+            ON public.password_reset_tokens (user_id);
+
+        CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_expires_at
+            ON public.password_reset_tokens (expires_at);
+    `);
+}
+
 async function initializeDatabase() {
     await waitForDatabase();
     await ensureSchema();
     await ensureFoodImageSchema();
     await ensureAdminSupportSchema();
     await ensureRiderProfileSchema();
+    await ensurePasswordResetSchema();
     await seedAdmin();
 }
 

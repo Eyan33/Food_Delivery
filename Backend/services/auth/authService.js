@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 
 const pool = require('../../config/database');
 const generateToken = require("../../utils/auth/generateToken");
@@ -430,10 +431,107 @@ async function changeCurrentUserPassword(userId, currentPassword, newPassword) {
 }
 
 
+function hashResetToken(token) {
+    return crypto.createHash("sha256").update(token).digest("hex");
+}
+
+async function createPasswordResetToken(email) {
+    const normalizedEmail = normalizeEmail(email);
+    if (!isValidEmail(normalizedEmail)) {
+        throw new Error("Please provide a valid email address");
+    }
+
+    const result = await pool.query(
+        "SELECT id, email FROM users WHERE email = $1 AND is_active = TRUE LIMIT 1",
+        [normalizedEmail]
+    );
+    if (!result.rows.length) {
+        return null;
+    }
+
+    const user = result.rows[0];
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const tokenHash = hashResetToken(rawToken);
+
+    await pool.query(
+        `DELETE FROM password_reset_tokens
+         WHERE user_id = $1 OR expires_at <= CURRENT_TIMESTAMP`,
+        [user.id]
+    );
+    await pool.query(
+        `INSERT INTO password_reset_tokens (user_id, token_hash, expires_at)
+         VALUES ($1, $2, CURRENT_TIMESTAMP + INTERVAL '1 hour')`,
+        [user.id, tokenHash]
+    );
+
+    return { token: rawToken, email: user.email };
+}
+
+async function resetPasswordWithToken(token, newPassword) {
+    if (typeof token !== "string" || !/^[a-f0-9]{64}$/i.test(token)) {
+        throw new Error("This password-reset link is invalid or has expired");
+    }
+    if (!isValidPassword(newPassword)) {
+        throw new Error("Password must contain at least 8 characters");
+    }
+
+    const client = await pool.connect();
+    try {
+        await client.query("BEGIN");
+        const tokenHash = hashResetToken(token);
+        const found = await client.query(
+            `SELECT prt.user_id
+             FROM password_reset_tokens prt
+             JOIN users u ON u.id = prt.user_id
+             WHERE prt.token_hash = $1
+               AND prt.expires_at > CURRENT_TIMESTAMP
+               AND u.is_active = TRUE
+             FOR UPDATE OF prt`,
+            [tokenHash]
+        );
+
+        if (!found.rows.length) {
+            throw new Error("This password-reset link is invalid or has expired");
+        }
+
+        const userId = found.rows[0].user_id;
+        const passwordHash = await bcrypt.hash(newPassword, 12);
+        await client.query(
+            `UPDATE users
+             SET password_hash = $1, password_changed_at = CURRENT_TIMESTAMP,
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE id = $2`,
+            [passwordHash, userId]
+        );
+        await client.query("DELETE FROM password_reset_tokens WHERE user_id = $1", [userId]);
+        await client.query("COMMIT");
+        return true;
+    } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+    } finally {
+        client.release();
+    }
+}
+
+async function deletePasswordResetToken(token) {
+    if (typeof token !== "string" || !/^[a-f0-9]{64}$/i.test(token)) {
+        return;
+    }
+    await pool.query(
+        "DELETE FROM password_reset_tokens WHERE token_hash = $1",
+        [hashResetToken(token)]
+    );
+}
+
+
 module.exports = {
     registerUser,
     loginUser,
     getCurrentUser,
     updateCurrentUser,
-    changeCurrentUserPassword
+    changeCurrentUserPassword,
+    createPasswordResetToken,
+    resetPasswordWithToken,
+    deletePasswordResetToken
 };
