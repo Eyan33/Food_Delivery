@@ -645,6 +645,24 @@ form.reset();
         error.hidden = false;
     }
 
+    const catalogEditImageInput = byId("catalogEditImage");
+    const catalogEditImagePreview = byId("catalogEditImagePreview");
+    if (catalogEditImageInput && catalogEditImagePreview) {
+        catalogEditImageInput.addEventListener("change", () => {
+            const file = catalogEditImageInput.files?.[0];
+            if (!file) return;
+            if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
+                file.size === 0 || file.size > 5 * 1024 * 1024) {
+                catalogEditImageInput.value = "";
+                showCatalogEditError("Choose a JPEG, PNG, or WebP image no larger than 5 MB.");
+                return;
+            }
+            catalogEditImagePreview.src = URL.createObjectURL(file);
+            catalogEditImagePreview.hidden = false;
+            byId("catalogEditError").hidden = true;
+        });
+    }
+
     const catalogEditForm = byId("catalogEditForm");
 
     if (catalogEditForm) {
