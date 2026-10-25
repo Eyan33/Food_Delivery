@@ -191,15 +191,26 @@
     }
 
     function enforceSessionOnProtectedPage() {
-        if (!isProtectedPortalPage()) return;
+        // Every portal route is private, not only the rider and selected
+        // customer pages. Never leave a protected screen visible without a
+        // valid session.
+        if (!isAuthenticatedPortalPage()) return;
+
         const token = getToken();
         if (!token) {
             clearSession();
             redirectToLogin();
             return;
         }
+
         const expiryMs = getTokenExpiryMs(token);
-        if (expiryMs !== null && expiryMs <= Date.now()) expireSession();
+        if (expiryMs !== null && expiryMs <= Date.now()) {
+            expireSession();
+            return;
+        }
+
+        scheduleSessionExpiryCheck();
+        scheduleInactivityLogout();
     }
 
     // Re-check when a suspended tab becomes active. Timers can be delayed by
@@ -396,6 +407,7 @@
     }
 
     if (isAuthenticatedPortalPage()) {
+        enforceSessionOnProtectedPage();
         scheduleInactivityLogout();
     }
     loadAdminSessionTimeout();
