@@ -210,29 +210,8 @@ document.addEventListener("DOMContentLoaded", () => {
     |--------------------------------------------------------------------------
     */
 
-    locationForm?.addEventListener("submit", async (event) => {
-        event.preventDefault();
-
-        const address = getValue(restaurantAddressInput);
-        const city = getValue(restaurantCityInput);
-
-        if (address.length < 3) {
-            showMessage("Please enter a valid street address.", "error");
-            restaurantAddressInput?.focus();
-            return;
-        }
-
-        if (city.length < 2) {
-            showMessage("Please enter a valid city.", "error");
-            restaurantCityInput?.focus();
-            return;
-        }
-
-        await saveRestaurant({
-            address,
-            city
-        }, "Restaurant location saved successfully.");
-    });
+    // Contact and location fields are read-only in the restaurant portal.
+    // Their values are loaded from the API, but cannot be submitted from this page.
 
     /*
     |--------------------------------------------------------------------------
