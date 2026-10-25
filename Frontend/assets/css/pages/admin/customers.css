@@ -989,3 +989,22 @@ body.modal-open {
         width: 100%;
     }
 }
+
+/* Customer list and modal responsive safeguards */
+.admin-customers-card, .admin-card-header, .admin-table-footer { min-width: 0; }
+.admin-table-wrapper { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.admin-table-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.admin-search input, .admin-customer-form input, .admin-customer-form select, .admin-customer-form textarea { min-width: 0; max-width: 100%; box-sizing: border-box; }
+.admin-modal-backdrop { padding: 12px; overflow-y: auto; }
+.admin-modal-dialog { width: min(680px,100%); max-width: 100%; max-height: calc(100dvh - 24px); overflow-y: auto; box-sizing: border-box; }
+.admin-form-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+@media (max-width: 600px) {
+ .admin-page-actions, .admin-card-header { flex-wrap: wrap; }
+ .admin-search { width: 100%; max-width: 100%; }
+ .admin-modal-backdrop { padding: 8px; }
+ .admin-modal-dialog { max-height: calc(100dvh - 16px); }
+ .admin-form-grid { grid-template-columns: minmax(0,1fr); }
+ .admin-form-field-full { grid-column: auto; }
+ .admin-modal-actions { flex-direction: column-reverse; }
+ .admin-modal-actions > button { width: 100%; }
+}
