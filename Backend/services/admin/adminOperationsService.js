@@ -65,15 +65,21 @@ async function updateSettings(input, adminId) {
 
     const result = await pool.query(
         `
-        UPDATE admin_settings
-        SET settings = settings || $1::jsonb,
-            updated_by = $2,
+        INSERT INTO admin_settings (id, settings, updated_by, updated_at)
+        VALUES (1, $1::jsonb, $2, CURRENT_TIMESTAMP)
+        ON CONFLICT (id) DO UPDATE
+        SET settings = COALESCE(admin_settings.settings, '{}'::jsonb)
+                       || EXCLUDED.settings,
+            updated_by = EXCLUDED.updated_by,
             updated_at = CURRENT_TIMESTAMP
-        WHERE id = 1
         RETURNING settings, updated_at
         `,
         [JSON.stringify(sections), adminId],
     );
+
+    if (!result.rows[0]) {
+        throw apiError("Settings could not be persisted", 500);
+    }
 
     return result.rows[0];
 }
