@@ -202,6 +202,12 @@ const registerLimiter = createRateLimiter({
     message: "Too many accounts created from this address. Please try again later.",
 });
 
+const passwordResetRequestLimiter = createRateLimiter({
+    windowMs: FIFTEEN_MINUTES,
+    max: Number(process.env.PASSWORD_RESET_REQUEST_MAX || 5),
+    message: "Too many password-reset requests. Please try again later.",
+});
+
 const passwordChangeLimiter = createRateLimiter({
     windowMs: FIFTEEN_MINUTES,
     max: Number(process.env.PASSWORD_CHANGE_MAX || 10),
@@ -211,6 +217,7 @@ const passwordChangeLimiter = createRateLimiter({
 app.use("/api", apiLimiter);
 app.post("/api/auth/login", loginIpLimiter, loginAccountLimiter);
 app.post("/api/auth/register", registerLimiter);
+app.post("/api/auth/forgot-password", passwordResetRequestLimiter);
 app.patch("/api/auth/me/password", passwordChangeLimiter);
 
 /*
