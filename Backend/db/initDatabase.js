@@ -251,6 +251,10 @@ async function ensureRiderProfileSchema() {
     `);
 }
 
+async function ensureGooglePasswordSetupSchema() {
+    await pool.query(`ALTER TABLE public.users ADD COLUMN IF NOT EXISTS google_password_setup_pending boolean NOT NULL DEFAULT false;`);
+}
+
 async function ensurePasswordResetSchema() {
     await pool.query(`
         CREATE TABLE IF NOT EXISTS public.password_reset_tokens (
@@ -276,6 +280,7 @@ async function initializeDatabase() {
     await ensureAdminSupportSchema();
     await ensureRiderProfileSchema();
     await ensurePasswordResetSchema();
+    await ensureGooglePasswordSetupSchema();
     await seedAdmin();
 }
 
