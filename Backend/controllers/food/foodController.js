@@ -155,7 +155,13 @@ async function updateFood(req, res) {
         return res.status(200).json({
             success: true,
             message: "Food updated successfully",
-            data: { food }
+            data: {
+                food: {
+                    ...food,
+                    has_image: Boolean(food.image_data),
+                    image_data: undefined
+                }
+            }
         });
     } catch (error) {
         console.error("Update food error:", error);
