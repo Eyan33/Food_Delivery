@@ -29,15 +29,13 @@
             </a>
 
             <!-- Delivery Location -->
-            <a href="addresses.html">
-                <button type="button" class="delivery-location">
+            <a href="addresses.html" class="delivery-location" aria-label="Choose delivery location">
                     <span class="location-icon">📍</span>
 
                     <span class="location-text">
                         <small>Deliver to</small>
                         <strong>Select location</strong>
                     </span>
-                </button>
             </a>
 
 
@@ -143,6 +141,12 @@
 
                                 <input type="tel" id="phone" name="phone" placeholder="e.g. 0712345678"
                                     autocomplete="tel" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="savedAddressSelect">Saved delivery address</label>
+                                <select id="savedAddressSelect" name="savedAddressSelect"><option value="">Enter a new address</option></select>
+                                <small>Choose a saved address or enter a different one below.</small>
                             </div>
 
                             <!-- Address -->
@@ -255,67 +259,12 @@
                             <a href="cart.html"> Edit </a>
                         </div>
 
-                        <!-- Restaurant -->
-                        <div class="checkout-restaurant">
-                            <div class="checkout-restaurant-image">MK</div>
+                        <!-- Cart items are rendered by checkout.js. -->
+                        <div class="checkout-restaurant" hidden></div>
+                        <div class="checkout-items"><div class="checkout-empty"><strong>Loading your cart...</strong><span>Your current cart items will appear here.</span></div></div>
 
-                            <div>
-                                <strong> Mama's Kitchen </strong>
-
-                                <span> African Food • Fast Food </span>
-                            </div>
-                        </div>
-
-                        <!-- Items -->
-                        <div class="checkout-items">
-                            <!-- Item -->
-                            <div class="checkout-item">
-                                <div class="checkout-item-quantity">1x</div>
-
-                                <div class="checkout-item-info">
-                                    <strong> Grilled Chicken </strong>
-
-                                    <span> KSh 650 </span>
-                                </div>
-
-                                <strong class="checkout-item-price"> KSh 650 </strong>
-                            </div>
-
-                            <!-- Item -->
-                            <div class="checkout-item">
-                                <div class="checkout-item-quantity">1x</div>
-
-                                <div class="checkout-item-info">
-                                    <strong> Beef Stew </strong>
-
-                                    <span> KSh 550 </span>
-                                </div>
-
-                                <strong class="checkout-item-price"> KSh 550 </strong>
-                            </div>
-                        </div>
-
-                        <!-- Summary Calculations -->
-                        <div class="summary-calculations">
-                            <div class="summary-row">
-                                <span> Subtotal </span>
-
-                                <strong> KSh 1,200 </strong>
-                            </div>
-
-                            <div class="summary-row">
-                                <span> Delivery Fee </span>
-
-                                <strong> KSh 100 </strong>
-                            </div>
-                        </div>
-
-                        <!-- Total -->
-                        <div class="summary-total">
-                            <span> Total </span>
-
-                            <strong> KSh 1,300 </strong>
-                        </div>
+                        <div class="summary-calculations"><div class="summary-row"><span>Subtotal</span><strong>Loading...</strong></div><div class="summary-row"><span>Delivery Fee</span><strong>Calculated at checkout</strong></div></div>
+                        <div class="summary-total"><span>Total</span><strong>Calculated at checkout</strong></div>
 
                         <!-- Payment Note -->
                         <div class="checkout-payment-note">
@@ -335,7 +284,7 @@
                         <div>
                             <strong> Estimated Delivery </strong>
 
-                            <span> 20–30 minutes </span>
+                            <span>Timing depends on restaurant preparation and your location.</span>
                         </div>
                     </section>
                 </aside>
