@@ -46,7 +46,8 @@ function securityHeaders({ isProduction }) {
         res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
         res.setHeader("X-DNS-Prefetch-Control", "off");
         res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
-        res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+        // Google Identity Services popup flow needs a compatible opener policy.
+        res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
         res.setHeader(
             "Permissions-Policy",
             "geolocation=(), camera=(), microphone=(), payment=()",
