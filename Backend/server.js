@@ -161,7 +161,7 @@ app.use(
  * Body parsing. Orders, profiles and menus are small JSON documents; a
  * low limit stops oversized request bodies early.
  */
-const bodyLimit = process.env.JSON_BODY_LIMIT || "100kb";
+const bodyLimit = process.env.JSON_BODY_LIMIT || "8mb";
 
 app.use(express.json({ limit: bodyLimit }));
 app.use(express.urlencoded({ extended: true, limit: bodyLimit }));
