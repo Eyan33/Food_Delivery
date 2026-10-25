@@ -15,6 +15,19 @@
 
   <!-- Restaurant Profile CSS -->
   <link rel="stylesheet" href="../../assets/css/pages/restaurant/restaurant-profile.css">
+  <style>
+    #restaurantLocationForm input[readonly] {
+      background: #f8fafc;
+      color: #64748b;
+      cursor: not-allowed;
+    }
+    .profile-readonly-note {
+      margin: 18px 22px 22px;
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+  </style>
 </head>
 
 <body>
@@ -258,32 +271,20 @@
               </div>
             </div>
 
-            <form id="restaurantLocationForm">
+            <div id="restaurantLocationForm">
               <div class="profile-form-grid">
                 <div class="profile-form-group full-width">
                   <label for="restaurantAddress"> Street Address </label>
-
-                  <input type="text" id="restaurantAddress" value="" />
+                  <input type="text" id="restaurantAddress" value="" readonly aria-readonly="true" />
                 </div>
 
                 <div class="profile-form-group">
                   <label for="restaurantCity"> City </label>
-
-                  <input type="text" id="restaurantCity" value="" />
+                  <input type="text" id="restaurantCity" value="" readonly aria-readonly="true" />
                 </div>
-
               </div>
-
-              <div class="profile-form-actions">
-                <button type="reset" class="profile-secondary-button">
-                  Cancel
-                </button>
-
-                <button type="submit" class="profile-primary-button">
-                  Save Location
-                </button>
-              </div>
-            </form>
+              <p class="profile-readonly-note">Contact and location details are managed by the platform administrator and cannot be edited here.</p>
+            </div>
           </section>
         </div>
 
