@@ -169,7 +169,7 @@ async function forgotPassword(req, res) {
         if (resetRequest) {
             const frontendUrl = String(
                 process.env.FRONTEND_URL || "https://food-delivery-tcwn.onrender.com"
-            ).replace(/\\/+$/, "");
+            ).replace(/\/+$/, "");
             const resetUrl = `${frontendUrl}/pages/auth/reset-password.html?token=${encodeURIComponent(resetRequest.token)}`;
 
             try {
