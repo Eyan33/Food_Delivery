@@ -301,9 +301,15 @@
     });
 
     scheduleSessionExpiryCheck();
-    if (isAuthenticatedPortalPage() && !isAdminPage()) {
-        // Customer, restaurant and rider portals use the standard 30-minute
-        // inactivity timeout. JWT expiry is still enforced independently.
+
+    // Reuse the last saved administrator-configured timeout on all portals
+    // in this browser. Fall back to 30 minutes if no setting is cached yet.
+    const cachedTimeout = localStorage.getItem(ADMIN_TIMEOUT_STORAGE_KEY);
+    if (cachedTimeout !== null && Number.isFinite(Number(cachedTimeout))) {
+        adminTimeoutMinutes = Number(cachedTimeout);
+    }
+
+    if (isAuthenticatedPortalPage()) {
         scheduleInactivityLogout();
     }
     loadAdminSessionTimeout();
