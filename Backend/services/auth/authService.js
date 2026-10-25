@@ -525,7 +525,48 @@ async function deletePasswordResetToken(token) {
 }
 
 
+
+async function loginWithGoogleCredential(credential) {
+    if (typeof credential !== "string" || credential.length < 20 || credential.length > 10000) throw new Error("A valid Google credential is required");
+    const clientId = String(process.env.GOOGLE_CLIENT_ID || "").trim();
+    if (!clientId) throw new Error("Google sign-in is not configured on the server");
+    const response = await fetch("https://oauth2.googleapis.com/tokeninfo?id_token=" + encodeURIComponent(credential), { signal: AbortSignal.timeout(8000) });
+    if (!response.ok) throw new Error("Google could not verify your account. Please try again.");
+    const claims = await response.json();
+    if (claims.aud !== clientId || !["accounts.google.com", "https://accounts.google.com"].includes(claims.iss) || !claims.sub ||
+        !(claims.email_verified === true || claims.email_verified === "true") || !claims.email) throw new Error("Google returned an invalid or unverified identity");
+    const email = normalizeEmail(claims.email);
+    if (!isValidEmail(email)) throw new Error("Google did not provide a valid email address");
+    const selectByEmail = () => pool.query(`SELECT id, first_name, last_name, email, phone, role, is_active, created_at, updated_at FROM users WHERE email = $1 LIMIT 1`, [email]);
+    const existing = await selectByEmail();
+    let user;
+    if (existing.rows.length) {
+        user = existing.rows[0];
+        if (!user.is_active) throw new Error("This account has been deactivated");
+    } else {
+        const fullName = String(claims.name || "").trim();
+        const parts = fullName.split(/\s+/).filter(Boolean);
+        const firstName = String(claims.given_name || parts[0] || "Google").trim().slice(0, 100) || "Google";
+        const lastName = String(claims.family_name || parts.slice(1).join(" ") || "User").trim().slice(0, 100) || "User";
+        const unusablePasswordHash = await bcrypt.hash(crypto.randomBytes(48).toString("hex"), 12);
+        try {
+            const created = await pool.query(`INSERT INTO users (first_name, last_name, email, phone, password_hash, role)
+                VALUES ($1, $2, $3, NULL, $4, 'customer')
+                RETURNING id, first_name, last_name, email, phone, role, is_active, created_at, updated_at`, [firstName, lastName, email, unusablePasswordHash]);
+            user = created.rows[0];
+        } catch (error) {
+            if (error.code !== "23505") throw error;
+            const retry = await selectByEmail();
+            if (!retry.rows.length) throw error;
+            user = retry.rows[0];
+            if (!user.is_active) throw new Error("This account has been deactivated");
+        }
+    }
+    return { user, token: generateToken(user) };
+}
+
 module.exports = {
+    loginWithGoogleCredential,
     registerUser,
     loginUser,
     getCurrentUser,
