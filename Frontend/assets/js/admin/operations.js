@@ -1186,6 +1186,9 @@ form.reset();
 
     byId("foodForm").addEventListener("submit", async (event) => {
         event.preventDefault();
+        // currentTarget is only populated while the event handler is running.
+        // Keep the form reference because this handler awaits image reading/API calls.
+        const form = event.currentTarget;
 
         if (selectedRestaurantId == null) {
             showMessage("Select a restaurant first.", true);
@@ -1242,7 +1245,7 @@ form.reset();
                 },
             });
 
-            event.currentTarget.reset();
+            form.reset();
             foodImagePreview.hidden = true;
             foodImagePreview.removeAttribute("src");
             if (foodImagePreviewUrl) URL.revokeObjectURL(foodImagePreviewUrl);
