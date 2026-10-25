@@ -35,7 +35,9 @@ async function getFoodImage(req, res) {
             return res.status(404).json({ success: false, message: "Food image not found" });
         }
         res.set("Content-Type", image.image_mime_type);
-        res.set("Cache-Control", "public, max-age=3600");
+        res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+        res.set("Pragma", "no-cache");
+        res.set("Expires", "0");
         res.set("X-Content-Type-Options", "nosniff");
         return res.status(200).send(image.image_data);
     } catch (error) {
