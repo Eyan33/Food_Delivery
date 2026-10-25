@@ -1480,3 +1480,101 @@
     font-size: 11px;
     text-align: center;
 }
+
+/* Shared customer portal footer: consistent across all customer pages. */
+.customer-footer {
+    width: 100%;
+    margin-top: auto;
+    background: #171717;
+    color: var(--white, #fff);
+}
+
+.customer-footer-container {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 32px;
+    width: 100%;
+    max-width: var(--container-width, 1200px);
+    margin: 0 auto;
+    padding: 42px 20px 32px;
+}
+
+.customer-footer .footer-brand {
+    max-width: 360px;
+}
+
+.customer-footer .customer-logo {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 12px;
+    color: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.customer-footer .customer-logo span {
+    color: var(--primary, #ff5a1f);
+}
+
+.customer-footer .footer-brand p {
+    margin: 0;
+    color: #a3a3a3;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.customer-footer .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px 24px;
+}
+
+.customer-footer .footer-links a {
+    color: #b8b8b8;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.customer-footer .footer-links a:hover,
+.customer-footer .footer-links a:focus-visible {
+    color: var(--primary, #ff5a1f);
+}
+
+.customer-footer .footer-links a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+}
+
+.customer-footer .footer-bottom {
+    border-top: 1px solid #303030;
+}
+
+.customer-footer .footer-bottom p {
+    width: 100%;
+    max-width: var(--container-width, 1200px);
+    margin: 0 auto;
+    padding: 16px 20px;
+    color: #858585;
+    font-size: 11px;
+    text-align: center;
+}
+
+@media (max-width: 700px) {
+    .customer-footer-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+        padding: 32px 20px 26px;
+    }
+
+    .customer-footer .footer-links {
+        justify-content: flex-start;
+        gap: 14px 20px;
+    }
+}
