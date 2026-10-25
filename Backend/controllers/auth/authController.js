@@ -77,6 +77,21 @@ async function login(req, res) {
 }
 
 
+async function googleConfig(req, res) {
+    const clientId = String(process.env.GOOGLE_CLIENT_ID || "").trim();
+    if (!clientId) return res.status(503).json({ success: false, message: "Google sign-in is not configured" });
+    return res.status(200).json({ success: true, data: { clientId } });
+}
+async function googleLogin(req, res) {
+    try {
+        const result = await authService.loginWithGoogleCredential(req.body && req.body.credential);
+        return res.status(200).json({ success: true, message: "Google sign-in successful", data: result });
+    } catch (error) {
+        console.error("Google sign-in error:", error.message);
+        const notConfigured = /not configured/i.test(error.message);
+        return res.status(notConfigured ? 503 : 401).json({ success: false, message: error.message || "Google sign-in failed" });
+    }
+}
 async function me(req, res) {
     try {
 
@@ -216,6 +231,8 @@ async function resetPassword(req, res) {
 module.exports = {
     register,
     login,
+    googleConfig,
+    googleLogin,
     me,
     updateMe,
     changePassword,
