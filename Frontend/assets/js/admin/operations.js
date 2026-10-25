@@ -239,7 +239,22 @@ document.addEventListener("DOMContentLoaded", () => {
         foods.forEach((food) => {
             const row = document.createElement("tr");
 
-            cell(row, food.name);
+
+            const foodNameCell = document.createElement("td");
+            foodNameCell.className = "food-name-cell";
+            if (food.image_url) {
+                const thumbnail = document.createElement("img");
+                thumbnail.className = "food-image-thumb";
+                thumbnail.src = food.image_url;
+                thumbnail.alt = "";
+                thumbnail.loading = "lazy";
+                thumbnail.onerror = () => thumbnail.remove();
+                foodNameCell.append(thumbnail);
+            }
+            const foodName = document.createElement("span");
+            foodName.textContent = food.name || "Unnamed food";
+            foodNameCell.append(foodName);
+            row.append(foodNameCell);
             cell(row, restaurantName(food.restaurant_id));
             cell(row, money(food.price));
             cell(
@@ -1139,77 +1154,110 @@ form.reset();
     // Add food
     // =======================================================
 
-    byId("foodForm").addEventListener(
-        "submit",
-        async (event) => {
-            event.preventDefault();
+    const foodImageInput = byId("foodImage");
+    const foodImagePreview = byId("foodImagePreview");
+    let foodImagePreviewUrl = null;
 
-            if (selectedRestaurantId == null) {
-                showMessage(
-                    "Select a restaurant first.",
-                    true
-                );
-                return;
-            }
+    foodImageInput.addEventListener("change", () => {
+        const file = foodImageInput.files?.[0];
+        if (foodImagePreviewUrl) URL.revokeObjectURL(foodImagePreviewUrl);
+        foodImagePreviewUrl = null;
+        foodImagePreview.removeAttribute("src");
+        foodImagePreview.hidden = true;
+        if (!file) return;
 
-            const name = byId("foodName").value.trim();
-            const priceValue = byId("foodPrice").value;
-            const price = Number(priceValue);
-            const preparation = byId("foodPrep").value;
-
-            if (
-                !name ||
-                priceValue.trim() === "" ||
-                !Number.isFinite(price) ||
-                price < 0
-            ) {
-                showMessage(
-                    "Enter a food name and a valid price.",
-                    true
-                );
-                return;
-            }
-
-            try {
-                await request("/foods/admin", {
-                    method: "POST",
-                    body: {
-                        restaurant_id:
-                            Number(selectedRestaurantId),
-
-                        category_id:
-                            byId("foodCategory").value
-                                ? Number(
-                                    byId("foodCategory").value
-                                )
-                                : null,
-
-                        name,
-                        price,
-
-                        preparation_time: preparation
-                            ? Number(preparation)
-                            : null,
-                    },
-                });
-
-                event.currentTarget.reset();
-
-                setRestaurantSelects(
-                    selectedRestaurantId
-                );
-
-                await loadCatalog();
-                showMessage("Food item created.");
-            } catch (error) {
-                showMessage(
-                    error.message ||
-                        "Could not create food item.",
-                    true
-                );
-            }
+        const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+        if (!allowedTypes.includes(file.type)) {
+            foodImageInput.value = "";
+            showMessage("Choose a JPEG, PNG, or WebP image.", true);
+            return;
         }
-    );
+        if (file.size > 5 * 1024 * 1024) {
+            foodImageInput.value = "";
+            showMessage("Food image must be 5 MB or smaller.", true);
+            return;
+        }
+
+        foodImagePreviewUrl = URL.createObjectURL(file);
+        foodImagePreview.src = foodImagePreviewUrl;
+        foodImagePreview.hidden = false;
+        showMessage("");
+    });
+
+    byId("foodForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        if (selectedRestaurantId == null) {
+            showMessage("Select a restaurant first.", true);
+            return;
+        }
+
+        const name = byId("foodName").value.trim();
+        const priceValue = byId("foodPrice").value;
+        const price = Number(priceValue);
+        const preparation = byId("foodPrep").value;
+        const imageFile = foodImageInput.files?.[0];
+
+        if (!imageFile) {
+            showMessage("A food image is required before creating the item.", true);
+            foodImageInput.focus();
+            return;
+        }
+        if (!["image/jpeg", "image/png", "image/webp"].includes(imageFile.type) ||
+            imageFile.size === 0 || imageFile.size > 5 * 1024 * 1024) {
+            showMessage("Choose a valid JPEG, PNG, or WebP image no larger than 5 MB.", true);
+            return;
+        }
+        if (!name || priceValue.trim() === "" || !Number.isFinite(price) || price < 0) {
+            showMessage("Enter a food name and a valid price.", true);
+            return;
+        }
+
+        const submitButton = event.currentTarget.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.textContent = "Saving food…";
+
+        try {
+            const dataUrl = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error("Could not read the selected image."));
+                reader.readAsDataURL(imageFile);
+            });
+            const comma = String(dataUrl).indexOf(",");
+            if (comma < 0) throw new Error("Could not prepare the selected image.");
+
+            await request("/foods/admin", {
+                method: "POST",
+                body: {
+                    restaurant_id: Number(selectedRestaurantId),
+                    category_id: byId("foodCategory").value
+                        ? Number(byId("foodCategory").value)
+                        : null,
+                    name,
+                    price,
+                    preparation_time: preparation ? Number(preparation) : null,
+                    image_mime_type: imageFile.type,
+                    image_data: String(dataUrl).slice(comma + 1),
+                },
+            });
+
+            event.currentTarget.reset();
+            foodImagePreview.hidden = true;
+            foodImagePreview.removeAttribute("src");
+            if (foodImagePreviewUrl) URL.revokeObjectURL(foodImagePreviewUrl);
+            foodImagePreviewUrl = null;
+
+            setRestaurantSelects(selectedRestaurantId);
+            await loadCatalog();
+            showMessage("Food item and image saved successfully.");
+        } catch (error) {
+            showMessage(error.message || "Could not create food item.", true);
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = "Add food";
+        }
+    });
 
     // =======================================================
     // Add category
