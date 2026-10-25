@@ -260,7 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 locationAddressReady = Boolean(address?.value.trim() && area?.value.trim());
                 if (saveCheckoutLocationButton) saveCheckoutLocationButton.disabled = !locationAddressReady;
                 setLocationStatus(formattedAddress
-                    ? `Live location filled automatically (${currentCoordinates.latitude.toFixed(5)}, ${currentCoordinates.longitude.toFixed(5)}). You can place the order without typing your address.`
+                    ? "Current location filled automatically. You can place the order without typing your address."
                     : "GPS coordinates filled automatically. The street address could not be resolved; add delivery instructions if needed.");
             } catch {
                 // Keep GPS usable even if reverse geocoding is temporarily unavailable.
