@@ -1,4 +1,5 @@
 const authService = require("../../services/auth/authService");
+const emailService = require("../../services/emailService");
 
 
 async function register(req, res) {
@@ -157,10 +158,69 @@ async function changePassword(req, res) {
 
 
 
+async function forgotPassword(req, res) {
+    const genericMessage =
+        "If an active account exists for that email, password-reset instructions will be sent.";
+
+    try {
+        const email = req.body && req.body.email;
+        const resetRequest = await authService.createPasswordResetToken(email);
+
+        if (resetRequest) {
+            const frontendUrl = String(
+                process.env.FRONTEND_URL || "https://food-delivery-tcwn.onrender.com"
+            ).replace(/\\/+$/, "");
+            const resetUrl = `${frontendUrl}/pages/auth/reset-password.html?token=${encodeURIComponent(resetRequest.token)}`;
+
+            try {
+                await emailService.sendPasswordResetEmail({
+                    to: resetRequest.email,
+                    resetUrl
+                });
+            } catch (emailError) {
+                await authService.deletePasswordResetToken(resetRequest.token).catch(() => {});
+                console.error("Password reset email delivery failed:", emailError.message);
+            }
+        }
+
+        return res.status(200).json({ success: true, message: genericMessage });
+    } catch (error) {
+        if (/valid email address/i.test(error.message)) {
+            return res.status(400).json({ success: false, message: error.message });
+        }
+
+        console.error("Forgot password error:", error.message);
+        return res.status(200).json({ success: true, message: genericMessage });
+    }
+}
+
+async function resetPassword(req, res) {
+    try {
+        const { token, newPassword } = req.body || {};
+        await authService.resetPasswordWithToken(token, newPassword);
+
+        return res.status(200).json({
+            success: true,
+            message: "Your password has been reset. You can now log in with your new password."
+        });
+    } catch (error) {
+        const message = error.message || "Unable to reset password.";
+        const status = /invalid or has expired/i.test(message) ? 400 : 400;
+
+        return res.status(status).json({
+            success: false,
+            message
+        });
+    }
+}
+
+
 module.exports = {
     register,
     login,
     me,
     updateMe,
-    changePassword
+    changePassword,
+    forgotPassword,
+    resetPassword
 };
