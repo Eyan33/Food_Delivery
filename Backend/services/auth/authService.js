@@ -387,6 +387,18 @@ async function updateCurrentUser(userId, input = {}) {
     return result.rows[0];
 }
 
+async function setGoogleAccountPassword(userId, newPassword) {
+    if (!isValidPassword(newPassword)) throw new Error("Password must contain at least 8 characters");
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    const result = await pool.query(`UPDATE users SET password_hash = $1, google_password_setup_pending = FALSE, password_changed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = $2 AND google_password_setup_pending = TRUE RETURNING id`, [passwordHash, userId]);
+    if (!result.rows.length) throw new Error("Password setup is not pending for this account");
+    return true;
+}
+
+async function finishGoogleFirstSession(userId) {
+    await pool.query("UPDATE users SET google_password_setup_pending = FALSE WHERE id = $1 AND google_password_setup_pending = TRUE", [userId]);
+}
+
 async function changeCurrentUserPassword(userId, currentPassword, newPassword) {
     if (typeof currentPassword !== "string" || !currentPassword) {
         throw new Error("Current password is required");
@@ -540,6 +552,7 @@ async function loginWithGoogleCredential(credential) {
     const selectByEmail = () => pool.query(`SELECT id, first_name, last_name, email, phone, role, is_active, created_at, updated_at FROM users WHERE email = $1 LIMIT 1`, [email]);
     const existing = await selectByEmail();
     let user;
+    let newGoogleAccount = false;
     if (existing.rows.length) {
         user = existing.rows[0];
         if (!user.is_active) throw new Error("This account has been deactivated");
@@ -550,10 +563,11 @@ async function loginWithGoogleCredential(credential) {
         const lastName = String(claims.family_name || parts.slice(1).join(" ") || "User").trim().slice(0, 100) || "User";
         const unusablePasswordHash = await bcrypt.hash(crypto.randomBytes(48).toString("hex"), 12);
         try {
-            const created = await pool.query(`INSERT INTO users (first_name, last_name, email, phone, password_hash, role)
-                VALUES ($1, $2, $3, NULL, $4, 'customer')
+            const created = await pool.query(`INSERT INTO users (first_name, last_name, email, phone, password_hash, role, google_password_setup_pending)
+                VALUES ($1, $2, $3, NULL, $4, 'customer', TRUE)
                 RETURNING id, first_name, last_name, email, phone, role, is_active, created_at, updated_at`, [firstName, lastName, email, unusablePasswordHash]);
             user = created.rows[0];
+            newGoogleAccount = true;
         } catch (error) {
             if (error.code !== "23505") throw error;
             const retry = await selectByEmail();
@@ -562,11 +576,13 @@ async function loginWithGoogleCredential(credential) {
             if (!user.is_active) throw new Error("This account has been deactivated");
         }
     }
-    return { user, token: generateToken(user) };
+    return { user, token: generateToken(user), newGoogleAccount };
 }
 
 module.exports = {
     loginWithGoogleCredential,
+    setGoogleAccountPassword,
+    finishGoogleFirstSession,
     registerUser,
     loginUser,
     getCurrentUser,
