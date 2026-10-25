@@ -1821,6 +1821,33 @@ async function updateAdminFood(
         );
     }
 
+    // Persist uploaded image bytes when the edit modal includes a replacement.
+    if (image_data !== undefined || image_mime_type !== undefined) {
+        if (typeof image_data !== "string" ||
+            !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(image_data)) {
+            throw apiError("A valid replacement image is required");
+        }
+        if (!["image/jpeg", "image/png", "image/webp"].includes(image_mime_type)) {
+            throw apiError("A JPEG, PNG, or WebP image is required");
+        }
+        const imageBuffer = Buffer.from(image_data, "base64");
+        if (!imageBuffer.length || imageBuffer.length > 5 * 1024 * 1024) {
+            throw apiError("Food image must be no larger than 5 MB");
+        }
+        const validSignature =
+            (image_mime_type === "image/jpeg" && imageBuffer.length >= 3 && imageBuffer[0] === 0xff && imageBuffer[1] === 0xd8 && imageBuffer[2] === 0xff) ||
+            (image_mime_type === "image/png" && imageBuffer.length >= 8 && imageBuffer.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) ||
+            (image_mime_type === "image/webp" && imageBuffer.length >= 12 && imageBuffer.toString("ascii", 0, 4) === "RIFF" && imageBuffer.toString("ascii", 8, 12) === "WEBP");
+        if (!validSignature) {
+            throw apiError("The selected file is not a valid JPEG, PNG, or WebP image");
+        }
+        values.push(imageBuffer);
+        updates.push(`image_data = ${values.length}`);
+        values.push(image_mime_type);
+        updates.push(`image_mime_type = ${values.length}`);
+        updates.push("image_url = NULL");
+    }
+
     if (updates.length === 0) {
         throw apiError(
             "No fields were provided for update"
