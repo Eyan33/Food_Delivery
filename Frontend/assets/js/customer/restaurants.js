@@ -70,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function getImageUrl(value) {
         const url = text(value);
         if (!url) return "";
+        if (/^data:image\/(jpeg|png|webp);base64,/i.test(url)) return url;
         if (/^(\.\.?\/|\/)/.test(url)) return url;
         try {
             const parsed = new URL(url, window.location.href);
