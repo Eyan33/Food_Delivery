@@ -174,6 +174,21 @@ async function seedAdmin() {
     log(`admin account created for ${email}. Remove ADMIN_PASSWORD from the environment now.`);
 }
 
+async function ensureFoodImageSchema() {
+    // Store validated image bytes in PostgreSQL so images survive app redeploys.
+    // Existing food rows are intentionally retained; new admin-created foods
+    // are required to include an image by the create endpoint.
+    await pool.query(`
+        ALTER TABLE public.foods
+            ADD COLUMN IF NOT EXISTS image_data bytea,
+            ADD COLUMN IF NOT EXISTS image_mime_type varchar(40);
+
+        CREATE INDEX IF NOT EXISTS idx_foods_image_presence
+            ON public.foods (id)
+            WHERE image_data IS NOT NULL;
+    `);
+}
+
 async function ensureAdminSupportSchema() {
     await pool.query(`
         ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url text;
@@ -239,6 +254,7 @@ async function ensureRiderProfileSchema() {
 async function initializeDatabase() {
     await waitForDatabase();
     await ensureSchema();
+    await ensureFoodImageSchema();
     await ensureAdminSupportSchema();
     await ensureRiderProfileSchema();
     await seedAdmin();

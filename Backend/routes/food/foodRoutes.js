@@ -138,6 +138,8 @@ router.get(
 |--------------------------------------------------------------------------
 */
 
+router.get("/:id/image", foodController.getFoodImage);
+
 router.get("/", foodController.getFoods);
 
 router.get("/:id", foodController.getFood);
