@@ -396,3 +396,124 @@
         width: 100%;
     }
 }
+
+/* Functional filters, sorting and resilient image fallbacks */
+.restaurant-discovery-layout {
+    display: grid;
+    grid-template-columns: 230px minmax(0, 1fr);
+    align-items: start;
+    gap: 28px;
+}
+
+.restaurant-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--white);
+}
+
+.restaurant-filters h3 {
+    margin: 0 0 6px;
+    color: var(--text);
+    font-size: 17px;
+}
+
+.restaurant-filters label {
+    color: var(--text-light);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.restaurant-filters select,
+.restaurant-sort select {
+    max-width: 100%;
+    padding: 10px 11px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--text);
+}
+
+.restaurant-reset-filters,
+.restaurant-clear-search {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--text);
+    font: inherit;
+    cursor: pointer;
+}
+
+.restaurant-reset-filters:hover,
+.restaurant-clear-search:hover {
+    border-color: var(--primary);
+}
+
+.restaurant-clear-search {
+    margin-left: 6px;
+}
+
+.restaurant-grid-message {
+    grid-column: 1 / -1;
+    padding: 24px;
+    text-align: center;
+    color: var(--text-light);
+}
+
+.restaurant-grid-message.is-error {
+    color: #b42318;
+}
+
+.restaurant-image.has-no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #fff1e7, #f5e8dc);
+}
+
+.restaurant-image-fallback {
+    font-size: 44px;
+    line-height: 1;
+}
+
+.restaurant-results .restaurant-status.is-closed {
+    color: #b42318;
+}
+
+.restaurant-results .restaurant-status.is-open {
+    color: #15803d;
+}
+
+@media (max-width: 1000px) {
+    .restaurant-discovery-layout {
+        grid-template-columns: 1fr;
+    }
+    .restaurant-filters {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: center;
+    }
+    .restaurant-filters h3 {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 700px) {
+    .restaurant-filters {
+        grid-template-columns: 1fr;
+    }
+    .restaurant-sort {
+        width: 100%;
+    }
+    .restaurant-sort select {
+        min-width: 0;
+        flex: 1;
+    }
+    .restaurant-clear-search {
+        margin: 8px 0 0;
+    }
+}
