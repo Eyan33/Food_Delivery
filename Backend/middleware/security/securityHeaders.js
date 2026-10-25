@@ -50,7 +50,7 @@ function securityHeaders({ isProduction }) {
         res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
         res.setHeader(
             "Permissions-Policy",
-            "geolocation=(), camera=(), microphone=(), payment=()",
+            "geolocation=(self), camera=(), microphone=(), payment=()",
         );
 
         if (isProduction) {
