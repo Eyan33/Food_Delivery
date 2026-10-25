@@ -287,11 +287,8 @@ if (greeting) {
         } catch (error) {
             console.error("Customer homepage: failed to load restaurants:", error);
 
-            showMessage(
-                restaurantGrid,
-                "We couldn't load restaurants. Please check that the backend is running and try again.",
-                "error"
-            );
+            showMessage(restaurantGrid, "We couldn't load restaurants. Please try again.", "error");
+            addRetryButton(restaurantGrid, loadRestaurants);
         }
     }
 
@@ -388,11 +385,8 @@ if (greeting) {
         } catch (error) {
             console.error("Customer homepage: failed to load foods:", error);
 
-            showMessage(
-                foodGrid,
-                "We couldn't load meals. Please check that the backend is running and try again.",
-                "error"
-            );
+            showMessage(foodGrid, "We couldn't load meals. Please try again.", "error");
+            addRetryButton(foodGrid, loadFoods);
         }
     }
 
