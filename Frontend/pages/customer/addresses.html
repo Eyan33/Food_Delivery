@@ -103,104 +103,12 @@
                             <p>Choose where you want your orders delivered.</p>
                         </div>
 
-                        <span id="addressCount"> 2 Addresses </span>
+                        <span id="addressCount">Loading addresses…</span>
                     </div>
 
                     <div class="address-list" id="addressList">
-                        <!-- =================================================
-                             DEFAULT ADDRESS
-                        ================================================== -->
-
-                        <article class="address-item default-address" data-address-id="1">
-                            <div class="address-item-top">
-                                <div class="address-type">
-                                    <div class="address-icon">🏠</div>
-
-                                    <div>
-                                        <h3>Home</h3>
-
-                                        <span class="default-badge"> Default </span>
-                                    </div>
-                                </div>
-
-                                <div class="address-actions">
-                                    <button type="button" class="address-action-button edit-address-button"
-                                        data-address-id="1">
-                                        Edit
-                                    </button>
-
-                                    <button type="button" class="address-action-button delete-address-button"
-                                        data-address-id="1">
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="address-details">
-                                <strong> Eyan </strong>
-
-                                <p>Your saved delivery address</p>
-
-                                <p>Nairobi, Kenya</p>
-
-                                <span> Phone: +254 700 000 000 </span>
-                            </div>
-
-                            <div class="address-item-footer">
-                                <button type="button" class="set-default-button" data-address-id="1" disabled>
-                                    ✓ Default Address
-                                </button>
-                            </div>
-                        </article>
-
-                        <!-- =================================================
-                             SECOND ADDRESS
-                        ================================================== -->
-
-                        <article class="address-item" data-address-id="2">
-                            <div class="address-item-top">
-                                <div class="address-type">
-                                    <div class="address-icon">💼</div>
-
-                                    <div>
-                                        <h3>Work</h3>
-                                    </div>
-                                </div>
-
-                                <div class="address-actions">
-                                    <button type="button" class="address-action-button edit-address-button"
-                                        data-address-id="2">
-                                        Edit
-                                    </button>
-
-                                    <button type="button" class="address-action-button delete-address-button"
-                                        data-address-id="2">
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="address-details">
-                                <strong> Eyan </strong>
-
-                                <p>Your work delivery address</p>
-
-                                <p>Nairobi, Kenya</p>
-
-                                <span> Phone: +254 700 000 000 </span>
-                            </div>
-
-                            <div class="address-item-footer">
-                                <button type="button" class="set-default-button" data-address-id="2">
-                                    Set as Default
-                                </button>
-                            </div>
-                        </article>
-                    </div>
-
-                    <!-- Empty State -->
-
-                    <div class="empty-addresses" id="emptyAddresses" hidden>
+                        <p class="address-loading">Loading your saved addresses…</p>
+                    id="emptyAddresses" hidden>
                         <div class="empty-address-icon">📍</div>
 
                         <h3>No Saved Addresses</h3>
