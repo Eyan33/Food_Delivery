@@ -449,6 +449,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 : "",
             notes: null,
             address_id: selectedAddressId || null,
+            delivery_latitude: currentCoordinates ? currentCoordinates.latitude : null,
+            delivery_longitude: currentCoordinates ? currentCoordinates.longitude : null,
             expected_delivery_fee: (() => { const fee = cart[0].delivery_fee ?? cart[0].deliveryFee; return fee == null || fee === "" ? null : Number(fee); })(),
             items: cart.map(item => ({
                 food_id: Number(item.id),
