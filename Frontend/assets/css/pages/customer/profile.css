@@ -591,3 +591,29 @@
     }
 
 }
+
+/* Profile loading and support states */
+.delivery-location-link {
+    color: inherit;
+    text-decoration: none;
+}
+.delivery-location-link .delivery-location {
+    display: inline-flex;
+    border: 0;
+    font: inherit;
+    text-align: left;
+}
+.profile-form-group input:disabled,
+.profile-primary-button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+#profileRetryButton[hidden] {
+    display: none;
+}
+.support-message {
+    margin: 0;
+    color: var(--text-light);
+    font-size: 11px;
+    line-height: 1.6;
+}
