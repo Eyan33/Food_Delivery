@@ -549,13 +549,14 @@ async function loginWithGoogleCredential(credential) {
         !(claims.email_verified === true || claims.email_verified === "true") || !claims.email) throw new Error("Google returned an invalid or unverified identity");
     const email = normalizeEmail(claims.email);
     if (!isValidEmail(email)) throw new Error("Google did not provide a valid email address");
-    const selectByEmail = () => pool.query(`SELECT id, first_name, last_name, email, phone, role, is_active, created_at, updated_at FROM users WHERE email = $1 LIMIT 1`, [email]);
+    const selectByEmail = () => pool.query(`SELECT id, first_name, last_name, email, phone, role, is_active, google_password_setup_pending, created_at, updated_at FROM users WHERE email = $1 LIMIT 1`, [email]);
     const existing = await selectByEmail();
     let user;
     let newGoogleAccount = false;
     if (existing.rows.length) {
         user = existing.rows[0];
         if (!user.is_active) throw new Error("This account has been deactivated");
+        newGoogleAccount = user.google_password_setup_pending === true;
     } else {
         const fullName = String(claims.name || "").trim();
         const parts = fullName.split(/\s+/).filter(Boolean);
