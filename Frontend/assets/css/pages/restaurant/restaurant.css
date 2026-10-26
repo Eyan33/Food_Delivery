@@ -255,12 +255,6 @@
    RESTAURANT CONTENT OFFSET
 ========================================================= */
 
-.restaurant-main {
-  min-height: 100vh;
-  margin-left: var(--restaurant-sidebar-width);
-  background: var(--background);
-}
-
 .restaurant-content {
   padding-top: calc(var(--restaurant-topbar-height) + 28px);
 }
@@ -1691,5 +1685,74 @@
   }
 }
 
-
-
+/* Layout consistency and responsive overflow safeguards */
+.restaurant-main {
+  box-sizing: border-box;
+  width: calc(100% - var(--restaurant-sidebar-width));
+  min-width: 0;
+  max-width: 100%;
+}
+.restaurant-main *,
+.restaurant-main *::before,
+.restaurant-main *::after {
+  box-sizing: border-box;
+}
+.restaurant-dashboard-content,
+.restaurant-page-content,
+.restaurant-content,
+.dashboard-card,
+.restaurant-card {
+  min-width: 0;
+  max-width: 100%;
+}
+.restaurant-dashboard-content img,
+.restaurant-page-content img,
+.restaurant-content img {
+  max-width: 100%;
+}
+.restaurant-dashboard-content input,
+.restaurant-dashboard-content select,
+.restaurant-dashboard-content textarea,
+.restaurant-page-content input,
+.restaurant-page-content select,
+.restaurant-page-content textarea,
+.restaurant-content input,
+.restaurant-content select,
+.restaurant-content textarea {
+  max-width: 100%;
+}
+.restaurant-orders-table-wrapper,
+.orders-table-wrapper {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.restaurant-orders-table {
+  width: 100%;
+}
+.restaurant-orders-table th,
+.restaurant-orders-table td {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 900px) {
+  .restaurant-main {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+@media (max-width: 500px) {
+  .restaurant-dashboard-content,
+  .restaurant-page-content,
+  .restaurant-content {
+    min-width: 0;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .restaurant-dashboard-content > *,
+  .restaurant-page-content > *,
+  .restaurant-content > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
