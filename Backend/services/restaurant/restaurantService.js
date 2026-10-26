@@ -1219,7 +1219,7 @@ async function getAllRestaurants(
                 r.name ILIKE ${placeholder}
                     ESCAPE '\\'
                 OR r.location_name ILIKE ${placeholder}
-                    ESCAPE '\\\\'
+                    ESCAPE '\\'
                 OR r.email ILIKE ${placeholder}
                     ESCAPE '\\'
                 OR r.phone ILIKE ${placeholder}
