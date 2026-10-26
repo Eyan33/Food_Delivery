@@ -43,6 +43,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let messageTimer = null;
     let currentFilter = "all";
     let currentDateFilter = "all";
+    let trackingWatchId = null;
+    let latestGpsPosition = null;
+    let lastLocationSentAt = 0;
+    let locationUpdatePromise = null;
+    const trackingMaps = new Map();
 
     // =========================================================
     // API
@@ -547,6 +552,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         container.hidden = false;
         container.style.display = "";
+        trackingMaps.forEach(item => item.map.remove());
+        trackingMaps.clear();
         container.innerHTML = activeOrders.map(renderActiveDeliveryCard).join("");
 
         container.querySelectorAll("[data-view-delivery]").forEach(button => {
@@ -571,6 +578,124 @@ document.addEventListener("DOMContentLoaded", () => {
                 event.currentTarget
             ));
         });
+        setupTrackingMaps(activeOrders);
+    }
+
+    function validCoordinates(latitude, longitude) {
+        const lat = Number(latitude), lng = Number(longitude);
+        if (latitude === null || latitude === "" || longitude === null || longitude === "") return null;
+        if (!Number.isFinite(lat) || !Number.isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+        return [lat, lng];
+    }
+
+    function navigationUrl(order) {
+        const isPickup = getStatus(order) === "ready";
+        const point = isPickup
+            ? validCoordinates(order.restaurant_latitude, order.restaurant_longitude)
+            : validCoordinates(order.delivery_latitude, order.delivery_longitude);
+        const address = isPickup
+            ? [order.restaurant_address, order.restaurant_city].filter(Boolean).join(", ")
+            : [order.delivery_address, order.delivery_city].filter(Boolean).join(", ");
+        const destination = point ? point.join(",") : address;
+        return destination ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}&travelmode=driving` : "";
+    }
+
+    function setTrackingStatus(orderId, message, isError = false) {
+        const element = document.querySelector(`[data-tracking-status="${orderId}"]`);
+        if (element) { element.textContent = message; element.style.color = isError ? "#b91c1c" : ""; }
+    }
+
+    function setupTrackingMaps(activeOrders) {
+        activeOrders.forEach(order => {
+            const id = String(order.id);
+            const element = document.getElementById(`riderTrackingMap-${id}`);
+            if (!element) return;
+            if (!window.L) { setTrackingStatus(id, "Map library failed to load. Use Open Navigation.", true); return; }
+            const pickup = validCoordinates(order.restaurant_latitude, order.restaurant_longitude);
+            const dropoff = validCoordinates(order.delivery_latitude, order.delivery_longitude);
+            const initial = pickup || dropoff || [-1.286389, 36.817223];
+            const map = L.map(element, { scrollWheelZoom: false }).setView(initial, pickup || dropoff ? 14 : 11);
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+            }).addTo(map);
+            const markers = {};
+            if (pickup) markers.pickup = L.marker(pickup).addTo(map).bindPopup("Restaurant pickup");
+            if (dropoff) markers.dropoff = L.marker(dropoff).addTo(map).bindPopup("Customer delivery");
+            const points = [pickup, dropoff].filter(Boolean);
+            const tracking = { map, markers, order, hasCenteredOnRider: false };
+            trackingMaps.set(id, tracking);
+            if (points.length > 1) {
+                map.fitBounds(L.latLngBounds(points), { padding: [28, 28] });
+                const coords = points.map(p => `${p[1]},${p[0]}`).join(";");
+                fetch(`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`)
+                    .then(response => response.ok ? response.json() : null)
+                    .then(result => {
+                        if (result?.routes?.[0]?.geometry && trackingMaps.get(id)?.map === map) {
+                            tracking.route = L.geoJSON(result.routes[0].geometry, { style: { color: "#ff5a1f", weight: 5, opacity: .8 } }).addTo(map);
+                        }
+                    }).catch(() => setTrackingStatus(id, "Route preview unavailable. Use Open Navigation."));
+            } else {
+                setTrackingStatus(id, "Some pickup/drop-off coordinates are missing. Open Navigation can still use the saved address.");
+            }
+            if (latestGpsPosition) updateMapRiderPosition(id, latestGpsPosition);
+            const link = document.querySelector(`[data-open-navigation="${id}"]`);
+            const url = navigationUrl(order);
+            if (link && url) { link.href = url; link.target = "_blank"; link.rel = "noopener noreferrer"; }
+            else if (link) link.hidden = true;
+        });
+        document.querySelectorAll("[data-start-tracking]").forEach(button => button.addEventListener("click", startLiveTracking));
+        document.querySelectorAll("[data-stop-tracking]").forEach(button => button.addEventListener("click", stopLiveTracking));
+    }
+
+    function updateMapRiderPosition(id, position) {
+        const tracking = trackingMaps.get(String(id));
+        if (!tracking) return;
+        const point = [position.coords.latitude, position.coords.longitude];
+        if (!tracking.markers.rider) tracking.markers.rider = L.circleMarker(point, { radius: 8, color: "#fff", weight: 3, fillColor: "#2563eb", fillOpacity: 1 }).addTo(tracking.map).bindPopup("Your live location");
+        else tracking.markers.rider.setLatLng(point);
+        if (!tracking.hasCenteredOnRider) { tracking.map.setView(point, 15); tracking.hasCenteredOnRider = true; }
+        setTrackingStatus(id, `GPS active · accuracy about ${Math.round(position.coords.accuracy || 0)} m · updated ${new Date(position.timestamp).toLocaleTimeString()}`);
+    }
+
+    async function saveLiveLocation(position) {
+        if (Date.now() - lastLocationSentAt < 15000 || locationUpdatePromise) return;
+        lastLocationSentAt = Date.now();
+        locationUpdatePromise = apiRequest("/riders/me/location", {
+            method: "PATCH",
+            body: JSON.stringify({ latitude: position.coords.latitude, longitude: position.coords.longitude, accuracy: position.coords.accuracy })
+        }).catch(error => {
+            console.error("Unable to save rider location:", error);
+            trackingMaps.forEach((tracking, id) => setTrackingStatus(id, "GPS works, but the server could not save your latest location.", true));
+        }).finally(() => { locationUpdatePromise = null; });
+        await locationUpdatePromise;
+    }
+
+    function startLiveTracking() {
+        if (!navigator.geolocation) { showMessage("This browser does not support GPS location.", "error"); return; }
+        if (trackingWatchId !== null) { showMessage("Live tracking is already running."); return; }
+        trackingMaps.forEach((tracking, id) => setTrackingStatus(id, "Requesting location permission…"));
+        trackingWatchId = navigator.geolocation.watchPosition(position => {
+            latestGpsPosition = position;
+            trackingMaps.forEach((tracking, id) => updateMapRiderPosition(id, position));
+            saveLiveLocation(position);
+        }, error => {
+            const message = error.code === 1
+                ? "Location permission denied. Allow location access in browser settings."
+                : error.code === 2
+                    ? "Current location unavailable. Check GPS and device location settings."
+                    : "GPS timed out. Move to an area with a clearer signal and try again.";
+            trackingMaps.forEach((tracking, id) => setTrackingStatus(id, message, true));
+            showMessage(message, "error");
+            if (error.code === 1 && trackingWatchId !== null) { navigator.geolocation.clearWatch(trackingWatchId); trackingWatchId = null; }
+        }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
+        trackingMaps.forEach((tracking, id) => setTrackingStatus(id, "Waiting for device GPS…"));
+    }
+
+    function stopLiveTracking() {
+        if (trackingWatchId !== null && navigator.geolocation) { navigator.geolocation.clearWatch(trackingWatchId); trackingWatchId = null; }
+        trackingMaps.forEach((tracking, id) => setTrackingStatus(id, "Live location sharing is paused."));
+        showMessage("Live location tracking paused.");
     }
 
     function renderActiveDeliveryCard(order) {
@@ -622,6 +747,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     <span class="rider-delivery-status active">${status === "ready" ? "Ready for Pickup" : "In Progress"}</span>
                 </div>
                 <div class="rider-delivery-progress">${progress}</div>
+                <div class="rider-tracking-panel">
+                    <div class="rider-tracking-toolbar">
+                        <strong>Live location & route</strong>
+                        <div class="rider-tracking-actions">
+                            <button type="button" data-start-tracking="${escapeHTML(order.id)}">Start Live Tracking</button>
+                            <button type="button" data-stop-tracking="${escapeHTML(order.id)}">Pause Tracking</button>
+                            <a href="#" data-open-navigation="${escapeHTML(order.id)}">Open Navigation</a>
+                        </div>
+                    </div>
+                    <div class="rider-tracking-map" id="riderTrackingMap-${escapeHTML(order.id)}" role="region" aria-label="Live delivery map for order ${orderNumber}"></div>
+                    <p class="rider-tracking-status" data-tracking-status="${escapeHTML(order.id)}" role="status">Enable live tracking to show your current GPS position.</p>
+                </div>
                 <div class="rider-delivery-route">
                     <div class="rider-route-location"><span class="route-label">PICKUP</span><strong>${restaurant}</strong><p>${pickupAddress}</p></div>
                     <div class="rider-route-arrow">→</div>
