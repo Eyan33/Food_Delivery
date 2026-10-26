@@ -307,6 +307,13 @@ async function ensureOrderLocationSchema() {
         ALTER TABLE public.orders
             ADD COLUMN IF NOT EXISTS delivery_latitude numeric(10,8),
             ADD COLUMN IF NOT EXISTS delivery_longitude numeric(11,8);
+
+        ALTER TABLE public.restaurants
+            ADD COLUMN IF NOT EXISTS location_name varchar(130);
+
+        UPDATE public.restaurants
+        SET location_name = split_part(trim(name), ' ', 1) || ' Location'
+        WHERE location_name IS NULL OR trim(location_name) = '';
     `);
 }
 
