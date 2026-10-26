@@ -244,7 +244,11 @@ async function ensureRiderProfileSchema() {
             ADD COLUMN IF NOT EXISTS postal_code varchar(20),
             ADD COLUMN IF NOT EXISTS emergency_contact_name varchar(120),
             ADD COLUMN IF NOT EXISTS emergency_contact_phone varchar(40),
-            ADD COLUMN IF NOT EXISTS emergency_contact_relationship varchar(30);
+            ADD COLUMN IF NOT EXISTS emergency_contact_relationship varchar(30),
+            ADD COLUMN IF NOT EXISTS current_latitude numeric(10,8),
+            ADD COLUMN IF NOT EXISTS current_longitude numeric(11,8),
+            ADD COLUMN IF NOT EXISTS location_accuracy_m numeric(10,2),
+            ADD COLUMN IF NOT EXISTS location_updated_at timestamptz;
 
         ALTER TABLE public.users
             ADD COLUMN IF NOT EXISTS password_changed_at timestamptz;
