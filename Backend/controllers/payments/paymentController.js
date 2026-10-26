@@ -398,7 +398,8 @@ async function mpesaCallback(req, res) {
     return res.status(200).json({ ResultCode: 0, ResultDesc: result.accepted ? "Accepted" : "Received" });
   } catch (error) {
     console.error("[mpesa] callback processing failed:", error.message);
-    return res.status(200).json({ ResultCode: 0, ResultDesc: "Received" });
+    // A 5xx lets the provider retry transient database failures.
+    return res.status(500).json({ ResultCode: 1, ResultDesc: "Callback processing failed" });
   }
 }
 
