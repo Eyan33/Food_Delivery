@@ -1,4 +1,5 @@
 const paymentService = require("../../services/payment/paymentService");
+const { notifyCustomerOrderUpdate } = require("../../services/orderEmailNotificationService");
 
 /*
 |--------------------------------------------------------------------------
@@ -145,6 +146,10 @@ async function updatePaymentStatus(req, res) {
       provider_response,
     );
 
+    if (payment.payment_status === "completed") {
+      await notifyCustomerOrderUpdate(payment.order_id);
+    }
+
     return res.status(200).json({
       success: true,
       message: "Payment status updated successfully",
@@ -257,6 +262,10 @@ async function updateAdminPaymentStatus(req, res) {
       transaction_reference,
       provider_response,
     );
+
+    if (payment.payment_status === "completed") {
+      await notifyCustomerOrderUpdate(payment.order_id);
+    }
 
     return res.status(200).json({
       success: true,
