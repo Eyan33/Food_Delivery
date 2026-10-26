@@ -4,8 +4,9 @@ const pool = require("../config/database");
 const emailService = require("./emailService");
 
 /**
- * Sends an order status email to the email address on the customer's account.
- * Provider failures are logged but never undo a successfully saved order.
+ * Sends only the order-placed email and the delivered-after-payment email
+ * to the email address on the customer's account. Provider failures are
+ * logged but never undo a successfully saved order.
  */
 async function notifyCustomerOrderUpdate(orderId) {
     try {
@@ -13,11 +14,13 @@ async function notifyCustomerOrderUpdate(orderId) {
             `SELECT
                 o.id, o.order_number, o.status, o.subtotal,
                 o.delivery_fee, o.total_amount,
+                p.payment_status,
                 u.email AS customer_email,
                 r.name AS restaurant_name
              FROM orders o
              JOIN users u ON u.id = o.customer_id
              JOIN restaurants r ON r.id = o.restaurant_id
+             LEFT JOIN payments p ON p.order_id = o.id
              WHERE o.id = $1
              LIMIT 1`,
             [orderId]
@@ -29,6 +32,19 @@ async function notifyCustomerOrderUpdate(orderId) {
         }
 
         const order = result.rows[0];
+
+        // Only two customer emails are permitted:
+        // 1) once when the order is placed (pending);
+        // 2) after delivery AND payment confirmation.
+        const isOrderPlaced = order.status === "pending";
+        const isPaidDeliveryComplete =
+            order.status === "delivered" &&
+            String(order.payment_status || "").toLowerCase() === "completed";
+
+        if (!isOrderPlaced && !isPaidDeliveryComplete) {
+            return;
+        }
+
         if (!order.customer_email) {
             console.warn(`[order-email] No customer email for order #${order.order_number || order.id}.`);
             return;
