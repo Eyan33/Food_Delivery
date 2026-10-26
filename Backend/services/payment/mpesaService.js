@@ -261,9 +261,25 @@ async function processCallback(payload) {
     }
 
     // Only now, after Safaricom confirms payment, create the actual order.
-    const orderService = require("../../services/order/orderService");
-    const orderPayload = { ...session.payload, payment_method: "mpesa", delivery_phone: session.phone_number };
-    const order = await orderService.createOrder(session.customer_id, orderPayload);
+    // The unique session link makes retries safe if a later database update fails.
+    const existingOrder = await client.query(
+      "SELECT id FROM public.orders WHERE mpesa_checkout_session_id = $1 LIMIT 1",
+      [session.id],
+    );
+    let orderId;
+    if (existingOrder.rows.length) {
+      orderId = existingOrder.rows[0].id;
+    } else {
+      const orderService = require("../../services/order/orderService");
+      const orderPayload = {
+        ...session.payload,
+        payment_method: "mpesa",
+        delivery_phone: session.phone_number,
+        mpesa_checkout_session_id: session.id,
+      };
+      const order = await orderService.createOrder(session.customer_id, orderPayload);
+      orderId = order.id;
+    }
     await client.query(
       `UPDATE public.payments
           SET payment_status = 'completed', transaction_reference = $1,
@@ -272,17 +288,17 @@ async function processCallback(payload) {
               paid_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
         WHERE order_id = $6`,
       [receipt, session.phone_number, checkoutId, payload?.Body?.stkCallback?.MerchantRequestID || null,
-       JSON.stringify(payload).slice(0, 12000), order.id],
+       JSON.stringify(payload).slice(0, 12000), orderId],
     );
     await client.query(
       `UPDATE public.mpesa_checkout_sessions
           SET status = 'completed', order_id = $1, receipt_number = $2,
               provider_response = $3, updated_at = CURRENT_TIMESTAMP
         WHERE id = $4`,
-      [order.id, receipt, JSON.stringify(payload).slice(0, 12000), session.id],
+      [orderId, receipt, JSON.stringify(payload).slice(0, 12000), session.id],
     );
     await client.query("COMMIT");
-    completedOrderId = order.id;
+    completedOrderId = orderId;
     return { accepted: true, completedOrderId };
   } catch (error) {
     await client.query("ROLLBACK").catch(() => {});
