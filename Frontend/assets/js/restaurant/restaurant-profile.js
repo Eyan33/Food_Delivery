@@ -133,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setValue(restaurantPhoneInput, data.phone);
         setValue(restaurantEmailInput, data.email);
 
-        const firstName = String(data.name || "Restaurant").trim().split(/\\s+/)[0] || "Restaurant";
+        const firstName = String(data.name || "Restaurant").trim().split(/\s+/)[0] || "Restaurant";
         setValue(restaurantLocationNameInput, data.location_name || `${firstName} Location`);
         const hasCoordinates = data.latitude !== null && data.latitude !== undefined && data.longitude !== null && data.longitude !== undefined;
         setValue(restaurantCoordinatesInput, hasCoordinates ? `${Number(data.latitude).toFixed(6)}, ${Number(data.longitude).toFixed(6)}` : "Live location not set");
