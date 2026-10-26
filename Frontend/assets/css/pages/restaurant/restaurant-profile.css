@@ -866,3 +866,69 @@
     }
 
 }
+
+/* Profile page: flexible fields and operating-hours controls on small screens */
+.profile-page,
+.profile-page-content,
+.profile-form-card,
+.profile-form-grid,
+.profile-form-group,
+.profile-overview-card,
+.profile-overview-info {
+  min-width: 0;
+  max-width: 100%;
+}
+.profile-form-group input,
+.profile-form-group select,
+.profile-form-group textarea,
+.hours-inputs input,
+.hours-inputs select {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+.profile-form-group input,
+.profile-form-group select,
+.profile-form-group textarea {
+  width: 100%;
+}
+.profile-overview-info,
+.profile-overview-info h2,
+.profile-overview-info p,
+.profile-overview-meta {
+  overflow-wrap: anywhere;
+}
+.profile-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.profile-form-actions button:focus-visible,
+.profile-page button:focus-visible,
+.profile-page a:focus-visible,
+.profile-page input:focus-visible,
+.profile-page select:focus-visible,
+.profile-page textarea:focus-visible {
+  outline: 3px solid rgba(255, 90, 31, 0.35);
+  outline-offset: 2px;
+}
+@media (max-width: 560px) {
+  .operating-hours-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hours-inputs {
+    display: flex;
+    flex-wrap: wrap;
+    min-width: 0;
+    gap: 8px;
+  }
+  .hours-inputs input[type="time"] {
+    width: auto;
+    min-width: 0;
+    flex: 1 1 120px;
+  }
+  .profile-overview-left,
+  .profile-overview-info {
+    min-width: 0;
+  }
+}
