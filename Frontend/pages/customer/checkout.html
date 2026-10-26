@@ -29,14 +29,13 @@
             </a>
 
             <!-- Delivery Location -->
-            <a href="addresses.html" class="delivery-location" aria-label="Choose delivery location">
+            <div class="delivery-location" aria-label="Delivery location uses your live GPS location">
                     <span class="location-icon">📍</span>
-
                     <span class="location-text">
                         <small>Deliver to</small>
-                        <strong>Select location</strong>
+                        <strong>Live location required</strong>
                     </span>
-            </a>
+            </div>
 
 
             <!-- Desktop Navigation -->
@@ -109,7 +108,7 @@
 
                 <h1>Checkout</h1>
 
-                <p>Complete your delivery information and place your order.</p>
+                <p>Use your device's live GPS location, review your details, and place your order.</p>
             </div>
 
             <!-- Checkout Layout -->
@@ -145,19 +144,19 @@
 
                             <div class="form-group checkout-location-tools">
                                 <button type="button" id="useCheckoutLocationButton" class="checkout-location-button">Use My Current Location</button>
-                                <small id="checkoutLocationStatus" role="status" aria-live="polite">Select your current location to continue. You do not need to type an address.</small>
+                                <small id="checkoutLocationStatus" role="status" aria-live="polite">Live GPS location is required. Manual address entry and saved-address selection are not available at checkout.</small>
                             </div>
 
                             <!-- Address -->
                             <div class="form-group">
                                 <label for="address">Detected Delivery Location</label>
-                                <textarea id="address" name="address" rows="2" placeholder="Use current location to detect your address" readonly required></textarea>
+                                <textarea id="address" name="address" rows="2" placeholder="Detected automatically from live GPS" readonly required></textarea>
                             </div>
 
                             <!-- City / Area -->
                             <div class="form-group">
                                 <label for="area">Detected Area</label>
-                                <input type="text" id="area" name="area" placeholder="Detected automatically from GPS" readonly required />
+                                <input type="text" id="area" name="area" placeholder="Detected automatically from live GPS" readonly required />
                             </div>
 
                             <!-- Delivery Notes -->
