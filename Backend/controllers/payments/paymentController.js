@@ -415,6 +415,7 @@ async function mpesaCallback(req, res) {
 module.exports = {
   createPayment,
   initiateMpesaStkPush,
+  getMpesaCheckoutStatus,
   mpesaCallback,
   getOrderPayment,
   getMyPayments,
