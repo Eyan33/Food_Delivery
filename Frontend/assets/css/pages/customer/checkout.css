@@ -650,11 +650,38 @@
     }
 
     .checkout-layout {
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    /*
+     * On mobile, flatten the main column so the order summary can appear
+     * before the final confirmation step. Desktop layout remains unchanged.
+     */
+    .checkout-main {
+        display: contents;
+    }
+
+    .checkout-main > section:nth-child(1) {
+        order: 1;
+        width: 100%;
+    }
+
+    .checkout-main > section:nth-child(2) {
+        order: 2;
+        width: 100%;
     }
 
     .checkout-sidebar {
         position: static;
+        order: 3;
+        width: 100%;
+    }
+
+    .checkout-main > section:nth-child(3) {
+        order: 4;
+        width: 100%;
     }
 
     .checkout-page-header h1 {
