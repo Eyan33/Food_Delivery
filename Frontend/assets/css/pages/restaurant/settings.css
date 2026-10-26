@@ -880,3 +880,54 @@
         width: 100%;
     }
 }
+
+/* Settings page: allow navigation to scroll instead of clipping items */
+.settings-page,
+.settings-page-content,
+.settings-section,
+.settings-form,
+.settings-actions {
+  min-width: 0;
+  max-width: 100%;
+}
+.settings-navigation {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.settings-navigation a,
+.settings-navigation button {
+  flex-shrink: 0;
+}
+.settings-form input,
+.settings-form select,
+.settings-form textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+.settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.settings-page button:focus-visible,
+.settings-page a:focus-visible,
+.settings-page input:focus-visible,
+.settings-page select:focus-visible,
+.settings-page textarea:focus-visible {
+  outline: 3px solid rgba(255, 90, 31, 0.35);
+  outline-offset: 2px;
+}
+@media (max-width: 500px) {
+  .settings-actions {
+    align-items: stretch;
+  }
+  .settings-actions button {
+    width: 100%;
+    min-width: 0;
+  }
+}
