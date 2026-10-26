@@ -367,8 +367,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
 
-        if (getPaymentMethod() !== "cash") {
-            showMessage("Cash on delivery is the only payment method currently available.");
+        if (!["cash", "mpesa"].includes(getPaymentMethod())) {
+            showMessage("Please choose Cash on Delivery or M-Pesa.");
             return false;
         }
 
@@ -402,6 +402,7 @@ document.addEventListener("DOMContentLoaded", () => {
             delivery_latitude: currentCoordinates ? currentCoordinates.latitude : null,
             delivery_longitude: currentCoordinates ? currentCoordinates.longitude : null,
             expected_delivery_fee: (() => { const fee = cart[0].delivery_fee ?? cart[0].deliveryFee; return fee == null || fee === "" ? null : Number(fee); })(),
+            payment_method: getPaymentMethod(),
             items: cart.map(item => ({
                 food_id: Number(item.id),
                 quantity: Number(item.quantity),
@@ -469,39 +470,39 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
             }
 
-            // The backend creates the pending cash payment in the same transaction.
-            const paymentRecordCreated = true;
-
-            // Clear cart only after the backend confirms the order.
+            // The order and its selected payment row are created atomically by the backend.
             localStorage.removeItem(CART_STORAGE_KEY);
             cart = [];
+            sessionStorage.setItem("foodDeliveryLastOrderId", String(order.id));
 
-            if (paymentRecordCreated) {
-                showMessage(
-                    `Order ${order.order_number || order.id} placed successfully. Pay cash on delivery.`,
-                    "success"
-                );
+            if (getPaymentMethod() === "mpesa") {
+                if (placeOrderButton) placeOrderButton.textContent = "Requesting M-Pesa…";
+                showMessage(`Order ${order.order_number || order.id} created. Requesting an M-Pesa PIN prompt…`, "success");
+                try {
+                    const paymentResponse = await fetch(`${API_BASE}/payments/mpesa/stk-push`, {
+                        method: "POST",
+                        headers: {
+                            "Accept": "application/json",
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ order_id: order.id, phone_number: phone.value.trim() })
+                    });
+                    const paymentResult = await paymentResponse.json().catch(() => ({}));
+                    if (!paymentResponse.ok || paymentResult.success !== true) {
+                        throw new Error(paymentResult.message || "The order was created, but M-Pesa could not be started.");
+                    }
+                    showMessage(paymentResult.message || "Check your phone and enter your M-Pesa PIN to pay.", "success");
+                } catch (paymentError) {
+                    console.error("M-Pesa initiation failed:", paymentError.message);
+                    showMessage(`Order ${order.order_number || order.id} was created, but the M-Pesa request did not start: ${paymentError.message} Do not place the order again; check Orders and retry with support if needed.`, "error");
+                }
             } else {
-                showMessage(
-                    `Order ${order.order_number || order.id} was created, but its cash payment record needs support review. Please do not place the order again.`,
-                    "error"
-                );
+                showMessage(`Order ${order.order_number || order.id} placed successfully. Pay cash on delivery.`, "success");
             }
 
-            if (placeOrderButton) {
-                placeOrderButton.textContent = "Order Placed";
-            }
-
-            // Save the ID only as a navigation convenience.
-            // The order itself is stored in the backend.
-            sessionStorage.setItem(
-                "foodDeliveryLastOrderId",
-                String(order.id)
-            );
-
-            window.setTimeout(() => {
-                window.location.href = "orders.html";
-            }, paymentRecordCreated ? 1500 : 3500);
+            if (placeOrderButton) placeOrderButton.textContent = "Order Placed";
+            window.setTimeout(() => { window.location.href = "orders.html"; }, 2500);
 
         } catch (error) {
             console.error("Checkout failed:", error);
