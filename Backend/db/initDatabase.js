@@ -339,9 +339,10 @@ async function ensureMpesaPaymentSchema() {
         CREATE INDEX IF NOT EXISTS idx_mpesa_checkout_sessions_customer
             ON public.mpesa_checkout_sessions (customer_id, created_at DESC);
 
+        -- Keep this as a correlation key rather than an FK: callback processing
+        -- holds the session row lock while order creation runs on another pooled connection.
         ALTER TABLE public.orders
-            ADD COLUMN IF NOT EXISTS mpesa_checkout_session_id bigint
-            REFERENCES public.mpesa_checkout_sessions(id) ON DELETE SET NULL;
+            ADD COLUMN IF NOT EXISTS mpesa_checkout_session_id bigint;
 
         CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_mpesa_checkout_session
             ON public.orders (mpesa_checkout_session_id)
