@@ -27,6 +27,13 @@ router.post("/mpesa/callback", paymentController.mpesaCallback);
  * Initiate M-Pesa STK Push for the payment row created with the order.
  * POST /api/payments/mpesa/stk-push
  */
+router.get(
+    "/mpesa/session/:sessionId",
+    authenticateToken,
+    authorizeRoles("customer"),
+    paymentController.getMpesaCheckoutStatus
+);
+
 router.post(
     "/mpesa/stk-push",
     authenticateToken,
