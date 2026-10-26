@@ -1044,3 +1044,66 @@
 .earnings-message:not(.show) {
     display: none;
 }
+
+/* Earnings page: constrain cards and isolate wide data tables */
+.earnings-page,
+.earnings-page-content,
+.earnings-main-grid,
+.earnings-summary-grid,
+.earnings-transactions-card,
+.earnings-breakdown-card,
+.earnings-performance-card {
+  min-width: 0;
+  max-width: 100%;
+}
+.earnings-table-wrapper,
+.earnings-transactions-card .table-wrapper,
+.earnings-transactions-card .table-responsive {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.earnings-table {
+  width: 100%;
+}
+.earnings-table th,
+.earnings-table td {
+  overflow-wrap: anywhere;
+}
+.earnings-chart,
+.chart-container,
+.chart-bars {
+  min-width: 0;
+  max-width: 100%;
+}
+.earnings-page input,
+.earnings-page select,
+.earnings-page button {
+  max-width: 100%;
+}
+.earnings-page button:focus-visible,
+.earnings-page a:focus-visible,
+.earnings-page input:focus-visible,
+.earnings-page select:focus-visible {
+  outline: 3px solid rgba(255, 90, 31, 0.35);
+  outline-offset: 2px;
+}
+@media (max-width: 600px) {
+  .earnings-page,
+  .earnings-page-content {
+    min-width: 0;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .earnings-summary-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .earnings-main-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .earnings-chart {
+    overflow-x: auto;
+  }
+}
