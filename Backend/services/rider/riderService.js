@@ -133,6 +133,7 @@ const RIDER_ORDER_SELECT = `
         o.order_number,
         o.restaurant_id,
         r.name AS restaurant_name,
+        r.location_name AS restaurant_location_name,
         r.address AS restaurant_address,
         r.city AS restaurant_city,
         r.latitude AS restaurant_latitude,
