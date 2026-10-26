@@ -399,7 +399,8 @@ document.addEventListener("DOMContentLoaded", () => {
         // Revenue represents delivered orders, not orders that may still be cancelled.
         const todaysRevenue = todaysOrders.reduce((total, order) => {
             if (String(order.status || "").toLowerCase() !== "delivered") return total;
-            return total + (Number(order.total_amount) || 0);
+            // Restaurant revenue is food subtotal only; exclude delivery fees.
+            return total + (Number(order.subtotal) || 0);
         }, 0);
 
         const foodList = Array.isArray(foods) ? foods : Array.isArray(foods?.foods) ? foods.foods : [];
