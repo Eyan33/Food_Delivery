@@ -141,7 +141,7 @@ async function sendOrderUpdateEmail({
         preparing: "Your food is being prepared",
         ready: "Your order is ready for pickup",
         out_for_delivery: "Your order is out for delivery",
-        delivered: "Your order has been delivered",
+        delivered: "Delivery complete — payment confirmed",
         cancelled: "Your order has been cancelled"
     };
     const label = statusLabels[status] || `Order status updated: ${status}`;
@@ -168,10 +168,14 @@ async function sendOrderUpdateEmail({
             body: JSON.stringify({
                 sender: { name: senderName, email: from },
                 to: [{ email: to }],
-                subject: `Food Delivery order #${number}: ${label}`,
+                subject: status === "delivered"
+                    ? `Food Delivery order #${number}: delivery complete and payment confirmed`
+                    : `Food Delivery order #${number}: ${label}`,
                 textContent: [
                     "Hello,",
-                    `There is an update for your Food Delivery order #${number}.`,
+                    status === "delivered"
+                        ? `Your Food Delivery order #${number} has been delivered and payment is confirmed.`
+                        : `Your Food Delivery order #${number} has been placed successfully.`,
                     `Restaurant: ${restaurant}`,
                     `Status: ${label}`,
                     `Food subtotal: ${money(subtotal)}`,
@@ -182,8 +186,8 @@ async function sendOrderUpdateEmail({
                 ].join("\n"),
                 htmlContent: `
                     <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:24px;color:#222">
-                      <h1 style="color:#FF5A1F;margin-bottom:8px">Food Delivery order update</h1>
-                      <p>There is an update for your order <strong>#${safe(number)}</strong>.</p>
+                      <h1 style="color:#FF5A1F;margin-bottom:8px">Food Delivery order notification</h1>
+                      <p>${status === "delivered" ? "Your order has been delivered and payment is confirmed." : "Your order has been placed successfully."} Order <strong>#${safe(number)}</strong>.</p>
                       <div style="padding:16px;background:#fff4ef;border-radius:8px;margin:20px 0">
                         <h2 style="margin:0 0 8px;color:#FF5A1F">${safe(label)}</h2>
                         <p style="margin:0">Restaurant: <strong>${safe(restaurant)}</strong></p>
