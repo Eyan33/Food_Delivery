@@ -18,6 +18,7 @@ const { normalizeEmail } = require("./utils/auth/validators");
 
 const authRoutes = require("./routes/auth/authRoutes");
 const restaurantRoutes = require("./routes/restaurant/restaurantRoutes");
+const restaurantNotificationRoutes = require("./routes/restaurant/notificationRoutes");
 const foodRoutes = require("./routes/food/foodRoutes");
 const categoryRoutes = require("./routes/category/categoryRoutes");
 const orderRoutes = require("./routes/order/orderRoutes");
@@ -254,6 +255,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/foods", foodRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/restaurants", restaurantRoutes);
+app.use("/api/restaurants/notifications", restaurantNotificationRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/addresses", addressRoutes);
