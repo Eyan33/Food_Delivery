@@ -479,7 +479,7 @@ function cleanRestaurantFields(
             2,
             120
         );
-        const firstName = fields.name.trim().split(/\\s+/)[0];
+        const firstName = fields.name.trim().split(/\s+/)[0];
         fields.location_name = `${firstName} Location`;
     }
 
