@@ -15,6 +15,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const restaurantMenuButton = $("restaurantMenuButton");
     const restaurantSidebar = $("restaurantSidebar");
 
+    // Bind mobile navigation immediately, independently of earnings data loading.
+    if (restaurantMenuButton && restaurantSidebar && !restaurantMenuButton.dataset.mobileNavBound) {
+        restaurantMenuButton.dataset.mobileNavBound = "true";
+        restaurantMenuButton.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            restaurantSidebar.classList.toggle("open");
+            restaurantMenuButton.setAttribute("aria-expanded", String(restaurantSidebar.classList.contains("open")));
+        });
+        document.addEventListener("click", (event) => {
+            if (!restaurantSidebar.contains(event.target) && !restaurantMenuButton.contains(event.target)) {
+                restaurantSidebar.classList.remove("open");
+                restaurantMenuButton.setAttribute("aria-expanded", "false");
+            }
+        });
+        restaurantSidebar.querySelectorAll(".restaurant-nav-link").forEach((link) => {
+            link.addEventListener("click", () => {
+                if (window.innerWidth <= 900) {
+                    restaurantSidebar.classList.remove("open");
+                    restaurantMenuButton.setAttribute("aria-expanded", "false");
+                }
+            });
+        });
+        window.addEventListener("resize", () => {
+            if (window.innerWidth > 900) restaurantSidebar.classList.remove("open");
+        });
+    }
+
     const earningsTable = document.querySelector(".earnings-table");
     const earningsTableBody = earningsTable?.querySelector("tbody");
     const summaryCards = document.querySelectorAll(".earnings-summary-card");
@@ -943,20 +971,7 @@ document.addEventListener("DOMContentLoaded", () => {
     |--------------------------------------------------------------------------
     */
 
-    restaurantMenuButton?.addEventListener("click", () => {
-        restaurantSidebar?.classList.toggle("open");
-    });
 
-    document.addEventListener("click", (event) => {
-        if (!restaurantSidebar?.classList.contains("open")) return;
-
-        if (
-            !restaurantSidebar.contains(event.target) &&
-            !restaurantMenuButton?.contains(event.target)
-        ) {
-            restaurantSidebar.classList.remove("open");
-        }
-    });
 
     /*
     |--------------------------------------------------------------------------
