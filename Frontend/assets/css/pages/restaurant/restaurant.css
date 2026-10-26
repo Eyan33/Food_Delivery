@@ -636,6 +636,13 @@
   cursor: pointer;
 }
 
+/* Keep the menu control visible on mobile after its base styles are applied. */
+@media (max-width: 900px) {
+  .restaurant-menu-button {
+    display: flex;
+  }
+}
+
 /* =========================================================
    PAGE HEADING
 ========================================================= */
