@@ -339,6 +339,14 @@ async function ensureMpesaPaymentSchema() {
         CREATE INDEX IF NOT EXISTS idx_mpesa_checkout_sessions_customer
             ON public.mpesa_checkout_sessions (customer_id, created_at DESC);
 
+        ALTER TABLE public.orders
+            ADD COLUMN IF NOT EXISTS mpesa_checkout_session_id bigint
+            REFERENCES public.mpesa_checkout_sessions(id) ON DELETE SET NULL;
+
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_mpesa_checkout_session
+            ON public.orders (mpesa_checkout_session_id)
+            WHERE mpesa_checkout_session_id IS NOT NULL;
+
         ALTER TABLE public.payments
             ADD COLUMN IF NOT EXISTS mpesa_checkout_request_id text,
             ADD COLUMN IF NOT EXISTS mpesa_merchant_request_id text;
