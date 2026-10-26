@@ -319,6 +319,35 @@ async function ensureOrderLocationSchema() {
 
 async function ensureMpesaPaymentSchema() {
     await pool.query(`
+        CREATE TABLE IF NOT EXISTS public.mpesa_checkout_sessions (
+            id bigserial PRIMARY KEY,
+            customer_id bigint NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+            checkout_request_id text UNIQUE,
+            merchant_request_id text,
+            payload jsonb NOT NULL,
+            amount numeric(10,2) NOT NULL CHECK (amount > 0),
+            phone_number varchar(30) NOT NULL,
+            status varchar(20) NOT NULL DEFAULT 'initiating'
+                CHECK (status IN ('initiating', 'processing', 'completed', 'failed')),
+            order_id bigint REFERENCES public.orders(id) ON DELETE SET NULL,
+            provider_response text,
+            receipt_number varchar(100),
+            created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_mpesa_checkout_sessions_customer
+            ON public.mpesa_checkout_sessions (customer_id, created_at DESC);
+
+        -- Keep this as a correlation key rather than an FK: callback processing
+        -- holds the session row lock while order creation runs on another pooled connection.
+        ALTER TABLE public.orders
+            ADD COLUMN IF NOT EXISTS mpesa_checkout_session_id bigint;
+
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_mpesa_checkout_session
+            ON public.orders (mpesa_checkout_session_id)
+            WHERE mpesa_checkout_session_id IS NOT NULL;
+
         ALTER TABLE public.payments
             ADD COLUMN IF NOT EXISTS mpesa_checkout_request_id text,
             ADD COLUMN IF NOT EXISTS mpesa_merchant_request_id text;

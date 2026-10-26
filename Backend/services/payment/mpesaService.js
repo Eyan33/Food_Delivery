@@ -72,94 +72,137 @@ function mpesaTimestamp(date = new Date()) {
   return parts.year + parts.month + parts.day + parts.hour + parts.minute + parts.second;
 }
 
-async function initiateStkPush({ orderId, customerId, phoneNumber }) {
+async function calculateCheckoutAmount(customerId, payload) {
+  const restaurantId = payload?.restaurant_id;
+  const items = payload?.items;
+  if (!restaurantId || !Array.isArray(items) || !items.length) {
+    const error = new Error("Restaurant and cart items are required.");
+    error.statusCode = 400;
+    throw error;
+  }
+  const restaurantResult = await pool.query(
+    "SELECT id, is_open, is_active, delivery_fee, minimum_order FROM public.restaurants WHERE id = $1 LIMIT 1",
+    [String(restaurantId)],
+  );
+  const restaurant = restaurantResult.rows[0];
+  if (!restaurant || !restaurant.is_active || !restaurant.is_open) {
+    const error = new Error("The selected restaurant is unavailable or closed.");
+    error.statusCode = 409;
+    throw error;
+  }
+  const ids = items.map((item) => String(item.food_id || ""));
+  if (ids.some((id) => !/^\\d+$/.test(id))) {
+    const error = new Error("The cart contains an invalid food item.");
+    error.statusCode = 400;
+    throw error;
+  }
+  const foodsResult = await pool.query(
+    "SELECT id, restaurant_id, name, price, is_available, is_active FROM public.foods WHERE id = ANY($1::bigint[])",
+    [ids],
+  );
+  if (foodsResult.rows.length !== ids.length) {
+    const error = new Error("One or more cart items are no longer available.");
+    error.statusCode = 409;
+    throw error;
+  }
+  let subtotal = 0;
+  for (const requested of items) {
+    const food = foodsResult.rows.find((item) => String(item.id) === String(requested.food_id));
+    const quantity = Number(requested.quantity);
+    if (!food || String(food.restaurant_id) !== String(restaurantId) || !food.is_active || !food.is_available) {
+      const error = new Error("A cart item is no longer available from this restaurant.");
+      error.statusCode = 409;
+      throw error;
+    }
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      const error = new Error("Cart quantities must be positive whole numbers.");
+      error.statusCode = 400;
+      throw error;
+    }
+    const price = Number(food.price);
+    if (requested.expected_price != null && Math.abs(Number(requested.expected_price) - price) > 0.009) {
+      const error = new Error(`${food.name} price has changed. Review your cart before paying.`);
+      error.statusCode = 409;
+      throw error;
+    }
+    subtotal += price * quantity;
+  }
+  if (subtotal < Number(restaurant.minimum_order || 0)) {
+    const error = new Error("The cart does not meet the restaurant minimum order.");
+    error.statusCode = 400;
+    throw error;
+  }
+  const total = Math.round((subtotal + Number(restaurant.delivery_fee || 0)) * 100) / 100;
+  if (total < 1 || Math.abs(total - Math.round(total)) > 0.001) {
+    const error = new Error("M-Pesa requires an order total in whole shillings. Adjust your cart or use another payment method.");
+    error.statusCode = 400;
+    throw error;
+  }
+  return total;
+}
+
+async function startCheckoutSession({ customerId, payload, phoneNumber }) {
   const settings = config();
   const phone = normalizePhone(phoneNumber);
-  const paymentResult = await pool.query(
-    `SELECT p.id, p.order_id, p.amount, p.payment_method, p.payment_status,
-            p.mpesa_checkout_request_id, o.customer_id, o.order_number, o.status AS order_status
-       FROM public.payments p JOIN public.orders o ON o.id = p.order_id
-      WHERE p.order_id = $1 AND o.customer_id = $2 LIMIT 1`,
-    [String(orderId), String(customerId)],
+  const amount = await calculateCheckoutAmount(customerId, payload);
+  const sessionResult = await pool.query(
+    `INSERT INTO public.mpesa_checkout_sessions (customer_id, payload, amount, phone_number)
+     VALUES ($1, $2::jsonb, $3, $4) RETURNING id`,
+    [String(customerId), JSON.stringify(payload), amount, phone],
   );
-  const payment = paymentResult.rows[0];
-  if (!payment) {
-    const error = new Error("Payment not found for this order.");
-    error.statusCode = 404;
-    throw error;
-  }
-  if (payment.payment_method !== "mpesa") {
-    const error = new Error("This order was not placed with M-Pesa selected.");
-    error.statusCode = 409;
-    throw error;
-  }
-  if (payment.order_status === "cancelled") {
-    const error = new Error("A cancelled order cannot be paid.");
-    error.statusCode = 409;
-    throw error;
-  }
-  if (payment.payment_status === "completed") {
-    return { payment_status: "completed", message: "This order is already paid." };
-  }
-  if (payment.mpesa_checkout_request_id && payment.payment_status !== "failed") {
-    return { payment_status: payment.payment_status, message: "An M-Pesa request has already been sent. Check your phone for the PIN prompt." };
-  }
-
-  const rawAmount = Number(payment.amount);
-  const amount = Math.round(rawAmount);
-  if (!Number.isFinite(amount) || amount < 1) {
-    const error = new Error("The order total must be at least KSh 1 for M-Pesa.");
-    error.statusCode = 400;
-    throw error;
-  }
-  if (Math.abs(rawAmount - amount) > 0.001) {
-    const error = new Error("M-Pesa supports whole-shilling amounts. This order total includes cents; please contact support before paying.");
-    error.statusCode = 400;
-    throw error;
-  }
-
-  const timestamp = mpesaTimestamp();
-  const password = Buffer.from(settings.shortcode + settings.passkey + timestamp).toString("base64");
-  const token = await getAccessToken(settings);
-  const response = await fetch(settings.baseUrl + "/mpesa/stkpush/v1/processrequest", {
-    method: "POST",
-    headers: { Authorization: "Bearer " + token, "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({
-      BusinessShortCode: settings.shortcode,
-      Password: password,
-      Timestamp: timestamp,
-      TransactionType: "CustomerPayBillOnline",
-      Amount: amount,
-      PartyA: phone,
-      PartyB: settings.shortcode,
-      PhoneNumber: phone,
-      CallBackURL: settings.callbackUrl,
-      AccountReference: String(payment.order_number || ("ORDER-" + payment.order_id)).slice(0, 12),
-      TransactionDesc: "Food delivery order " + payment.order_id,
-    }),
-    signal: AbortSignal.timeout(20000),
-  });
-  const body = await readJson(response);
-  if (String(body.ResponseCode) !== "0" || !body.CheckoutRequestID) {
+  const sessionId = sessionResult.rows[0].id;
+  try {
+    const timestamp = mpesaTimestamp();
+    const password = Buffer.from(settings.shortcode + settings.passkey + timestamp).toString("base64");
+    const token = await getAccessToken(settings);
+    const response = await fetch(settings.baseUrl + "/mpesa/stkpush/v1/processrequest", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + token, "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        BusinessShortCode: settings.shortcode,
+        Password: password,
+        Timestamp: timestamp,
+        TransactionType: "CustomerPayBillOnline",
+        Amount: Math.round(amount),
+        PartyA: phone,
+        PartyB: settings.shortcode,
+        PhoneNumber: phone,
+        CallBackURL: settings.callbackUrl,
+        AccountReference: ("FD" + String(sessionId)).slice(0, 12),
+        TransactionDesc: "Food delivery checkout " + sessionId,
+      }),
+      signal: AbortSignal.timeout(20000),
+    });
+    const body = await readJson(response);
+    if (String(body.ResponseCode) !== "0" || !body.CheckoutRequestID) {
+      await pool.query(
+        "UPDATE public.mpesa_checkout_sessions SET status = 'failed', provider_response = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2",
+        [JSON.stringify(body).slice(0, 8000), sessionId],
+      );
+      const error = new Error(body.ResponseDescription || body.errorMessage || "M-Pesa could not start the payment request.");
+      error.statusCode = 502;
+      throw error;
+    }
     await pool.query(
-      `UPDATE public.payments SET payment_status = 'failed', provider_response = $1, updated_at = CURRENT_TIMESTAMP
-        WHERE id = $2 AND payment_status <> 'completed'`,
-      [JSON.stringify(body).slice(0, 8000), payment.id],
+      `UPDATE public.mpesa_checkout_sessions
+          SET status = 'processing', checkout_request_id = $1, merchant_request_id = $2,
+              provider_response = $3, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $4`,
+      [body.CheckoutRequestID, body.MerchantRequestID || null, JSON.stringify(body).slice(0, 8000), sessionId],
     );
-    const error = new Error(body.ResponseDescription || body.errorMessage || "M-Pesa could not start the payment request.");
-    error.statusCode = 502;
+    return {
+      checkout_session_id: String(sessionId),
+      payment_status: "processing",
+      amount,
+      message: "Payment request sent. Check your phone and enter your M-Pesa PIN. Your order will be created only after payment is confirmed.",
+    };
+  } catch (error) {
+    await pool.query(
+      "UPDATE public.mpesa_checkout_sessions SET status = 'failed', updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND status <> 'processing'",
+      [sessionId],
+    ).catch(() => {});
     throw error;
   }
-
-  await pool.query(
-    `UPDATE public.payments
-        SET payment_status = 'processing', phone_number = $1,
-            mpesa_checkout_request_id = $2, mpesa_merchant_request_id = $3,
-            provider_response = $4, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $5 AND payment_status <> 'completed'`,
-    [phone, body.CheckoutRequestID, body.MerchantRequestID || null, JSON.stringify(body).slice(0, 8000), payment.id],
-  );
-  return { payment_status: "processing", message: "STK Push sent. Check your phone and enter your M-Pesa PIN to complete payment." };
 }
 
 function callbackMetadata(callback) {
@@ -179,39 +222,83 @@ async function processCallback(payload) {
   try {
     await client.query("BEGIN");
     const found = await client.query(
-      `SELECT id, order_id, payment_status FROM public.payments
-        WHERE mpesa_checkout_request_id = $1 FOR UPDATE`,
+      `SELECT id, customer_id, payload, amount, phone_number, status, order_id
+         FROM public.mpesa_checkout_sessions WHERE checkout_request_id = $1 FOR UPDATE`,
       [String(checkoutId)],
     );
     if (!found.rows.length) {
       await client.query("ROLLBACK");
       return { accepted: false, reason: "unknown_checkout" };
     }
-    const payment = found.rows[0];
-    if (payment.payment_status === "completed") {
+    const session = found.rows[0];
+    if (session.status === "completed" && session.order_id) {
+      await client.query("COMMIT");
+      return { accepted: true, duplicate: true, completedOrderId: session.order_id };
+    }
+    if (session.status === "failed") {
       await client.query("COMMIT");
       return { accepted: true, duplicate: true };
     }
     const receipt = metadata.MpesaReceiptNumber ? String(metadata.MpesaReceiptNumber) : null;
     const callbackAmount = Number(metadata.Amount);
     if (Number(callback.ResultCode) === 0 &&
-        (!receipt || !Number.isFinite(callbackAmount) || callbackAmount !== Math.round(Number(payment.amount)))) {
-      await client.query("ROLLBACK");
+        (!receipt || !Number.isFinite(callbackAmount) || callbackAmount !== Math.round(Number(session.amount)))) {
+      await client.query(
+        "UPDATE public.mpesa_checkout_sessions SET provider_response = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2",
+        [JSON.stringify(payload).slice(0, 12000), session.id],
+      );
+      await client.query("COMMIT");
       return { accepted: false, reason: "callback_amount_or_receipt_mismatch" };
     }
-    const successful = Number(callback.ResultCode) === 0;
+    if (Number(callback.ResultCode) !== 0) {
+      await client.query(
+        `UPDATE public.mpesa_checkout_sessions SET status = 'failed', provider_response = $1, updated_at = CURRENT_TIMESTAMP
+          WHERE id = $2`,
+        [JSON.stringify(payload).slice(0, 12000), session.id],
+      );
+      await client.query("COMMIT");
+      return { accepted: true, failed: true };
+    }
+
+    // Only now, after Safaricom confirms payment, create the actual order.
+    // The unique session link makes retries safe if a later database update fails.
+    const existingOrder = await client.query(
+      "SELECT id FROM public.orders WHERE mpesa_checkout_session_id = $1 LIMIT 1",
+      [session.id],
+    );
+    let orderId;
+    if (existingOrder.rows.length) {
+      orderId = existingOrder.rows[0].id;
+    } else {
+      const orderService = require("../../services/order/orderService");
+      const orderPayload = {
+        ...session.payload,
+        payment_method: "mpesa",
+        delivery_phone: session.phone_number,
+        mpesa_checkout_session_id: session.id,
+      };
+      const order = await orderService.createOrder(session.customer_id, orderPayload);
+      orderId = order.id;
+    }
     await client.query(
       `UPDATE public.payments
-          SET payment_status = $1,
-              transaction_reference = CASE WHEN $2::text IS NOT NULL THEN $2 ELSE transaction_reference END,
-              provider_response = $3,
-              paid_at = CASE WHEN $1 = 'completed' THEN COALESCE(paid_at, CURRENT_TIMESTAMP) ELSE paid_at END,
-              updated_at = CURRENT_TIMESTAMP
+          SET payment_status = 'completed', transaction_reference = $1,
+              phone_number = $2, mpesa_checkout_request_id = $3,
+              mpesa_merchant_request_id = $4, provider_response = $5,
+              paid_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+        WHERE order_id = $6`,
+      [receipt, session.phone_number, checkoutId, payload?.Body?.stkCallback?.MerchantRequestID || null,
+       JSON.stringify(payload).slice(0, 12000), orderId],
+    );
+    await client.query(
+      `UPDATE public.mpesa_checkout_sessions
+          SET status = 'completed', order_id = $1, receipt_number = $2,
+              provider_response = $3, updated_at = CURRENT_TIMESTAMP
         WHERE id = $4`,
-      [successful ? "completed" : "failed", receipt, JSON.stringify(payload).slice(0, 12000), payment.id],
+      [orderId, receipt, JSON.stringify(payload).slice(0, 12000), session.id],
     );
     await client.query("COMMIT");
-    if (successful) completedOrderId = payment.order_id;
+    completedOrderId = orderId;
     return { accepted: true, completedOrderId };
   } catch (error) {
     await client.query("ROLLBACK").catch(() => {});
@@ -221,4 +308,18 @@ async function processCallback(payload) {
   }
 }
 
-module.exports = { initiateStkPush, processCallback };
+async function getCheckoutSessionStatus(customerId, sessionId) {
+  const result = await pool.query(
+    `SELECT id, status, order_id, amount FROM public.mpesa_checkout_sessions
+      WHERE id = $1 AND customer_id = $2 LIMIT 1`,
+    [String(sessionId), String(customerId)],
+  );
+  if (!result.rows.length) {
+    const error = new Error("Checkout session not found.");
+    error.statusCode = 404;
+    throw error;
+  }
+  return result.rows[0];
+}
+
+module.exports = { startCheckoutSession, processCallback, getCheckoutSessionStatus };

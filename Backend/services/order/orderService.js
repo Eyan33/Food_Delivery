@@ -268,6 +268,7 @@ async function createOrder(customerId, data) {
         delivery_longitude,
         expected_delivery_fee,
         payment_method,
+        mpesa_checkout_session_id,
     } = data;
 
     const selectedPaymentMethod = String(payment_method || "cash").trim().toLowerCase();
@@ -474,6 +475,7 @@ async function createOrder(customerId, data) {
                 discount,
                 total_amount,
                 notes,
+                mpesa_checkout_session_id,
                 placed_at
             )
             VALUES (
@@ -494,6 +496,7 @@ async function createOrder(customerId, data) {
                 $14,
                 $15,
                 $16,
+                $17,
                 CURRENT_TIMESTAMP
             )
             RETURNING *
@@ -515,6 +518,7 @@ async function createOrder(customerId, data) {
                 discount,
                 totalAmount,
                 notes || null,
+                mpesa_checkout_session_id || null,
             ],
         );
 
