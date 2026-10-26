@@ -1,5 +1,6 @@
 
 const riderService = require("../../services/rider/riderService");
+const { notifyCustomerOrderUpdate } = require("../../services/orderEmailNotificationService");
 
 function handleError(res, error, fallbackMessage) {
     console.error("Rider API error:", error);
@@ -339,6 +340,8 @@ const markOutForDelivery = endpoint(
             "out_for_delivery"
         );
 
+        await notifyCustomerOrderUpdate(order.id);
+
         return res.status(200).json({
             success: true,
             message: "Order is out for delivery",
@@ -356,6 +359,8 @@ const markDelivered = endpoint(
             req.user.id,
             "delivered"
         );
+
+        await notifyCustomerOrderUpdate(order.id);
 
         return res.status(200).json({
             success: true,
