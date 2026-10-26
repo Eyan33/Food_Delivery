@@ -133,9 +133,15 @@ const RIDER_ORDER_SELECT = `
         o.order_number,
         o.restaurant_id,
         r.name AS restaurant_name,
+        r.address AS restaurant_address,
+        r.city AS restaurant_city,
+        r.latitude AS restaurant_latitude,
+        r.longitude AS restaurant_longitude,
         o.status,
         o.delivery_address,
         o.delivery_city,
+        o.delivery_latitude,
+        o.delivery_longitude,
         o.recipient_name,
         o.recipient_phone,
         o.delivery_instructions,
@@ -1344,6 +1350,29 @@ async function unassignOrder(orderId) {
     });
 }
 
+async function updateMyLocation(riderId, data) {
+    const validatedRiderId = validateId(riderId, "Rider ID");
+    requireObject(data);
+    checkAllowedFields(data, ["latitude", "longitude", "accuracy"]);
+    const latitude = Number(data.latitude);
+    const longitude = Number(data.longitude);
+    const accuracy = data.accuracy == null ? null : Number(data.accuracy);
+    if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90) throw apiError("Latitude must be between -90 and 90");
+    if (!Number.isFinite(longitude) || longitude < -180 || longitude > 180) throw apiError("Longitude must be between -180 and 180");
+    if (accuracy !== null && (!Number.isFinite(accuracy) || accuracy < 0 || accuracy > 100000)) throw apiError("Location accuracy is invalid");
+    const result = await pool.query(`
+        INSERT INTO rider_profiles (user_id, current_latitude, current_longitude, location_accuracy_m, location_updated_at)
+        VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+        ON CONFLICT (user_id) DO UPDATE
+        SET current_latitude = EXCLUDED.current_latitude,
+            current_longitude = EXCLUDED.current_longitude,
+            location_accuracy_m = EXCLUDED.location_accuracy_m,
+            location_updated_at = CURRENT_TIMESTAMP
+        RETURNING current_latitude, current_longitude, location_accuracy_m, location_updated_at
+    `, [validatedRiderId, latitude, longitude, accuracy]);
+    return result.rows[0];
+}
+
 async function getRiderOrders(riderId) {
     const validatedRiderId = validateId(riderId, "Rider ID");
 
@@ -1891,6 +1920,7 @@ module.exports = {
     unassignOrder,
     getRiderOrders,
     getRiderOrderById,
+    updateMyLocation,
     updateRiderOrderStatus,
     markRiderCashPaymentComplete,
     getMyEarnings,
