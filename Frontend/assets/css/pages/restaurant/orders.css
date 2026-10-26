@@ -642,3 +642,71 @@
         padding: 16px;
     }
 }
+
+/* Orders page: prevent narrow-screen overflow and keep modal content usable */
+.orders-page,
+.orders-page-content,
+.orders-card,
+.orders-table-wrapper,
+.restaurant-orders-table-wrapper {
+  min-width: 0;
+  max-width: 100%;
+}
+.orders-table-wrapper,
+.restaurant-orders-table-wrapper {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.orders-management-table {
+  width: 100%;
+}
+.orders-management-table th,
+.orders-management-table td {
+  overflow-wrap: anywhere;
+}
+.restaurant-order-modal {
+  box-sizing: border-box;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.restaurant-order-modal-panel {
+  min-width: 0;
+  max-width: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.restaurant-order-modal-body {
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+.restaurant-modal-items {
+  width: 100%;
+  min-width: 520px;
+}
+.restaurant-order-modal button:focus-visible,
+.orders-page button:focus-visible,
+.orders-page a:focus-visible,
+.orders-page input:focus-visible,
+.orders-page select:focus-visible {
+  outline: 3px solid rgba(255, 90, 31, 0.35);
+  outline-offset: 2px;
+}
+@media (max-width: 700px) {
+  .restaurant-order-modal {
+    align-items: flex-start;
+    padding: 10px;
+  }
+  .restaurant-order-modal-panel {
+    width: 100%;
+    max-height: calc(100dvh - 20px);
+    border-radius: 10px;
+  }
+  .restaurant-order-modal-body {
+    padding: 14px;
+  }
+  .restaurant-modal-items {
+    min-width: 480px;
+  }
+}
