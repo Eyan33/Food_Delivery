@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const deliveryText = fee !== null && fee !== undefined && text(fee) !== "" && Number.isFinite(Number(fee))
                 ? `${formatKES(fee)} delivery` : "Delivery fee unavailable";
             const cuisines = getCuisines(restaurant);
-            const firstLocationWord = (text(restaurant.name) || "Restaurant").split(/\\s+/)[0] || "Restaurant";
+            const firstLocationWord = (text(restaurant.name) || "Restaurant").split(/\s+/)[0] || "Restaurant";
             const location = text(restaurant.location_name) || `${firstLocationWord} Location`;
             const image = getImageUrl(restaurant.logo_url || restaurant.cover_image_url || restaurant.image_url);
             const restaurantId = restaurant.id ?? restaurant.restaurant_id;
