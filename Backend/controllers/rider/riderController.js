@@ -378,6 +378,10 @@ const markCashPaymentComplete = endpoint(
             req.params.id,
             req.user.id
         );
+
+        // The delivery email is sent only after cash payment is confirmed.
+        await notifyCustomerOrderUpdate(payment.order_id);
+
         return res.status(200).json({
             success: true,
             message: "Cash payment confirmed",
