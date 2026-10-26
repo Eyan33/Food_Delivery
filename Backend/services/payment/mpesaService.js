@@ -90,17 +90,18 @@ async function calculateCheckoutAmount(customerId, payload) {
     error.statusCode = 409;
     throw error;
   }
-  const ids = items.map((item) => String(item.food_id || ""));
-  if (ids.some((id) => !/^\\d+$/.test(id))) {
-    const error = new Error("The cart contains an invalid food item.");
+  const ids = items.map((item) => String(item.food_id ?? item.id ?? item.foodId ?? "").trim());
+  if (ids.some((id) => !/^\d+$/.test(id) || Number(id) < 1)) {
+    const error = new Error("The cart contains an invalid food item. Refresh your cart and try again.");
     error.statusCode = 400;
     throw error;
   }
+  const uniqueIds = [...new Set(ids)];
   const foodsResult = await pool.query(
     "SELECT id, restaurant_id, name, price, is_available, is_active FROM public.foods WHERE id = ANY($1::bigint[])",
-    [ids],
+    [uniqueIds],
   );
-  if (foodsResult.rows.length !== ids.length) {
+  if (foodsResult.rows.length !== uniqueIds.length) {
     const error = new Error("One or more cart items are no longer available.");
     error.statusCode = 409;
     throw error;

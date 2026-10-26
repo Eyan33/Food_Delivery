@@ -20,7 +20,7 @@ const BASE_DIRECTIVES = [
     "style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com https://accounts.google.com",
     "font-src 'self' https://fonts.gstatic.com data:",
     "img-src 'self' data: blob: https:",
-    "connect-src 'self' https://router.project-osrm.org https://accounts.google.com https://www.googleapis.com https://food-delivery-ljy7.onrender.com",
+    "connect-src 'self' https://router.project-osrm.org https://nominatim.openstreetmap.org https://accounts.google.com https://www.googleapis.com https://food-delivery-ljy7.onrender.com",
     "frame-src 'self' https://accounts.google.com",
     "object-src 'none'",
     "base-uri 'self'",
