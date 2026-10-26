@@ -23,8 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const placeOrderButton = document.getElementById("placeOrderButton");
 
     let cart = [];
-    let savedAddresses = [];
-    let selectedAddressId = null;
     let isSubmitting = false;
     let currentCoordinates = null;
     let locationAddressReady = false;
@@ -207,13 +205,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       LIVE LOCATION AND SAVING TO ADDRESS BOOK
+       LIVE GPS LOCATION ONLY
     ===================================================== */
 
     const useCheckoutLocationButton = document.getElementById("useCheckoutLocationButton");
-    const saveCheckoutLocationButton = document.getElementById("saveCheckoutLocationButton");
     const checkoutLocationStatus = document.getElementById("checkoutLocationStatus");
-    const savedAddressSelect = document.getElementById("savedAddressSelect");
 
     function setLocationStatus(message) {
         if (checkoutLocationStatus) checkoutLocationStatus.textContent = message;
@@ -225,118 +221,78 @@ document.addEventListener("DOMContentLoaded", () => {
         useCheckoutLocationButton.textContent = busy ? "Finding location…" : "Use My Current Location";
     }
 
+    function updateDeliveryLocationHeader(value) {
+        const locationText = document.querySelector(".location-text strong");
+        if (locationText) locationText.textContent = value || "Live location required";
+    }
+
     function requestCheckoutLocation() {
         if (!navigator.geolocation) {
-            setLocationStatus("This browser does not support GPS location. Enter your address manually.");
+            currentCoordinates = null;
+            locationAddressReady = false;
+            setLocationStatus("This browser does not support GPS. Enable location on a supported device/browser to place your order.");
             return;
         }
+
         setLocationButtonBusy(true);
-        setLocationStatus("Requesting location permission…");
+        setLocationStatus("Requesting permission to access your live location…");
+
         navigator.geolocation.getCurrentPosition(async position => {
             currentCoordinates = {
                 latitude: position.coords.latitude,
                 longitude: position.coords.longitude
             };
             locationAddressReady = false;
-            if (saveCheckoutLocationButton) saveCheckoutLocationButton.disabled = true;
-            setLocationStatus("Location found. Looking up the address…");
+            setLocationStatus("GPS location found. Resolving the delivery area…");
+
             try {
-                const response = await fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" +
+                const response = await fetch(
+                    "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" +
                     encodeURIComponent(currentCoordinates.latitude) + "&lon=" +
                     encodeURIComponent(currentCoordinates.longitude) + "&zoom=18&addressdetails=1",
-                    { headers: { Accept: "application/json" } });
+                    { headers: { Accept: "application/json" } }
+                );
                 if (!response.ok) throw new Error("Address lookup failed");
+
                 const data = await response.json();
                 const parts = data.address || {};
                 const locality = parts.neighbourhood || parts.suburb || parts.city_district ||
                     parts.city || parts.town || parts.village || parts.municipality ||
-                    parts.county || parts.state_district || parts.state || parts.country || "";
+                    parts.county || parts.state_district || parts.state || "";
                 const formattedAddress = String(data.display_name || "").trim();
-                // GPS selection fills both required fields; customers do not need to type their location.
-                if (address) address.value = formattedAddress || "Current location";
-                if (area) area.value = locality || "Current location";
-                if (savedAddressSelect) savedAddressSelect.value = "";
-                selectedAddressId = null;
+
+                if (address) address.value = formattedAddress || "GPS location detected";
+                if (area) area.value = locality || "GPS location";
                 locationAddressReady = Boolean(address?.value.trim() && area?.value.trim());
-                if (saveCheckoutLocationButton) saveCheckoutLocationButton.disabled = !locationAddressReady;
+                updateDeliveryLocationHeader(locality || "Current GPS location");
+
                 setLocationStatus(formattedAddress
-                    ? "Current location filled automatically. You can place the order without typing your address."
-                    : "GPS coordinates filled automatically. The street address could not be resolved; add delivery instructions if needed.");
-            } catch {
-                // Keep GPS usable even if reverse geocoding is temporarily unavailable.
-                if (address) address.value = "Current location";
-                if (area) area.value = "Current location";
-                if (savedAddressSelect) savedAddressSelect.value = "";
-                selectedAddressId = null;
+                    ? "Live GPS location detected and filled automatically. You cannot type or select a different location here."
+                    : "GPS coordinates captured. The address lookup returned no street address; your GPS coordinates will still be sent with the order.");
+            } catch (error) {
+                // Reverse geocoding is only for readable labels. Order delivery still uses the captured GPS coordinates.
+                if (address) address.value = "GPS location detected";
+                if (area) area.value = "GPS location";
                 locationAddressReady = true;
-                if (saveCheckoutLocationButton) saveCheckoutLocationButton.disabled = false;
-                setLocationStatus("Current location filled automatically. The rider's GPS coordinates are saved with the order.");
+                updateDeliveryLocationHeader("Current GPS location");
+                setLocationStatus("Live GPS coordinates captured. A readable address could not be retrieved, but the GPS coordinates will be sent with the order.");
             } finally {
                 setLocationButtonBusy(false);
             }
         }, error => {
+            currentCoordinates = null;
+            locationAddressReady = false;
+            if (address) address.value = "";
+            if (area) area.value = "";
+            updateDeliveryLocationHeader("Live location required");
             setLocationStatus(error.code === 1
-                ? "Location permission denied. Allow location access in your browser or enter your address manually."
-                : "Unable to determine your location. Check device location services or enter the address manually.");
+                ? "Location permission was denied. Enable location permission to continue; manual address entry is disabled."
+                : "Unable to get your live location. Check device location services and try again; manual address entry is disabled.");
             setLocationButtonBusy(false);
-        }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 });
-    }
-
-    async function saveCurrentLocationAddress() {
-        const token = getToken();
-        if (!token) {
-            setLocationStatus("Please log in before saving a delivery address.");
-            return;
-        }
-        if (!currentCoordinates || !address?.value.trim() || !area?.value.trim() ||
-            !fullName?.value.trim() || !phone?.value.trim()) {
-            setLocationStatus("Enter your name, phone, delivery address and area before saving this location.");
-            return;
-        }
-        saveCheckoutLocationButton.disabled = true;
-        saveCheckoutLocationButton.textContent = "Saving address…";
-        try {
-            const response = await fetch(`${API_BASE}/addresses`, {
-                method: "POST",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    label: "Other",
-                    recipient_name: fullName.value.trim(),
-                    phone: phone.value.trim(),
-                    address_line: address.value.trim(),
-                    city: area.value.trim(),
-                    delivery_instructions: deliveryNotes?.value.trim() || "",
-                    latitude: currentCoordinates.latitude,
-                    longitude: currentCoordinates.longitude,
-                    is_default: false
-                })
-            });
-            const result = await response.json().catch(() => ({}));
-            if (!response.ok || result.success !== true || !result.data?.address) {
-                throw new Error(result.message || "Could not save this location.");
-            }
-            const saved = result.data.address;
-            savedAddresses.push(saved);
-            if (savedAddressSelect) {
-                savedAddressSelect.add(new Option(`${saved.label || "Address"}: ${saved.address_line}, ${saved.city}`, String(saved.id)));
-                savedAddressSelect.value = String(saved.id);
-            }
-            applySavedAddress(saved);
-            setLocationStatus("Location saved to My Addresses and selected for this order.");
-        } catch (error) {
-            setLocationStatus(error.message || "Could not save this location. Please try again.");
-            saveCheckoutLocationButton.disabled = false;
-        } finally {
-            saveCheckoutLocationButton.textContent = "Save Current Location to My Addresses";
-        }
+        }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
     }
 
     useCheckoutLocationButton?.addEventListener("click", requestCheckoutLocation);
-    saveCheckoutLocationButton?.addEventListener("click", saveCurrentLocationAddress);
 
     /* =====================================================
        FORM VALIDATION
@@ -405,7 +361,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (!currentCoordinates || !locationAddressReady) {
-            showMessage("Please select Use My Current Location before placing your order.");
+            showMessage("Please select Use My Current Location and allow GPS access before placing your order.");
             useCheckoutLocationButton?.focus();
             return false;
         }
@@ -442,7 +398,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 ? deliveryNotes.value.trim()
                 : "",
             notes: null,
-            address_id: selectedAddressId || null,
+            address_id: null,
             delivery_latitude: currentCoordinates ? currentCoordinates.latitude : null,
             delivery_longitude: currentCoordinates ? currentCoordinates.longitude : null,
             expected_delivery_fee: (() => { const fee = cart[0].delivery_fee ?? cart[0].deliveryFee; return fee == null || fee === "" ? null : Number(fee); })(),
@@ -626,71 +582,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       SAVED DELIVERY ADDRESSES
-    ===================================================== */
-
-    async function loadSavedAddresses() {
-        const select = document.getElementById("savedAddressSelect");
-        if (!select) return;
-        const token = getToken();
-        if (!token) return;
-        try {
-            const response = await fetch(`${API_BASE}/addresses`, { headers: { Accept: "application/json", Authorization: `Bearer ${token}` } });
-            const result = await response.json().catch(() => ({}));
-            if (!response.ok || result.success !== true) throw new Error(result.message || "Could not load saved addresses.");
-            const rows = result.data?.addresses;
-            if (!Array.isArray(rows)) throw new Error("The saved address list is invalid.");
-            savedAddresses = rows;
-            select.replaceChildren(new Option("Enter a new address", ""));
-            savedAddresses.forEach(item => select.add(new Option(`${item.label || "Address"}: ${item.address_line}, ${item.city}`, String(item.id))));
-            const preferred = savedAddresses.find(item => item.is_default) || savedAddresses[0];
-            if (preferred) { select.value = String(preferred.id); applySavedAddress(preferred); }
-        } catch (error) {
-            console.warn("Saved addresses could not be loaded:", error);
-            select.replaceChildren(new Option("Saved addresses unavailable — enter address below", ""));
-        }
-    }
-
-    function applySavedAddress(item) {
-        if (!item) return;
-        selectedAddressId = String(item.id);
-        currentCoordinates = item.latitude != null && item.longitude != null
-            ? { latitude: Number(item.latitude), longitude: Number(item.longitude) }
-            : null;
-        if (fullName) fullName.value = item.recipient_name || fullName.value;
-        if (phone) phone.value = item.phone || phone.value;
-        if (address) address.value = item.address_line || "";
-        if (area) area.value = item.city || "";
-        if (deliveryNotes && item.delivery_instructions) deliveryNotes.value = item.delivery_instructions;
-        const locationText = document.querySelector(".location-text strong");
-        if (locationText) locationText.textContent = item.address_line || item.city || "Saved address";
-    }
-
-    document.getElementById("savedAddressSelect")?.addEventListener("change", event => {
-        const id = event.target.value;
-        selectedAddressId = id || null;
-        if (id) {
-            applySavedAddress(savedAddresses.find(item => String(item.id) === id));
-        } else {
-            currentCoordinates = null;
-            locationAddressReady = false;
-            if (saveCheckoutLocationButton) saveCheckoutLocationButton.disabled = true;
-            if (fullName) fullName.value = "";
-            if (phone) phone.value = "";
-            if (address) address.value = "";
-            if (area) area.value = "";
-            if (deliveryNotes) deliveryNotes.value = "";
-            address?.focus();
-        }
-    });
-
-    /* =====================================================
        INITIALIZE
     ===================================================== */
 
     loadCart();
     updateOrderSummary();
-    loadSavedAddresses();
 
     console.log("Checkout initialized. Cart items:", cart.length);
 });
