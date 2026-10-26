@@ -620,7 +620,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
             }).addTo(map);
             const markers = {};
-            if (pickup) markers.pickup = L.marker(pickup).addTo(map).bindPopup("Restaurant pickup");
+            const locationLabel = String(order.restaurant_location_name || "").trim()
+                || `${String(order.restaurant_name || "Restaurant").trim().split(/\\s+/)[0]} Location`;
+            if (pickup) markers.pickup = L.marker(pickup).addTo(map).bindPopup(locationLabel);
             if (dropoff) markers.dropoff = L.marker(dropoff).addTo(map).bindPopup("Customer delivery");
             const points = [pickup, dropoff].filter(Boolean);
             const tracking = { map, markers, order, hasCenteredOnRider: false };
