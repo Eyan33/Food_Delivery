@@ -417,24 +417,78 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function submitOrder() {
         const token = getToken();
-
         if (!token) {
             showMessage("Please log in before placing your order.");
             return;
         }
-
         if (isSubmitting) return;
-
         isSubmitting = true;
         clearMessage();
-
         if (placeOrderButton) {
             placeOrderButton.disabled = true;
-            placeOrderButton.textContent = "Placing Order...";
+            placeOrderButton.textContent = getPaymentMethod() === "mpesa" ? "Waiting for payment…" : "Placing Order...";
         }
 
         try {
             const payload = buildOrderPayload();
+
+            if (getPaymentMethod() === "mpesa") {
+                let sessionId = sessionStorage.getItem("foodDeliveryMpesaCheckoutSessionId");
+                if (!sessionId) {
+                    const startResponse = await fetch(`${API_BASE}/payments/mpesa/stk-push`, {
+                        method: "POST",
+                        headers: {
+                            "Accept": "application/json",
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            phone_number: phone.value.trim(),
+                            order_payload: payload
+                        })
+                    });
+                    const startResult = await startResponse.json().catch(() => ({}));
+                    if (!startResponse.ok || startResult.success !== true) {
+                        throw new Error(startResult.message || "Unable to start M-Pesa payment.");
+                    }
+                    sessionId = startResult.data?.checkout_session_id;
+                    if (!sessionId) throw new Error("M-Pesa started without returning a checkout session.");
+                    sessionStorage.setItem("foodDeliveryMpesaCheckoutSessionId", String(sessionId));
+                    showMessage(startResult.message || "Check your phone and enter your M-Pesa PIN.", "success");
+                } else {
+                    showMessage("Your M-Pesa request is still being checked. Do not submit another payment.", "success");
+                }
+
+                // Do not create an order or clear the cart until the provider callback confirms payment.
+                const deadline = Date.now() + 180000;
+                while (Date.now() < deadline) {
+                    await new Promise(resolve => window.setTimeout(resolve, 3000));
+                    const statusResponse = await fetch(`${API_BASE}/payments/mpesa/session/${encodeURIComponent(sessionId)}`, {
+                        headers: { "Accept": "application/json", "Authorization": `Bearer ${token}` }
+                    });
+                    const statusResult = await statusResponse.json().catch(() => ({}));
+                    if (!statusResponse.ok || statusResult.success !== true) {
+                        throw new Error(statusResult.message || "Unable to check M-Pesa payment status.");
+                    }
+                    const session = statusResult.data;
+                    if (session.status === "completed" && session.order_id) {
+                        localStorage.removeItem(CART_STORAGE_KEY);
+                        cart = [];
+                        sessionStorage.removeItem("foodDeliveryMpesaCheckoutSessionId");
+                        sessionStorage.setItem("foodDeliveryLastOrderId", String(session.order_id));
+                        showMessage("Payment confirmed and order placed successfully.", "success");
+                        if (placeOrderButton) placeOrderButton.textContent = "Payment Confirmed";
+                        window.setTimeout(() => { window.location.href = "orders.html"; }, 1500);
+                        return;
+                    }
+                    if (session.status === "failed") {
+                        sessionStorage.removeItem("foodDeliveryMpesaCheckoutSessionId");
+                        throw new Error("M-Pesa payment failed or was cancelled. No order was created. You can try again.");
+                    }
+                    showMessage("Waiting for M-Pesa confirmation. Your order will only be created after payment succeeds.", "success");
+                }
+                throw new Error("Payment confirmation is taking longer than expected. Keep this page open or return later; do not start another payment.");
+            }
 
             const response = await fetch(`${API_BASE}/orders`, {
                 method: "POST",
@@ -445,74 +499,30 @@ document.addEventListener("DOMContentLoaded", () => {
                 },
                 body: JSON.stringify(payload)
             });
-
             const result = await response.json().catch(() => ({}));
-
             if (response.status === 401 || response.status === 403) {
-                throw new Error(
-                    result.message ||
-                    "Your session has expired or you do not have permission. Please log in again."
-                );
+                throw new Error(result.message || "Your session has expired or you do not have permission. Please log in again.");
             }
-
             if (!response.ok || result.success !== true) {
-                throw new Error(
-                    result.message || `Unable to place order (HTTP ${response.status}).`
-                );
+                throw new Error(result.message || `Unable to place order (HTTP ${response.status}).`);
             }
-
             const order = result.data?.order;
-
             if (!order || order.id == null) {
-                throw new Error(
-                    "The server response did not include the created order. " +
-                    "Please check your order history before trying again."
-                );
+                throw new Error("The server response did not include the created order. Check order history before trying again.");
             }
-
-            // The order and its selected payment row are created atomically by the backend.
             localStorage.removeItem(CART_STORAGE_KEY);
             cart = [];
             sessionStorage.setItem("foodDeliveryLastOrderId", String(order.id));
-
-            if (getPaymentMethod() === "mpesa") {
-                if (placeOrderButton) placeOrderButton.textContent = "Requesting M-Pesa…";
-                showMessage(`Order ${order.order_number || order.id} created. Requesting an M-Pesa PIN prompt…`, "success");
-                try {
-                    const paymentResponse = await fetch(`${API_BASE}/payments/mpesa/stk-push`, {
-                        method: "POST",
-                        headers: {
-                            "Accept": "application/json",
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`
-                        },
-                        body: JSON.stringify({ order_id: order.id, phone_number: phone.value.trim() })
-                    });
-                    const paymentResult = await paymentResponse.json().catch(() => ({}));
-                    if (!paymentResponse.ok || paymentResult.success !== true) {
-                        throw new Error(paymentResult.message || "The order was created, but M-Pesa could not be started.");
-                    }
-                    showMessage(paymentResult.message || "Check your phone and enter your M-Pesa PIN to pay.", "success");
-                } catch (paymentError) {
-                    console.error("M-Pesa initiation failed:", paymentError.message);
-                    showMessage(`Order ${order.order_number || order.id} was created, but the M-Pesa request did not start: ${paymentError.message} Do not place the order again; check Orders and retry with support if needed.`, "error");
-                }
-            } else {
-                showMessage(`Order ${order.order_number || order.id} placed successfully. Pay cash on delivery.`, "success");
-            }
-
+            showMessage(`Order ${order.order_number || order.id} placed successfully. Pay cash on delivery.`, "success");
             if (placeOrderButton) placeOrderButton.textContent = "Order Placed";
-            window.setTimeout(() => { window.location.href = "orders.html"; }, 2500);
-
+            window.setTimeout(() => { window.location.href = "orders.html"; }, 1500);
         } catch (error) {
             console.error("Checkout failed:", error);
-            showMessage(error.message || "Something went wrong while placing your order.");
-
+            showMessage(error.message || "Something went wrong during checkout.");
             if (placeOrderButton) {
                 placeOrderButton.disabled = false;
                 placeOrderButton.textContent = "Place Order";
             }
-
         } finally {
             isSubmitting = false;
         }
