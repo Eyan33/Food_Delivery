@@ -18,8 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const restaurantPhoneInput = $("restaurantPhone");
     const restaurantEmailInput = $("restaurantEmail");
 
-    const restaurantAddressInput = $("restaurantAddress");
-    const restaurantCityInput = $("restaurantCity");
+    const restaurantLocationNameInput = $("restaurantLocationName");
+    const restaurantCoordinatesInput = $("restaurantCoordinates");
 
     const restaurantOpeningTimeInput = $("restaurantOpeningTime");
     const restaurantClosingTimeInput = $("restaurantClosingTime");
@@ -43,8 +43,6 @@ document.addEventListener("DOMContentLoaded", () => {
         restaurantDescriptionInput,
         restaurantPhoneInput,
         restaurantEmailInput,
-        restaurantAddressInput,
-        restaurantCityInput,
         restaurantOpeningTimeInput,
         restaurantClosingTimeInput,
         minimumOrderInput,
@@ -135,8 +133,10 @@ document.addEventListener("DOMContentLoaded", () => {
         setValue(restaurantPhoneInput, data.phone);
         setValue(restaurantEmailInput, data.email);
 
-        setValue(restaurantAddressInput, data.address);
-        setValue(restaurantCityInput, data.city);
+        const firstName = String(data.name || "Restaurant").trim().split(/\s+/)[0] || "Restaurant";
+        setValue(restaurantLocationNameInput, data.location_name || `${firstName} Location`);
+        const hasCoordinates = data.latitude !== null && data.latitude !== undefined && data.longitude !== null && data.longitude !== undefined;
+        setValue(restaurantCoordinatesInput, hasCoordinates ? `${Number(data.latitude).toFixed(6)}, ${Number(data.longitude).toFixed(6)}` : "Live location not set");
 
         setTimeValue(restaurantOpeningTimeInput, data.opening_time);
         setTimeValue(restaurantClosingTimeInput, data.closing_time);

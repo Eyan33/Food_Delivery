@@ -50,8 +50,6 @@ const RESTAURANT_FIELDS = [
     "description",
     "phone",
     "email",
-    "address",
-    "city",
     "latitude",
     "longitude",
     "logo_url",
@@ -460,7 +458,7 @@ function validateDate(value, label) {
 /*
  * Validates the restaurant fields in `data`.
  *
- * create = true  : name, address and city are required
+ * create = true  : name and live GPS coordinates are required
  * create = false : only the fields present are validated
  *
  * Returns { column: cleanValue } for fields that were provided.
@@ -481,26 +479,8 @@ function cleanRestaurantFields(
             2,
             120
         );
-        const firstName = fields.name.trim().split(/\\s+/)[0];
+        const firstName = fields.name.trim().split(/\s+/)[0];
         fields.location_name = `${firstName} Location`;
-    }
-
-    if (create || provided("address")) {
-        fields.address = validateText(
-            data.address,
-            "Restaurant address",
-            3,
-            255
-        );
-    }
-
-    if (create || provided("city")) {
-        fields.city = validateText(
-            data.city,
-            "Restaurant city",
-            2,
-            100
-        );
     }
 
     if (provided("description")) {
@@ -524,6 +504,10 @@ function cleanRestaurantFields(
             : validateEmail(data.email);
     }
 
+    if (create && (!provided("latitude") || !provided("longitude"))) {
+        throw apiError("Restaurant live GPS location is required");
+    }
+
     if (provided("latitude")) {
         fields.latitude =
             validateCoordinate(
@@ -542,6 +526,13 @@ function cleanRestaurantFields(
                 -180,
                 180
             );
+    }
+
+    // Legacy database columns remain for backward compatibility only.
+    // They are generated from GPS coordinates; no user-entered address/city is accepted.
+    if (create) {
+        fields.address = `GPS (${Number(fields.latitude).toFixed(6)}, ${Number(fields.longitude).toFixed(6)})`;
+        fields.city = "GPS Location";
     }
 
     if (provided("logo_url")) {
@@ -1227,9 +1218,7 @@ async function getAllRestaurants(
             (
                 r.name ILIKE ${placeholder}
                     ESCAPE '\\'
-                OR r.address ILIKE ${placeholder}
-                    ESCAPE '\\'
-                OR r.city ILIKE ${placeholder}
+                OR r.location_name ILIKE ${placeholder}
                     ESCAPE '\\'
                 OR r.email ILIKE ${placeholder}
                     ESCAPE '\\'
@@ -1551,8 +1540,7 @@ async function exportRestaurants(
         "Owner",
         "Owner Email",
         "Owner Phone",
-        "Address",
-        "City",
+        "Restaurant Location",
         "Status",
         "Approval",
         "Open",
@@ -1598,8 +1586,7 @@ async function exportRestaurants(
                         .join(" "),
                     restaurant.owner_email,
                     restaurant.owner_phone,
-                    restaurant.address,
-                    restaurant.city,
+                    restaurant.location_name,
                     restaurant.is_active
                         ? "Active"
                         : "Inactive",
@@ -1922,8 +1909,6 @@ async function adminCreateRestaurant(
  * - description
  * - phone
  * - email
- * - address
- * - city
  * - latitude
  * - longitude
  * - logo_url
