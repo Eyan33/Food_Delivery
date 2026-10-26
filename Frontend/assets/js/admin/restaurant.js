@@ -464,7 +464,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 </td>
 
                 <td>
-                    ${escapeHtml(restaurant.city || restaurant.address || "—")}
+                    ${escapeHtml(restaurant.location_name || `${String(restaurant.name || "Restaurant").trim().split(/\\s+/)[0]} Location`)}
                 </td>
 
                 <td>
@@ -1052,8 +1052,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     </small>
                     <small id="restaurantLocationError" class="admin-form-error"></small>
 
-                    <input id="restaurantAddress" name="restaurantAddress" type="hidden" required />
-                    <input id="restaurantCity" name="restaurantCity" type="hidden" required />
                     <input id="restaurantLatitude" name="restaurantLatitude" type="hidden" />
                     <input id="restaurantLongitude" name="restaurantLongitude" type="hidden" />
                 </div>
@@ -1727,32 +1725,12 @@ document.addEventListener("DOMContentLoaded", () => {
     navigator.geolocation.getCurrentPosition(async (position) => {
       const latitude = Number(position.coords.latitude);
       const longitude = Number(position.coords.longitude);
-      let address = `GPS location (${latitude.toFixed(6)}, ${longitude.toFixed(6)})`;
-      let city = "GPS location";
-
-      try {
-        const response = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}`,
-          { headers: { Accept: "application/json" } }
-        );
-        if (response.ok) {
-          const result = await response.json();
-          const a = result.address || {};
-          address = result.display_name || address;
-          city = a.city || a.town || a.village || a.municipality || a.county || city;
-        }
-      } catch (error) {
-        console.warn("Reverse geocoding failed; saving GPS coordinates.", error);
-      }
-
       form.elements.restaurantLatitude.value = String(latitude);
       form.elements.restaurantLongitude.value = String(longitude);
-      form.elements.restaurantAddress.value = address;
-      form.elements.restaurantCity.value = city;
       const restaurantName = form.elements.restaurantName.value.trim();
       const firstName = restaurantName.split(/\\s+/)[0] || "Restaurant";
       restaurantLocationStatus.textContent =
-        `Saved as ${firstName} Location · ${latitude.toFixed(6)}, ${longitude.toFixed(6)}${city !== "GPS location" ? ` · ${city}` : ""}`;
+        `Saved as ${firstName} Location · ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
       restaurantLocationButton.textContent = "Refresh Live Location";
       restaurantLocationButton.disabled = false;
     }, (error) => {
@@ -1780,9 +1758,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (
       !form.elements.restaurantLatitude.value ||
-      !form.elements.restaurantLongitude.value ||
-      !form.elements.restaurantAddress.value.trim() ||
-      !form.elements.restaurantCity.value.trim()
+      !form.elements.restaurantLongitude.value
     ) {
       restaurantLocationError.textContent = "Restaurant location is required. Select Use Live Location and allow location access.";
       valid = false;
@@ -1834,8 +1810,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setInputValue("restaurantEmail", restaurant.email);
 
-    setInputValue("restaurantAddress", restaurant.address);
-    setInputValue("restaurantCity", restaurant.city);
     setInputValue("restaurantLatitude", restaurant.latitude);
     setInputValue("restaurantLongitude", restaurant.longitude);
     if (restaurant.latitude != null && restaurant.longitude != null) {
@@ -2092,10 +2066,6 @@ document.addEventListener("DOMContentLoaded", () => {
         phone: form.elements.restaurantPhone.value.trim() || null,
 
         email: form.elements.restaurantEmail.value.trim() || null,
-
-        address: form.elements.restaurantAddress.value.trim(),
-
-        city: form.elements.restaurantCity.value.trim(),
 
         latitude: Number(form.elements.restaurantLatitude.value),
 
@@ -2475,8 +2445,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "Owner",
         "Owner Email",
         "Owner Phone",
-        "Address",
-        "City",
+        "Restaurant Location",
         "Orders",
         "Rating",
         "Approval Status",
@@ -2496,9 +2465,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         restaurant.owner_phone || "",
 
-        restaurant.address || "",
-
-        restaurant.city || "",
+        restaurant.location_name || `${String(restaurant.name || "Restaurant").trim().split(/\\s+/)[0]} Location`,
 
         restaurant.orders_count || 0,
 
