@@ -317,6 +317,18 @@ async function ensureOrderLocationSchema() {
     `);
 }
 
+async function ensureMpesaPaymentSchema() {
+    await pool.query(`
+        ALTER TABLE public.payments
+            ADD COLUMN IF NOT EXISTS mpesa_checkout_request_id text,
+            ADD COLUMN IF NOT EXISTS mpesa_merchant_request_id text;
+
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_payments_mpesa_checkout_request_id
+            ON public.payments (mpesa_checkout_request_id)
+            WHERE mpesa_checkout_request_id IS NOT NULL;
+    `);
+}
+
 async function initializeDatabase() {
     await waitForDatabase();
     await ensureSchema();
@@ -326,6 +338,7 @@ async function initializeDatabase() {
     await ensurePasswordResetSchema();
     await ensureGooglePasswordSetupSchema();
     await ensureOrderLocationSchema();
+    await ensureMpesaPaymentSchema();
     await ensureRestaurantNotificationSchema();
     await seedAdmin();
 }
