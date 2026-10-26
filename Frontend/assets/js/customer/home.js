@@ -232,12 +232,8 @@ if (greeting) {
                     ? `${formatKES(deliveryFee)} delivery`
                     : "Delivery fee unavailable";
 
-                const location = [
-                    restaurant.city,
-                    restaurant.address,
-                ]
-                    .filter(Boolean)
-                    .join(" · ");
+                const firstLocationWord = String(restaurant.name || "Restaurant").trim().split(/\\s+/)[0] || "Restaurant";
+                const location = restaurant.location_name || `${firstLocationWord} Location`;
 
                 const imageUrl = getImageUrl(
                     restaurant.logo_url || restaurant.cover_image_url,
