@@ -266,6 +266,15 @@ const updateMyAvailability = endpoint(
     }
 );
 
+// PATCH /api/riders/me/location
+const updateMyLocation = endpoint(
+    "Failed to update rider location",
+    async (req, res) => {
+        const location = await riderService.updateMyLocation(req.user.id, req.body);
+        return res.status(200).json({ success: true, message: "Live location updated", data: { location } });
+    }
+);
+
 // GET /api/riders/my-orders
 const getMyOrders = endpoint(
     "Failed to retrieve assigned orders",
@@ -465,6 +474,7 @@ module.exports = {
     unassignOrder,
 
     updateMyAvailability,
+    updateMyLocation,
     getMyOrders,
     getMyOrder,
     getMyEarnings,

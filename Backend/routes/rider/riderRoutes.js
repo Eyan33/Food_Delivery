@@ -32,6 +32,8 @@ router.patch(
     riderController.updateMyAvailability
 );
 
+router.patch("/me/location", ...asRider, riderController.updateMyLocation);
+
 router.get(
     "/available-orders",
     ...asRider,
