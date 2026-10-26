@@ -292,4 +292,18 @@ async function processCallback(payload) {
   }
 }
 
-module.exports = { startCheckoutSession, processCallback };
+async function getCheckoutSessionStatus(customerId, sessionId) {
+  const result = await pool.query(
+    `SELECT id, status, order_id, amount FROM public.mpesa_checkout_sessions
+      WHERE id = $1 AND customer_id = $2 LIMIT 1`,
+    [String(sessionId), String(customerId)],
+  );
+  if (!result.rows.length) {
+    const error = new Error("Checkout session not found.");
+    error.statusCode = 404;
+    throw error;
+  }
+  return result.rows[0];
+}
+
+module.exports = { startCheckoutSession, processCallback, getCheckoutSessionStatus };
