@@ -54,15 +54,15 @@ document.addEventListener("DOMContentLoaded", () => {
     function paintIdentity() {
         const name = restaurantRecord?.name || "Restaurant";
         const owner = [ownerRecord?.first_name, ownerRecord?.last_name].filter(Boolean).join(" ") || "Restaurant account";
-        ["sidebarRestaurantName", "topbarRestaurantName"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = name; });
+        ["restaurantSidebarName", "restaurantTopbarName"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = name; });
         ["accountDisplayName", "topbarOwnerName"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = owner; });
         const initials = owner.split(/\s+/).map(part => part[0]).join("").slice(0, 2).toUpperCase() || "R";
-        document.querySelectorAll(".restaurant-avatar, .restaurant-topbar-avatar, .settings-profile-avatar").forEach(el => el.textContent = initials);
+        document.querySelectorAll(".restaurant-avatar, .topbar-avatar, .settings-profile-avatar").forEach(el => el.textContent = initials);
     }
     async function loadServerSettings() {
         const [rr, ur] = await Promise.all([apiRequest("/restaurants/owner/me"), apiRequest("/auth/me")]);
-        restaurantRecord = rr.data?.restaurant;
-        ownerRecord = ur.data?.user;
+        restaurantRecord = rr.data?.restaurant || rr.restaurant || rr.data || rr;
+        ownerRecord = ur.data?.user || ur.user || ur.data || ur;
         if (!restaurantRecord || !ownerRecord) throw new Error("Your restaurant or account profile was not returned.");
         setField("restaurantName", restaurantRecord.name);
         setField("restaurantEmail", restaurantRecord.email);
