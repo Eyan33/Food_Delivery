@@ -360,13 +360,13 @@ async function getAdminPaymentReconciliation(req, res) {
 */
 async function initiateMpesaStkPush(req, res) {
   try {
-    const { order_id, phone_number } = req.body || {};
-    if (!order_id || !phone_number) {
-      return res.status(400).json({ success: false, message: "order_id and phone_number are required." });
+    const { phone_number, order_payload } = req.body || {};
+    if (!phone_number || !order_payload) {
+      return res.status(400).json({ success: false, message: "order_payload and phone_number are required." });
     }
-    const result = await mpesaService.initiateStkPush({
-      orderId: order_id,
+    const result = await mpesaService.startCheckoutSession({
       customerId: req.user.id,
+      payload: order_payload,
       phoneNumber: phone_number,
     });
     return res.status(200).json({ success: true, message: result.message, data: result });
@@ -384,6 +384,15 @@ async function initiateMpesaStkPush(req, res) {
 | Public Safaricom callback
 |--------------------------------------------------------------------------
 */
+async function getMpesaCheckoutStatus(req, res) {
+  try {
+    const data = await mpesaService.getCheckoutSessionStatus(req.user.id, req.params.sessionId);
+    return res.status(200).json({ success: true, data });
+  } catch (error) {
+    return res.status(error.statusCode || 400).json({ success: false, message: error.message });
+  }
+}
+
 async function mpesaCallback(req, res) {
   try {
     const result = await mpesaService.processCallback(req.body);
