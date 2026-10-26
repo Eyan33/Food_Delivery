@@ -274,6 +274,30 @@ async function ensurePasswordResetSchema() {
 }
 
 
+async function ensureRestaurantNotificationSchema() {
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS public.restaurant_notifications (
+            id bigserial PRIMARY KEY,
+            restaurant_id bigint NOT NULL REFERENCES public.restaurants(id) ON DELETE CASCADE,
+            type varchar(50) NOT NULL DEFAULT 'order_update',
+            title varchar(180) NOT NULL,
+            message text NOT NULL,
+            order_id bigint REFERENCES public.orders(id) ON DELETE SET NULL,
+            target_url text,
+            created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            read_at timestamptz,
+            dedupe_key varchar(180) UNIQUE
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_restaurant_notifications_recent
+            ON public.restaurant_notifications (restaurant_id, created_at DESC, id DESC);
+
+        CREATE INDEX IF NOT EXISTS idx_restaurant_notifications_unread
+            ON public.restaurant_notifications (restaurant_id, created_at DESC)
+            WHERE read_at IS NULL;
+    `);
+}
+
 async function ensureOrderLocationSchema() {
     await pool.query(`
         ALTER TABLE public.orders
@@ -291,6 +315,7 @@ async function initializeDatabase() {
     await ensurePasswordResetSchema();
     await ensureGooglePasswordSetupSchema();
     await ensureOrderLocationSchema();
+    await ensureRestaurantNotificationSchema();
     await seedAdmin();
 }
 

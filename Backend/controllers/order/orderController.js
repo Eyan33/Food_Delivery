@@ -1,4 +1,34 @@
 const orderService = require("../../services/order/orderService");
+const pool = require("../../config/database");
+
+async function notifyRestaurantOfNewOrder(order, source) {
+    try {
+        const orderId = order && (order.id || order.order_id);
+        if (!orderId) return;
+        const result = await pool.query(
+            `SELECT o.id, o.restaurant_id FROM public.orders o WHERE o.id = $1 LIMIT 1`,
+            [orderId],
+        );
+        if (!result.rows.length) return;
+        const savedOrder = result.rows[0];
+        await pool.query(
+            `INSERT INTO public.restaurant_notifications
+                (restaurant_id, type, title, message, order_id, target_url, dedupe_key)
+             VALUES ($1, 'new_order', 'New order received', $2, $3, 'orders.html', $4)
+             ON CONFLICT (dedupe_key) DO NOTHING`,
+            [
+                savedOrder.restaurant_id,
+                source === "admin"
+                    ? `A new order (#${savedOrder.id}) was created by the platform admin.`
+                    : `A new customer order (#${savedOrder.id}) has been placed.`,
+                savedOrder.id,
+                `new-order:${savedOrder.id}`,
+            ],
+        );
+    } catch (error) {
+        console.error("[restaurant-notifications] new-order notification failed:", error.message);
+    }
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -12,6 +42,8 @@ async function createOrder(req, res) {
             req.user.id,
             req.body
         );
+
+        await notifyRestaurantOfNewOrder(order, "customer");
 
         return res.status(201).json({
             success: true,
@@ -510,6 +542,8 @@ async function createAdminOrder(req, res) {
             req.body,
             req.user.id
         );
+
+        await notifyRestaurantOfNewOrder(order, "admin");
 
         return res.status(201).json({
             success: true,
