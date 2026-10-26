@@ -1473,11 +1473,15 @@
 
   .restaurant-sidebar {
     transform: translateX(-100%);
+    visibility: visible;
     transition: transform 0.25s ease;
+    z-index: 1200;
   }
 
+  .restaurant-sidebar.open,
   .restaurant-sidebar.show {
     transform: translateX(0);
+    visibility: visible;
     box-shadow: 10px 0 30px rgba(0, 0, 0, 0.15);
   }
 
