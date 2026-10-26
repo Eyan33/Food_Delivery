@@ -11,6 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const menuButton = document.getElementById("restaurantMenuButton");
     const restaurantStatusButton = document.getElementById("restaurantStatusButton");
     const restaurantStatusText = document.getElementById("restaurantStatusText");
+    const sidebarName = document.getElementById("restaurantSidebarName");
+    const topbarName = document.getElementById("restaurantTopbarName");
+    const sidebarAvatar = document.getElementById("restaurantSidebarAvatar");
+    const topbarAvatar = document.getElementById("restaurantTopbarAvatar");
 
     const orderSearch = document.getElementById("orderSearch");
     const orderStatusFilter = document.getElementById("orderStatusFilter");
@@ -188,7 +192,21 @@ document.addEventListener("DOMContentLoaded", () => {
     async function loadRestaurantStatus() {
         try {
             const result = await apiRequest("/restaurants/owner/me");
-            const restaurant = result.restaurant || result;
+            const restaurant = result.data?.restaurant || result.restaurant || result.data || result;
+
+            if (!restaurant || typeof restaurant !== "object") {
+                throw new Error("The server did not return your restaurant profile.");
+            }
+
+            const name = String(restaurant.name || restaurant.restaurant_name || "").trim();
+            if (name) {
+                if (sidebarName) sidebarName.textContent = name;
+                if (topbarName) topbarName.textContent = name;
+                const initials = name.split(/\\s+/).filter(Boolean).slice(0, 2)
+                    .map(part => part.charAt(0).toUpperCase()).join("") || "R";
+                if (sidebarAvatar) sidebarAvatar.textContent = initials;
+                if (topbarAvatar) topbarAvatar.textContent = initials;
+            }
 
             if (typeof restaurant.is_open === "boolean") {
                 restaurantIsOpen = restaurant.is_open;
