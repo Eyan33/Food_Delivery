@@ -1,5 +1,6 @@
 const paymentService = require("../../services/payment/paymentService");
 const { notifyCustomerOrderUpdate } = require("../../services/orderEmailNotificationService");
+const mpesaService = require("../../services/payment/mpesaService");
 
 /*
 |--------------------------------------------------------------------------
@@ -351,8 +352,60 @@ async function getAdminPaymentReconciliation(req, res) {
   }
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Customer - Start M-Pesa STK Push
+|--------------------------------------------------------------------------
+*/
+async function initiateMpesaStkPush(req, res) {
+  try {
+    const { order_id, phone_number } = req.body || {};
+    if (!order_id || !phone_number) {
+      return res.status(400).json({ success: false, message: "order_id and phone_number are required." });
+    }
+    const result = await mpesaService.initiateStkPush({
+      orderId: order_id,
+      customerId: req.user.id,
+      phoneNumber: phone_number,
+    });
+    return res.status(200).json({ success: true, message: result.message, data: result });
+  } catch (error) {
+    console.error("[mpesa] STK initiation failed:", error.message);
+    return res.status(error.statusCode || 502).json({
+      success: false,
+      message: error.message || "Unable to start M-Pesa payment.",
+    });
+  }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Public Safaricom callback
+|--------------------------------------------------------------------------
+*/
+async function mpesaCallback(req, res) {
+  try {
+    const result = await mpesaService.processCallback(req.body);
+    if (result.completedOrderId) {
+      try {
+        await notifyCustomerOrderUpdate(result.completedOrderId);
+      } catch (error) {
+        console.error("[mpesa] payment notification failed:", error.message);
+      }
+    }
+    // Safaricom expects an acknowledgement; duplicate callbacks are safe.
+    return res.status(200).json({ ResultCode: 0, ResultDesc: result.accepted ? "Accepted" : "Received" });
+  } catch (error) {
+    console.error("[mpesa] callback processing failed:", error.message);
+    return res.status(200).json({ ResultCode: 0, ResultDesc: "Received" });
+  }
+}
+
 module.exports = {
   createPayment,
+  initiateMpesaStkPush,
+  mpesaCallback,
   getOrderPayment,
   getMyPayments,
 
