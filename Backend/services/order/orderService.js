@@ -267,7 +267,13 @@ async function createOrder(customerId, data) {
         delivery_latitude,
         delivery_longitude,
         expected_delivery_fee,
+        payment_method,
     } = data;
+
+    const selectedPaymentMethod = String(payment_method || "cash").trim().toLowerCase();
+    if (!["cash", "mpesa"].includes(selectedPaymentMethod)) {
+        throw apiError("Payment method must be cash or mpesa");
+    }
 
     if (!restaurant_id) {
         throw new Error("Restaurant ID is required");
@@ -545,11 +551,12 @@ async function createOrder(customerId, data) {
             );
         }
 
-        // Persist the initial cash-on-delivery payment in the same transaction.
+        // Persist the selected payment before returning the created order.
+        // M-Pesa remains processing/pending until the provider callback confirms it.
         await client.query(
-            `INSERT INTO payments (order_id, payment_method, payment_status, amount)
-             VALUES ($1, 'cash', 'pending', $2)`,
-            [order.id, totalAmount],
+            `INSERT INTO payments (order_id, payment_method, payment_status, amount, phone_number)
+             VALUES ($1, $2, 'pending', $3, $4)`,
+            [order.id, selectedPaymentMethod, totalAmount, selectedPaymentMethod === "mpesa" ? delivery_phone : null],
         );
 
         await client.query("COMMIT");

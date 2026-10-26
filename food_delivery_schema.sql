@@ -374,6 +374,8 @@ CREATE TABLE public.payments (
     payment_status character varying(30) DEFAULT 'pending'::character varying NOT NULL,
     amount numeric(10,2) NOT NULL,
     transaction_reference character varying(100),
+    mpesa_checkout_request_id text,
+    mpesa_merchant_request_id text,
     phone_number character varying(30),
     provider_response text,
     paid_at timestamp without time zone,
@@ -1275,3 +1277,9 @@ CREATE INDEX IF NOT EXISTS idx_admin_audit_logs_created
 
 \unrestrict IELRJXiQKFnOScTINA5InF2cXNOkVs0tl5nYZKEIz4chXY96mSsknT2GPRjmSGg
 
+
+
+-- M-Pesa STK Push callback correlation.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_payments_mpesa_checkout_request_id
+    ON public.payments (mpesa_checkout_request_id)
+    WHERE mpesa_checkout_request_id IS NOT NULL;

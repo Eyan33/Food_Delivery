@@ -12,10 +12,27 @@ const authorizeRoles =
 const router = express.Router();
 
 /*
+ * Safaricom callback is public because the provider cannot send our customer JWT.
+ * POST /api/payments/mpesa/callback
+ */
+router.post("/mpesa/callback", paymentController.mpesaCallback);
+
+/*
 |--------------------------------------------------------------------------
 | Customer Routes
 |--------------------------------------------------------------------------
 */
+
+/*
+ * Initiate M-Pesa STK Push for the payment row created with the order.
+ * POST /api/payments/mpesa/stk-push
+ */
+router.post(
+    "/mpesa/stk-push",
+    authenticateToken,
+    authorizeRoles("customer"),
+    paymentController.initiateMpesaStkPush
+);
 
 /*
  * Create payment
