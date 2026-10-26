@@ -232,7 +232,7 @@ if (greeting) {
                     ? `${formatKES(deliveryFee)} delivery`
                     : "Delivery fee unavailable";
 
-                const firstLocationWord = String(restaurant.name || "Restaurant").trim().split(/\\s+/)[0] || "Restaurant";
+                const firstLocationWord = String(restaurant.name || "Restaurant").trim().split(/\s+/)[0] || "Restaurant";
                 const location = restaurant.location_name || `${firstLocationWord} Location`;
 
                 const imageUrl = getImageUrl(
