@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function getSearchText(restaurant) {
         return [
-            restaurant.name, restaurant.description, restaurant.city, restaurant.address,
+            restaurant.name, restaurant.description, restaurant.location_name,
             restaurant.location, restaurant.cuisine, restaurant.category, restaurant.food_type,
             ...getCuisines(restaurant)
         ].filter(Boolean).join(" ").toLowerCase();
@@ -148,7 +148,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const deliveryText = fee !== null && fee !== undefined && text(fee) !== "" && Number.isFinite(Number(fee))
                 ? `${formatKES(fee)} delivery` : "Delivery fee unavailable";
             const cuisines = getCuisines(restaurant);
-            const location = [restaurant.city, restaurant.address].filter(Boolean).join(" · ");
+            const firstLocationWord = (text(restaurant.name) || "Restaurant").split(/\\s+/)[0] || "Restaurant";
+            const location = text(restaurant.location_name) || `${firstLocationWord} Location`;
             const image = getImageUrl(restaurant.logo_url || restaurant.cover_image_url || restaurant.image_url);
             const restaurantId = restaurant.id ?? restaurant.restaurant_id;
             const restaurantUrl = restaurantId !== null && restaurantId !== undefined
