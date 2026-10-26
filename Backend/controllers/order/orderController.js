@@ -1,5 +1,6 @@
 const orderService = require("../../services/order/orderService");
 const pool = require("../../config/database");
+const { notifyCustomerOrderUpdate } = require("../../services/orderEmailNotificationService");
 
 async function notifyRestaurantOfNewOrder(order, source) {
     try {
@@ -42,6 +43,8 @@ async function createOrder(req, res) {
             req.user.id,
             req.body
         );
+
+        await notifyCustomerOrderUpdate(order.id);
 
         await notifyRestaurantOfNewOrder(order, "customer");
 
@@ -139,6 +142,8 @@ async function cancelOrder(req, res) {
             req.user.id
         );
 
+        await notifyCustomerOrderUpdate(order.id);
+
         return res.status(200).json({
             success: true,
             message: "Order cancelled successfully",
@@ -234,6 +239,8 @@ async function confirmOrder(req, res) {
             "confirmed"
         );
 
+        await notifyCustomerOrderUpdate(order.id);
+
         return res.status(200).json({
             success: true,
             message: "Order confirmed successfully",
@@ -265,6 +272,8 @@ async function prepareOrder(req, res) {
             "preparing"
         );
 
+        await notifyCustomerOrderUpdate(order.id);
+
         return res.status(200).json({
             success: true,
             message: "Order is now being prepared",
@@ -295,6 +304,8 @@ async function readyOrder(req, res) {
             req.user.id,
             "ready"
         );
+
+        await notifyCustomerOrderUpdate(order.id);
 
         return res.status(200).json({
             success: true,
@@ -413,6 +424,8 @@ async function adminUpdateStatus(req, res) {
             status
         );
 
+        await notifyCustomerOrderUpdate(order.id);
+
         return res.status(200).json({
             success: true,
             message: "Order status updated successfully",
@@ -441,6 +454,8 @@ async function adminCancelOrder(req, res) {
         const order = await orderService.adminCancelOrder(
             req.params.id
         );
+
+        await notifyCustomerOrderUpdate(order.id);
 
         return res.status(200).json({
             success: true,
@@ -542,6 +557,8 @@ async function createAdminOrder(req, res) {
             req.body,
             req.user.id
         );
+
+        await notifyCustomerOrderUpdate(order.id);
 
         await notifyRestaurantOfNewOrder(order, "admin");
 
