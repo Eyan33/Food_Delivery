@@ -12,6 +12,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const sidebar = document.getElementById("restaurantSidebar");
     const menuButton = document.getElementById("restaurantMenuButton");
 
+    // Bind mobile navigation immediately, independently of dashboard data loading.
+    if (menuButton && sidebar && !menuButton.dataset.mobileNavBound) {
+        menuButton.dataset.mobileNavBound = "true";
+        menuButton.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            sidebar.classList.toggle("open");
+            menuButton.setAttribute("aria-expanded", String(sidebar.classList.contains("open")));
+        });
+        document.addEventListener("click", (event) => {
+            if (!sidebar.contains(event.target) && !menuButton.contains(event.target)) {
+                sidebar.classList.remove("open");
+                menuButton.setAttribute("aria-expanded", "false");
+            }
+        });
+        sidebar.querySelectorAll(".restaurant-nav-link").forEach((link) => {
+            link.addEventListener("click", () => {
+                if (window.innerWidth <= 900) {
+                    sidebar.classList.remove("open");
+                    menuButton.setAttribute("aria-expanded", "false");
+                }
+            });
+        });
+        window.addEventListener("resize", () => {
+            if (window.innerWidth > 900) sidebar.classList.remove("open");
+        });
+    }
+
     const statusButton = document.getElementById("restaurantStatusButton");
     const statusText = document.getElementById("restaurantStatusText");
     const toggleRestaurantStatus = document.getElementById("toggleRestaurantStatus");
@@ -504,41 +532,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    /* =====================================================
-       MOBILE SIDEBAR
-       ===================================================== */
-
-    if (menuButton && sidebar) {
-        menuButton.addEventListener("click", () => {
-            sidebar.classList.toggle("open");
-        });
-
-        document.addEventListener("click", event => {
-            if (
-                !sidebar.contains(event.target) &&
-                !menuButton.contains(event.target) &&
-                sidebar.classList.contains("open")
-            ) {
-                sidebar.classList.remove("open");
-            }
-        });
-    }
-
-    if (sidebar) {
-        sidebar.querySelectorAll(".restaurant-nav-link").forEach(link => {
-            link.addEventListener("click", () => {
-                if (window.innerWidth <= 900) {
-                    sidebar.classList.remove("open");
-                }
-            });
-        });
-    }
-
-    window.addEventListener("resize", () => {
-        if (window.innerWidth > 900 && sidebar) {
-            sidebar.classList.remove("open");
-        }
-    });
 
     /* Notifications are omitted until a real notification endpoint exists. */
 
