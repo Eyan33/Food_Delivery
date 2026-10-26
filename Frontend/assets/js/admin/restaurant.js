@@ -464,7 +464,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 </td>
 
                 <td>
-                    ${escapeHtml(restaurant.location_name || `${String(restaurant.name || "Restaurant").trim().split(/\\s+/)[0]} Location`)}
+                    ${escapeHtml(restaurant.location_name || `${String(restaurant.name || "Restaurant").trim().split(/\s+/)[0]} Location`)}
                 </td>
 
                 <td>
@@ -1728,7 +1728,7 @@ document.addEventListener("DOMContentLoaded", () => {
       form.elements.restaurantLatitude.value = String(latitude);
       form.elements.restaurantLongitude.value = String(longitude);
       const restaurantName = form.elements.restaurantName.value.trim();
-      const firstName = restaurantName.split(/\\s+/)[0] || "Restaurant";
+      const firstName = restaurantName.split(/\s+/)[0] || "Restaurant";
       restaurantLocationStatus.textContent =
         `Saved as ${firstName} Location · ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
       restaurantLocationButton.textContent = "Refresh Live Location";
@@ -2465,7 +2465,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         restaurant.owner_phone || "",
 
-        restaurant.location_name || `${String(restaurant.name || "Restaurant").trim().split(/\\s+/)[0]} Location`,
+        restaurant.location_name || `${String(restaurant.name || "Restaurant").trim().split(/\s+/)[0]} Location`,
 
         restaurant.orders_count || 0,
 
