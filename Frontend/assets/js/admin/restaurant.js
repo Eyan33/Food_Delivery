@@ -1749,8 +1749,10 @@ document.addEventListener("DOMContentLoaded", () => {
       form.elements.restaurantLongitude.value = String(longitude);
       form.elements.restaurantAddress.value = address;
       form.elements.restaurantCity.value = city;
+      const restaurantName = form.elements.restaurantName.value.trim();
+      const firstName = restaurantName.split(/\\s+/)[0] || "Restaurant";
       restaurantLocationStatus.textContent =
-        `Location selected: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}${city !== "GPS location" ? ` · ${city}` : ""}`;
+        `Saved as ${firstName} Location · ${latitude.toFixed(6)}, ${longitude.toFixed(6)}${city !== "GPS location" ? ` · ${city}` : ""}`;
       restaurantLocationButton.textContent = "Refresh Live Location";
       restaurantLocationButton.disabled = false;
     }, (error) => {
