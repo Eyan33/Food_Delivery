@@ -72,8 +72,8 @@ const RESTAURANT_SORTS = {
 /*
  * Per-restaurant order, revenue and rating statistics.
  *
- * Revenue = payments with status 'completed' (same definition as the
- * admin dashboard and payments statistics).
+ * Restaurant revenue = completed payment value excluding the delivery fee.
+ * Delivery charges are not restaurant food revenue.
  */
 const RESTAURANT_STATS_JOIN = `
     LEFT JOIN (
@@ -94,7 +94,15 @@ const RESTAURANT_STATS_JOIN = `
     LEFT JOIN (
         SELECT
             o.restaurant_id,
-            COALESCE(SUM(p.amount), 0) AS revenue
+            COALESCE(
+                SUM(
+                    GREATEST(
+                        COALESCE(o.total_amount, p.amount) - COALESCE(o.delivery_fee, 0),
+                        0
+                    )
+                ),
+                0
+            ) AS revenue
         FROM payments p
         JOIN orders o
             ON o.id = p.order_id

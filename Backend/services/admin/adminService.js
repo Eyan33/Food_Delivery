@@ -1335,7 +1335,8 @@ async function getReports(period = "30d", { startDate, endDate } = {}) {
                 FROM orders WHERE placed_at >= $1 AND placed_at < $2
                 GROUP BY restaurant_id
             ), payment_revenue AS (
-                SELECT o.restaurant_id, COALESCE(SUM(p.amount), 0)::numeric AS revenue
+                SELECT o.restaurant_id,
+                       COALESCE(SUM(GREATEST(COALESCE(o.total_amount, p.amount) - COALESCE(o.delivery_fee, 0), 0)), 0)::numeric AS revenue
                 FROM payments p JOIN orders o ON o.id = p.order_id
                 WHERE p.payment_status = 'completed' AND p.paid_at >= $1 AND p.paid_at < $2
                 GROUP BY o.restaurant_id
