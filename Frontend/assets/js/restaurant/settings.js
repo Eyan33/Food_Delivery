@@ -23,23 +23,18 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll(".settings-section");
 
     const settingsMessage = document.getElementById("settingsMessage");
-    const API_BASE = (window.FOOD_DELIVERY_API_BASE || "http://localhost:5000/api").replace(/\/+$/, "");
-    const TOKEN_KEY = "foodDeliveryAccessToken";
+    const authApi = window.FoodDeliveryAuthApi;
     let restaurantRecord = null;
     let ownerRecord = null;
 
     async function apiRequest(path, options = {}) {
-        const token = localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
-        if (!token) throw new Error("Your session has expired. Please log in again.");
-        const response = await fetch(API_BASE + path, {
-            ...options,
-            headers: { Accept: "application/json", Authorization: "Bearer " + token,
-                ...(options.body ? { "Content-Type": "application/json" } : {}), ...(options.headers || {}) }
-        });
-        let result;
-        try { result = await response.json(); } catch { throw new Error("The server returned an invalid response."); }
-        if (!response.ok || result.success === false) throw new Error(result.message || "Request failed (" + response.status + ").");
-        return result;
+        if (!authApi || typeof authApi.request !== "function") {
+            throw new Error("Authentication API is unavailable. Please refresh the page.");
+        }
+        if (!authApi.getToken || !authApi.getToken()) {
+            throw new Error("Your session has expired. Please log in again.");
+        }
+        return authApi.request(path, { ...options, authenticated: true });
     }
     function setField(id, value) { const el = document.getElementById(id); if (el) el.value = value == null ? "" : String(value); }
     function paintStatus(isOpen) {
