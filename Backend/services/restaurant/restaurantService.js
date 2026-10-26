@@ -528,6 +528,13 @@ function cleanRestaurantFields(
             );
     }
 
+    // Legacy database columns remain for backward compatibility only.
+    // They are generated from GPS coordinates; no user-entered address/city is accepted.
+    if (create) {
+        fields.address = `GPS (${Number(fields.latitude).toFixed(6)}, ${Number(fields.longitude).toFixed(6)})`;
+        fields.city = "GPS Location";
+    }
+
     if (provided("logo_url")) {
         const logoValue = isEmpty(data.logo_url) ? null : data.logo_url;
         if (logoValue !== null && typeof logoValue !== "string") {
@@ -1211,10 +1218,8 @@ async function getAllRestaurants(
             (
                 r.name ILIKE ${placeholder}
                     ESCAPE '\\'
-                OR r.address ILIKE ${placeholder}
-                    ESCAPE '\\'
-                OR r.city ILIKE ${placeholder}
-                    ESCAPE '\\'
+                OR r.location_name ILIKE ${placeholder}
+                    ESCAPE '\\\\'
                 OR r.email ILIKE ${placeholder}
                     ESCAPE '\\'
                 OR r.phone ILIKE ${placeholder}
