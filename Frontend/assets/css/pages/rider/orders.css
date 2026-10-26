@@ -900,3 +900,35 @@
         font-size: 17px;
     }
 }
+
+/* GPS distance estimates on available-order cards */
+.rider-gps-distances {
+    margin: 0 22px 22px;
+    padding: 18px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+.rider-gps-distances-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+.rider-gps-distances-heading strong { color: #0f172a; font-size: 14px; font-weight: 700; }
+.rider-gps-distances-heading span,
+.rider-gps-distance-note { color: #64748b; font-size: 11px; line-height: 1.5; }
+.rider-gps-distance-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.rider-gps-distance-item {
+    display: flex; flex-direction: column; gap: 6px; min-width: 0;
+    padding: 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 9px;
+}
+.rider-gps-distance-item span { color: #64748b; font-size: 12px; line-height: 1.4; }
+.rider-gps-distance-item strong { color: #ff5a1f; font-size: 19px; font-weight: 700; }
+.rider-gps-distance-note { margin: 12px 0 0; }
+@media (max-width: 640px) {
+    .rider-gps-distances { margin: 0 14px 18px; padding: 14px; }
+    .rider-gps-distances-heading { flex-direction: column; gap: 4px; }
+    .rider-gps-distance-grid { grid-template-columns: 1fr; }
+}

@@ -36,6 +36,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let availableOrders = [];
     let loading = false;
     let messageTimer = null;
+    let riderGpsPosition = null;
+    let riderGpsWatchId = null;
 
     // =========================================================
     // API
@@ -377,6 +379,97 @@ document.addEventListener("DOMContentLoaded", () => {
         updateCount(availableOrders.length);
     }
 
+    function validGpsPoint(latitude, longitude) {
+        if (latitude === null || latitude === undefined || latitude === "" ||
+            longitude === null || longitude === undefined || longitude === "") return null;
+        const lat = Number(latitude);
+        const lng = Number(longitude);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng) ||
+            lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+        return [lat, lng];
+    }
+
+    function gpsDistanceKm(first, second) {
+        if (!first || !second) return null;
+        const radians = value => value * Math.PI / 180;
+        const dLat = radians(second[0] - first[0]);
+        const dLng = radians(second[1] - first[1]);
+        const a = Math.min(1, Math.max(0,
+            Math.sin(dLat / 2) ** 2 +
+            Math.cos(radians(first[0])) * Math.cos(radians(second[0])) *
+            Math.sin(dLng / 2) ** 2
+        ));
+        return 6371.0088 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function displayDistance(value) {
+        if (value == null || !Number.isFinite(value)) return "Unavailable";
+        return value < 1 ? `${Math.round(value * 1000)} m` : `${value.toFixed(1)} km`;
+    }
+
+    function orderDistanceValues(order) {
+        const restaurant = validGpsPoint(order.restaurant_latitude, order.restaurant_longitude);
+        const customer = validGpsPoint(order.delivery_latitude, order.delivery_longitude);
+        const rider = riderGpsPosition
+            ? validGpsPoint(riderGpsPosition.coords.latitude, riderGpsPosition.coords.longitude)
+            : null;
+        return {
+            riderRestaurant: gpsDistanceKm(rider, restaurant),
+            restaurantCustomer: gpsDistanceKm(restaurant, customer),
+            riderCustomer: gpsDistanceKm(rider, customer)
+        };
+    }
+
+    function renderOrderDistancePanel(order) {
+        const d = orderDistanceValues(order);
+        const id = escapeHTML(order.id);
+        return `
+            <section class="rider-gps-distances" aria-label="GPS distances for order ${id}">
+                <div class="rider-gps-distances-heading">
+                    <strong>GPS Distance Estimates</strong>
+                    <span>Straight-line distance · not road distance</span>
+                </div>
+                <div class="rider-gps-distance-grid">
+                    <div class="rider-gps-distance-item"><span>Rider → Restaurant</span><strong data-order-distance="${id}" data-distance-kind="rider-restaurant">${escapeHTML(displayDistance(d.riderRestaurant))}</strong></div>
+                    <div class="rider-gps-distance-item"><span>Restaurant → Customer</span><strong data-order-distance="${id}" data-distance-kind="restaurant-customer">${escapeHTML(displayDistance(d.restaurantCustomer))}</strong></div>
+                    <div class="rider-gps-distance-item"><span>Rider → Customer</span><strong data-order-distance="${id}" data-distance-kind="rider-customer">${escapeHTML(displayDistance(d.riderCustomer))}</strong></div>
+                </div>
+                <p class="rider-gps-distance-note" data-order-distance-note>${riderGpsPosition ? "Rider distances update while this page receives live GPS updates." : "Allow GPS access in your browser to calculate distances from your current location."}</p>
+            </section>
+        `;
+    }
+
+    function refreshOrderDistanceLabels() {
+        document.querySelectorAll("[data-order-distance]").forEach(element => {
+            const order = availableOrders.find(item => String(item.id) === element.dataset.orderDistance);
+            if (!order) return;
+            const d = orderDistanceValues(order);
+            const value = element.dataset.distanceKind === "rider-restaurant"
+                ? d.riderRestaurant
+                : element.dataset.distanceKind === "restaurant-customer"
+                    ? d.restaurantCustomer
+                    : d.riderCustomer;
+            element.textContent = displayDistance(value);
+        });
+        document.querySelectorAll("[data-order-distance-note]").forEach(element => {
+            element.textContent = riderGpsPosition
+                ? "Rider distances update while this page receives live GPS updates."
+                : "Allow GPS access in your browser to calculate distances from your current location.";
+        });
+    }
+
+    function startRiderGpsForAvailableOrders() {
+        if (!navigator.geolocation || riderGpsWatchId !== null) return;
+        riderGpsWatchId = navigator.geolocation.watchPosition(position => {
+            riderGpsPosition = position;
+            refreshOrderDistanceLabels();
+            renderSummary();
+        }, error => {
+            console.warn("Rider GPS is unavailable for order distance estimates:", error.message);
+            refreshOrderDistanceLabels();
+        }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
+    }
+
     function renderOrderCard(order) {
         const id = escapeHTML(order.id);
         const number = escapeHTML(getOrderNumber(order));
@@ -429,6 +522,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                 </div>
 
+                ${renderOrderDistancePanel(order)}
                 <div class="rider-available-order-footer">
                     <div class="rider-order-meta">
                         <span>● Ready for pickup</span>
@@ -914,6 +1008,7 @@ function renderEmptyState() {
     // =========================================================
 
     async function initialize() {
+        startRiderGpsForAvailableOrders();
         try {
             await loadRiderProfile();
             await refreshOrders();

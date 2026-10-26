@@ -588,6 +588,94 @@ document.addEventListener("DOMContentLoaded", () => {
         return [lat, lng];
     }
 
+    // Straight-line GPS distance using the Haversine formula (not road distance).
+    function distanceKm(first, second) {
+        if (!first || !second) return null;
+
+        const toRadians = degrees => degrees * Math.PI / 180;
+        const [lat1, lon1] = first;
+        const [lat2, lon2] = second;
+        const dLat = toRadians(lat2 - lat1);
+        const dLon = toRadians(lon2 - lon1);
+        const a = Math.sin(dLat / 2) ** 2 +
+            Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+            Math.sin(dLon / 2) ** 2;
+        const bounded = Math.min(1, Math.max(0, a));
+        return 6371.0088 * 2 * Math.atan2(Math.sqrt(bounded), Math.sqrt(1 - bounded));
+    }
+
+    function formatDistance(kilometres) {
+        if (kilometres == null || !Number.isFinite(kilometres)) return "Unavailable";
+        if (kilometres < 1) return `${Math.round(kilometres * 1000)} m`;
+        return `${kilometres.toFixed(1)} km`;
+    }
+
+    function getRiderCoordinates(position = latestGpsPosition) {
+        if (!position?.coords) return null;
+        return validCoordinates(position.coords.latitude, position.coords.longitude);
+    }
+
+    function getOrderDistances(order, position = latestGpsPosition) {
+        const riderPoint = getRiderCoordinates(position);
+        const restaurantPoint = validCoordinates(order.restaurant_latitude, order.restaurant_longitude);
+        const customerPoint = validCoordinates(order.delivery_latitude, order.delivery_longitude);
+
+        return {
+            riderRestaurant: distanceKm(riderPoint, restaurantPoint),
+            restaurantCustomer: distanceKm(restaurantPoint, customerPoint),
+            riderCustomer: distanceKm(riderPoint, customerPoint)
+        };
+    }
+
+    function renderDistancePanel(order) {
+        const distances = getOrderDistances(order);
+        const id = escapeHTML(order.id);
+        return `
+            <section class="rider-gps-distances" aria-label="GPS distances for order ${id}">
+                <div class="rider-gps-distances-heading">
+                    <strong>GPS Distance Estimates</strong>
+                    <span>Straight-line distance · not road distance</span>
+                </div>
+                <div class="rider-gps-distance-grid">
+                    <div class="rider-gps-distance-item">
+                        <span>Rider → Restaurant</span>
+                        <strong data-distance-order="${id}" data-distance-type="rider-restaurant">${escapeHTML(formatDistance(distances.riderRestaurant))}</strong>
+                    </div>
+                    <div class="rider-gps-distance-item">
+                        <span>Restaurant → Customer</span>
+                        <strong data-distance-order="${id}" data-distance-type="restaurant-customer">${escapeHTML(formatDistance(distances.restaurantCustomer))}</strong>
+                    </div>
+                    <div class="rider-gps-distance-item">
+                        <span>Rider → Customer</span>
+                        <strong data-distance-order="${id}" data-distance-type="rider-customer">${escapeHTML(formatDistance(distances.riderCustomer))}</strong>
+                    </div>
+                </div>
+                <p class="rider-gps-distance-note" data-distance-note-order="${id}">${latestGpsPosition ? "Rider distances update while live GPS tracking is active." : "Start Live Tracking to calculate distances from your current GPS position."}</p>
+            </section>
+        `;
+    }
+
+    function updateDistancePanels(position = latestGpsPosition) {
+        document.querySelectorAll("[data-distance-order]").forEach(element => {
+            const order = deliveries.find(item => String(item.id) === element.dataset.distanceOrder);
+            if (!order) return;
+            const distances = getOrderDistances(order, position);
+            const key = element.dataset.distanceType;
+            const value = key === "rider-restaurant"
+                ? distances.riderRestaurant
+                : key === "restaurant-customer"
+                    ? distances.restaurantCustomer
+                    : distances.riderCustomer;
+            element.textContent = formatDistance(value);
+        });
+
+        document.querySelectorAll("[data-distance-note-order]").forEach(element => {
+            element.textContent = position
+                ? "Rider distances update while live GPS tracking is active."
+                : "Start Live Tracking to calculate distances from your current GPS position.";
+        });
+    }
+
     function navigationUrl(order) {
         const isPickup = getStatus(order) === "ready";
         const point = isPickup
@@ -680,6 +768,7 @@ document.addEventListener("DOMContentLoaded", () => {
         trackingWatchId = navigator.geolocation.watchPosition(position => {
             latestGpsPosition = position;
             trackingMaps.forEach((tracking, id) => updateMapRiderPosition(id, position));
+            updateDistancePanels(position);
             saveLiveLocation(position);
         }, error => {
             const message = error.code === 1
@@ -766,6 +855,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div class="rider-route-arrow">→</div>
                     <div class="rider-route-location"><span class="route-label">DELIVERY</span><strong>${recipient}</strong><p>${deliveryAddress}</p></div>
                 </div>
+                ${renderDistancePanel(order)}
                 <div class="rider-delivery-footer">
                     <div class="rider-delivery-meta"><span>Order value: ${money(order.total_amount)}</span><span>Rider delivery fee: ${escapeHTML(fee)}</span></div>
                     <div class="rider-delivery-actions">
