@@ -101,13 +101,19 @@ async function initiateStkPush({ orderId, customerId, phoneNumber }) {
   if (payment.payment_status === "completed") {
     return { payment_status: "completed", message: "This order is already paid." };
   }
-  if (payment.mpesa_checkout_request_id) {
+  if (payment.mpesa_checkout_request_id && payment.payment_status !== "failed") {
     return { payment_status: payment.payment_status, message: "An M-Pesa request has already been sent. Check your phone for the PIN prompt." };
   }
 
-  const amount = Math.round(Number(payment.amount));
+  const rawAmount = Number(payment.amount);
+  const amount = Math.round(rawAmount);
   if (!Number.isFinite(amount) || amount < 1) {
     const error = new Error("The order total must be at least KSh 1 for M-Pesa.");
+    error.statusCode = 400;
+    throw error;
+  }
+  if (Math.abs(rawAmount - amount) > 0.001) {
+    const error = new Error("M-Pesa supports whole-shilling amounts. This order total includes cents; please contact support before paying.");
     error.statusCode = 400;
     throw error;
   }
@@ -186,8 +192,14 @@ async function processCallback(payload) {
       await client.query("COMMIT");
       return { accepted: true, duplicate: true };
     }
-    const successful = Number(callback.ResultCode) === 0;
     const receipt = metadata.MpesaReceiptNumber ? String(metadata.MpesaReceiptNumber) : null;
+    const callbackAmount = Number(metadata.Amount);
+    if (Number(callback.ResultCode) === 0 &&
+        (!receipt || !Number.isFinite(callbackAmount) || callbackAmount !== Math.round(Number(payment.amount)))) {
+      await client.query("ROLLBACK");
+      return { accepted: false, reason: "callback_amount_or_receipt_mismatch" };
+    }
+    const successful = Number(callback.ResultCode) === 0;
     await client.query(
       `UPDATE public.payments
           SET payment_status = $1,
