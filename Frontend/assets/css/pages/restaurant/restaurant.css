@@ -279,8 +279,11 @@
     transition: transform 0.3s ease;
   }
 
-  .restaurant-sidebar.open {
+  .restaurant-sidebar.open,
+  .restaurant-sidebar.show {
     transform: translateX(0);
+    visibility: visible;
+    z-index: 1200;
   }
 
   .restaurant-main {
