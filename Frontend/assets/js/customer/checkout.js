@@ -329,11 +329,8 @@ document.addEventListener("DOMContentLoaded", () => {
             return false;
         }
 
-        const storedDeliveryFee = cart[0].delivery_fee ?? cart[0].deliveryFee;
-        if (storedDeliveryFee == null || storedDeliveryFee === "" || !Number.isFinite(Number(storedDeliveryFee)) || Number(storedDeliveryFee) < 0) {
-            showMessage("Your delivery fee cannot be verified yet. Return to your cart, refresh or re-add the items, then try checkout again.");
-            return false;
-        }
+        // Delivery fee is calculated and validated by the backend at checkout.
+        // A missing cached fee on a cart item must not block order submission.
 
         if (cart.some(item =>
             !Number.isInteger(Number(item.quantity)) ||
