@@ -14,6 +14,13 @@ const router = express.Router();
 */
 
 router.post(
+    "/checkout-quote",
+    authenticateToken,
+    authorizeRoles("customer"),
+    orderController.getCheckoutQuote
+);
+
+router.post(
     "/",
     authenticateToken,
     authorizeRoles("customer"),
