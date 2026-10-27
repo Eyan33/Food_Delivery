@@ -598,6 +598,7 @@ async function createAdminOrder(req, res) {
 */
 
 module.exports = {
+    getCheckoutQuote,
     createOrder,
     getMyOrders,
     getMyOrder,
