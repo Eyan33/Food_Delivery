@@ -2424,6 +2424,7 @@ async function cancelOrder(orderId, customerId) {
 }
 
 module.exports = {
+    getCustomerCheckoutQuote,
     getCustomerOrders,
     getOrderById,
     createOrder,
