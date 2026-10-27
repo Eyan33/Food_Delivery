@@ -211,7 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
                 <div class="summary-row">
                     <span>Delivery Fee</span>
-                    <strong>${deliveryFee == null ? "Calculated at checkout" : formatCurrency(deliveryFee)}</strong>
+                    <strong>${deliveryFee == null ? "Calculating…" : formatCurrency(deliveryFee)}</strong>
                 </div>
             `;
         }
