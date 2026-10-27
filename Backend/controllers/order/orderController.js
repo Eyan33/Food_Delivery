@@ -37,6 +37,18 @@ async function notifyRestaurantOfNewOrder(order, source) {
 |--------------------------------------------------------------------------
 */
 
+async function getCheckoutQuote(req, res) {
+    try {
+        const quote = await orderService.getCustomerCheckoutQuote(req.body || {});
+        return res.status(200).json({ success: true, data: quote });
+    } catch (error) {
+        return res.status(error.statusCode || 400).json({
+            success: false,
+            message: error.message || "Unable to calculate checkout total",
+        });
+    }
+}
+
 async function createOrder(req, res) {
     try {
         const order = await orderService.createOrder(

@@ -115,6 +115,30 @@ document.addEventListener("DOMContentLoaded", () => {
         return Number.isFinite(fee) && fee >= 0 ? fee : null;
     }
 
+    let checkoutQuote = null;
+    let quoteRequestVersion = 0;
+
+    async function refreshCheckoutQuote() {
+        const version = ++quoteRequestVersion;
+        checkoutQuote = null;
+        updateOrderSummary();
+        if (!cart.length) return;
+        const token = getToken();
+        if (!token) { showMessage("Log in to calculate your delivery fee and checkout total."); return; }
+        const payload = { restaurant_id: Number(cart[0].restaurant_id), items: cart.map(item => ({ food_id: Number(item.id), quantity: Number(item.quantity), expected_price: Number(item.price) })) };
+        try {
+            const response = await fetch(`${API_BASE}/orders/checkout-quote`, { method: "POST", headers: { "Accept": "application/json", "Content-Type": "application/json", "Authorization": `Bearer ${token}` }, body: JSON.stringify(payload) });
+            const result = await response.json().catch(() => ({}));
+            if (version !== quoteRequestVersion) return;
+            if (!response.ok || result.success !== true || !result.data) throw new Error(result.message || "Unable to calculate your delivery fee.");
+            const quote = result.data;
+            if (!Number.isFinite(Number(quote.delivery_fee)) || Number(quote.delivery_fee) < 0 || !Number.isFinite(Number(quote.total_amount))) throw new Error("The server returned an invalid checkout total.");
+            checkoutQuote = quote;
+            cart = cart.map(item => ({ ...item, delivery_fee: Number(quote.delivery_fee) }));
+            try { localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart)); } catch (storageError) { console.warn("Could not cache checkout quote:", storageError); }
+            updateOrderSummary();
+        } catch (error) { if (version !== quoteRequestVersion) return; checkoutQuote = null; updateOrderSummary(); showMessage(error.message || "Delivery fee could not be calculated. Please retry."); }
+    }
     function updateOrderSummary() {
         const checkoutItems = document.querySelector(".checkout-items");
         const summaryCalculations =
@@ -177,7 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const subtotal = calculateSubtotal();
-        const deliveryFee = getDeliveryFee();
+        const deliveryFee = checkoutQuote ? Number(checkoutQuote.delivery_fee) : getDeliveryFee();
 
         if (summaryCalculations) {
             summaryCalculations.innerHTML = `
@@ -187,15 +211,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
                 <div class="summary-row">
                     <span>Delivery Fee</span>
-                    <strong>${deliveryFee == null ? "Calculated at checkout" : formatCurrency(deliveryFee)}</strong>
+                    <strong>${deliveryFee == null ? "Calculating…" : formatCurrency(deliveryFee)}</strong>
                 </div>
             `;
         }
 
         if (summaryTotal) {
+            const total = checkoutQuote ? Number(checkoutQuote.total_amount) : (deliveryFee == null ? null : subtotal + deliveryFee);
             summaryTotal.innerHTML = `
                 <span>Total</span>
-                <strong>${deliveryFee == null ? "Calculated at checkout" : formatCurrency(subtotal + deliveryFee)}</strong>
+                <strong>${total == null ? "Calculating…" : formatCurrency(total)}</strong>
             `;
         }
 
@@ -329,8 +354,11 @@ document.addEventListener("DOMContentLoaded", () => {
             return false;
         }
 
-        // Delivery fee is calculated and validated by the backend at checkout.
-        // A missing cached fee on a cart item must not block order submission.
+        if (!checkoutQuote || !Number.isFinite(Number(checkoutQuote.delivery_fee))) {
+            showMessage("Your delivery fee and order total are still being calculated. Please wait or retry checkout.");
+            refreshCheckoutQuote();
+            return false;
+        }
 
         if (cart.some(item =>
             !Number.isInteger(Number(item.quantity)) ||
@@ -398,7 +426,7 @@ document.addEventListener("DOMContentLoaded", () => {
             address_id: null,
             delivery_latitude: currentCoordinates ? currentCoordinates.latitude : null,
             delivery_longitude: currentCoordinates ? currentCoordinates.longitude : null,
-            expected_delivery_fee: (() => { const fee = cart[0].delivery_fee ?? cart[0].deliveryFee; return fee == null || fee === "" ? null : Number(fee); })(),
+            expected_delivery_fee: Number(checkoutQuote.delivery_fee),
             payment_method: getPaymentMethod(),
             items: cart.map(item => ({
                 food_id: Number(item.id),
@@ -595,6 +623,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     loadCart();
     updateOrderSummary();
+    refreshCheckoutQuote();
 
     console.log("Checkout initialized. Cart items:", cart.length);
 });

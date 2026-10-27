@@ -253,6 +253,65 @@ async function getOrderById(orderId, customerId) {
 |--------------------------------------------------------------------------
 */
 
+async function getCustomerCheckoutQuote(data) {
+    const restaurantId = data?.restaurant_id;
+    const items = data?.items;
+    if (!restaurantId || !Array.isArray(items) || items.length === 0) {
+        throw apiError("Restaurant and cart items are required");
+    }
+    const restaurantResult = await pool.query(
+        `SELECT id, name, is_open, is_active, delivery_fee, minimum_order
+           FROM restaurants WHERE id = $1 LIMIT 1`,
+        [restaurantId],
+    );
+    const restaurant = restaurantResult.rows[0];
+    if (!restaurant || !restaurant.is_active || !restaurant.is_open) {
+        throw apiError("The selected restaurant is unavailable or closed", 409);
+    }
+    const ids = items.map(item => String(item.food_id ?? ""));
+    if (ids.some(id => !/^[1-9][0-9]*$/.test(id))) {
+        throw apiError("The cart contains an invalid food item");
+    }
+    const foodsResult = await pool.query(
+        `SELECT id, restaurant_id, name, price, is_available, is_active
+           FROM foods WHERE id = ANY($1::bigint[])`,
+        [[...new Set(ids)]],
+    );
+    const foods = foodsResult.rows;
+    if (foods.length !== new Set(ids).size) {
+        throw apiError("One or more cart items are no longer available", 409);
+    }
+    let subtotal = 0;
+    for (const requested of items) {
+        const food = foods.find(item => String(item.id) === String(requested.food_id));
+        const quantity = Number(requested.quantity);
+        if (!food || String(food.restaurant_id) !== String(restaurantId) ||
+            !food.is_active || !food.is_available) {
+            throw apiError("A cart item is no longer available from this restaurant", 409);
+        }
+        if (!Number.isInteger(quantity) || quantity < 1 || quantity > 99) {
+            throw apiError("Cart quantities must be between 1 and 99");
+        }
+        if (requested.expected_price != null &&
+            Math.abs(Number(requested.expected_price) - Number(food.price)) > 0.009) {
+            throw apiError(`${food.name} price has changed. Review your cart before checkout.`, 409);
+        }
+        subtotal += Number(food.price) * quantity;
+    }
+    const deliveryFee = Number(restaurant.delivery_fee || 0);
+    if (subtotal < Number(restaurant.minimum_order || 0)) {
+        throw apiError(`Minimum order amount is KSh ${Number(restaurant.minimum_order || 0).toFixed(2)}`);
+    }
+    return {
+        restaurant_id: restaurant.id,
+        restaurant_name: restaurant.name,
+        subtotal: Math.round(subtotal * 100) / 100,
+        delivery_fee: deliveryFee,
+        total_amount: Math.round((subtotal + deliveryFee) * 100) / 100,
+        currency: "KES",
+    };
+}
+
 async function createOrder(customerId, data) {
     const {
         restaurant_id,
