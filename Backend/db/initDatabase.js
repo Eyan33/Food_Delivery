@@ -332,7 +332,7 @@ async function ensureRiderNotificationSchema() {
             WHERE read_at IS NULL;
 
         CREATE OR REPLACE FUNCTION public.create_rider_order_notifications()
-        RETURNS trigger AS $
+        RETURNS trigger AS $rider_fn$
         BEGIN
             IF NEW.rider_id IS NOT NULL AND
                (TG_OP = 'INSERT' OR OLD.rider_id IS DISTINCT FROM NEW.rider_id) THEN
@@ -355,7 +355,7 @@ async function ensureRiderNotificationSchema() {
             END IF;
             RETURN NEW;
         END;
-        $ LANGUAGE plpgsql;
+        $rider_fn$ LANGUAGE plpgsql;
 
         DROP TRIGGER IF EXISTS trg_rider_order_notifications ON public.orders;
         CREATE TRIGGER trg_rider_order_notifications
