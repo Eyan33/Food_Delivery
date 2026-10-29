@@ -686,45 +686,44 @@ document.addEventListener("DOMContentLoaded", () => {
        NOTIFICATION SETTINGS - SAVE
     ========================================================== */
 
+    async function loadNotificationPreferences() {
+        const response = await apiRequest("/restaurants/notifications/preferences");
+        const preferences = response?.data?.preferences || response?.preferences;
+        if (!preferences) return;
+        if (newOrderNotifications) newOrderNotifications.checked = preferences.new_orders !== false;
+        if (orderUpdateNotifications) orderUpdateNotifications.checked = preferences.order_updates !== false;
+        if (promotionNotifications) promotionNotifications.checked = preferences.promotions === true;
+        if (emailNotifications) emailNotifications.checked = preferences.email === true;
+    }
+
     if (saveNotificationButton) {
-
-        saveNotificationButton.addEventListener("click", () => {
-
+        saveNotificationButton.addEventListener("click", async () => {
             const notificationSettings = {
-
-                newOrders:
-                    newOrderNotifications
-                        ? newOrderNotifications.checked
-                        : false,
-
-                orderUpdates:
-                    orderUpdateNotifications
-                        ? orderUpdateNotifications.checked
-                        : false,
-
-                promotions:
-                    promotionNotifications
-                        ? promotionNotifications.checked
-                        : false,
-
-                email:
-                    emailNotifications
-                        ? emailNotifications.checked
-                        : false
-
+                new_orders: !!(newOrderNotifications && newOrderNotifications.checked),
+                order_updates: !!(orderUpdateNotifications && orderUpdateNotifications.checked),
+                promotions: !!(promotionNotifications && promotionNotifications.checked),
+                email: !!(emailNotifications && emailNotifications.checked)
             };
-
-
-            localStorage.setItem(
-                "restaurantNotificationSettings",
-                JSON.stringify(notificationSettings)
-            );
-
-
-            showMessage("Preferences saved in this browser only; server-side and email notifications are not configured.");
-
+            saveNotificationButton.disabled = true;
+            try {
+                const response = await apiRequest("/restaurants/notifications/preferences", {
+                    method: "PUT",
+                    body: notificationSettings
+                });
+                const saved = response?.data?.preferences || response?.preferences;
+                if (saved) {
+                    if (newOrderNotifications) newOrderNotifications.checked = saved.new_orders;
+                    if (orderUpdateNotifications) orderUpdateNotifications.checked = saved.order_updates;
+                    if (promotionNotifications) promotionNotifications.checked = saved.promotions;
+                    if (emailNotifications) emailNotifications.checked = saved.email;
+                }
+                showMessage("Notification preferences saved to your account. New-order in-app alerts follow this setting; email and promotion delivery are not yet implemented.");
+            } catch (error) {
+                showMessage(error.message || "Could not save notification preferences.", "error");
+            } finally {
+                saveNotificationButton.disabled = false;
+            }
         });
-
     }
 
 
@@ -1348,6 +1347,10 @@ document.addEventListener("DOMContentLoaded", () => {
     ========================================================== */
 
     loadSavedSettings();
+    loadNotificationPreferences().catch(error => {
+        console.error("Could not load notification preferences:", error);
+        showMessage("Could not load saved notification preferences.", "error");
+    });
     loadServerSettings().catch(error => {
         console.error("Could not load settings from the server:", error);
         showMessage(error.message, "error");
