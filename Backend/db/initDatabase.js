@@ -299,6 +299,15 @@ async function ensureRestaurantNotificationSchema() {
         CREATE INDEX IF NOT EXISTS idx_restaurant_notifications_unread
             ON public.restaurant_notifications (restaurant_id, created_at DESC)
             WHERE read_at IS NULL;
+
+        CREATE TABLE IF NOT EXISTS public.restaurant_notification_preferences (
+            restaurant_id bigint PRIMARY KEY REFERENCES public.restaurants(id) ON DELETE CASCADE,
+            new_orders boolean NOT NULL DEFAULT TRUE,
+            order_updates boolean NOT NULL DEFAULT TRUE,
+            promotions boolean NOT NULL DEFAULT FALSE,
+            email boolean NOT NULL DEFAULT FALSE,
+            updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
     `);
 }
 
