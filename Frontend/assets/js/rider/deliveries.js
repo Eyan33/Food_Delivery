@@ -736,6 +736,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         document.querySelectorAll("[data-start-tracking]").forEach(button => button.addEventListener("click", startLiveTracking));
         document.querySelectorAll("[data-stop-tracking]").forEach(button => button.addEventListener("click", stopLiveTracking));
+
+        // Start location sharing automatically when an active delivery map exists.
+        // This ensures the rider's current coordinates are read and persisted without
+        // requiring the rider to discover and press the tracking button first.
+        if (trackingMaps.size > 0 && trackingWatchId === null) {
+            startLiveTracking();
+        }
     }
 
     function updateMapRiderPosition(id, position) {
@@ -762,9 +769,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function startLiveTracking() {
-        if (!navigator.geolocation) { showMessage("This browser does not support GPS location.", "error"); return; }
-        if (trackingWatchId !== null) { showMessage("Live tracking is already running."); return; }
-        trackingMaps.forEach((tracking, id) => setTrackingStatus(id, "Requesting location permission…"));
+        if (!window.isSecureContext) {
+            const message = "Live GPS requires a secure HTTPS connection. Open the rider portal using its HTTPS address.";
+            trackingMaps.forEach((tracking, id) => setTrackingStatus(id, message, true));
+            showMessage(message, "error");
+            return;
+        }
+        if (!navigator.geolocation) {
+            const message = "This browser does not support GPS location. Try a recent version of Chrome or Firefox.";
+            trackingMaps.forEach((tracking, id) => setTrackingStatus(id, message, true));
+            showMessage(message, "error");
+            return;
+        }
+        if (trackingWatchId !== null) return;
+        trackingMaps.forEach((tracking, id) => setTrackingStatus(id, "Requesting device location permission…"));
         trackingWatchId = navigator.geolocation.watchPosition(position => {
             latestGpsPosition = position;
             trackingMaps.forEach((tracking, id) => updateMapRiderPosition(id, position));
@@ -780,7 +798,7 @@ document.addEventListener("DOMContentLoaded", () => {
             showMessage(message, "error");
             if (error.code === 1 && trackingWatchId !== null) { navigator.geolocation.clearWatch(trackingWatchId); trackingWatchId = null; }
         }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
-        trackingMaps.forEach((tracking, id) => setTrackingStatus(id, "Waiting for device GPS…"));
+        trackingMaps.forEach((tracking, id) => setTrackingStatus(id, "Waiting for device GPS… Allow location access if your browser asks."));
     }
 
     function stopLiveTracking() {
