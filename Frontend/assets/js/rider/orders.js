@@ -880,11 +880,7 @@ function renderEmptyState() {
     // NOTIFICATIONS
     // =========================================================
 
-    elements.notificationButton?.addEventListener("click", () => {
-        showMessage("Notifications are not connected yet.", "info");
-    });
-
-    // =========================================================
+// =========================================================
     // MODAL STYLES
     // =========================================================
 

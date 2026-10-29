@@ -93,10 +93,29 @@ document.addEventListener("DOMContentLoaded", () => {
                         render();
                     } catch (error) {
                         console.error("[restaurant-notifications] mark read failed:", error);
+                        if (!panel.hidden) {
+                            const notice = document.createElement("div");
+                            notice.className = "restaurant-notification-empty";
+                            notice.setAttribute("role", "alert");
+                            notice.textContent = "Could not mark this notification as read. Please try again.";
+                            list.prepend(notice);
+                        }
+                        return;
                     }
                 }
-                if (item.target_url) window.location.href = item.target_url;
-                else if (item.order_id) window.location.href = "orders.html";
+                const destination = item.target_url || (item.order_id ? "orders.html" : "");
+                if (destination) {
+                    try {
+                        const url = new URL(destination, window.location.href);
+                        if (url.origin === window.location.origin && url.pathname.includes("/pages/restaurant/")) {
+                            window.location.assign(url.href);
+                        } else {
+                            console.warn("[restaurant-notifications] blocked unsafe target URL:", destination);
+                        }
+                    } catch (_) {
+                        console.warn("[restaurant-notifications] invalid target URL:", destination);
+                    }
+                }
             });
             list.appendChild(entry);
         });
@@ -131,7 +150,9 @@ document.addEventListener("DOMContentLoaded", () => {
         button.setAttribute("aria-expanded", String(open));
         if (open) await load();
     });
-    panel.querySelector("[data-mark-all]").addEventListener("click", async () => {
+    panel.querySelector("[data-mark-all]").addEventListener("click", async event => {
+        const markAllButton = event.currentTarget;
+        markAllButton.disabled = true;
         try {
             await request("/restaurants/notifications/read-all", { method: "PATCH" });
             notifications.forEach(item => { item.read_at = item.read_at || new Date().toISOString(); });
@@ -139,6 +160,13 @@ document.addEventListener("DOMContentLoaded", () => {
             render();
         } catch (error) {
             console.error("[restaurant-notifications] mark all read failed:", error);
+            const notice = document.createElement("div");
+            notice.className = "restaurant-notification-empty";
+            notice.setAttribute("role", "alert");
+            notice.textContent = "Could not mark notifications as read. Please try again.";
+            list.prepend(notice);
+        } finally {
+            markAllButton.disabled = false;
         }
     });
     document.addEventListener("click", event => {

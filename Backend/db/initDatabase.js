@@ -299,6 +299,68 @@ async function ensureRestaurantNotificationSchema() {
         CREATE INDEX IF NOT EXISTS idx_restaurant_notifications_unread
             ON public.restaurant_notifications (restaurant_id, created_at DESC)
             WHERE read_at IS NULL;
+
+        CREATE TABLE IF NOT EXISTS public.restaurant_notification_preferences (
+            restaurant_id bigint PRIMARY KEY REFERENCES public.restaurants(id) ON DELETE CASCADE,
+            new_orders boolean NOT NULL DEFAULT TRUE,
+            order_updates boolean NOT NULL DEFAULT TRUE,
+            promotions boolean NOT NULL DEFAULT FALSE,
+            email boolean NOT NULL DEFAULT FALSE,
+            updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+    `);
+}
+
+async function ensureRiderNotificationSchema() {
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS public.rider_notifications (
+            id bigserial PRIMARY KEY,
+            rider_id bigint NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+            type varchar(50) NOT NULL DEFAULT 'order_update',
+            title varchar(180) NOT NULL,
+            message text NOT NULL,
+            order_id bigint REFERENCES public.orders(id) ON DELETE SET NULL,
+            target_url text NOT NULL DEFAULT 'orders.html',
+            created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            read_at timestamptz,
+            dedupe_key varchar(180) UNIQUE
+        );
+        CREATE INDEX IF NOT EXISTS idx_rider_notifications_recent
+            ON public.rider_notifications (rider_id, created_at DESC, id DESC);
+        CREATE INDEX IF NOT EXISTS idx_rider_notifications_unread
+            ON public.rider_notifications (rider_id, created_at DESC)
+            WHERE read_at IS NULL;
+
+        CREATE OR REPLACE FUNCTION public.create_rider_order_notifications()
+        RETURNS trigger AS $
+        BEGIN
+            IF NEW.rider_id IS NOT NULL AND
+               (TG_OP = 'INSERT' OR OLD.rider_id IS DISTINCT FROM NEW.rider_id) THEN
+                INSERT INTO public.rider_notifications
+                    (rider_id, type, title, message, order_id, target_url, dedupe_key)
+                VALUES
+                    (NEW.rider_id, 'order_assigned', 'New delivery assigned',
+                     'Order #' || COALESCE(NEW.order_number, NEW.id::text) || ' has been assigned to you.',
+                     NEW.id, 'orders.html', 'assigned:' || NEW.id::text || ':' || NEW.rider_id::text)
+                ON CONFLICT (dedupe_key) DO NOTHING;
+            ELSIF NEW.rider_id IS NOT NULL AND OLD.status IS DISTINCT FROM NEW.status THEN
+                INSERT INTO public.rider_notifications
+                    (rider_id, type, title, message, order_id, target_url, dedupe_key)
+                VALUES
+                    (NEW.rider_id, 'order_update', 'Delivery order updated',
+                     'Order #' || COALESCE(NEW.order_number, NEW.id::text) || ' is now ' || replace(NEW.status, '_', ' ') || '.',
+                     NEW.id, 'deliveries.html',
+                     'status:' || NEW.id::text || ':' || NEW.rider_id::text || ':' || NEW.status)
+                ON CONFLICT (dedupe_key) DO NOTHING;
+            END IF;
+            RETURN NEW;
+        END;
+        $ LANGUAGE plpgsql;
+
+        DROP TRIGGER IF EXISTS trg_rider_order_notifications ON public.orders;
+        CREATE TRIGGER trg_rider_order_notifications
+        AFTER INSERT OR UPDATE ON public.orders
+        FOR EACH ROW EXECUTE FUNCTION public.create_rider_order_notifications();
     `);
 }
 
@@ -369,6 +431,7 @@ async function initializeDatabase() {
     await ensureOrderLocationSchema();
     await ensureMpesaPaymentSchema();
     await ensureRestaurantNotificationSchema();
+    await ensureRiderNotificationSchema();
     await seedAdmin();
 }
 

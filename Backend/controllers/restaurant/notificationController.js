@@ -88,4 +88,54 @@ async function markAllRead(req, res) {
     }
 }
 
-module.exports = { list, markRead, markAllRead };
+async function getPreferences(req, res) {
+    try {
+        const restaurantId = await getRestaurantId(req.user.id);
+        if (!restaurantId) return res.status(404).json({ success: false, message: "Restaurant profile not found." });
+        const result = await pool.query(
+            `INSERT INTO public.restaurant_notification_preferences (restaurant_id)
+             VALUES ($1) ON CONFLICT (restaurant_id) DO NOTHING`,
+            [restaurantId],
+        );
+        const preferences = await pool.query(
+            `SELECT new_orders, order_updates, promotions, email
+             FROM public.restaurant_notification_preferences WHERE restaurant_id = $1`,
+            [restaurantId],
+        );
+        return res.json({ success: true, data: { preferences: preferences.rows[0] } });
+    } catch (error) {
+        return handleError(res, error, "get preferences");
+    }
+}
+
+async function updatePreferences(req, res) {
+    try {
+        const restaurantId = await getRestaurantId(req.user.id);
+        if (!restaurantId) return res.status(404).json({ success: false, message: "Restaurant profile not found." });
+        const input = req.body;
+        const allowed = ["new_orders", "order_updates", "promotions", "email"];
+        if (!input || typeof input !== "object" || Array.isArray(input) ||
+            Object.keys(input).some(key => !allowed.includes(key)) ||
+            allowed.some(key => typeof input[key] !== "boolean")) {
+            return res.status(400).json({ success: false, message: "Provide boolean values for new_orders, order_updates, promotions, and email." });
+        }
+        const result = await pool.query(
+            `INSERT INTO public.restaurant_notification_preferences
+                (restaurant_id, new_orders, order_updates, promotions, email, updated_at)
+             VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
+             ON CONFLICT (restaurant_id) DO UPDATE SET
+                new_orders = EXCLUDED.new_orders,
+                order_updates = EXCLUDED.order_updates,
+                promotions = EXCLUDED.promotions,
+                email = EXCLUDED.email,
+                updated_at = CURRENT_TIMESTAMP
+             RETURNING new_orders, order_updates, promotions, email`,
+            [restaurantId, input.new_orders, input.order_updates, input.promotions, input.email],
+        );
+        return res.json({ success: true, data: { preferences: result.rows[0] } });
+    } catch (error) {
+        return handleError(res, error, "update preferences");
+    }
+}
+
+module.exports = { list, markRead, markAllRead, getPreferences, updatePreferences };

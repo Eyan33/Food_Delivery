@@ -12,6 +12,12 @@ async function notifyRestaurantOfNewOrder(order, source) {
         );
         if (!result.rows.length) return;
         const savedOrder = result.rows[0];
+        const preferenceResult = await pool.query(
+            `SELECT new_orders FROM public.restaurant_notification_preferences
+             WHERE restaurant_id = $1 LIMIT 1`,
+            [savedOrder.restaurant_id],
+        );
+        if (preferenceResult.rows[0]?.new_orders === false) return;
         await pool.query(
             `INSERT INTO public.restaurant_notifications
                 (restaurant_id, type, title, message, order_id, target_url, dedupe_key)

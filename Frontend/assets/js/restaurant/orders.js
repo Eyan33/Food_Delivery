@@ -1292,13 +1292,7 @@ if (orderModalActions) {
         });
     }
 
-    if (notificationButton) {
-        notificationButton.addEventListener("click", () => {
-            showMessage("Restaurant notifications are not connected yet.");
-        });
-    }
-
-    if (profileButton) {
+if (profileButton) {
         profileButton.addEventListener("click", () => {
             window.location.href = "restaurant-profile.html";
         });
