@@ -147,17 +147,11 @@
                                 <small id="checkoutLocationStatus" role="status" aria-live="polite">Live GPS location is required. Manual address entry and saved-address selection are not available at checkout.</small>
                             </div>
 
-                            <!-- Address -->
-                            <div class="form-group">
-                                <label for="address">Detected Delivery Location</label>
-                                <textarea id="address" name="address" rows="2" placeholder="Detected automatically from live GPS" readonly required></textarea>
+                            <div class="form-group checkout-live-location-instruction">
+                                <p><strong>Delivery fee requires your live location.</strong> Select <em>Use My Current Location</em> and allow GPS access. Your delivery fee and order total will be calculated after your live location is captured.</p>
                             </div>
-
-                            <!-- City / Area -->
-                            <div class="form-group">
-                                <label for="area">Detected Area</label>
-                                <input type="text" id="area" name="area" placeholder="Detected automatically from live GPS" readonly required />
-                            </div>
+                            <input type="hidden" id="address" name="address" value="" />
+                            <input type="hidden" id="area" name="area" value="" />
 
                             <!-- Delivery Notes -->
                             <div class="form-group">

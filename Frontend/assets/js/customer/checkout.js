@@ -297,19 +297,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (address) address.value = formattedAddress || "GPS location detected";
                 if (area) area.value = locality || "GPS location";
-                locationAddressReady = Boolean(address?.value.trim() && area?.value.trim());
+                locationAddressReady = Boolean(currentCoordinates);
                 updateDeliveryLocationHeader(locality || "Current GPS location");
 
                 setLocationStatus(formattedAddress
-                    ? "Live GPS location detected and filled automatically. You cannot type or select a different location here."
-                    : "GPS coordinates captured. The address lookup returned no street address; your GPS coordinates will still be sent with the order.");
+                    ? "Live location selected. Your delivery fee and order total have been calculated from the GPS distance."
+                    : "Live GPS coordinates captured. Your delivery fee and order total have been calculated from the GPS distance.");
             } catch (error) {
                 // Reverse geocoding is only for readable labels. Order delivery still uses the captured GPS coordinates.
-                if (address) address.value = "GPS location detected";
-                if (area) area.value = "GPS location";
-                locationAddressReady = true;
+                if (address) address.value = "";
+                if (area) area.value = "";
+                locationAddressReady = Boolean(currentCoordinates);
                 updateDeliveryLocationHeader("Current GPS location");
-                setLocationStatus("Live GPS coordinates captured. A readable address could not be retrieved, but the GPS coordinates will be sent with the order.");
+                setLocationStatus("Live GPS coordinates captured. A readable address could not be retrieved, but your delivery fee will still be calculated from GPS distance.");
             } finally {
                 setLocationButtonBusy(false);
                 if (currentCoordinates && locationAddressReady) await refreshCheckoutQuote();
@@ -395,8 +395,8 @@ document.addEventListener("DOMContentLoaded", () => {
             return false;
         }
 
-        if (!currentCoordinates || !locationAddressReady) {
-            showMessage("Please select Use My Current Location and allow GPS access before placing your order.");
+        if (!currentCoordinates) {
+            showMessage("Please select Use My Current Location and allow GPS access so the delivery fee can be calculated.");
             useCheckoutLocationButton?.focus();
             return false;
         }
