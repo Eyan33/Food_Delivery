@@ -67,7 +67,7 @@
         const notifications = Array.isArray(data?.notifications) ? data.notifications : [];
         setCount(data?.unreadCount ?? notifications.filter(n => !n.read_at).length);
         if (!notifications.length) {
-          list.innerHTML = '<div class="admin-notification-empty">You’re all caught up. No notifications.</div>';
+          list.innerHTML = '<div class="admin-notification-empty">You’re all caught up. No unread notifications.</div>';
           return;
         }
         list.innerHTML = notifications.map(n => {
@@ -104,14 +104,15 @@
       if (!item || item.dataset.unread !== "true") return;
       event.preventDefault();
       try {
+        const destination = item.href;
         await markRead(item.dataset.notificationId);
-        item.classList.remove("unread");
-        item.dataset.unread = "false";
-        const small = item.querySelector("small");
-        if (small) small.textContent = small.textContent.replace(" · Unread", "");
+        item.remove();
         const remaining = Math.max(0, (Number.parseInt(badge.textContent, 10) || 0) - 1);
         setCount(remaining);
-        window.location.assign(item.href);
+        if (!list.querySelector(".admin-notification-item")) {
+          list.innerHTML = '<div class="admin-notification-empty">You’re all caught up. No unread notifications.</div>';
+        }
+        window.location.assign(destination);
       } catch (error) {
         console.error("Could not mark notification as read:", error);
         showError("Could not mark this notification as read. It has not been opened; please try again.");
@@ -121,12 +122,7 @@
       readAllButton.disabled = true;
       try {
         await api.request("/admins/notifications/read-all", {method:"PATCH",authenticated:true});
-        list.querySelectorAll(".admin-notification-item").forEach(item => {
-          item.classList.remove("unread");
-          item.dataset.unread = "false";
-          const small = item.querySelector("small");
-          if (small) small.textContent = small.textContent.replace(" · Unread", "");
-        });
+        list.innerHTML = '<div class="admin-notification-empty">You’re all caught up. No unread notifications.</div>';
         setCount(0);
       } catch (error) {
         console.error("Could not mark all notifications read:", error);

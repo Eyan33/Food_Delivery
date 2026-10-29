@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!notifications.length) {
             const empty = document.createElement("div");
             empty.className = "rider-notification-empty";
-            empty.textContent = "You're all caught up. No notifications yet.";
+            empty.textContent = "You're all caught up. No unread notifications.";
             list.appendChild(empty);
             return;
         }
@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!item.read_at) {
                     try {
                         await request(`/riders/notifications/${encodeURIComponent(item.id)}/read`, { method: "PATCH" });
-                        item.read_at = new Date().toISOString();
+                        notifications = notifications.filter(n => String(n.id) !== String(item.id));
                         setBadge(notifications.filter(n => !n.read_at).length);
                         render();
                     } catch (error) {
@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
         markAll.disabled = true;
         try {
             await request("/riders/notifications/read-all", { method: "PATCH" });
-            notifications.forEach(n => { n.read_at = n.read_at || new Date().toISOString(); });
+            notifications = [];
             setBadge(0);
             render();
         } catch (error) {

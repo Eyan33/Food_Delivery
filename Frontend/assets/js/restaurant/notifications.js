@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!notifications.length) {
             const empty = document.createElement("div");
             empty.className = "restaurant-notification-empty";
-            empty.textContent = "You're all caught up. No notifications yet.";
+            empty.textContent = "You're all caught up. No unread notifications.";
             list.appendChild(empty);
             return;
         }
@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!item.read_at) {
                     try {
                         await request(`/restaurants/notifications/${encodeURIComponent(item.id)}/read`, { method: "PATCH" });
-                        item.read_at = new Date().toISOString();
+                        notifications = notifications.filter(n => String(n.id) !== String(item.id));
                         showBadge(notifications.filter(n => !n.read_at).length);
                         render();
                     } catch (error) {
@@ -155,7 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
         markAllButton.disabled = true;
         try {
             await request("/restaurants/notifications/read-all", { method: "PATCH" });
-            notifications.forEach(item => { item.read_at = item.read_at || new Date().toISOString(); });
+            notifications = [];
             showBadge(0);
             render();
         } catch (error) {
