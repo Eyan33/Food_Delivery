@@ -107,11 +107,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function getDeliveryFee() {
-        if (cart.length === 0) return 0;
-
-        const raw = cart[0].delivery_fee ?? cart[0].deliveryFee;
-        const fee = raw == null || raw === "" ? NaN : Number(raw);
-        // Do not show a made-up fee. The server calculates the final amount at order creation.
+        // Never trust a cached restaurant/cart fee. Only a fresh server quote
+        // based on the current GPS coordinates may be shown or totalled.
+        if (!checkoutQuote) return null;
+        const fee = Number(checkoutQuote.delivery_fee);
         return Number.isFinite(fee) && fee >= 0 ? fee : null;
     }
 
