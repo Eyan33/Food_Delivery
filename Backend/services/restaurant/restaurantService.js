@@ -118,6 +118,7 @@ const RESTAURANT_STATS_JOIN = `
             COUNT(rv.rating)::int AS rating_count
         FROM reviews rv
         WHERE rv.rating IS NOT NULL
+          AND rv.is_visible = TRUE
         GROUP BY rv.restaurant_id
     ) rs
         ON rs.restaurant_id = r.id
