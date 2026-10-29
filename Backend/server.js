@@ -264,6 +264,20 @@ app.use("/api/customers", customerRoutes);
 app.use("/api/admins", adminRoutes);
 app.use("/api/riders/notifications", riderNotificationRoutes);
 app.use("/api/riders", riderRoutes);
+app.get("/api/public/support", async (req, res) => {
+    try {
+        const result = await pool.query(
+            "SELECT settings #>> '{general,supportEmail}' AS \"supportEmail\", settings #>> '{general,supportPhone}' AS \"supportPhone\" FROM admin_settings WHERE id = 1 LIMIT 1",
+        );
+        const settings = result.rows[0] || {};
+        res.set("Cache-Control", "public, max-age=300");
+        return res.status(200).json({ success: true, data: { supportEmail: settings.supportEmail || "", supportPhone: settings.supportPhone || "" } });
+    } catch (error) {
+        console.error("Could not load public support contacts:", error.message);
+        return res.status(500).json({ success: false, message: "Support contacts are temporarily unavailable." });
+    }
+});
+
 app.use("/api/reviews", reviewRoutes);
 
 /*
