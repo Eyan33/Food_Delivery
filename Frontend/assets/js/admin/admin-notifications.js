@@ -72,8 +72,14 @@
         }
         list.innerHTML = notifications.map(n => {
           const id = escapeHtml(n.id);
-          const url = String(n.target_url || "").startsWith("/") ? n.target_url : "/pages/admin/dashboard.html";
-          const href = url.startsWith("/pages/admin/") ? "../../pages/admin/" + url.slice("/pages/admin/".length) : url;
+          const rawTarget = String(n.target_url || "");
+          let href = "dashboard.html";
+          try {
+            const target = new URL(rawTarget, window.location.origin);
+            if (target.origin === window.location.origin && target.pathname.startsWith("/pages/admin/")) {
+              href = target.pathname.slice("/pages/admin/".length) + target.search + target.hash;
+            }
+          } catch (_) { /* Use the safe admin dashboard fallback. */ }
           return '<a class="admin-notification-item ' + (n.read_at ? "" : "unread") + '" href="' + escapeHtml(href) + '" data-notification-id="' + id + '" data-unread="' + (n.read_at ? "false" : "true") + '"><strong>' + escapeHtml(n.title || "Notification") + '</strong><p>' + escapeHtml(n.message || "") + '</p><small>' + escapeHtml(formatDate(n.created_at)) + (n.read_at ? "" : " · Unread") + '</small></a>';
         }).join("");
       } catch (error) {
@@ -105,10 +111,10 @@
         if (small) small.textContent = small.textContent.replace(" · Unread", "");
         const remaining = Math.max(0, (Number.parseInt(badge.textContent, 10) || 0) - 1);
         setCount(remaining);
-        window.location.href = item.href;
+        window.location.assign(item.href);
       } catch (error) {
         console.error("Could not mark notification as read:", error);
-        window.location.href = item.href;
+        showError("Could not mark this notification as read. It has not been opened; please try again.");
       }
     });
     readAllButton.addEventListener("click", async () => {
