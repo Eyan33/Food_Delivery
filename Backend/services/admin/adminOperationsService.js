@@ -150,6 +150,7 @@ async function getNotifications({ page = 1, limit = 20 } = {}) {
         pool.query(
             `SELECT id, source_type, title, message, target_url, created_at, read_at
              FROM admin_notifications
+             WHERE read_at IS NULL
              ORDER BY created_at DESC, id DESC
              LIMIT $1 OFFSET $2`,
             [safeLimit, offset],
@@ -157,7 +158,8 @@ async function getNotifications({ page = 1, limit = 20 } = {}) {
         pool.query(
             `SELECT COUNT(*)::int AS total,
                     COUNT(*) FILTER (WHERE read_at IS NULL)::int AS unread
-             FROM admin_notifications`,
+             FROM admin_notifications
+             WHERE read_at IS NULL`,
         ),
     ]);
 
