@@ -6,7 +6,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     "use strict";
 
-    const API_BASE = (window.FOOD_DELIVERY_API_BASE || document.querySelector('meta[name="api-base-url"]')?.content?.trim() || "http://localhost:5000/api").replace(/\/+$/, "");
+    const API_BASE = (window.FOOD_DELIVERY_API_BASE || document.querySelector('meta[name="api-base-url"]')?.content?.trim() || (["localhost", "127.0.0.1"].includes(window.location.hostname) ? "http://localhost:5000/api" : window.location.origin + "/api")).replace(/\/+$/, "");
 
     const restaurantGrid = document.getElementById("restaurantGrid");
     const foodGrid = document.getElementById("foodGrid");
