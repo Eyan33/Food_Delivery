@@ -28,6 +28,7 @@ const addressRoutes = require("./routes/address/addressRoutes");
 const customerRoutes = require("./routes/customer/customerRoutes");
 const adminRoutes = require("./routes/admin/adminRoutes");
 const riderRoutes = require("./routes/rider/riderRoutes");
+const riderNotificationRoutes = require("./routes/rider/notificationRoutes");
 const reviewRoutes = require("./routes/review/reviewRoutes");
 
 const app = express();
@@ -261,6 +262,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/addresses", addressRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/admins", adminRoutes);
+app.use("/api/riders/notifications", riderNotificationRoutes);
 app.use("/api/riders", riderRoutes);
 app.use("/api/reviews", reviewRoutes);
 
