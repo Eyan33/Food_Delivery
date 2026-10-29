@@ -5,7 +5,7 @@ const pool = require("../../config/database");
 const SETTINGS_FIELDS = {
     general: ["platformName", "supportEmail", "supportPhone", "currency", "timezone", "platformDescription","dailyRevenueTarget"],
     payments: ["mpesaEnabled", "cardEnabled", "cashEnabled", "transactionFee"],
-    platformFees: ["transactionFee", "deliveryFeePerKm"],
+    platformFees: ["deliveryFeePerKm"],
     delivery: ["maxDistance", "minimumOrder", "deliveryTime"],
     notifications: ["newOrderAlerts", "paymentNotifications", "restaurantRegistration", "riderRegistration", "systemAlerts"],
     security: ["twoFactorRequired", "loginAlerts", "sessionTimeout"],
