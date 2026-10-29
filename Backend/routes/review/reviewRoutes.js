@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { 
     createReview, 
+    getMyOrderReviews,
     getRestaurantReviews, 
     deleteReview 
 } = require('../../controllers/reviews/reviewController');
@@ -17,6 +18,7 @@ router.get('/admin', authMiddleware, authorizeRoles('admin'), adminController.ge
 router.patch('/admin/:id/visibility', authMiddleware, authorizeRoles('admin'), adminController.updateReviewVisibility);
 
 // Protected endpoints (Requires authentication)
+router.get('/my-orders', authMiddleware, authorizeRoles('customer'), getMyOrderReviews);
 router.post('/', authMiddleware, authorizeRoles('customer'), createReview);
 router.delete('/:id', authMiddleware, deleteReview);
 
