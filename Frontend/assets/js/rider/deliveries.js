@@ -1394,13 +1394,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // =========================================================
-    // NOTIFICATIONS
-    // =========================================================
-
-    // Notifications are not exposed by the current rider API. The HTML control
-    // is disabled and no fabricated notification count is displayed.
-
-    // =========================================================
     // MODAL STYLES
     // =========================================================
 
