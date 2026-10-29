@@ -737,13 +737,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Notifications are not implemented by the backend; hide the fake control.
-    if (elements.notificationButton) {
-        elements.notificationButton.hidden = true;
-        elements.notificationButton.setAttribute("aria-hidden", "true");
-    }
-
-    // =====================================================
+// =====================================================
     // INITIALIZE
     // =====================================================
 
