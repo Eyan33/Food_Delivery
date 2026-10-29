@@ -901,11 +901,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         if (elements.summaryList) elements.summaryList.querySelectorAll("strong").forEach(el => el.textContent = "—");
         if (elements.notificationBadge) elements.notificationBadge.hidden = true;
-        if (elements.notificationButton) {
-            elements.notificationButton.title = "Notifications are not available yet";
-            elements.notificationButton.addEventListener("click", () => showMessage("Rider notifications are not connected yet.", "info"));
-        }
-    }
+}
 
     async function initialize() {
         clearSampleContent();
