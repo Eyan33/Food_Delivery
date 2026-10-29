@@ -350,7 +350,7 @@ async function ensureRiderNotificationSchema() {
 
         DROP TRIGGER IF EXISTS trg_rider_order_notifications ON public.orders;
         CREATE TRIGGER trg_rider_order_notifications
-        AFTER INSERT OR UPDATE OF rider_id, status ON public.orders
+        AFTER INSERT OR UPDATE ON public.orders
         FOR EACH ROW EXECUTE FUNCTION public.create_rider_order_notifications();
     `);
 }
