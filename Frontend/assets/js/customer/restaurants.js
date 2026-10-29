@@ -123,12 +123,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (sortBy === "name") filtered.sort((a, b) => text(a.name).localeCompare(text(b.name)));
         if (sortBy === "rating") filtered.sort((a, b) => (Number(b.average_rating) || 0) - (Number(a.average_rating) || 0));
-        if (sortBy === "delivery-fee") filtered.sort((a, b) => {
-            const feeA = Number(a.delivery_fee);
-            const feeB = Number(b.delivery_fee);
-            return (Number.isFinite(feeA) ? feeA : Infinity) - (Number.isFinite(feeB) ? feeB : Infinity);
-        });
-
         updateCount(filtered.length);
         if (!filtered.length) {
             grid.innerHTML = "";
@@ -144,9 +138,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const ratingText = restaurant.average_rating !== null &&
                 restaurant.average_rating !== undefined && Number.isFinite(rating)
                 ? `★ ${rating.toFixed(1)}` : "No ratings";
-            const fee = restaurant.delivery_fee;
-            const deliveryText = fee !== null && fee !== undefined && text(fee) !== "" && Number.isFinite(Number(fee))
-                ? `${formatKES(fee)} delivery` : "Delivery fee unavailable";
             const cuisines = getCuisines(restaurant);
             const firstLocationWord = (text(restaurant.name) || "Restaurant").split(/\s+/)[0] || "Restaurant";
             const location = text(restaurant.location_name) || `${firstLocationWord} Location`;
@@ -164,7 +155,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div class="restaurant-title-row"><h3>${escapeHTML(name)}</h3><span class="rating">${escapeHTML(ratingText)}</span></div>
                     <p class="restaurant-category">${escapeHTML(cuisines.join(" · ") || location || text(restaurant.description) || "Cuisine not specified")}</p>
                     <div class="restaurant-meta">
-                        <span>${escapeHTML(deliveryText)}</span>
                         ${location ? `<span>${escapeHTML(location)}</span>` : ""}
                     </div>
                     <a href="${escapeHTML(restaurantUrl)}" class="view-restaurant-button">View Restaurant</a>

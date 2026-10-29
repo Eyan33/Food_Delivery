@@ -52,23 +52,23 @@
         <div class="admin-card-header">
           <div>
             <h3>Platform fees</h3>
-            <p>Set the percentage the platform charges as a transaction fee. This value is saved in PostgreSQL and used by platform payment reporting.</p>
+            <p>Configure the platform transaction percentage and the delivery charge per kilometre. Delivery charges are calculated from restaurant-to-customer distance at checkout.</p>
           </div>
         </div>
 
         <form id="platformFeeForm" class="operations-form">
           <label for="platformTransactionFee">
             Platform transaction fee (%)
-            <input id="platformTransactionFee" name="transactionFee"
-              type="number" min="0" max="100" step="0.1"
-              required inputmode="decimal" />
+            <input id="platformTransactionFee" name="transactionFee" type="number" min="0" max="100" step="0.1" required inputmode="decimal" />
           </label>
-          <button id="savePlatformFee" class="admin-primary-button" type="submit">
-            Save platform fee
-          </button>
+          <label for="deliveryFeePerKm">
+            Delivery charge per kilometre (KSh/km)
+            <input id="deliveryFeePerKm" name="deliveryFeePerKm" type="number" min="0" step="0.01" required inputmode="decimal" />
+          </label>
+          <button id="savePlatformFee" class="admin-primary-button" type="submit">Save platform fees</button>
         </form>
         <p id="platformFeeHelp" class="operations-help">
-          Enter a percentage from 0 to 100. Saving changes the platform fee setting; it does not retroactively change existing orders.
+          Delivery charge = GPS distance × this rate. No fixed base fee is added. Existing orders are not changed.
         </p>
       </section>
 

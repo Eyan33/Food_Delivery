@@ -47,10 +47,11 @@ function calculateStraightLineDistanceKm(latitude1, longitude1, latitude2, longi
 }
 
 /**
- * Calculate delivery pricing from platform settings and GPS coordinates.
- * Distance is straight-line (Haversine), not road-routing distance.
+ * Calculate delivery charges from distance and the per-kilometre rate
+ * configured in Admin Operations > Platform fees. Uses Haversine
+ * straight-line distance, not road-routing distance.
  */
-async function calculateDeliveryPricing(queryable, restaurant, destinationLatitude, destinationLongitude, subtotal) {
+async function calculateDeliveryPricing(queryable, restaurant, destinationLatitude, destinationLongitude) {
     const restaurantLatitude = validCoordinate(restaurant.latitude, -90, 90);
     const restaurantLongitude = validCoordinate(restaurant.longitude, -180, 180);
     const customerLatitude = validCoordinate(destinationLatitude, -90, 90);
@@ -60,21 +61,17 @@ async function calculateDeliveryPricing(queryable, restaurant, destinationLatitu
         throw apiError("Delivery pricing requires valid GPS coordinates for both the restaurant and delivery location. Update the restaurant location and select your delivery location again.", 400);
     }
 
-    const settingsResult = await queryable.query("SELECT settings FROM admin_settings WHERE id = 1 LIMIT 1");
-    const settings = settingsResult.rows[0]?.settings?.delivery || {};
-    const configuredBase = settings.deliveryFee;
-    const baseFee = configuredBase !== undefined && configuredBase !== null && configuredBase !== ""
-        ? Number(configuredBase)
-        : Number(restaurant.delivery_fee || 0);
-    const feePerKm = settings.distanceFee === undefined || settings.distanceFee === null || settings.distanceFee === ""
-        ? 0
-        : Number(settings.distanceFee);
-    const maxDistanceKm = Number(settings.maxDistance || 0);
-    const freeDeliveryAbove = Number(settings.freeDelivery || 0);
+    const result = await queryable.query("SELECT settings FROM admin_settings WHERE id = 1 LIMIT 1");
+    const allSettings = result.rows[0]?.settings || {};
+    const platformFees = allSettings.platformFees || {};
+    const deliverySettings = allSettings.delivery || {};
+    const feePerKm = platformFees.deliveryFeePerKm == null || platformFees.deliveryFeePerKm === ""
+        ? 0 : Number(platformFees.deliveryFeePerKm);
+    const maxDistanceKm = Number(deliverySettings.maxDistance || 0);
 
-    if (![baseFee, feePerKm, maxDistanceKm, freeDeliveryAbove].every(Number.isFinite) ||
-        baseFee < 0 || feePerKm < 0 || maxDistanceKm < 0 || freeDeliveryAbove < 0) {
-        throw apiError("Delivery pricing settings are invalid. Ask an administrator to review Delivery Settings.", 500);
+    if (!Number.isFinite(feePerKm) || feePerKm < 0 ||
+        !Number.isFinite(maxDistanceKm) || maxDistanceKm < 0) {
+        throw apiError("Delivery pricing settings are invalid. Review Admin Operations > Platform fees.", 500);
     }
 
     const exactDistanceKm = calculateStraightLineDistanceKm(
@@ -86,10 +83,8 @@ async function calculateDeliveryPricing(queryable, restaurant, destinationLatitu
         throw apiError(`This delivery location is ${distanceKm.toFixed(2)} km away, beyond the ${maxDistanceKm} km delivery limit.`, 400);
     }
 
-    const isFreeDelivery = freeDeliveryAbove > 0 && subtotal >= freeDeliveryAbove;
-    const deliveryFee = isFreeDelivery ? 0 : Math.round((baseFee + exactDistanceKm * feePerKm) * 100) / 100;
-
-    return { deliveryFee, distanceKm, baseFee, feePerKm, isFreeDelivery };
+    const deliveryFee = Math.round(exactDistanceKm * feePerKm * 100) / 100;
+    return { deliveryFee, distanceKm, feePerKm };
 }
 
 function parsePositiveInteger(value, label) {
@@ -366,16 +361,14 @@ async function getCustomerCheckoutQuote(data) {
     if (subtotal < Number(restaurant.minimum_order || 0)) {
         throw apiError(`Minimum order amount is KSh ${Number(restaurant.minimum_order || 0).toFixed(2)}`);
     }
-    const pricing = await calculateDeliveryPricing(pool, restaurant, destinationLatitude, destinationLongitude, subtotal);
+    const pricing = await calculateDeliveryPricing(pool, restaurant, destinationLatitude, destinationLongitude);
     return {
         restaurant_id: restaurant.id,
         restaurant_name: restaurant.name,
         subtotal: Math.round(subtotal * 100) / 100,
         delivery_distance_km: pricing.distanceKm,
         delivery_fee: pricing.deliveryFee,
-        base_delivery_fee: pricing.baseFee,
         fee_per_km: pricing.feePerKm,
-        free_delivery: pricing.isFreeDelivery,
         total_amount: Math.round((subtotal + pricing.deliveryFee) * 100) / 100,
         currency: "KES",
     };
@@ -563,7 +556,7 @@ async function createOrder(customerId, data) {
 
         const destinationLatitude = validCoordinate(savedAddress ? savedAddress.latitude : delivery_latitude, -90, 90);
         const destinationLongitude = validCoordinate(savedAddress ? savedAddress.longitude : delivery_longitude, -180, 180);
-        const pricing = await calculateDeliveryPricing(client, restaurant, destinationLatitude, destinationLongitude, subtotal);
+        const pricing = await calculateDeliveryPricing(client, restaurant, destinationLatitude, destinationLongitude);
         const deliveryFee = pricing.deliveryFee;
         if (expected_delivery_fee !== undefined && expected_delivery_fee !== null && expected_delivery_fee !== "") {
             const expectedFee = Number(expected_delivery_fee);

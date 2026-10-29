@@ -5,7 +5,8 @@ const pool = require("../../config/database");
 const SETTINGS_FIELDS = {
     general: ["platformName", "supportEmail", "supportPhone", "currency", "timezone", "platformDescription","dailyRevenueTarget"],
     payments: ["mpesaEnabled", "cardEnabled", "cashEnabled", "transactionFee"],
-    delivery: ["deliveryFee", "distanceFee", "freeDelivery", "maxDistance", "minimumOrder", "deliveryTime"],
+    platformFees: ["deliveryFeePerKm"],
+    delivery: ["maxDistance", "minimumOrder", "deliveryTime"],
     notifications: ["newOrderAlerts", "paymentNotifications", "restaurantRegistration", "riderRegistration", "systemAlerts"],
     security: ["twoFactorRequired", "loginAlerts", "sessionTimeout"],
 };
@@ -15,7 +16,7 @@ const BOOLEAN_SETTINGS = new Set([
     "systemAlerts", "twoFactorRequired", "loginAlerts",
 ]);
 const NUMBER_SETTINGS = new Set([
-    "transactionFee", "deliveryFee", "distanceFee", "freeDelivery",
+    "transactionFee", "deliveryFeePerKm",
     "maxDistance", "minimumOrder", "deliveryTime","dailyRevenueTarget",
 ]);
 
