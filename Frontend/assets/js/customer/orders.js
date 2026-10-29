@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let isLoading = false;
 
     let orders = [];
+    let myReviews = new Map();
     let selectedFilter = "all";
 
     function escapeHtml(value) {
@@ -138,6 +139,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const orderId = encodeURIComponent(order.id);
         const canCancel = ["pending", "confirmed"].includes(status);
+        const canReview = status === "delivered" && Number(order.restaurant_id) > 0;
+        const savedReview = myReviews.get(String(order.id));
 
         return `
             <article class="order-card" data-status="${escapeHtml(status)}">
@@ -181,13 +184,22 @@ document.addEventListener("DOMContentLoaded", () => {
                         </a>
 
                         ${canCancel ? `
-                            <button type="button"
-                                    class="cancel-order-button"
-                                    data-order-id="${escapeHtml(order.id)}">
-                                Cancel Order
-                            </button>
+                            <button type="button" class="cancel-order-button" data-order-id="${escapeHtml(order.id)}">Cancel Order</button>
                         ` : ""}
+                        ${canReview ? (savedReview ? `
+                            <span class="order-review-saved">★ ${Number(savedReview.rating)} / 5 · Reviewed</span>
+                        ` : `
+                            <button type="button" class="order-review-toggle" data-order-id="${escapeHtml(order.id)}">Review Restaurant</button>
+                        `) : ""}
                     </div>
+                    ${canReview && !savedReview ? `
+                        <form class="order-review-form" data-order-id="${escapeHtml(order.id)}" hidden>
+                            <label>Rating <select name="rating" required><option value="">Choose a rating</option><option value="5">★★★★★ — Excellent</option><option value="4">★★★★ — Good</option><option value="3">★★★ — Average</option><option value="2">★★ — Poor</option><option value="1">★ — Very poor</option></select></label>
+                            <label>Comment (optional)<textarea name="comment" rows="3" maxlength="1000" placeholder="Share your experience with this restaurant"></textarea></label>
+                            <div class="order-review-form-actions"><button type="submit" class="order-review-submit">Submit Review</button><button type="button" class="order-review-cancel">Cancel</button></div>
+                            <p class="order-review-message" role="status"></p>
+                        </form>
+                    ` : ""}
                 </div>
             </article>
         `;
@@ -285,6 +297,16 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             orders = list;
+            try {
+                const reviewResponse = await fetch(`${API_BASE}/reviews/my-orders`, {
+                    headers: { Accept: "application/json", Authorization: `Bearer ${token}` }
+                });
+                const reviewResult = await reviewResponse.json().catch(() => ({}));
+                if (reviewResponse.ok && reviewResult.success !== false) {
+                    const reviews = reviewResult.data?.reviews || reviewResult.reviews || [];
+                    myReviews = new Map(reviews.map(review => [String(review.order_id), review]));
+                }
+            } catch (reviewError) { console.error("Could not load saved order reviews:", reviewError); }
             renderOrders();
 
         } catch (error) {
@@ -310,6 +332,14 @@ document.addEventListener("DOMContentLoaded", () => {
         ordersList.addEventListener("click", async event => {
             const retryButton = event.target.closest("#retryOrdersButton");
             if (retryButton) { await loadOrders(); return; }
+            const reviewToggle = event.target.closest(".order-review-toggle");
+            if (reviewToggle) {
+                const form = Array.from(ordersList.querySelectorAll(".order-review-form")).find(item => item.dataset.orderId === reviewToggle.dataset.orderId);
+                if (form) form.hidden = !form.hidden;
+                return;
+            }
+            const reviewCancel = event.target.closest(".order-review-cancel");
+            if (reviewCancel) { const form = reviewCancel.closest(".order-review-form"); if (form) form.hidden = true; return; }
             const button = event.target.closest(".cancel-order-button");
             if (!button) return;
 
@@ -358,6 +388,32 @@ document.addEventListener("DOMContentLoaded", () => {
                 button.disabled = false;
                 button.textContent = "Cancel Order";
             }
+        });
+    }
+
+    if (ordersList) {
+        ordersList.addEventListener("submit", async event => {
+            const form = event.target.closest(".order-review-form");
+            if (!form) return;
+            event.preventDefault();
+            const token = getToken();
+            if (!token) { alert("Please log in before submitting a review."); return; }
+            const order = orders.find(item => String(item.id) === form.dataset.orderId);
+            if (!order || getStatus(order) !== "delivered") { alert("You can review a restaurant only after its order is delivered."); return; }
+            const rating = Number(form.elements.rating.value);
+            const comment = form.elements.comment.value.trim();
+            const message = form.querySelector(".order-review-message");
+            const button = form.querySelector(".order-review-submit");
+            if (!Number.isInteger(rating) || rating < 1 || rating > 5) { if (message) message.textContent = "Choose a rating from 1 to 5."; return; }
+            button.disabled = true; button.textContent = "Saving...";
+            try {
+                const response = await fetch(`${API_BASE}/reviews`, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ restaurant_id: order.restaurant_id, order_id: order.id, rating, comment }) });
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok || result.error || result.success === false) throw new Error(result.message || result.error || `Could not save review (HTTP ${response.status}).`);
+                const saved = result.review || result.data?.review || {};
+                myReviews.set(String(order.id), { ...saved, order_id: order.id, restaurant_id: order.restaurant_id, rating, comment });
+                renderOrders(); alert("Your review has been saved.");
+            } catch (error) { console.error("Failed to save restaurant review:", error); if (message) message.textContent = error.message || "Unable to save review. Please try again."; button.disabled = false; button.textContent = "Submit Review"; }
         });
     }
 
