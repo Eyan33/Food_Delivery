@@ -24,14 +24,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const restaurantOpeningTimeInput = $("restaurantOpeningTime");
     const restaurantClosingTimeInput = $("restaurantClosingTime");
 
-    const minimumOrderInput = $("minimumOrder");
-    const deliveryFeeInput = $("deliveryFee");
-
     const restaurantStatusButton = $("restaurantStatusButton");
     const restaurantStatusText = $("restaurantStatusText");
 
     const saveHoursButton = $("saveHoursButton");
-    const saveDeliveryButton = $("saveDeliveryButton");
 
     const profileMessage = $("profileMessage");
 
@@ -44,9 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
         restaurantPhoneInput,
         restaurantEmailInput,
         restaurantOpeningTimeInput,
-        restaurantClosingTimeInput,
-        minimumOrderInput,
-        deliveryFeeInput
+        restaurantClosingTimeInput
     ].filter(Boolean);
 
     let restaurant = null;
@@ -140,9 +134,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         setTimeValue(restaurantOpeningTimeInput, data.opening_time);
         setTimeValue(restaurantClosingTimeInput, data.closing_time);
-
-        setValue(minimumOrderInput, data.minimum_order);
-        setValue(deliveryFeeInput, data.delivery_fee);
 
         restaurantIsOpen = data.is_open === true;
 
@@ -258,34 +249,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /*
     |--------------------------------------------------------------------------
-    | SAVE DELIVERY SETTINGS
-    |--------------------------------------------------------------------------
-    */
-
-    saveDeliveryButton?.addEventListener("click", async () => {
-        const minimumOrder = Number(minimumOrderInput?.value);
-        const deliveryFee = Number(deliveryFeeInput?.value);
-
-        if (!Number.isFinite(minimumOrder) || minimumOrder < 0) {
-            showMessage("Minimum order must be zero or greater.", "error");
-            minimumOrderInput?.focus();
-            return;
-        }
-
-        if (!Number.isFinite(deliveryFee) || deliveryFee < 0) {
-            showMessage("Delivery fee must be zero or greater.", "error");
-            deliveryFeeInput?.focus();
-            return;
-        }
-
-        await saveRestaurant({
-            minimum_order: minimumOrder,
-            delivery_fee: deliveryFee
-        }, "Delivery settings saved successfully.");
-    });
-
-    /*
-    |--------------------------------------------------------------------------
     | COMMON SAVE FUNCTION
     |--------------------------------------------------------------------------
     */
@@ -299,7 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ...document.querySelectorAll(
                 "#restaurantProfileForm button, " +
                 "#restaurantLocationForm button, " +
-                "#saveHoursButton, #saveDeliveryButton"
+                "#saveHoursButton"
             )
         ];
 
