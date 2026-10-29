@@ -335,6 +335,26 @@ document.addEventListener("DOMContentLoaded", () => {
         updateRestaurantDetails(data);
     }
 
+    async function loadRestaurantReviews(restaurantId) {
+        const container = document.getElementById("restaurantReviewsList");
+        if (!container) return;
+        try {
+            const result = await fetchJSON(`${API_BASE}/reviews/restaurant/${encodeURIComponent(restaurantId)}`);
+            const reviews = Array.isArray(result) ? result : (result.data?.reviews || result.reviews || []);
+            if (!reviews.length) { container.innerHTML = '<p class="home-message">No reviews yet. Place an order and share your experience after it is delivered.</p>'; return; }
+            container.innerHTML = reviews.map(review => {
+                const rating = Math.max(1, Math.min(5, Number(review.rating) || 0));
+                const customer = escapeHTML(review.customer_name || "Customer");
+                const comment = escapeHTML(review.comment || "No written comment provided.");
+                const date = review.created_at ? new Date(review.created_at).toLocaleDateString("en-KE", { dateStyle: "medium" }) : "";
+                return `<article class="restaurant-review-card"><div class="restaurant-review-card-heading"><strong>${customer}</strong><span class="restaurant-review-stars" aria-label="${rating} out of 5 stars">${"★".repeat(rating)}${"☆".repeat(5-rating)}</span></div><p>${comment}</p><small>${escapeHTML(date)}</small></article>`;
+            }).join("");
+        } catch (error) {
+            console.error("Could not load restaurant reviews:", error);
+            container.innerHTML = '<p class="home-message">Reviews could not be loaded right now.</p>';
+        }
+    }
+
     /* =====================================================
        MENU CATEGORY BUTTONS
     ===================================================== */
@@ -602,6 +622,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             await loadRestaurant(id);
+            await loadRestaurantReviews(id);
         } catch (error) {
             console.error("Failed to load restaurant details:", error);
             if (restaurantName) restaurantName.textContent = "Restaurant unavailable";

@@ -6,7 +6,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     "use strict";
 
-    const API_BASE = (window.FOOD_DELIVERY_API_BASE || document.querySelector('meta[name="api-base-url"]')?.content?.trim() || "http://localhost:5000/api").replace(/\/+$/, "");
+    const API_BASE = (window.FOOD_DELIVERY_API_BASE || document.querySelector('meta[name="api-base-url"]')?.content?.trim() || (["localhost", "127.0.0.1"].includes(window.location.hostname) ? "http://localhost:5000/api" : window.location.origin + "/api")).replace(/\/+$/, "");
 
     const restaurantGrid = document.getElementById("restaurantGrid");
     const foodGrid = document.getElementById("foodGrid");
@@ -203,10 +203,20 @@ if (greeting) {
     function renderRestaurants(restaurants) {
         if (!restaurantGrid) return;
 
-        const availableRestaurants = restaurants.filter((restaurant) => {
-            // Do not advertise restaurants that are inactive.
-            return restaurant && restaurant.is_active !== false;
-        });
+        const availableRestaurants = restaurants
+            .filter((restaurant) => restaurant && restaurant.is_active !== false)
+            .sort((a, b) => {
+                // Surface restaurants with customer reviews in the home section.
+                const aCount = Number(a.rating_count) || 0;
+                const bCount = Number(b.rating_count) || 0;
+                if ((aCount > 0) !== (bCount > 0)) return bCount > 0 ? 1 : -1;
+                if (aCount > 0 && bCount > 0) {
+                    const ratingDifference = (Number(b.average_rating) || 0) - (Number(a.average_rating) || 0);
+                    if (ratingDifference !== 0) return ratingDifference;
+                    return bCount - aCount;
+                }
+                return 0;
+            });
 
         if (availableRestaurants.length === 0) {
             showMessage(
@@ -222,11 +232,15 @@ if (greeting) {
                 const name = restaurant.name || "Restaurant";
                 const isOpen = restaurant.is_open === true;
                 const rating = Number(restaurant.average_rating);
+                const ratingCount = Number(restaurant.rating_count) || 0;
                 const deliveryFee = Number(restaurant.delivery_fee);
 
-                const ratingText = Number.isFinite(rating)
-                    ? `★ ${rating.toFixed(1)}`
-                    : "No ratings";
+                const hasRating = restaurant.average_rating !== null &&
+                    restaurant.average_rating !== undefined &&
+                    Number.isFinite(rating) && rating > 0 && ratingCount > 0;
+                const ratingText = hasRating
+                    ? `★ ${rating.toFixed(1)} (${ratingCount})`
+                    : "No reviews yet";
 
                 const deliveryText = Number.isFinite(deliveryFee)
                     ? `${formatKES(deliveryFee)} delivery`

@@ -22,33 +22,31 @@ const createReview = async (req, res) => {
 
         let orderId = null;
 
-        if (order_id !== undefined && order_id !== null && order_id !== "") {
-            orderId = Number(order_id);
-
-            if (!Number.isInteger(orderId) || orderId <= 0) {
-                return res.status(400).json({ error: "Invalid order ID." });
-            }
-
-            // The order must belong to this customer and this restaurant.
-            const orderCheck = await pool.query(
-                `
-                SELECT id
-                FROM orders
-                WHERE id = $1
-                  AND customer_id = $2
-                  AND restaurant_id = $3
-                LIMIT 1
-                `,
-                [orderId, userId, restaurantId],
-            );
-
-            if (orderCheck.rows.length === 0) {
-                return res
-                    .status(403)
-                    .json({ error: "You can only review your own orders." });
-            }
+        if (order_id === undefined || order_id === null || order_id === "") {
+            return res.status(400).json({ error: "Please select a delivered order to review." });
+        }
+        orderId = Number(order_id);
+        if (!Number.isInteger(orderId) || orderId <= 0) {
+            return res.status(400).json({ error: "Invalid order ID." });
         }
 
+        const orderCheck = await pool.query(
+            `SELECT id, status FROM orders WHERE id = $1 AND customer_id = $2 AND restaurant_id = $3 LIMIT 1`,
+            [orderId, userId, restaurantId],
+        );
+        if (orderCheck.rows.length === 0) {
+            return res.status(403).json({ error: "You can only review a restaurant for your own order." });
+        }
+        if (String(orderCheck.rows[0].status).toLowerCase() !== "delivered") {
+            return res.status(400).json({ error: "You can review this restaurant after the order is delivered." });
+        }
+        const existingReview = await pool.query(
+            "SELECT id FROM reviews WHERE order_id = $1 AND customer_id = $2 LIMIT 1",
+            [orderId, userId],
+        );
+        if (existingReview.rows.length > 0) {
+            return res.status(409).json({ error: "You have already reviewed this order." });
+        }
         const trimmedComment = String(comment || "").trim().slice(0, 1000);
 
         const query = `
@@ -69,6 +67,19 @@ const createReview = async (req, res) => {
     }
 };
 
+// Reviews submitted by the signed-in customer for delivered orders.
+const getMyOrderReviews = async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT id, customer_id, restaurant_id, order_id, rating, comment, created_at FROM reviews WHERE customer_id = $1 AND order_id IS NOT NULL ORDER BY created_at DESC`,
+            [req.user.id],
+        );
+        return res.status(200).json({ success: true, data: { reviews: result.rows } });
+    } catch (err) {
+        console.error("Failed to load customer's order reviews:", err.message);
+        return res.status(500).json({ success: false, message: "Unable to load your reviews." });
+    }
+};
 // Get all reviews for a specific restaurant
 const getRestaurantReviews = async (req, res) => {
     try {
@@ -127,6 +138,7 @@ const deleteReview = async (req, res) => {
 
 module.exports = {
     createReview,
+    getMyOrderReviews,
     getRestaurantReviews,
     deleteReview,
 };
