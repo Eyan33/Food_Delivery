@@ -17,7 +17,7 @@ async function list(req, res) {
         const result = await pool.query(
             `SELECT id, type, title, message, order_id, target_url, created_at, read_at
              FROM public.rider_notifications
-             WHERE rider_id = $1
+             WHERE rider_id = $1 AND read_at IS NULL
              ORDER BY created_at DESC, id DESC
              LIMIT 50`,
             [riderId],
