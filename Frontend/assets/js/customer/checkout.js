@@ -125,7 +125,17 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!cart.length) return;
         const token = getToken();
         if (!token) { showMessage("Log in to calculate your delivery fee and checkout total."); return; }
-        const payload = { restaurant_id: Number(cart[0].restaurant_id), items: cart.map(item => ({ food_id: Number(item.id), quantity: Number(item.quantity), expected_price: Number(item.price) })) };
+        if (!currentCoordinates) {
+            checkoutQuote = null;
+            updateOrderSummary();
+            return;
+        }
+        const payload = {
+            restaurant_id: Number(cart[0].restaurant_id),
+            delivery_latitude: currentCoordinates.latitude,
+            delivery_longitude: currentCoordinates.longitude,
+            items: cart.map(item => ({ food_id: Number(item.id), quantity: Number(item.quantity), expected_price: Number(item.price) }))
+        };
         try {
             const response = await fetch(`${API_BASE}/orders/checkout-quote`, { method: "POST", headers: { "Accept": "application/json", "Content-Type": "application/json", "Authorization": `Bearer ${token}` }, body: JSON.stringify(payload) });
             const result = await response.json().catch(() => ({}));
@@ -303,6 +313,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 setLocationStatus("Live GPS coordinates captured. A readable address could not be retrieved, but the GPS coordinates will be sent with the order.");
             } finally {
                 setLocationButtonBusy(false);
+                if (currentCoordinates && locationAddressReady) await refreshCheckoutQuote();
             }
         }, error => {
             currentCoordinates = null;
