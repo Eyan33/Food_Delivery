@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const cartItemsContainer = document.getElementById("cartItems");
     const emptyCart = document.getElementById("emptyCart");
     const cartSubtotal = document.getElementById("cartSubtotal");
-    const cartDeliveryFee = document.getElementById("cartDeliveryFee");
     const cartTotal = document.getElementById("cartTotal");
     const checkoutButton = document.getElementById("checkoutButton");
     const restaurantHeader = document.querySelector(".cart-restaurant-header h2");
@@ -45,8 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!Number.isFinite(price) || price < 0 ||
             !Number.isInteger(quantity) || quantity < 1 || quantity > MAX_QUANTITY ||
             restaurantId == null || String(restaurantId).trim() === "") return null;
-        const feeRaw = item.delivery_fee ?? item.deliveryFee;
-        const fee = feeRaw == null || feeRaw === "" ? null : Number(feeRaw);
         return {
             ...item,
             id: item.id,
@@ -57,7 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
             price,
             quantity,
             image: typeof item.image === "string" ? item.image : "",
-            delivery_fee: Number.isFinite(fee) && fee >= 0 ? fee : null,
             restaurant_is_open: normalizeBoolean(item.restaurant_is_open ?? item.is_open)
         };
     }
@@ -93,28 +89,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function getDeliveryFee() {
-        if (!cart.length) return null;
-        const raw = cart[0].delivery_fee;
-        const fee = raw == null ? NaN : Number(raw);
-        return Number.isFinite(fee) && fee >= 0 ? fee : null;
-    }
-
-    function updateRestaurantHeader() {
-        if (restaurantHeader) restaurantHeader.textContent = cart[0]?.restaurant_name || "Your restaurant";
-        if (restaurantStatus) {
-            const open = cart.length ? normalizeBoolean(cart[0].restaurant_is_open) : null;
-            restaurantStatus.textContent = open === true ? "Open" : open === false ? "Closed" : "Status unavailable";
-            restaurantStatus.classList.toggle("closed", open === false);
-        }
-    }
-
     function updateSummary() {
         const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-        const deliveryFee = getDeliveryFee();
         if (cartSubtotal) cartSubtotal.textContent = formatCurrency(subtotal);
-        if (cartDeliveryFee) cartDeliveryFee.textContent = deliveryFee == null ? "Calculated at checkout" : formatCurrency(deliveryFee);
-        if (cartTotal) cartTotal.textContent = deliveryFee == null ? "Calculated at checkout" : formatCurrency(subtotal + deliveryFee);
+        if (cartTotal) cartTotal.textContent = formatCurrency(subtotal);
     }
 
     function updateCartCount() {
