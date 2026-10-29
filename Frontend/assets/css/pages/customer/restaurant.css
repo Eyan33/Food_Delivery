@@ -684,3 +684,12 @@
     cursor: not-allowed;
     opacity: 0.6;
 }
+
+/* Restaurant review list */
+.restaurant-reviews-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+.restaurant-reviews-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr)); gap:16px; }
+.restaurant-review-card { padding:18px; border:1px solid #ececec; border-radius:12px; background:#fff; box-shadow:0 4px 16px rgba(0,0,0,.04); }
+.restaurant-review-card-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.restaurant-review-stars { color:#f59e0b; letter-spacing:1px; white-space:nowrap; }
+.restaurant-review-card p { margin:12px 0; color:#424242; line-height:1.6; overflow-wrap:anywhere; }
+.restaurant-review-card small { color:#777; }
