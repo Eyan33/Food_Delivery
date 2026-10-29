@@ -28,7 +28,7 @@ async function list(req, res) {
         const result = await pool.query(
             `SELECT id, type, title, message, order_id, target_url, created_at, read_at
              FROM public.restaurant_notifications
-             WHERE restaurant_id = $1
+             WHERE restaurant_id = $1 AND read_at IS NULL
              ORDER BY created_at DESC, id DESC
              LIMIT 50`,
             [restaurantId],
