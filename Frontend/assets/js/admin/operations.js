@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let reviewSearchTimer = null;
     let catalogEditTrigger = null;
     let platformFeeSettingsCache = {};
+    let paymentSettingsCache = {};
 
     const listPages = {
         admins: 1,
@@ -1453,7 +1454,8 @@ form.reset();
             const response = await request("/admins/settings");
             const settings = (response?.data || response)?.settings || {};
             platformFeeSettingsCache = settings.platformFees && typeof settings.platformFees === "object" ? { ...settings.platformFees } : {};
-            transactionInput.value = String(platformFeeSettingsCache.transactionFee ?? settings.payments?.transactionFee ?? 5);
+            paymentSettingsCache = settings.payments && typeof settings.payments === "object" ? { ...settings.payments } : {};
+            transactionInput.value = String(paymentSettingsCache.transactionFee ?? 5);
             rateInput.value = String(platformFeeSettingsCache.deliveryFeePerKm ?? 0);
             showMessage("");
         } catch (error) {
@@ -1478,12 +1480,15 @@ form.reset();
         }
         if (saveButton) { saveButton.disabled = true; saveButton.textContent = "Saving…"; }
         try {
-            const platformFees = { ...platformFeeSettingsCache, transactionFee, deliveryFeePerKm };
-            const response = await request("/admins/settings", { method: "PUT", body: { platformFees } });
-            const saved = response?.data?.settings?.platformFees || platformFees;
-            platformFeeSettingsCache = { ...saved };
-            transactionInput.value = String(saved.transactionFee ?? transactionFee);
-            rateInput.value = String(saved.deliveryFeePerKm ?? deliveryFeePerKm);
+            const payments = { ...paymentSettingsCache, transactionFee };
+            const platformFees = { ...platformFeeSettingsCache, deliveryFeePerKm };
+            const response = await request("/admins/settings", { method: "PUT", body: { payments, platformFees } });
+            const savedPayments = response?.data?.settings?.payments || payments;
+            const savedPlatformFees = response?.data?.settings?.platformFees || platformFees;
+            paymentSettingsCache = { ...savedPayments };
+            platformFeeSettingsCache = { ...savedPlatformFees };
+            transactionInput.value = String(savedPayments.transactionFee ?? transactionFee);
+            rateInput.value = String(savedPlatformFees.deliveryFeePerKm ?? deliveryFeePerKm);
             showMessage("Platform fees saved successfully.");
         } catch (error) {
             showMessage(error.message || "Could not save platform fees.", true);
