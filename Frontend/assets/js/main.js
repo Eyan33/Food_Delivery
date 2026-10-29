@@ -67,37 +67,7 @@ document.addEventListener("click", (event) => {
 });
 
 
-// ============================================
-//                CUSTOMER GLOBAL
-// ============================================
-
-const mobileMenuButton =
-    document.getElementById("mobileMenuButton");
-
-const mobileNavigation =
-    document.getElementById("mobileNavigation");
-
-if (mobileMenuButton && mobileNavigation) {
-    mobileMenuButton.addEventListener("click", () => {
-        mobileNavigation.classList.toggle("open");
-
-        const isOpen =
-            mobileNavigation.classList.contains("open");
-
-        mobileMenuButton.textContent =
-            isOpen ? "×" : "☰";
-
-        mobileMenuButton.setAttribute(
-            "aria-label",
-            isOpen ? "Close menu" : "Open menu",
-        );
-
-        mobileMenuButton.setAttribute(
-            "aria-expanded",
-            String(isOpen),
-        );
-    });
-}
+// Customer mobile navigation is handled by customer/mobile-navigation.js.
 
 
 // ============================================
