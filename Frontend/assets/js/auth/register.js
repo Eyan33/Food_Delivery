@@ -50,3 +50,21 @@ registerForm.addEventListener("submit", async (event) => {
         registerButton.textContent = "Create Account";
     }
 });
+
+
+// Show/hide password controls on the registration form.
+document.querySelectorAll("[data-password-toggle]").forEach((toggle) => {
+    const input = document.getElementById(toggle.dataset.passwordToggle);
+    if (!input) return;
+
+    toggle.addEventListener("click", () => {
+        const willShow = input.type === "password";
+        input.type = willShow ? "text" : "password";
+        toggle.setAttribute("aria-pressed", String(willShow));
+        const label = toggle.dataset.passwordToggle === "confirmPassword"
+            ? "confirm password"
+            : "password";
+        toggle.setAttribute("aria-label", `${willShow ? "Hide" : "Show"} ${label}`);
+        toggle.setAttribute("title", `${willShow ? "Hide" : "Show"} ${label}`);
+    });
+});

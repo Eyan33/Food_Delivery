@@ -10,6 +10,20 @@
     <title>Register | Food Delivery</title>
 
     <link rel="stylesheet" href="../../assets/css/style.css">
+    <style>
+        .password-input-wrap { position: relative; }
+        .password-input-wrap input { padding-right: 48px; }
+        .password-visibility-toggle {
+            position: absolute; top: 50%; right: 10px; transform: translateY(-50%);
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 32px; height: 32px; padding: 0;
+            border: 0; border-radius: 6px; background: transparent;
+            color: #666; cursor: pointer;
+        }
+        .password-visibility-toggle:hover { color: var(--primary, #ff5a1f); background: #fff0e9; }
+        .password-visibility-toggle:focus-visible { outline: 2px solid var(--primary, #ff5a1f); outline-offset: 2px; }
+        .password-visibility-toggle svg { width: 20px; height: 20px; }
+    </style>
 </head>
 
 <body>
@@ -116,14 +130,25 @@
                         Password
                     </label>
 
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        minlength="8"
-                        placeholder="Create a password"
-                        required
-                    >
+                    <div class="password-input-wrap">
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            minlength="8"
+                            placeholder="Create a password"
+                            autocomplete="new-password"
+                            required
+                        >
+                        <button class="password-visibility-toggle" type="button" data-password-toggle="password"
+                            aria-label="Show password" aria-pressed="false" title="Show password">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
 
                 </div>
 
@@ -136,14 +161,25 @@
                         Confirm Password
                     </label>
 
-                    <input
-                        type="password"
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        minlength="8"
-                        placeholder="Confirm password"
-                        required
-                    >
+                    <div class="password-input-wrap">
+                        <input
+                            type="password"
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            minlength="8"
+                            placeholder="Confirm password"
+                            autocomplete="new-password"
+                            required
+                        >
+                        <button class="password-visibility-toggle" type="button" data-password-toggle="confirmPassword"
+                            aria-label="Show confirm password" aria-pressed="false" title="Show password">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
 
                 </div>
 
