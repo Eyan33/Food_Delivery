@@ -1370,6 +1370,7 @@
         gap: 10px;
     }
 
+    .customer-logo { font-size: 20px; }
     .customer-logo {
         font-size: 20px;
     }
@@ -1381,6 +1382,7 @@
         padding: 6px;
     }
 
+    .delivery-location .location-text { min-width: 0; }
     .delivery-location .location-text {
         min-width: 0;
     }
@@ -1392,6 +1394,7 @@
         white-space: nowrap;
     }
 
+    .customer-navigation { display: none !important; }
     .customer-navigation {
         display: none !important;
     }
