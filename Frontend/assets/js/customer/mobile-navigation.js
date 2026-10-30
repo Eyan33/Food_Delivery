@@ -1,73 +1,29 @@
 (() => {
-    "use strict";
-
-    const isMobile = () => window.matchMedia("(max-width: 900px)").matches;
-
-    const init = () => {
-        const button = document.getElementById("mobileMenuButton");
-        const nav = document.getElementById("mobileNavigation");
-        if (!button || !nav) return;
-
-        const isOpen = () => nav.classList.contains("open");
-
-        const closeMenu = (returnFocus = false) => {
-            nav.classList.remove("open", "active", "show");
-            button.classList.remove("open");
-            button.textContent = "☰";
-            button.setAttribute("aria-label", "Open menu");
-            button.setAttribute("aria-expanded", "false");
-            nav.setAttribute("aria-hidden", String(isMobile()));
-            if (returnFocus) button.focus();
-        };
-
-        const openMenu = () => {
-            if (!isMobile()) return;
-            nav.classList.add("open");
-            button.classList.add("open");
-            button.textContent = "×";
-            button.setAttribute("aria-label", "Close menu");
-            button.setAttribute("aria-expanded", "true");
-            nav.setAttribute("aria-hidden", "false");
-        };
-
-        // Capture the click before other page scripts can cancel or duplicate it.
-        document.addEventListener("click", event => {
-            const target = event.target;
-            if (!(target instanceof Element)) return;
-
-            const clickedButton = target.closest("#mobileMenuButton");
-            if (clickedButton) {
-                event.preventDefault();
-                event.stopPropagation();
-                event.stopImmediatePropagation();
-                if (isOpen()) closeMenu();
-                else openMenu();
-                return;
-            }
-
-            if (!isOpen()) return;
-            if (target.closest("#mobileNavigation a")) {
-                closeMenu();
-                return;
-            }
-            if (!nav.contains(target)) closeMenu();
-        }, true);
-
-        document.addEventListener("keydown", event => {
-            if (event.key === "Escape" && isOpen()) closeMenu(true);
-        });
-
-        window.addEventListener("resize", () => {
-            if (!isMobile()) closeMenu();
-            else nav.setAttribute("aria-hidden", String(!isOpen()));
-        });
-
-        closeMenu();
-    };
-
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", init, { once: true });
-    } else {
-        init();
-    }
+ "use strict";
+ const mobileQuery = window.matchMedia("(max-width: 900px)");
+ function initializeCustomerNavigation() {
+  const button=document.getElementById("mobileMenuButton"), menu=document.getElementById("mobileNavigation");
+  if(!button||!menu)return;
+  const setOpen=(open,returnFocus=false)=>{
+   const shouldOpen=Boolean(open&&mobileQuery.matches);
+   menu.classList.toggle("is-open",shouldOpen);button.classList.toggle("is-open",shouldOpen);
+   button.setAttribute("aria-expanded",String(shouldOpen));button.setAttribute("aria-label",shouldOpen?"Close menu":"Open menu");
+   button.innerHTML=shouldOpen?'<span aria-hidden="true">×</span>':'<span aria-hidden="true">☰</span>';
+   menu.setAttribute("aria-hidden",String(!shouldOpen));if(returnFocus)button.focus();
+  };
+  const currentPage=window.location.pathname.split("/").filter(Boolean).pop()||"home.html";
+  const activePage=({"restaurant.html":"restaurants.html","order-details.html":"orders.html","checkout.html":"cart.html"})[currentPage]||currentPage;
+  document.querySelectorAll("[data-customer-nav]").forEach(link=>{
+   const targetPage=link.getAttribute("href")?.split("/").pop(),active=targetPage===activePage;
+   link.classList.toggle("active",active);if(active)link.setAttribute("aria-current","page");else link.removeAttribute("aria-current");
+  });
+  button.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();setOpen(button.getAttribute("aria-expanded")!=="true");});
+  menu.addEventListener("click",event=>{if(event.target.closest("a"))setOpen(false);});
+  document.addEventListener("click",event=>{if(!menu.contains(event.target)&&!button.contains(event.target))setOpen(false);});
+  document.addEventListener("keydown",event=>{if(event.key==="Escape"&&button.getAttribute("aria-expanded")==="true")setOpen(false,true);});
+  mobileQuery.addEventListener?.("change",()=>setOpen(false));
+  window.addEventListener("resize",()=>{if(!mobileQuery.matches)setOpen(false);});
+  setOpen(false);
+ }
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initializeCustomerNavigation,{once:true});else initializeCustomerNavigation();
 })();
