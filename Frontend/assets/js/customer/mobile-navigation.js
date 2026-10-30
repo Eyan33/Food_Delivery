@@ -31,6 +31,7 @@
             nav.setAttribute("aria-hidden", "false");
         };
 
+        // Only this script handles the customer menu button.
         button.addEventListener("click", event => {
             event.preventDefault();
             event.stopPropagation();

@@ -1371,6 +1371,9 @@
     }
 
     .customer-logo { font-size: 20px; }
+    .customer-logo {
+        font-size: 20px;
+    }
 
     .delivery-location {
         margin-left: auto;
@@ -1380,6 +1383,9 @@
     }
 
     .delivery-location .location-text { min-width: 0; }
+    .delivery-location .location-text {
+        min-width: 0;
+    }
 
     .delivery-location .location-text strong {
         max-width: 100%;
@@ -1389,6 +1395,9 @@
     }
 
     .customer-navigation { display: none !important; }
+    .customer-navigation {
+        display: none !important;
+    }
 
     .mobile-menu-button {
         display: inline-flex !important;
