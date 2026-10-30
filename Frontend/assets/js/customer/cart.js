@@ -129,6 +129,34 @@ document.addEventListener("DOMContentLoaded", () => {
         return article;
     }
 
+    function updateRestaurantHeader() {
+        if (restaurantHeader) {
+            restaurantHeader.textContent = cart.length
+                ? (cart[0].restaurant_name || "Your restaurant")
+                : "Your restaurant";
+        }
+
+        if (!restaurantStatus) return;
+
+        restaurantStatus.classList.remove("is-open", "is-closed", "open", "closed");
+
+        if (cart.length === 0) {
+            restaurantStatus.textContent = "Restaurant";
+            return;
+        }
+
+        const isOpen = cart[0].restaurant_is_open;
+        if (isOpen === true) {
+            restaurantStatus.textContent = "Open";
+            restaurantStatus.classList.add("is-open");
+        } else if (isOpen === false) {
+            restaurantStatus.textContent = "Closed";
+            restaurantStatus.classList.add("is-closed");
+        } else {
+            restaurantStatus.textContent = "Restaurant";
+        }
+    }
+
     function renderCart() {
         if (!cartItemsContainer) return;
         cartItemsContainer.replaceChildren();
