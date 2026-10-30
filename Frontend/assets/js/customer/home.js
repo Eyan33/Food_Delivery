@@ -449,29 +449,6 @@ if (greeting) {
     restaurantGrid?.addEventListener("keydown", event => { const card = event.target.closest("[data-restaurant-url]"); if (card && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); window.location.href = card.dataset.restaurantUrl; } });
     window.addEventListener("storage", event => { if (event.key === "foodDeliveryCart") updateCartCount(); });
 
-    /* ---------------------------------------------------------
-       MOBILE NAVIGATION
-       --------------------------------------------------------- */
-
-    const mobileMenuButton =
-        document.getElementById("mobileMenuButton");
-
-    const mobileNavigation =
-        document.getElementById("mobileNavigation");
-
-    if (mobileMenuButton && mobileNavigation) {
-        mobileMenuButton.addEventListener("click", () => {
-            const isExpanded =
-                mobileMenuButton.getAttribute("aria-expanded") === "true";
-
-            mobileMenuButton.setAttribute(
-                "aria-expanded",
-                String(!isExpanded)
-            );
-
-            mobileNavigation.classList.toggle("active", !isExpanded);
-        });
-    }
 
     /* ---------------------------------------------------------
        INITIALIZE HOMEPAGE
