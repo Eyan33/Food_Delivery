@@ -19,85 +19,16 @@
     ====================================================== -->
 
     <header class="customer-header">
+  <div class="customer-header-container">
+    <a href="home.html" class="customer-logo" aria-label="FoodDelivery home">Food<span>Delivery</span></a>
+    <a href="addresses.html" class="delivery-location-link" aria-label="Manage delivery addresses"><span class="delivery-location"><span class="location-icon" aria-hidden="true">📍</span><span class="location-text"><small>Deliver to</small><strong>Select location</strong></span></span></a>
+    <nav class="customer-navigation" aria-label="Customer navigation"><a href="home.html" data-customer-nav>Home</a><a href="restaurants.html" data-customer-nav>Restaurants</a><a href="cart.html" data-customer-nav>Cart</a><a href="orders.html" data-customer-nav>Orders</a><a href="addresses.html" data-customer-nav>Addresses</a><a href="profile.html" data-customer-nav>Profile</a><a href="../auth/login.html" data-customer-logout>Logout</a></nav>
+    <button type="button" class="mobile-menu-button" id="mobileMenuButton" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNavigation"><span aria-hidden="true">☰</span></button>
+  </div>
+  <nav class="mobile-navigation" id="mobileNavigation" aria-label="Customer navigation" aria-hidden="true"><a href="home.html" data-customer-nav>Home</a><a href="restaurants.html" data-customer-nav>Restaurants</a><a href="cart.html" data-customer-nav>Cart</a><a href="orders.html" data-customer-nav>Orders</a><a href="addresses.html" data-customer-nav>Addresses</a><a href="profile.html" data-customer-nav>Profile</a><a href="../auth/login.html" data-customer-logout>Logout</a></nav>
+</header>
 
-        <div class="customer-header-container">
-
-            <a href="home.html" class="customer-logo">
-                Food<span>Delivery</span>
-            </a>
-
-            <!-- Delivery Location -->
-            <a href="addresses.html" class="delivery-location"> 
-                    <span class="location-icon">📍</span>
-
-                    <span class="location-text">
-                        <small>Deliver to</small>
-                        <strong>Select location</strong>
-                    </span>
-                 </a>
-
-            <nav class="customer-navigation">
-
-                <a href="home.html">
-                    Home
-                </a>
-
-                <a href="restaurants.html">
-                    Restaurants
-                </a>
-
-                <a href="orders.html" class="active">
-                    Orders
-                </a>
-
-                <a href="profile.html">
-                    Profile
-                </a>
-
-                <a href="../auth/login.html">
-                    Logout
-                </a>
-
-            </nav>
-
-            <button type="button" class="mobile-menu-button" id="mobileMenuButton" aria-label="Open menu">
-                ☰
-            </button>
-
-        </div>
-
-        <nav class="mobile-navigation" id="mobileNavigation">
-
-            <a href="home.html">
-                Home
-            </a>
-
-            <a href="restaurants.html">
-                Restaurants
-            </a>
-
-            <a href="orders.html" class="active">
-                Orders
-            </a>
-
-            <a href="profile.html">
-                Profile
-            </a>
-
-            <a href="../auth/login.html">
-                Logout
-            </a>
-
-        </nav>
-
-    </header>
-
-
-    <!-- =====================================================
-         MAIN CONTENT
-    ====================================================== -->
-
-    <main class="order-details-page">
+<main class="order-details-page">
 
         <div class="order-details-container">
 
