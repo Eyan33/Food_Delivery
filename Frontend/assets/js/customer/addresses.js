@@ -10,9 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const API_BASE_URL = (window.FOOD_DELIVERY_API_BASE || document.querySelector('meta[name="api-base-url"]')?.content?.trim() || "http://localhost:5000/api").replace(/\/+$/, "");
     const TOKEN_KEY = "foodDeliveryAccessToken";
 
-    const mobileMenuButton = document.getElementById("mobileMenuButton");
-    const mobileNavigation = document.getElementById("mobileNavigation");
-
     const addressModal = document.getElementById("addressModal");
     const addressModalOverlay = document.getElementById("addressModalOverlay");
     const addAddressButton = document.getElementById("addAddressButton");
@@ -187,27 +184,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return "📍";
     }
 
-    /* =====================================================
-       MOBILE NAVIGATION
-    ===================================================== */
-
-    if (mobileMenuButton && mobileNavigation) {
-        mobileMenuButton.addEventListener("click", () => {
-            mobileNavigation.classList.toggle("open");
-
-            mobileMenuButton.setAttribute(
-                "aria-expanded",
-                mobileNavigation.classList.contains("open") ? "true" : "false"
-            );
-        });
-
-        mobileNavigation.querySelectorAll("a").forEach(link => {
-            link.addEventListener("click", () => {
-                mobileNavigation.classList.remove("open");
-                mobileMenuButton.setAttribute("aria-expanded", "false");
-            });
-        });
-    }
 
     /* =====================================================
        RENDER ADDRESS LIST
