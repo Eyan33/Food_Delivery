@@ -129,6 +129,39 @@ document.addEventListener("DOMContentLoaded", () => {
         return article;
     }
 
+    function updateRestaurantHeader() {
+        if (!restaurantHeader && !restaurantStatus) return;
+
+        if (cart.length === 0) {
+            if (restaurantHeader) restaurantHeader.textContent = "Your restaurant";
+            if (restaurantStatus) {
+                restaurantStatus.textContent = "Restaurant";
+                restaurantStatus.classList.remove("is-open", "is-closed", "open", "closed");
+            }
+            return;
+        }
+
+        const item = cart[0];
+        if (restaurantHeader) {
+            restaurantHeader.textContent = item.restaurant_name || "Your restaurant";
+        }
+
+        if (restaurantStatus) {
+            const isOpen = item.restaurant_is_open;
+            restaurantStatus.classList.remove("is-open", "is-closed", "open", "closed");
+
+            if (isOpen === true) {
+                restaurantStatus.textContent = "Open";
+                restaurantStatus.classList.add("is-open");
+            } else if (isOpen === false) {
+                restaurantStatus.textContent = "Closed";
+                restaurantStatus.classList.add("is-closed");
+            } else {
+                restaurantStatus.textContent = "Restaurant";
+            }
+        }
+    }
+
     function renderCart() {
         if (!cartItemsContainer) return;
         cartItemsContainer.replaceChildren();
