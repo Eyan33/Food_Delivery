@@ -263,18 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (orderItemsContainer) orderItemsContainer.innerHTML = "<p>Loading order items…</p>";
     if (deliveryInfo) deliveryInfo.innerHTML = "<p>Loading delivery information…</p>";
     if (refreshButton) refreshButton.addEventListener("click", () => loadOrder({manual:true}));
-    const mobileMenuButton = document.getElementById("mobileMenuButton");
-    const mobileNavigation = document.getElementById("mobileNavigation");
-    if (mobileMenuButton && mobileNavigation) {
-        mobileMenuButton.addEventListener("click", () => {
-            mobileNavigation.classList.toggle("active");
-            mobileMenuButton.setAttribute("aria-expanded", String(mobileNavigation.classList.contains("active")));
-        });
-        mobileNavigation.querySelectorAll("a").forEach(link => link.addEventListener("click", () => {
-            mobileNavigation.classList.remove("active");
-            mobileMenuButton.setAttribute("aria-expanded", "false");
-        }));
-    }
+    
     loadOrder();
     window.setInterval(() => { if (!document.hidden && !loading && currentOrder) loadOrder(); }, 30000);
 });
