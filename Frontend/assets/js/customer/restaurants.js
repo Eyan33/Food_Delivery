@@ -268,19 +268,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (resetFiltersButton) resetFiltersButton.addEventListener("click", () => resetFilters(false));
     if (clearAllButton) clearAllButton.addEventListener("click", () => resetFilters(true));
 
-    const mobileMenuButton = document.getElementById("mobileMenuButton");
-    const mobileNavigation = document.getElementById("mobileNavigation");
-    if (mobileMenuButton && mobileNavigation) {
-        mobileMenuButton.setAttribute("aria-expanded", "false");
-        mobileMenuButton.addEventListener("click", () => {
-            const open = mobileNavigation.classList.toggle("active");
-            mobileMenuButton.setAttribute("aria-expanded", String(open));
-        });
-        mobileNavigation.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => {
-            mobileNavigation.classList.remove("active");
-            mobileMenuButton.setAttribute("aria-expanded", "false");
-        }));
-    }
+    
 
     function updateCartCount() {
         if (!cartCount) return;
