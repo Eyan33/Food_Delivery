@@ -1,14 +1,13 @@
 (() => {
     "use strict";
 
+    const isMobile = () => window.matchMedia("(max-width: 900px)").matches;
+
     const init = () => {
         const button = document.getElementById("mobileMenuButton");
         const nav = document.getElementById("mobileNavigation");
+        if (!button || !nav) return;
 
-        if (!button || !nav || button.dataset.drawerReady === "true") return;
-        button.dataset.drawerReady = "true";
-
-        const isMobile = () => window.matchMedia("(max-width: 900px)").matches;
         const isOpen = () => nav.classList.contains("open");
 
         const closeMenu = (returnFocus = false) => {
@@ -31,28 +30,28 @@
             nav.setAttribute("aria-hidden", "false");
         };
 
-        // Only this script handles the customer menu button.
-        button.addEventListener("click", event => {
-            event.preventDefault();
-            event.stopPropagation();
-            if (isOpen()) closeMenu();
-            else openMenu();
-        });
-
-        nav.addEventListener("click", event => {
-            const target = event.target;
-            if (target instanceof Element && target.closest("a") && isMobile()) {
-                closeMenu();
-            }
-        });
-
+        // Capture the click before other page scripts can cancel or duplicate it.
         document.addEventListener("click", event => {
             const target = event.target;
-            if (isOpen() && target instanceof Element &&
-                !nav.contains(target) && !button.contains(target)) {
-                closeMenu();
+            if (!(target instanceof Element)) return;
+
+            const clickedButton = target.closest("#mobileMenuButton");
+            if (clickedButton) {
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+                if (isOpen()) closeMenu();
+                else openMenu();
+                return;
             }
-        });
+
+            if (!isOpen()) return;
+            if (target.closest("#mobileNavigation a")) {
+                closeMenu();
+                return;
+            }
+            if (!nav.contains(target)) closeMenu();
+        }, true);
 
         document.addEventListener("keydown", event => {
             if (event.key === "Escape" && isOpen()) closeMenu(true);

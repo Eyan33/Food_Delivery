@@ -1449,10 +1449,12 @@
     .mobile-navigation.open,
     .mobile-navigation.active,
     .mobile-navigation.show {
-        transform: translateY(0);
-        opacity: 1;
-        visibility: visible;
-        pointer-events: auto;
+        display: flex !important;
+        transform: translateY(0) !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        z-index: 1201;
     }
 
     .mobile-navigation a {
