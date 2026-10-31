@@ -2187,7 +2187,9 @@ async function deactivateRider(riderId, options = {}) {
                     break;
 
                 case "delete":
-                    await deleteRider(riderId);
+                    // Never bypass the archive workflow, even if an older
+                    // row action still emits the legacy "delete" action.
+                    window.location.href = `deleted-accounts.html?type=rider&id=${encodeURIComponent(riderId)}`;
                     break;
 
                 case "permanent-delete":
