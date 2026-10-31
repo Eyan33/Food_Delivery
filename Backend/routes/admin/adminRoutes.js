@@ -32,12 +32,12 @@ router.delete("/deleted-accounts/:type/:id", permanentAccountDeletionController.
 router.get("/reviews", adminController.getReviews);
 router.patch("/reviews/:id/visibility", adminController.updateReviewVisibility);
 
-router.get("/", adminController.getAdmins, requireSuperAdmin);
-router.post("/", adminController.createAdmin, requireSuperAdmin);
+router.get("/", requireSuperAdmin, adminController.getAdmins);
+router.post("/", requireSuperAdmin, adminController.createAdmin);
 
-router.get("/:id", adminController.getAdmin, requireSuperAdmin);
-router.put("/:id", adminController.updateAdmin, requireSuperAdmin);
-router.patch("/:id/activate", adminController.activateAdmin, requireSuperAdmin);
-router.delete("/:id", adminController.deactivateAdmin, requireSuperAdmin);
+router.get("/:id", requireSuperAdmin, adminController.getAdmin);
+router.put("/:id", requireSuperAdmin, adminController.updateAdmin);
+router.patch("/:id/activate", requireSuperAdmin, adminController.activateAdmin);
+router.delete("/:id", requireSuperAdmin, adminController.deactivateAdmin);
 
 module.exports = router;
