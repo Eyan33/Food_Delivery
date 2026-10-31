@@ -48,9 +48,9 @@
   if(loading)return;loading=true;
   $("apply").disabled=$("export").disabled=true;$("status").classList.remove("error");$("status").textContent="Loading deleted accounts…";
   try{
-   const data=await requestPage(page,25),pagination=data.pagination||{};
+   let data=await requestPage(page,25),pagination=data.pagination||{};
    pages=Math.max(1,Number(pagination.pages)||1);
-   if(page>pages){page=pages;return await load();}
+   if(page>pages){page=pages;data=await requestPage(page,25);pagination=data.pagination||{};pages=Math.max(1,Number(pagination.pages)||1);}
    const rows=Array.isArray(data.accounts)?data.accounts:[];
    $("rows").innerHTML=rows.length?rows.map(row=>'<tr><td>'+esc(row.deleted_at?new Date(row.deleted_at).toLocaleString():"")+'</td><td>'+esc(row.account_type)+'</td><td>'+esc(row.original_account_id)+'</td><td>'+esc(row.account_label)+'</td><td>'+esc(row.deleted_by_label||"—")+'</td><td>'+esc(row.deletion_reason||"—")+'</td></tr>').join(""):'<tr><td class="deleted-empty" colspan="6">No deleted accounts match these filters.</td></tr>';
    $("status").textContent=Number(pagination.total||0)+" deleted account(s) found.";
