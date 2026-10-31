@@ -21,12 +21,12 @@ async function listDeletedAccounts(req, res) {
 
         // Search only audit metadata. Never search or return archived account payloads.
         if (search) {
-            values.push("%" + search.replace(/[\\%_]/g, "\\$&") + "%");
+            values.push("%" + search + "%");
             const placeholder = "$" + values.length;
-            where.push("(da.account_label ILIKE " + placeholder + " ESCAPE '\\\\' OR " +
-                "da.deletion_reason ILIKE " + placeholder + " ESCAPE '\\\\' OR " +
-                "da.account_type ILIKE " + placeholder + " ESCAPE '\\\\' OR " +
-                "da.original_account_id::text ILIKE " + placeholder + " ESCAPE '\\\\')");
+            where.push("(da.account_label ILIKE " + placeholder + " OR " +
+                "da.deletion_reason ILIKE " + placeholder + " OR " +
+                "da.account_type ILIKE " + placeholder + " OR " +
+                "da.original_account_id::text ILIKE " + placeholder + ")");
         }
 
         const clause = where.length ? " WHERE " + where.join(" AND ") : "";
