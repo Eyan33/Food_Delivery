@@ -149,7 +149,7 @@ async function permanentlyDeleteAccount(req, res) {
         const found = await client.query(config.select, [id]);
         if (!found.rows.length) {
             await client.query("ROLLBACK");
-            return res.status(404).json({ success: false, message: "No ${type} account was found for ID " + id + "." });
+            return res.status(404).json({ success: false, message: "No " + type + " account was found for ID " + id + "." });
         }
         const account = found.rows[0];
         const snapshot = account.account_data;
