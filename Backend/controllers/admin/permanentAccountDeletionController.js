@@ -138,6 +138,9 @@ async function permanentlyDeleteAccount(req, res) {
     if (!/^[1-9][0-9]*$/.test(id)) {
         return res.status(400).json({ success: false, message: "Account ID must be a positive integer." });
     }
+    if (reason.length < 3) {
+        return res.status(400).json({ success: false, message: "A deletion reason of at least 3 characters is required." });
+    }
     if (reason.length > 1000) {
         return res.status(400).json({ success: false, message: "Deletion reason must be 1,000 characters or fewer." });
     }
@@ -152,6 +155,26 @@ async function permanentlyDeleteAccount(req, res) {
             return res.status(404).json({ success: false, message: "No " + type + " account was found for ID " + id + "." });
         }
         const account = found.rows[0];
+
+        // Preserve live relational order/payment history. Until historical account
+        // references can be anonymized safely, block customer/restaurant deletion
+        // when orders exist; administrators should deactivate those accounts instead.
+        if (type === "customer" || type === "restaurant") {
+            const history = await client.query(
+                type === "customer"
+                    ? "SELECT COUNT(*)::int AS total FROM public.orders WHERE customer_id = $1"
+                    : "SELECT COUNT(*)::int AS total FROM public.orders WHERE restaurant_id = $1",
+                [id]
+            );
+            if (Number(history.rows[0]?.total || 0) > 0) {
+                await client.query("ROLLBACK");
+                return res.status(409).json({
+                    success: false,
+                    message: "This account has order history. To preserve order, payment, and financial records, deactivate it instead of permanently deleting it."
+                });
+            }
+        }
+
         const snapshot = account.account_data;
         const label = account.account_label || type + " #" + id;
 
@@ -163,15 +186,9 @@ async function permanentlyDeleteAccount(req, res) {
             [account.account_id, type, label, JSON.stringify(snapshot), req.user?.id || null, reason || null]
         );
 
-        // Orders reference customer and restaurant with RESTRICT constraints. Their
-        // items/payments are captured above before these parent orders are removed.
-        // Rider deletion intentionally does not remove orders; its FK sets rider_id NULL.
-        if (type === "customer") {
-            await client.query("DELETE FROM public.orders WHERE customer_id = $1", [id]);
-        } else if (type === "restaurant") {
-            await client.query("DELETE FROM public.orders WHERE restaurant_id = $1", [id]);
-        }
-
+        // Customer/restaurant accounts with order history are blocked above, so this
+        // path never deletes orders or their related order items/payment records.
+        // Rider deletion preserves orders; its rider foreign key is expected to SET NULL.
         await client.query(config.delete, [id]);
 
         // Remove the restaurant owner's login only when no other restaurant remains.
