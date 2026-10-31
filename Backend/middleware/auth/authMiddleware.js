@@ -51,7 +51,8 @@ async function authenticateToken(req, res, next) {
                 email,
                 phone,
                 role,
-                is_active
+                is_active,
+                must_change_password
             FROM users
             WHERE id = $1
             LIMIT 1
@@ -73,6 +74,10 @@ async function authenticateToken(req, res, next) {
                 success: false,
                 message: "This account has been deactivated"
             });
+        }
+
+        if (user.must_change_password && !/\/auth\/me\/password(?:\?|$)/.test(req.originalUrl || req.url || "")) {
+            return res.status(403).json({ success: false, code: "PASSWORD_CHANGE_REQUIRED", message: "Change your temporary password before using the portal." });
         }
 
         req.user = user;
