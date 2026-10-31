@@ -132,7 +132,7 @@
 </body></html
 <section class="admin-content"><div class="deleted-wrap">
 <h1>Deleted Accounts</h1>
-<p>This read-only register records account deletion details for audit purposes. Personal-data snapshots are not displayed or exported.</p>
+<p class="deleted-intro">This read-only register records account deletion details for audit purposes. Personal-data snapshots are not displayed or exported.</p>
 <section class="deleted-card" aria-label="Deleted accounts register">
 <div class="deleted-filters">
 <input id="search" type="search" placeholder="Search account, ID, or reason" aria-label="Search deleted accounts">
@@ -144,10 +144,13 @@
 <div class="deleted-table-wrap"><table><thead><tr><th>Deleted at</th><th>Type</th><th>Original ID</th><th>Account</th><th>Deleted by</th><th>Reason</th></tr></thead><tbody id="rows"></tbody></table></div>
 <div class="deleted-pagination"><button id="prev" type="button">Previous</button><span id="pageLabel">Page 1</span><button id="next" type="button">Next</button></div>
 </section>
-</main>
+</div></section></main>
+
 <script src="../../assets/js/api-config.js"></script>
 <script src="../../assets/js/main.js"></script>
 <script src="../../assets/js/auth/auth-api.js"></script>
+<script src="../../assets/js/admin/admin-header.js" defer></script>
+<script src="../../assets/js/admin/admin-notifications.js" defer></script>
 <script>
 (() => {
  const $=id=>document.getElementById(id); let page=1,pages=1,loading=false;
