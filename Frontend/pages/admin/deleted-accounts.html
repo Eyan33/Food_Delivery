@@ -70,6 +70,7 @@
 <script src="../../assets/js/auth/auth-api.js"></script>
 <script src="../../assets/js/admin/admin-header.js" defer></script>
 <script src="../../assets/js/admin/admin-notifications.js" defer></script>
+
 <script src="../../assets/js/admin/deleted-accounts.js" defer></script>
 </body></html
 <section class="admin-content"><div class="deleted-wrap">
@@ -93,63 +94,5 @@
 <script src="../../assets/js/auth/auth-api.js"></script>
 <script src="../../assets/js/admin/admin-header.js" defer></script>
 <script src="../../assets/js/admin/admin-notifications.js" defer></script>
-<script>
-(() => {
- const $=id=>document.getElementById(id); let page=1,pages=1,loading=false;
- const esc=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
- function token(){return localStorage.getItem("token")||localStorage.getItem("authToken")||sessionStorage.getItem("token")||"";}
- async function readPayload(response){const body=await response.text();try{return body?JSON.parse(body):{};}catch(_){throw new Error("The server returned an invalid response (HTTP "+response.status+").");}}
- function queryParams(targetPage,limit){return new URLSearchParams({page:String(targetPage),limit:String(limit),search:$("search").value.trim(),type:$("type").value});}
- async function requestPage(targetPage,limit){
-  const response=await fetch((window.FOOD_DELIVERY_API_BASE||"")+"/admins/deleted-accounts?"+queryParams(targetPage,limit),{headers:{Authorization:"Bearer "+token(),"Accept":"application/json"}});
-  const payload=await readPayload(response);
-  if(response.status===401||response.status===403)throw new Error("Your admin session may have expired or you do not have permission. Sign in again and retry.");
-  if(!response.ok||!payload.success)throw new Error(payload.message||"Could not load deleted-account records.");
-  return payload.data;
- }
- async function load(){
-  if(loading)return;loading=true;
-  $("apply").disabled=$("export").disabled=true;$("status").classList.remove("error");$("status").textContent="Loading deleted accounts…";
-  try{
-   let data=await requestPage(page,25),pagination=data.pagination||{};
-   pages=Math.max(1,Number(pagination.pages)||1);
-   if(page>pages){page=pages;data=await requestPage(page,25);pagination=data.pagination||{};pages=Math.max(1,Number(pagination.pages)||1);}
-   const rows=Array.isArray(data.accounts)?data.accounts:[];
-   $("rows").innerHTML=rows.length?rows.map(row=>'<tr><td>'+esc(row.deleted_at?new Date(row.deleted_at).toLocaleString():"")+'</td><td>'+esc(row.account_type)+'</td><td>'+esc(row.original_account_id)+'</td><td>'+esc(row.account_label)+'</td><td>'+esc(row.deleted_by_label||"—")+'</td><td>'+esc(row.deletion_reason||"—")+'</td></tr>').join(""):'<tr><td class="deleted-empty" colspan="6">No deleted accounts match these filters.</td></tr>';
-   $("status").textContent=Number(pagination.total||0)+" deleted account(s) found.";
-   $("pageLabel").textContent="Page "+page+" of "+pages;$("prev").disabled=page<=1;$("next").disabled=page>=pages;
-  }catch(error){$("rows").innerHTML="";$("status").classList.add("error");$("status").textContent=(error.message||"Unable to load records.")+" Use Search to retry.";$("pageLabel").textContent="Page "+page;$("prev").disabled=page<=1;$("next").disabled=true;}
-  finally{loading=false;$("apply").disabled=false;$("export").disabled=false;}
- }
- function csvCell(value){
-  let text=String(value??"");
-  if(/^[\u0000-\u0020]*[=+@-]/.test(text))text="'"+text;
-  return '"'+text.replace(/"/g,'""')+'"';
- }
- async function exportAllMatching(){
-  if(loading)return;loading=true;const button=$("export");button.disabled=$("apply").disabled=true;button.textContent="Exporting…";
-  try{
-   const all=[];let exportPage=1,exportPages=1;
-   do{
-    const data=await requestPage(exportPage,100),pagination=data.pagination||{};
-    all.push(...(Array.isArray(data.accounts)?data.accounts:[]));exportPages=Math.max(1,Number(pagination.pages)||1);exportPage++;
-   }while(exportPage<=exportPages);
-   if(!all.length){$("status").textContent="No deleted accounts match the current filters; nothing was exported.";return;}
-   const columns=[["deleted_at","Deleted at"],["account_type","Account type"],["original_account_id","Original account ID"],["account_label","Account"],["deleted_by_label","Deleted by"],["deletion_reason","Deletion reason"]];
-   const csv=[columns.map(c=>csvCell(c[1])).join(","),...all.map(row=>columns.map(c=>csvCell(c[0]==="deleted_at"&&row[c[0]]?new Date(row[c[0]]).toISOString():row[c[0]] )).join(","))].join("\r\n");
-   const blob=new Blob(["\ufeff",csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
-   a.href=url;a.download="deleted-accounts-"+new Date().toISOString().slice(0,10)+".csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-   $("status").textContent="Exported "+all.length+" matching audit record(s). Snapshot data was not included.";
-  }catch(error){$("status").classList.add("error");$("status").textContent=(error.message||"Could not export records.")+" Retry the export.";}
-  finally{loading=false;button.disabled=$("apply").disabled=false;button.textContent="Export All Matching CSV";}
- }
- $("apply").addEventListener("click",()=>{page=1;load();});
- $("search").addEventListener("keydown",e=>{if(e.key==="Enter"){page=1;load();}});
- $("type").addEventListener("change",()=>{page=1;load();});
- $("prev").addEventListener("click",()=>{if(page>1){page--;load();}});
- $("next").addEventListener("click",()=>{if(page<pages){page++;load();}});
- $("export").addEventListener("click",exportAllMatching);
- load();
-})();
-</script>
+
 </body></html>
