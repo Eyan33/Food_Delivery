@@ -14,24 +14,13 @@
 <header class="admin-header"><div class="admin-header-inner"><a href="dashboard.html">Admin Dashboard</a><nav><a href="customers.html">Customers</a><a href="restaurants.html">Restaurants</a><a href="riders.html">Riders</a><a href="deleted-accounts.html" aria-current="page">Deleted Accounts</a></nav></div></header>
 <main class="deleted-wrap">
 <h1>Deleted Accounts Archive</h1>
-<p>Review archived account snapshots and, in the separate section below, permanently remove an active account. Archived records are retained for audit and history.</p>
-<section class="deleted-card" style="margin-bottom:18px">
-<h2>Permanently delete an account</h2>
-<p>This is separate from deactivation. The account snapshot is archived in the database before deletion. If related order or payment records prevent deletion, the entire operation is rolled back.</p>
-<div class="deleted-filters">
-<select id="deleteType" aria-label="Account type to permanently delete"><option value="customer">Customer</option><option value="restaurant">Restaurant</option><option value="rider">Rider</option></select>
-<input id="deleteId" type="number" min="1" step="1" placeholder="Account ID" aria-label="Account ID to permanently delete" required>
-<input id="deleteReason" type="text" maxlength="1000" placeholder="Reason (optional)" aria-label="Deletion reason">
-<button id="permanentDelete" type="button" style="background:#a12622">Permanently delete</button>
-</div>
-<div id="deleteStatus" class="deleted-status" role="status"></div>
-</section>
+<p>This is a read-only archive of account snapshots retained for audit and historical reference. Permanent deletion is initiated from the relevant Customers, Restaurants, or Riders management table.</p>
 <section class="deleted-card">
 <div class="deleted-filters">
 <input id="search" type="search" placeholder="Search name, email, or details" aria-label="Search archived accounts">
 <select id="type" aria-label="Account type"><option value="">All account types</option><option value="customer">Customer</option><option value="restaurant">Restaurant</option><option value="rider">Rider</option></select>
 <button id="apply" type="button">Search</button>
-<button id="export" type="button">Export Current Page CSV</button>
+<button id="export" type="button">Export All Matching CSV</button>
 </div>
 <div id="status" class="deleted-status" role="status">Loading archived accounts…</div>
 <div class="deleted-table-wrap"><table><thead><tr><th>Deleted at</th><th>Type</th><th>Original ID</th><th>Account</th><th>Deleted by</th><th>Reason</th><th>Snapshot</th></tr></thead><tbody id="rows"></tbody></table></div>
@@ -61,44 +50,32 @@
   }catch(error){$("rows").innerHTML="";$("status").textContent=error.message;}
  }
  function csvCell(value){return '"'+String(value??"").replace(/"/g,'""')+'"';}
- // Preselect an account when an admin arrives from a customer, restaurant, or rider table.
- const incoming=new URLSearchParams(window.location.search);
- const incomingType=incoming.get("type");
- const incomingId=incoming.get("id");
- if(["customer","restaurant","rider"].includes(incomingType)){
-  $("deleteType").value=incomingType;
- }
- if(incomingId && /^[1-9][0-9]*$/.test(incomingId)){
-  $("deleteId").value=incomingId;
-  $("deleteStatus").textContent="Account selected. Verify the ID and enter an optional reason before permanently deleting.";
- }
- $("permanentDelete").addEventListener("click",async()=>{
-  const type=$("deleteType").value;const id=String($("deleteId").value||"").trim();const reason=$("deleteReason").value.trim();
-  if(!/^[1-9][0-9]*$/.test(id)){ $("deleteStatus").textContent="Enter a valid positive account ID.";return; }
-  const confirmed=window.confirm("Permanently delete this "+type+" account #"+id+"? A snapshot will be archived first. This cannot be undone.");
-  if(!confirmed)return;
-  const deleteButton=$("permanentDelete");
-  deleteButton.disabled=true;
-  deleteButton.textContent="Deleting...";
-  $("deleteStatus").textContent="Processing permanent deletion…";
+ async function exportAllMatching(){
+  const button=$("export");button.disabled=true;button.textContent="Exporting…";
   try{
-   const response=await fetch((window.FOOD_DELIVERY_API_BASE||"")+"/admins/deleted-accounts/"+encodeURIComponent(type)+"/"+encodeURIComponent(id),{
-    method:"DELETE",headers:{Authorization:"Bearer "+token(),"Accept":"application/json","Content-Type":"application/json"},
-    body:JSON.stringify({reason})
-   });
-   const payload=await readPayload(response);
-   if(!response.ok||!payload.success)throw new Error(payload.message||"Permanent deletion failed.");
-   $("deleteStatus").textContent=payload.message||"Account permanently deleted and archived.";
-   $("deleteId").value="";$("deleteReason").value="";page=1;load();
-  }catch(error){$("deleteStatus").textContent=error.message;}
-  finally{deleteButton.disabled=false;deleteButton.textContent="Permanently delete";}
- });
+   const all=[];let exportPage=1;let exportPages=1;
+   do{
+    const params=new URLSearchParams({page:String(exportPage),limit:"100",search:$("search").value.trim(),type:$("type").value});
+    const response=await fetch((window.FOOD_DELIVERY_API_BASE||"")+"/admins/deleted-accounts?"+params,{headers:{Authorization:"Bearer "+token(),"Accept":"application/json"}});
+    const payload=await readPayload(response);
+    if(!response.ok||!payload.success)throw new Error(payload.message||"Could not export archive.");
+    all.push(...(payload.data.accounts||[]));exportPages=Math.max(1,Number(payload.data.pagination.pages)||1);exportPage+=1;
+   }while(exportPage<=exportPages);
+   if(!all.length){$("status").textContent="No archived accounts match the current filters.";return;}
+   const columns=["deleted_at","account_type","original_account_id","account_label","deleted_by","deletion_reason","account_data"];
+   const csv=[columns.map(csvCell).join(","),...all.map(row=>columns.map(k=>csvCell(k==="account_data"?JSON.stringify(row[k]):row[k])).join(","))].join("\r\n");
+   const blob=new Blob(["\ufeff",csv],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");
+   a.href=url;a.download="deleted-accounts-all-matching-"+new Date().toISOString().slice(0,10)+".csv";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+   $("status").textContent="Exported "+all.length+" archived account(s) matching the current filters.";
+  }catch(error){$("status").textContent=error.message||"Could not export archive.";}
+  finally{button.disabled=false;button.textContent="Export All Matching CSV";}
+ }
  $("apply").addEventListener("click",()=>{page=1;load();});
  $("search").addEventListener("keydown",e=>{if(e.key==="Enter"){page=1;load();}});
  $("type").addEventListener("change",()=>{page=1;load();});
  $("prev").addEventListener("click",()=>{if(page>1){page--;load();}});
  $("next").addEventListener("click",()=>{if(page<pages){page++;load();}});
- $("export").addEventListener("click",()=>{if(!records.length){$("status").textContent="There are no rows on this page to export.";return;}const columns=["deleted_at","account_type","original_account_id","account_label","deleted_by","deletion_reason","account_data"];const csv=[columns.join(","),...records.map(row=>columns.map(k=>csvCell(k==="account_data"?JSON.stringify(row[k]):row[k])).join(","))].join("\r\n");const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="deleted-accounts-page-"+page+".csv";a.click();URL.revokeObjectURL(url);});
+ $("export").addEventListener("click",exportAllMatching);
  load();
 })();
 </script>

@@ -571,7 +571,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (button.classList.contains("permanent-delete-button")) {
-      window.location.href = "deleted-accounts.html?type=restaurant&id=" + encodeURIComponent(restaurantId);
+      const restaurant = state.restaurants?.find((item) => String(item.id) === String(restaurantId));
+      const name = restaurant?.name || ("restaurant #" + restaurantId);
+      const reason = window.prompt("Enter the reason for permanently deleting " + name + ":");
+      if (reason === null) return;
+      if (reason.trim().length < 3) { showMessage("A deletion reason of at least 3 characters is required.", "error"); return; }
+      if (!window.confirm("Permanently delete " + name + "? This cannot be undone.")) return;
+      if (button.disabled) return;
+      button.disabled = true; button.textContent = "Deleting...";
+      try {
+        const result = await API.request("/admins/deleted-accounts/restaurant/" + encodeURIComponent(restaurantId), {
+          method: "DELETE", authenticated: true, body: { reason: reason.trim() },
+        });
+        showMessage(result?.message || "Restaurant deleted and archived.", "success");
+        await loadRestaurants();
+      } catch (error) {
+        showMessage(error?.message || "Could not delete this restaurant.", "error");
+      } finally { button.disabled = false; button.textContent = "Delete"; }
+      return;
     }
   });
 
