@@ -7,21 +7,6 @@
 const adminSidebar = document.getElementById("adminSidebar");
 const adminMenuButton = document.getElementById("adminMenuButton");
 
-// Only expose Admin Accounts to Super Admin; API authorization is enforced separately.
-if (adminSidebar) {
-    try {
-        const rawUser = localStorage.getItem("foodDeliveryUser") || sessionStorage.getItem("foodDeliveryUser");
-        const currentUser = rawUser ? JSON.parse(rawUser) : null;
-        const navigation = adminSidebar.querySelector(".admin-navigation");
-        if (currentUser?.role === "super_admin" && navigation && !navigation.querySelector('a[href="admins.html"]')) {
-            const link = document.createElement("a");
-            link.href = "admins.html";
-            link.className = "admin-nav-link";
-            link.textContent = "Admin Accounts";
-            navigation.appendChild(link);
-        }
-    } catch (error) { console.warn("Could not initialize Super Admin navigation:", error); }
-}
 const adminCloseMenuButton = document.getElementById(
     "adminCloseMenuButton",
 );
