@@ -18,7 +18,7 @@ async function listDeletedAccounts(req, res) {
         }
         if (search) {
             values.push(`%${search}%`);
-            where.push(`(account_label ILIKE $${values.length} OR account_data::text ILIKE $${values.length})`);
+            where.push(`(account_label ILIKE ${values.length} OR deletion_reason ILIKE ${values.length} OR account_type ILIKE ${values.length} OR original_account_id::text ILIKE ${values.length} OR account_data::text ILIKE ${values.length})`);
         }
 
         const clause = where.length ? `WHERE ${where.join(" AND ")}` : "";
