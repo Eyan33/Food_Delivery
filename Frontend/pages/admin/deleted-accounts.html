@@ -60,6 +60,17 @@
   }catch(error){$("rows").innerHTML="";$("status").textContent=error.message+" Check that you are signed in as an admin.";}
  }
  function csvCell(value){return '"'+String(value??"").replace(/"/g,'""')+'"';}
+ // Preselect an account when an admin arrives from a customer, restaurant, or rider table.
+ const incoming=new URLSearchParams(window.location.search);
+ const incomingType=incoming.get("type");
+ const incomingId=incoming.get("id");
+ if(["customer","restaurant","rider"].includes(incomingType)){
+  $("deleteType").value=incomingType;
+ }
+ if(incomingId && /^[1-9][0-9]*$/.test(incomingId)){
+  $("deleteId").value=incomingId;
+  $("deleteStatus").textContent="Account selected. Verify the ID and enter an optional reason before permanently deleting.";
+ }
  $("permanentDelete").addEventListener("click",async()=>{
   const type=$("deleteType").value;const id=String($("deleteId").value||"").trim();const reason=$("deleteReason").value.trim();
   if(!/^[1-9][0-9]*$/.test(id)){ $("deleteStatus").textContent="Enter a valid positive account ID.";return; }
