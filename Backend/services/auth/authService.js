@@ -138,6 +138,7 @@ async function registerUser({
             phone,
             role,
             is_active,
+            must_change_password,
             created_at,
             updated_at
         `,
@@ -434,7 +435,7 @@ async function changeCurrentUserPassword(userId, currentPassword, newPassword) {
 
     await pool.query(
         `UPDATE users
-         SET password_hash = $1, password_changed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+         SET password_hash = $1, password_changed_at = CURRENT_TIMESTAMP, must_change_password = FALSE, updated_at = CURRENT_TIMESTAMP
          WHERE id = $2`,
         [passwordHash, userId]
     );
