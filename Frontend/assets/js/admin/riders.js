@@ -2187,7 +2187,8 @@ async function deactivateRider(riderId, options = {}) {
                     break;
 
                 case "delete":
-                    await deleteRider(riderId);
+                    // Keep every permanent-delete entry point on the archive workflow.
+                    window.location.href = `deleted-accounts.html?type=rider&id=${encodeURIComponent(riderId)}`;
                     break;
 
                 case "permanent-delete":
