@@ -70,7 +70,14 @@ async function updateSettings(input, adminId) {
         VALUES (1, $1::jsonb, $2, CURRENT_TIMESTAMP)
         ON CONFLICT (id) DO UPDATE
         SET settings = COALESCE(admin_settings.settings, '{}'::jsonb)
-                       || EXCLUDED.settings,
+                       || jsonb_build_object(
+                            'general', COALESCE(admin_settings.settings->'general', '{}'::jsonb) || COALESCE(EXCLUDED.settings->'general', '{}'::jsonb),
+                            'payments', COALESCE(admin_settings.settings->'payments', '{}'::jsonb) || COALESCE(EXCLUDED.settings->'payments', '{}'::jsonb),
+                            'platformFees', COALESCE(admin_settings.settings->'platformFees', '{}'::jsonb) || COALESCE(EXCLUDED.settings->'platformFees', '{}'::jsonb),
+                            'delivery', COALESCE(admin_settings.settings->'delivery', '{}'::jsonb) || COALESCE(EXCLUDED.settings->'delivery', '{}'::jsonb),
+                            'notifications', COALESCE(admin_settings.settings->'notifications', '{}'::jsonb) || COALESCE(EXCLUDED.settings->'notifications', '{}'::jsonb),
+                            'security', COALESCE(admin_settings.settings->'security', '{}'::jsonb) || COALESCE(EXCLUDED.settings->'security', '{}'::jsonb)
+                       ),
             updated_by = EXCLUDED.updated_by,
             updated_at = CURRENT_TIMESTAMP
         RETURNING settings, updated_at
