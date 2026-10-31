@@ -5,47 +5,6 @@ const pool = require("../../config/database");
 const ACCOUNT_CONFIG = {
     customer: {
         select: `SELECT
-                    jsonb_build_object(
-                        'user', to_jsonb(u) - 'password_hash',
-                        'addresses', COALESCE((
-                            SELECT jsonb_agg(to_jsonb(a) ORDER BY a.id)
-                            FROM public.addresses a WHERE a.user_id = u.id
-                        ), '[]'::jsonb),
-                        'carts', COALESCE((
-                            SELECT jsonb_agg(
-                                to_jsonb(c) || jsonb_build_object(
-                                    'items', COALESCE((
-                                        SELECT jsonb_agg(to_jsonb(ci) ORDER BY ci.id)
-                                        FROM public.cart_items ci WHERE ci.cart_id = c.id
-                                    ), '[]'::jsonb)
-                                ) ORDER BY c.id
-                            )
-                            FROM public.carts c WHERE c.user_id = u.id
-                        ), '[]'::jsonb),
-                        'favorites', COALESCE((
-                            SELECT jsonb_agg(to_jsonb(f) ORDER BY f.id)
-                            FROM public.favorites f WHERE f.user_id = u.id
-                        ), '[]'::jsonb),
-                        'reviews', COALESCE((
-                            SELECT jsonb_agg(to_jsonb(rv) ORDER BY rv.id)
-                            FROM public.reviews rv WHERE rv.customer_id = u.id
-                        ), '[]'::jsonb),
-                        'orders', COALESCE((
-                            SELECT jsonb_agg(
-                                to_jsonb(o) || jsonb_build_object(
-                                    'items', COALESCE((
-                                        SELECT jsonb_agg(to_jsonb(oi) ORDER BY oi.id)
-                                        FROM public.order_items oi WHERE oi.order_id = o.id
-                                    ), '[]'::jsonb),
-                                    'payments', COALESCE((
-                                        SELECT jsonb_agg(to_jsonb(p) ORDER BY p.id)
-                                        FROM public.payments p WHERE p.order_id = o.id
-                                    ), '[]'::jsonb)
-                                ) ORDER BY o.id
-                            )
-                            FROM public.orders o WHERE o.customer_id = u.id
-                        ), '[]'::jsonb)
-                    ) AS account_data,
                     u.id AS account_id,
                     concat_ws(' ', u.first_name, u.last_name) AS account_label
                  FROM public.users u
@@ -55,67 +14,15 @@ const ACCOUNT_CONFIG = {
     },
     rider: {
         select: `SELECT
-                    jsonb_build_object(
-                        'user', to_jsonb(u) - 'password_hash',
-                        'rider_profile', to_jsonb(rp),
-                        'assigned_orders', COALESCE((
-                            SELECT jsonb_agg(to_jsonb(o) ORDER BY o.id)
-                            FROM public.orders o WHERE o.rider_id = u.id
-                        ), '[]'::jsonb)
-                    ) AS account_data,
                     u.id AS account_id,
                     concat_ws(' ', u.first_name, u.last_name) AS account_label
                  FROM public.users u
-                 LEFT JOIN public.rider_profiles rp ON rp.user_id = u.id
                  WHERE u.id = $1 AND u.role = 'rider'
                  FOR UPDATE OF u`,
         delete: `DELETE FROM public.users WHERE id = $1 AND role = 'rider'`
     },
     restaurant: {
         select: `SELECT
-                    jsonb_build_object(
-                        'restaurant', to_jsonb(r),
-                        'owner_account', to_jsonb(u) - 'password_hash',
-                        'categories', COALESCE((
-                            SELECT jsonb_agg(to_jsonb(fc) ORDER BY fc.id)
-                            FROM public.food_categories fc WHERE fc.restaurant_id = r.id
-                        ), '[]'::jsonb),
-                        'foods', COALESCE((
-                            SELECT jsonb_agg(to_jsonb(f) ORDER BY f.id)
-                            FROM public.foods f WHERE f.restaurant_id = r.id
-                        ), '[]'::jsonb),
-                        'favorites', COALESCE((
-                            SELECT jsonb_agg(to_jsonb(fav) ORDER BY fav.id)
-                            FROM public.favorites fav WHERE fav.restaurant_id = r.id
-                        ), '[]'::jsonb),
-                        'reviews', COALESCE((
-                            SELECT jsonb_agg(to_jsonb(rv) ORDER BY rv.id)
-                            FROM public.reviews rv WHERE rv.restaurant_id = r.id
-                        ), '[]'::jsonb),
-                        'orders', COALESCE((
-                            SELECT jsonb_agg(
-                                to_jsonb(o) || jsonb_build_object(
-                                    'items', COALESCE((
-                                        SELECT jsonb_agg(to_jsonb(oi) ORDER BY oi.id)
-                                        FROM public.order_items oi WHERE oi.order_id = o.id
-                                    ), '[]'::jsonb),
-                                    'payments', COALESCE((
-                                        SELECT jsonb_agg(to_jsonb(p) ORDER BY p.id)
-                                        FROM public.payments p WHERE p.order_id = o.id
-                                    ), '[]'::jsonb)
-                                ) ORDER BY o.id
-                            )
-                            FROM public.orders o WHERE o.restaurant_id = r.id
-                        ), '[]'::jsonb),
-                        'notifications', COALESCE((
-                            SELECT jsonb_agg(to_jsonb(rn) ORDER BY rn.id)
-                            FROM public.restaurant_notifications rn WHERE rn.restaurant_id = r.id
-                        ), '[]'::jsonb),
-                        'notification_preferences', (
-                            SELECT to_jsonb(rnp) FROM public.restaurant_notification_preferences rnp
-                            WHERE rnp.restaurant_id = r.id
-                        )
-                    ) AS account_data,
                     r.id AS account_id,
                     r.name AS account_label,
                     r.owner_id
@@ -175,15 +82,14 @@ async function permanentlyDeleteAccount(req, res) {
             }
         }
 
-        const snapshot = account.account_data;
         const label = account.account_label || type + " #" + id;
 
-        // Archive the account and relevant related records before changing any live data.
+        // Store audit metadata only; account snapshots and personal-data payloads are disabled.
         await client.query(
             `INSERT INTO public.deleted_accounts
                 (original_account_id, account_type, account_label, account_data, deleted_by, deletion_reason)
-             VALUES ($1, $2, $3, $4::jsonb, $5, $6)`,
-            [account.account_id, type, label, JSON.stringify(snapshot), req.user?.id || null, reason || null]
+             VALUES ($1, $2, $3, '{}'::jsonb, $4, $5)`,
+            [account.account_id, type, label, req.user?.id || null, reason || null]
         );
 
         // Customer/restaurant accounts with order history are blocked above, so this
@@ -208,7 +114,7 @@ async function permanentlyDeleteAccount(req, res) {
         await client.query("COMMIT");
         return res.status(200).json({
             success: true,
-            message: type.charAt(0).toUpperCase() + type.slice(1) + " permanently deleted and archived.",
+            message: type.charAt(0).toUpperCase() + type.slice(1) + " permanently deleted; audit metadata recorded.",
             data: { account_type: type, original_account_id: Number(id), account_label: label }
         });
     } catch (error) {
