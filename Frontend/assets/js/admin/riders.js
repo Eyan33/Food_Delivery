@@ -2187,8 +2187,7 @@ async function deactivateRider(riderId, options = {}) {
                     break;
 
                 case "delete":
-                    // Never bypass the archive workflow, even if an older
-                    // row action still emits the legacy "delete" action.
+                    // Keep every permanent-delete entry point on the archive workflow.
                     window.location.href = `deleted-accounts.html?type=rider&id=${encodeURIComponent(riderId)}`;
                     break;
 
