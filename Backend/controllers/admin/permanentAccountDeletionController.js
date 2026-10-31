@@ -6,7 +6,7 @@ const ACCOUNT_CONFIG = {
     customer: {
         select: `SELECT
                     jsonb_build_object(
-                        'user', to_jsonb(u),
+                        'user', to_jsonb(u) - 'password_hash',
                         'addresses', COALESCE((
                             SELECT jsonb_agg(to_jsonb(a) ORDER BY a.id)
                             FROM public.addresses a WHERE a.user_id = u.id
@@ -56,7 +56,7 @@ const ACCOUNT_CONFIG = {
     rider: {
         select: `SELECT
                     jsonb_build_object(
-                        'user', to_jsonb(u),
+                        'user', to_jsonb(u) - 'password_hash',
                         'rider_profile', to_jsonb(rp),
                         'assigned_orders', COALESCE((
                             SELECT jsonb_agg(to_jsonb(o) ORDER BY o.id)
@@ -75,7 +75,7 @@ const ACCOUNT_CONFIG = {
         select: `SELECT
                     jsonb_build_object(
                         'restaurant', to_jsonb(r),
-                        'owner_account', to_jsonb(u),
+                        'owner_account', to_jsonb(u) - 'password_hash',
                         'categories', COALESCE((
                             SELECT jsonb_agg(to_jsonb(fc) ORDER BY fc.id)
                             FROM public.food_categories fc WHERE fc.restaurant_id = r.id
