@@ -43,6 +43,7 @@
             window.clearTimeout(expiryTimer);
             expiryTimer = null;
         }
+        clearInactivityTimer();
     }
 
     function getTokenExpiryMs(token) {
@@ -429,6 +430,17 @@
         scheduleInactivityLogout();
     }
     loadAdminSessionTimeout();
+
+    // Logout must invalidate the browser session, not merely navigate to login.
+    // Capture the click so every admin portal logout link uses the same cleanup path.
+    document.addEventListener("click", (event) => {
+        const link = event.target.closest("a.logout-link");
+        if (!link) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        clearSession();
+        window.location.assign(link.href || loginPagePath);
+    }, true);
 
     window.FoodDeliveryAuthApi = {
         request,
