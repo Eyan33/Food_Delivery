@@ -213,9 +213,10 @@ async function markAllNotificationsRead() {
 }
 
 async function recordAuditLog({ adminId, adminRole, method, resource, statusCode, details = null }) {
-    await pool.query(
+    const result = await pool.query(
         `INSERT INTO admin_audit_logs (admin_id, admin_role, action, resource, status_code, details)
-         VALUES ($1, $2, $3, $4, $5, $6::jsonb)`,
+         VALUES ($1, $2, $3, $4, $5, $6::jsonb)
+         RETURNING id`,
         [
             adminId || null,
             adminRole || null,
@@ -224,6 +225,15 @@ async function recordAuditLog({ adminId, adminRole, method, resource, statusCode
             statusCode,
             details ? JSON.stringify(details) : null,
         ],
+    );
+    if (!result.rows[0]) throw new Error("Admin audit record was not created");
+    return result.rows[0].id;
+}
+
+async function updateAuditLogStatus(id, statusCode) {
+    await pool.query(
+        "UPDATE admin_audit_logs SET status_code = $2 WHERE id = $1",
+        [id, statusCode],
     );
 }
 
@@ -320,6 +330,7 @@ module.exports = {
     markNotificationRead,
     markAllNotificationsRead,
     recordAuditLog,
+    updateAuditLogStatus,
     getAuditLogs,
     getReviews,
     setReviewVisibility,

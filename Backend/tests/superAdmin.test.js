@@ -62,6 +62,12 @@ const fakePool = {
         if (/FROM public\.users WHERE role = 'super_admin' LIMIT 1/.test(text)) {
             return { rows: superAdminRows, rowCount: superAdminRows.length };
         }
+        if (/INSERT INTO admin_audit_logs/.test(text)) {
+            return { rows: [{ id: 987 }], rowCount: 1 };
+        }
+        if (/UPDATE admin_audit_logs SET status_code/.test(text)) {
+            return { rows: [], rowCount: 1 };
+        }
         if (/^\s*UPDATE users/.test(text)) {
             return { rows: [{ id: 1, role: "admin" }], rowCount: 1 };
         }
@@ -474,11 +480,18 @@ test("admin audit write completes before the HTTP response ends", async () => {
         },
     };
 
-    auditAdminAction(req, res, () => {});
+    let nextCalled = false;
+    await auditAdminAction(req, res, () => { nextCalled = true; });
+    assert.equal(nextCalled, true, "route handler should run after the audit intent is stored");
+    const auditIntent = calls.find((call) => /INSERT INTO admin_audit_logs/.test(call.sql));
+    assert.ok(auditIntent, "audit intent should exist before route execution");
+    assert.equal(auditIntent.params[4], 0, "audit status starts as pending");
+
     res.end();
     await new Promise((resolve) => setImmediate(resolve));
 
     assert.equal(responseEnded, true);
+    assert.ok(calls.some((call) => /UPDATE admin_audit_logs SET status_code/.test(call.sql)));
     const auditInsert = calls.find((call) =>
         /INSERT INTO admin_audit_logs/.test(call.sql),
     );
