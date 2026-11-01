@@ -121,6 +121,17 @@
             const maximum = Math.max(1, ...values);
 
             area.replaceChildren();
+            const yAxisNode = document.querySelector(".admin-chart-y-axis");
+            if (labels.length === 0) {
+                if (yAxisNode) {
+                    yAxisNode.replaceChildren(...Array.from({ length: 5 }, () => {
+                        const item = document.createElement("span");
+                        item.textContent = "—";
+                        return item;
+                    }));
+                }
+                return;
+            }
 
             labels.forEach((label, index) => {
                 const column = document.createElement("div");
