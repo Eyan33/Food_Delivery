@@ -227,8 +227,12 @@ async function ensureAdminSupportSchema() {
             action varchar(12) NOT NULL,
             resource text NOT NULL,
             status_code integer NOT NULL,
+            admin_role varchar(30),
             created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
+
+        ALTER TABLE admin_audit_logs
+            ADD COLUMN IF NOT EXISTS admin_role varchar(30);
 
         CREATE INDEX IF NOT EXISTS idx_admin_audit_logs_created
             ON admin_audit_logs (created_at DESC);
@@ -476,20 +480,33 @@ async function seedSuperAdmin() {
     if (!email || !password) throw new Error("SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD must both be set to create the super admin.");
     if (!isValidEmail(email)) throw new Error("SUPER_ADMIN_EMAIL is not a valid email address.");
     if (password.length < 16) throw new Error("SUPER_ADMIN_PASSWORD must be at least 16 characters.");
+    const forcePasswordReset = String(process.env.SUPER_ADMIN_FORCE_PASSWORD_RESET || "").toLowerCase() === "true";
     const existing = await pool.query("SELECT id, role FROM public.users WHERE email = $1 LIMIT 1", [email]);
     if (existing.rows.length) {
         if (existing.rows[0].role !== "super_admin") throw new Error("SUPER_ADMIN_EMAIL already belongs to a non-super-admin account. No role was changed.");
         const other = await pool.query("SELECT id FROM public.users WHERE role = 'super_admin' AND id <> $1 LIMIT 1", [existing.rows[0].id]);
         if (other.rows.length) throw new Error("More than one super_admin account exists. Resolve duplicate accounts before startup.");
-        log("super admin account already exists; leaving it unchanged.");
+        if (forcePasswordReset) {
+            const hash = await bcrypt.hash(password, 12);
+            await pool.query(
+                `UPDATE public.users
+                 SET password_hash = $1, must_change_password = TRUE,
+                     password_changed_at = NULL, updated_at = CURRENT_TIMESTAMP
+                 WHERE id = $2 AND role = 'super_admin'`,
+                [hash, existing.rows[0].id],
+            );
+            log("super admin password rotated and marked for mandatory change. Remove SUPER_ADMIN_FORCE_PASSWORD_RESET from the environment now.");
+        } else {
+            log("super admin account already exists; leaving its credentials unchanged. Set SUPER_ADMIN_FORCE_PASSWORD_RESET=true for an intentional one-time rotation, then remove the flag.");
+        }
         return;
     }
     const other = await pool.query("SELECT id FROM public.users WHERE role = 'super_admin' LIMIT 1");
     if (other.rows.length) throw new Error("A super_admin account already exists with a different email. No second super admin was created.");
     await pool.query(`SELECT setval(pg_get_serial_sequence('public.users', 'id'), GREATEST(COALESCE((SELECT MAX(id) FROM public.users), 1), 1), TRUE)`);
     const hash = await bcrypt.hash(password, 12);
-    const result = await pool.query(`INSERT INTO public.users (first_name,last_name,email,phone,password_hash,role,is_active)
-      VALUES ($1,$2,$3,$4,$5,'super_admin',TRUE) RETURNING id`, [
+    const result = await pool.query(`INSERT INTO public.users (first_name,last_name,email,phone,password_hash,role,is_active,must_change_password)
+      VALUES ($1,$2,$3,$4,$5,'super_admin',TRUE,TRUE) RETURNING id`, [
       String(process.env.SUPER_ADMIN_FIRST_NAME || "Platform").trim().slice(0,100),
       String(process.env.SUPER_ADMIN_LAST_NAME || "Super Admin").trim().slice(0,100),
       email, process.env.SUPER_ADMIN_PHONE ? String(process.env.SUPER_ADMIN_PHONE).trim().slice(0,30) : null, hash
