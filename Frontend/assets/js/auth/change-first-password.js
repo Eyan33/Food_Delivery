@@ -30,7 +30,8 @@
         sessionStorage.setItem("foodDeliveryUser", JSON.stringify(user));
       }
       message.textContent = "Password changed. Redirecting to your portal…";
-      window.setTimeout(() => window.location.replace("../admin/dashboard.html"), 700);
+      const destination = user && user.role === "super_admin" ? "../admin/super-admin-dashboard.html" : user && user.role === "admin" ? "../admin/dashboard.html" : "../../index.html";
+      window.setTimeout(() => window.location.replace(destination), 700);
     } catch (error) {
       message.textContent = error.message || "Could not change the password.";
       button.disabled = false;
