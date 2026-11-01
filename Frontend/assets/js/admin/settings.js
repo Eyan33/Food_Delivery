@@ -155,16 +155,19 @@ document.addEventListener("DOMContentLoaded", () => {
         const platformName = String(value || "").trim();
         if (!platformName) return;
 
-        const logo = document.querySelector(".admin-logo");
-        if (logo) {
-            logo.textContent = platformName;
-            logo.setAttribute("aria-label", platformName);
+        if (typeof window.applyFoodDeliveryPlatformName === "function") {
+            window.applyFoodDeliveryPlatformName(platformName);
+        } else {
+            const logo = document.querySelector(".admin-logo");
+            if (logo) {
+                logo.textContent = platformName;
+                logo.setAttribute("aria-label", platformName);
+            }
         }
 
-        document.title = document.title.replace(
-            /^(?:Settings|Dashboard|Customers|Restaurants|Riders|Orders|Payments|Reports|Operations)\s*\|\s*.*$/i,
-            (title) => title.split("|")[0].trim() + " | " + platformName + " Admin"
-        );
+        window.dispatchEvent(new CustomEvent("platform-name-updated", {
+            detail: { platformName }
+        }));
     }
 
     /* =====================================================
