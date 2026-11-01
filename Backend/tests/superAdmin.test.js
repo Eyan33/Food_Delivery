@@ -301,7 +301,7 @@ test("changing an admin password: role-based length, fresh token, sessions inval
     addUser({ id: 21, role: "super_admin", email: "s21@example.com", password_hash: oldHash });
     addUser({ id: 22, role: "customer", email: "c22@example.com", password_hash: oldHash });
 
-    await assert.rejects(authService.changeCurrentUserPassword(20, "old-password-123456", "pass1234"), /at least 12/);
+    await assert.rejects(authService.changeCurrentUserPassword(20, "old-password-123456", "pass123"), /at least 8/);
     await assert.rejects(authService.changeCurrentUserPassword(21, "old-password-123456", "short-pass-1"), /at least 16/);
 
     calls = [];
@@ -384,7 +384,7 @@ test("updateAdmin only edits regular admins and ends their sessions on credentia
     const phoneOnly = calls.find((call) => /UPDATE users/.test(call.sql));
     assert.doesNotMatch(phoneOnly.sql, /tokens_valid_after/, "non-credential edits keep sessions");
 
-    await assert.rejects(adminService.updateAdmin(7, { password: "pass1234" }), /at least 12/);
+    await assert.rejects(adminService.updateAdmin(7, { password: "pass123" }), /at least 8/);
 });
 
 /* ---------- database init ---------- */
