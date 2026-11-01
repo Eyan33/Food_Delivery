@@ -18,11 +18,14 @@
     button.disabled = true;
     message.textContent = "Updating password…";
     try {
-      await api.request("/auth/me/password", {
+      const result = await api.request("/auth/me/password", {
         method: "PATCH",
         body: { currentPassword, newPassword },
         authenticated: true
       });
+      // Admin sessions end on a password change; keep this one alive with the
+      // fresh token the server returns.
+      if (result && result.token && api.replaceToken) api.replaceToken(result.token);
       const user = api.getCurrentUser();
       if (user) {
         user.must_change_password = false;

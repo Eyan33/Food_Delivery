@@ -4,7 +4,8 @@ const pool = require("../../config/database");
 const {
     normalizeEmail,
     isValidEmail,
-    isValidPassword,
+    isValidPasswordForRole,
+    passwordRequirementMessage,
     isValidName,
     isValidPhone
 } = require("../../utils/auth/validators");
@@ -104,9 +105,10 @@ function validatePhone(value) {
     return phone;
 }
 
+// Accounts managed here are always regular admins, which need 12+ characters.
 function validatePassword(value) {
-    if (!isValidPassword(value)) {
-        throw apiError("Password must contain at least 8 characters");
+    if (!isValidPasswordForRole(value, "admin")) {
+        throw apiError(passwordRequirementMessage("admin"));
     }
 
     return value;
@@ -402,11 +404,14 @@ async function updateAdmin(id, input) {
         );
     }
 
+    let credentialsChanged = false;
+
     if (hasField(data, "email")) {
         addAssignment(
             "email",
             validateEmail(data.email)
         );
+        credentialsChanged = true;
     }
 
     if (hasField(data, "phone")) {
@@ -432,6 +437,12 @@ async function updateAdmin(id, input) {
         );
         addAssignment("must_change_password", true);
         addAssignment("password_changed_at", null);
+        credentialsChanged = true;
+    }
+
+    // A changed email or password ends that admin's existing sessions.
+    if (credentialsChanged) {
+        addAssignment("tokens_valid_after", new Date());
     }
 
     if (assignments.length === 0) {
@@ -440,14 +451,22 @@ async function updateAdmin(id, input) {
         );
     }
 
+    addAssignment("updated_at", new Date());
+
     values.push(adminId);
 
+    /*
+     * Only regular admins can be edited here. The super admin edits their
+     * own profile through /auth/me, which asks for the current password;
+     * resetting their own password here would also lock them out behind
+     * the forced password change.
+     */
     const result = await pool.query(
         `
         UPDATE users
         SET ${assignments.join(", ")}
         WHERE id = $${values.length}
-          AND role IN ('admin', 'super_admin')
+          AND role = 'admin'
         RETURNING ${ADMIN_COLUMNS}
         `,
         values
@@ -472,12 +491,15 @@ async function deactivateAdmin(
     try {
         await client.query("BEGIN");
 
+        // The super admin counts: while it is active, the platform always
+        // has someone who can manage admins, so a regular admin may be the
+        // last "admin" to be deactivated.
         const activeAdmins =
             await client.query(
                 `
                 SELECT id
                 FROM users
-                WHERE role = 'admin'
+                WHERE role IN ('admin', 'super_admin')
                   AND is_active = true
                 FOR UPDATE
                 `
@@ -1063,7 +1085,10 @@ async function getDashboard(
                     `${admin.first_name} ${admin.last_name}`
                         .trim(),
 
-                role: "Administrator"
+                role:
+                    admin.role === "super_admin"
+                        ? "Super Admin"
+                        : "Administrator"
             },
 
             stats: {

@@ -388,33 +388,50 @@ function restoreSectionValues(section) {
 
         if (!payload) return;
 
+        // Changing the email address of an admin account needs the current
+        // password, so a stolen session cannot redirect password resets.
+        const emailChanged =
+            payload.email.toLowerCase() !==
+            String(currentAdmin.email || "").trim().toLowerCase();
+
+        if (emailChanged) {
+            const password = window.prompt(
+                "Enter your current password to change your email address."
+            );
+
+            if (!password) {
+                showMessage(
+                    "Your email address was not changed because the current password was not entered.",
+                    "danger"
+                );
+                return;
+            }
+
+            payload.current_password = password;
+        }
+
         const originalText = button.textContent;
 
         button.disabled = true;
         button.textContent = "Saving…";
 
         try {
-            const result = await apiRequest(
-                `/admins/${encodeURIComponent(currentAdmin.id)}`,
-                {
-                    method: "PUT",
-                    body: payload
-                }
-            );
+            // Own profile: /auth/me (PUT /admins/:id is only for the super
+            // admin managing other administrators).
+            const result = await apiRequest("/auth/me", {
+                method: "PUT",
+                body: payload
+            });
 
-            const updatedAdmin =
-                result?.admin ||
-                result?.data?.admin ||
-                result;
+            const user = result?.user || result?.data?.user;
 
-            if (
-                !updatedAdmin ||
-                updatedAdmin.id === undefined
-            ) {
+            if (!user || user.id === undefined) {
                 throw new Error(
                     "The server did not return the updated administrator profile."
                 );
             }
+
+            const updatedAdmin = { ...currentAdmin, ...user };
 
             currentAdmin = updatedAdmin;
             renderAdminProfile(updatedAdmin);
@@ -827,7 +844,10 @@ function restoreSectionValues(section) {
                     apiRequest("/auth/me/password", {
                         method: "PATCH",
                         body: { currentPassword: current, newPassword: next }
-                    }).then(() => {
+                    }).then((result) => {
+                        // Admin sessions end on a password change; the server
+                        // returns a fresh token so this one keeps working.
+                        if (result?.token) API.replaceToken?.(result.token);
                         showMessage("Password changed successfully.", "success");
                         closePasswordModal();
                     }).catch((error) => {

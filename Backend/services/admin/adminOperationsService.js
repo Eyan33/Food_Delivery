@@ -8,12 +8,14 @@ const SETTINGS_FIELDS = {
     platformFees: ["deliveryFeePerKm"],
     delivery: ["maxDistance", "minimumOrder", "deliveryTime"],
     notifications: ["newOrderAlerts", "paymentNotifications", "restaurantRegistration", "riderRegistration", "systemAlerts"],
-    security: ["twoFactorRequired", "loginAlerts", "sessionTimeout"],
+    // twoFactorRequired and loginAlerts were removed: nothing enforced them,
+    // so the settings page implied protection that did not exist.
+    security: ["sessionTimeout"],
 };
 const BOOLEAN_SETTINGS = new Set([
     "mpesaEnabled", "cardEnabled", "cashEnabled", "newOrderAlerts",
     "paymentNotifications", "restaurantRegistration", "riderRegistration",
-    "systemAlerts", "twoFactorRequired", "loginAlerts",
+    "systemAlerts",
 ]);
 const NUMBER_SETTINGS = new Set([
     "transactionFee", "deliveryFeePerKm",
@@ -203,11 +205,18 @@ async function markAllNotificationsRead() {
     return result.rowCount;
 }
 
-async function recordAuditLog({ adminId, adminRole, method, resource, statusCode }) {
+async function recordAuditLog({ adminId, adminRole, method, resource, statusCode, details = null }) {
     await pool.query(
-        `INSERT INTO admin_audit_logs (admin_id, admin_role, action, resource, status_code)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [adminId || null, adminRole || null, method, resource, statusCode],
+        `INSERT INTO admin_audit_logs (admin_id, admin_role, action, resource, status_code, details)
+         VALUES ($1, $2, $3, $4, $5, $6::jsonb)`,
+        [
+            adminId || null,
+            adminRole || null,
+            method,
+            resource,
+            statusCode,
+            details ? JSON.stringify(details) : null,
+        ],
     );
 }
 
@@ -218,7 +227,7 @@ async function getAuditLogs({ page = 1, limit = 25 } = {}) {
 
     const [rows, count] = await Promise.all([
         pool.query(
-            `SELECT l.id, l.admin_role, l.action, l.resource, l.status_code, l.created_at,
+            `SELECT l.id, l.admin_role, l.action, l.resource, l.status_code, l.details, l.created_at,
                     CONCAT(u.first_name, ' ', u.last_name) AS admin_name, u.email AS admin_email
              FROM admin_audit_logs l
              LEFT JOIN users u ON u.id = l.admin_id

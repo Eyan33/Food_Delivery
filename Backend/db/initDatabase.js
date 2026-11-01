@@ -193,6 +193,8 @@ async function ensureAdminSupportSchema() {
     await pool.query(`
         ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url text;
         ALTER TABLE users ADD COLUMN IF NOT EXISTS must_change_password boolean NOT NULL DEFAULT false;
+        -- Tokens issued before this moment are rejected (admin credential changes).
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS tokens_valid_after timestamptz;
 
         CREATE TABLE IF NOT EXISTS admin_settings (
             id smallint PRIMARY KEY DEFAULT 1 CHECK (id = 1),
@@ -233,6 +235,10 @@ async function ensureAdminSupportSchema() {
 
         ALTER TABLE admin_audit_logs
             ADD COLUMN IF NOT EXISTS admin_role varchar(30);
+
+        -- What the request changed (secrets redacted); see adminAuditMiddleware.
+        ALTER TABLE admin_audit_logs
+            ADD COLUMN IF NOT EXISTS details jsonb;
 
         CREATE INDEX IF NOT EXISTS idx_admin_audit_logs_created
             ON admin_audit_logs (created_at DESC);
@@ -445,22 +451,21 @@ async function ensureDeletedAccountsSchema() {
 }
 
 async function ensureSuperAdminRoleSchema() {
-    // Keep canonical roles and any legacy role values already present in the
-    // database. This avoids making startup fail when older deployments used
-    // a role value that is not in the current canonical list. Existing rows
-    // are not rewritten; new unknown role values remain restricted.
-    const canonicalRoles = [
-        "customer", "restaurant", "rider", "admin", "super_admin",
-        "customer1", "restaurant1", "rider1", "admin1", "super_admin1",
-        "customer2", "market_owner2", "rider2", "admin2", "super_admin2",
-    ];
+    // Only the canonical roles are allowed, plus any legacy role value that
+    // already exists in the database so older deployments can still start.
+    // Existing rows are not rewritten. Legacy values are logged so they can
+    // be cleaned up; nothing else is whitelisted in advance.
+    const canonicalRoles = ["customer", "restaurant", "rider", "admin", "super_admin"];
     const existingRoles = await pool.query(
         "SELECT DISTINCT role FROM public.users WHERE role IS NOT NULL",
     );
-    const allowedRoles = [...new Set([
-        ...canonicalRoles,
-        ...existingRoles.rows.map((row) => String(row.role)),
-    ])];
+    const legacyRoles = existingRoles.rows
+        .map((row) => String(row.role))
+        .filter((role) => !canonicalRoles.includes(role));
+    if (legacyRoles.length) {
+        log(`non-standard user roles found and kept so startup succeeds: ${legacyRoles.join(", ")}. Migrate these accounts to a standard role.`);
+    }
+    const allowedRoles = [...new Set([...canonicalRoles, ...legacyRoles])];
     const roleList = allowedRoles
         .map((role) => "'" + role.replace(/'/g, "''") + "'")
         .join(", ");
@@ -492,6 +497,16 @@ async function seedSuperAdmin() {
     if (!isValidEmail(email)) throw new Error("SUPER_ADMIN_EMAIL is not a valid email address.");
     if (password.length < 16) throw new Error("SUPER_ADMIN_PASSWORD must be at least 16 characters.");
     const forcePasswordReset = String(process.env.SUPER_ADMIN_FORCE_PASSWORD_RESET || "").toLowerCase() === "true";
+
+    // If the super admin changed their email after the first start, the
+    // environment variables no longer match. That must not stop the server
+    // from booting (a crash loop in production); leave the account alone.
+    const currentSuperAdmin = await pool.query("SELECT id, email FROM public.users WHERE role = 'super_admin' LIMIT 1");
+    if (currentSuperAdmin.rows.length && normalizeEmail(currentSuperAdmin.rows[0].email) !== email) {
+        log("a super admin account already exists with a different email than SUPER_ADMIN_EMAIL; leaving it unchanged. Remove SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD from the environment, or set SUPER_ADMIN_EMAIL to the account's current email to use SUPER_ADMIN_FORCE_PASSWORD_RESET.");
+        return;
+    }
+
     const existing = await pool.query("SELECT id, role FROM public.users WHERE email = $1 LIMIT 1", [email]);
     if (existing.rows.length) {
         if (existing.rows[0].role !== "super_admin") throw new Error("SUPER_ADMIN_EMAIL already belongs to a non-super-admin account. No role was changed.");
@@ -547,4 +562,6 @@ module.exports = {
     initializeDatabase,
     prepareSchemaSql,
     resolveSchemaPath,
+    ensureSuperAdminRoleSchema,
+    seedSuperAdmin,
 };

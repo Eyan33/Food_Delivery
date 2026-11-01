@@ -198,6 +198,22 @@ const loginAccountLimiter = createRateLimiter({
     message: "Too many failed login attempts for this account. Please try again later.",
 });
 
+/*
+ * Per-account limit regardless of source address. The IP+email limiter above
+ * stops one client, but a spread-out guessing attack on a single account
+ * (for example the super admin) never repeats an IP. The cap is higher than
+ * the per-IP+email one so normal use is unaffected; the trade-off is that
+ * someone can briefly lock an account out by failing logins on purpose.
+ */
+const loginEmailLimiter = createRateLimiter({
+    windowMs: FIFTEEN_MINUTES,
+    max: Number(process.env.LOGIN_EMAIL_MAX || 30),
+    skipSuccessfulRequests: true,
+    keyGenerator: (req) =>
+        `email|${normalizeEmail(req.body && req.body.email).slice(0, 254)}`,
+    message: "Too many failed login attempts for this account. Please try again later.",
+});
+
 const registerLimiter = createRateLimiter({
     windowMs: 60 * 60 * 1000,
     max: Number(process.env.REGISTER_MAX || 20),
@@ -217,7 +233,7 @@ const passwordChangeLimiter = createRateLimiter({
 });
 
 app.use("/api", apiLimiter);
-app.post("/api/auth/login", loginIpLimiter, loginAccountLimiter);
+app.post("/api/auth/login", loginIpLimiter, loginAccountLimiter, loginEmailLimiter);
 app.post("/api/auth/register", registerLimiter);
 app.post("/api/auth/forgot-password", passwordResetRequestLimiter);
 app.patch("/api/auth/me/password", passwordChangeLimiter);

@@ -326,6 +326,24 @@
         scheduleSessionExpiryCheck();
     }
 
+    // Swap in a refreshed token (after an admin password change) in the same
+    // storage that already holds the session, so "remember me" is preserved.
+    function replaceToken(token) {
+        if (typeof token !== "string" || !token) return;
+
+        const storage = localStorage.getItem(tokenKey)
+            ? localStorage
+            : sessionStorage.getItem(tokenKey)
+                ? sessionStorage
+                : null;
+
+        if (!storage) return;
+
+        storage.setItem(tokenKey, token);
+        expiryRedirecting = false;
+        scheduleSessionExpiryCheck();
+    }
+
     function getCurrentUser() {
         const raw = localStorage.getItem(userKey) || sessionStorage.getItem(userKey);
 
@@ -415,6 +433,7 @@
     window.FoodDeliveryAuthApi = {
         request,
         saveSession,
+        replaceToken,
         clearSession,
         getToken,
         getCurrentUser,
