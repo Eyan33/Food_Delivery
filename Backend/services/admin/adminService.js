@@ -445,7 +445,7 @@ async function updateAdmin(id, input) {
         UPDATE users
         SET ${assignments.join(", ")}
         WHERE id = $${values.length}
-          AND role = 'admin'
+          AND role IN ('admin', 'super_admin')
         RETURNING ${ADMIN_COLUMNS}
         `,
         values
