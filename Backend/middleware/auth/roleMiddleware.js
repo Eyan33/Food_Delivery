@@ -9,11 +9,10 @@ function authorizeRoles(...allowedRoles) {
             });
         }
 
-        // Super Admin inherits regular Admin permissions on routes that
-        // explicitly allow "admin", without inheriting other portal roles.
-        const roleIsAllowed =
-            allowedRoles.includes(req.user.role) ||
-            (req.user.role === "super_admin" && allowedRoles.includes("admin"));
+        // Privileged roles must be listed explicitly by each route. This
+        // prevents a future admin-only route from silently granting access
+        // to the super admin without a deliberate authorization decision.
+        const roleIsAllowed = allowedRoles.includes(req.user.role);
 
         if (!roleIsAllowed) {
             return res.status(403).json({
