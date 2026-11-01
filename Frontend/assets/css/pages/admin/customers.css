@@ -1014,3 +1014,82 @@ body.modal-open {
  .admin-modal-actions { flex-direction: column-reverse; }
  .admin-modal-actions > button { width: 100%; }
 }
+
+ 
+/* =========================================================
+   CUSTOMER MODAL OVERLAY — CENTERED + VIEWPORT SAFE
+   ========================================================= */
+
+.admin-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 12000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
+    overflow: hidden;
+    isolation: isolate;
+    background: transparent;
+}
+
+.admin-modal.is-open {
+    display: flex;
+}
+
+.admin-modal[aria-hidden="true"] {
+    display: none;
+}
+
+.admin-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: rgba(15, 23, 42, .58);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+.admin-modal-dialog {
+    position: relative;
+    z-index: 1;
+    width: min(680px, 100%);
+    max-width: 100%;
+    max-height: calc(100dvh - 48px);
+    margin: auto;
+    padding: 28px 32px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid rgba(226, 232, 240, .9);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, .28);
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.admin-modal-dialog::-webkit-scrollbar {
+    width: 8px;
+}
+
+.admin-modal-dialog::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    background: #cbd5e1;
+}
+
+@media (max-width: 640px) {
+    .admin-modal {
+        padding: 10px;
+    }
+
+    .admin-modal-dialog {
+        width: 100%;
+        max-height: calc(100dvh - 20px);
+        padding: 22px 18px;
+        border-radius: 13px;
+    }
+}
+
