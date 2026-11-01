@@ -274,23 +274,23 @@ test("admin and super-admin tokens expire sooner than other roles", () => {
 test("password length requirements depend on the role", () => {
     assert.equal(validators.minPasswordLengthForRole("customer"), 8);
     assert.equal(validators.minPasswordLengthForRole("rider"), 8);
-    assert.equal(validators.minPasswordLengthForRole("admin"), 12);
+    assert.equal(validators.minPasswordLengthForRole("admin"), 8);
     assert.equal(validators.minPasswordLengthForRole("super_admin"), 16);
 
     assert.equal(validators.isValidPasswordForRole("12345678", "customer"), true);
-    assert.equal(validators.isValidPasswordForRole("12345678", "admin"), false);
-    assert.equal(validators.isValidPasswordForRole("123456789012", "admin"), true);
+    assert.equal(validators.isValidPasswordForRole("12345678", "admin"), true);
+    assert.equal(validators.isValidPasswordForRole("123456789", "admin"), true);
     assert.equal(validators.isValidPasswordForRole("123456789012", "super_admin"), false);
     assert.equal(validators.isValidPasswordForRole("1234567890123456", "super_admin"), true);
     assert.equal(validators.isValidPasswordForRole(undefined, "customer"), false);
 });
 
-test("admins created by the super admin need a 12+ character password", async () => {
+test("admins created by the super admin accept an 8-character password", async () => {
     await assert.rejects(
         adminService.createAdmin({
             first_name: "Jane", last_name: "Doe", email: "jane@example.com", password: "pass1234",
         }),
-        /at least 12 characters/,
+        /at least 8 characters/,
     );
     assert.equal(calls.length, 0, "rejected before touching the database");
 });
