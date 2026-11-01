@@ -57,7 +57,8 @@ async function updateSettings(input, adminId) {
             }
             if (NUMBER_SETTINGS.has(key)) {
                 const numericValue = Number(value);
-                if (!Number.isFinite(numericValue) || numericValue < 0) {
+                if (value === null || value === "" || typeof value === "boolean" ||
+                    !Number.isFinite(numericValue) || numericValue < 0) {
                     throw apiError(`${key} must be a non-negative number`);
                 }
                 if (key === "transactionFee" && numericValue > 100) {
