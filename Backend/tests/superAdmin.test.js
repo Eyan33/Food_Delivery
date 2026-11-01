@@ -56,7 +56,10 @@ const fakePool = {
         if (/SELECT DISTINCT role FROM public\.users/.test(text)) {
             return { rows: roleRows, rowCount: roleRows.length };
         }
-        if (/COUNT\(\*\)::int AS count FROM public\.users WHERE role = 'super_admin'/.test(text)) {
+        if (/COUNT\\(\\*\\)::int AS count FROM public\\.users WHERE role IN \\('super_admin', 'super_admin1'\\)/.test(text)) {
+            return { rows: [{ count: superAdminCount }], rowCount: 1 };
+        }
+        if (/COUNT\\(\\*\\)::int AS count FROM public\\.users WHERE role = 'super_admin'/.test(text)) {
             return { rows: [{ count: superAdminCount }], rowCount: 1 };
         }
         if (/FROM public\.users WHERE role = 'super_admin' LIMIT 1/.test(text)) {
@@ -403,6 +406,16 @@ test("startup does not crash when the super admin's email no longer matches the 
         false,
         "the existing super admin is left untouched",
     );
+});
+
+test("startup migrates the known super_admin1 typo to the canonical single super_admin role", async () => {
+    await quietly(() => ensureSuperAdminRoleSchema());
+
+    const count = calls.find((call) => /role IN \\('super_admin', 'super_admin1'\\)/.test(call.sql));
+    assert.ok(count, "both canonical and legacy super-admin rows are counted before migration");
+    const migration = calls.find((call) => /UPDATE public\\.users SET role = 'super_admin' WHERE role = 'super_admin1'/.test(call.sql));
+    assert.ok(migration, "the known legacy role is normalized in the database");
+    assert.ok(calls.indexOf(count) < calls.indexOf(migration), "duplicate check happens before role migration");
 });
 
 test("role constraint allows canonical roles and existing legacy roles, nothing speculative", async () => {
