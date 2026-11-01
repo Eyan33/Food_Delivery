@@ -23,8 +23,10 @@ router.patch("/me/avatar", adminController.updateMyAvatar);
 router.get("/dashboard", adminController.getDashboard);
 router.get("/reports", adminController.getReports);
 router.get("/settings", adminController.getSettings);
-// Platform-wide changes and irreversible actions are super-admin only.
-router.put("/settings", requireSuperAdmin, adminController.updateSettings);
+// Regular admins can save the settings exposed in the admin settings page.
+// Super-admin-only account management, audit history, and permanent deletion
+// remain protected by requireSuperAdmin below.
+router.put("/settings", adminController.updateSettings);
 router.get("/notifications", adminController.getNotifications);
 router.patch("/notifications/read-all", adminController.markAllNotificationsRead);
 router.patch("/notifications/:id/read", adminController.markNotificationRead);
