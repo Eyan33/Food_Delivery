@@ -58,22 +58,45 @@ function buildDetails(req) {
 }
 
 function auditAdminAction(req, res, next) {
-    if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) {
-        res.on("finish", () => {
-            recordAuditLog({
-                adminId: req.user?.id,
-                adminRole: req.user?.role,
-                method: req.method,
-                resource: req.originalUrl.split("?")[0],
-                statusCode: res.statusCode,
-                details: buildDetails(req),
-            }).catch((error) => {
-                console.error("Failed to record admin action:", error.message);
-            });
-        });
-    }
+    if (!["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) return next();
 
-    next();
+    const originalEnd = res.end;
+    let endStarted = false;
+
+    // Complete the audit insert before completing the HTTP response.
+    // This prevents a success response from racing ahead of the audit write.
+    res.end = function (...args) {
+        if (endStarted) return res;
+        endStarted = true;
+
+        const finishResponse = () => originalEnd.apply(res, args);
+        let timeoutId;
+        const auditWrite = recordAuditLog({
+            adminId: req.user?.id,
+            adminRole: req.user?.role,
+            method: req.method,
+            resource: req.originalUrl.split("?")[0],
+            statusCode: res.statusCode,
+            details: buildDetails(req),
+        }).then(() => true);
+        const timeout = new Promise((resolve) => {
+            timeoutId = setTimeout(() => resolve(false), 2000);
+        });
+
+        Promise.race([auditWrite, timeout]).then((recorded) => {
+            clearTimeout(timeoutId);
+            if (!recorded) console.error("Admin audit write exceeded the 2-second response budget:", req.originalUrl);
+            finishResponse();
+        }).catch((error) => {
+            clearTimeout(timeoutId);
+            console.error("Failed to record admin action before response:", error.message);
+            finishResponse();
+        });
+
+        return res;
+    };
+
+    return next();
 }
 
 module.exports = auditAdminAction;
