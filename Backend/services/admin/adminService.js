@@ -105,7 +105,7 @@ function validatePhone(value) {
     return phone;
 }
 
-// Accounts managed here are always regular admins, which need 12+ characters.
+// Accounts managed here are always regular admins, which need at least 8 characters.
 function validatePassword(value) {
     if (!isValidPasswordForRole(value, "admin")) {
         throw apiError(passwordRequirementMessage("admin"));
