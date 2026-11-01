@@ -820,11 +820,14 @@
 .admin-modal {
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: 10000;
+    isolation: isolate;
     display: none;
     align-items: center;
     justify-content: center;
     padding: 20px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 .admin-modal.is-open {
@@ -834,11 +837,13 @@
 .admin-modal-backdrop {
     position: absolute;
     inset: 0;
+    z-index: 0;
     background: rgba(15, 23, 42, 0.55);
 }
 
-.admin-modal-dialog {
+ .admin-modal-dialog {
     position: relative;
+    z-index: 1;
     width: min(100%, 620px);
     max-height: calc(100vh - 40px);
     overflow-y: auto;
@@ -995,13 +1000,14 @@ body.modal-open {
 .admin-table-wrapper { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .admin-table-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 .admin-search input, .admin-customer-form input, .admin-customer-form select, .admin-customer-form textarea { min-width: 0; max-width: 100%; box-sizing: border-box; }
-.admin-modal-backdrop { padding: 12px; overflow-y: auto; }
-.admin-modal-dialog { width: min(680px,100%); max-width: 100%; max-height: calc(100dvh - 24px); overflow-y: auto; box-sizing: border-box; }
+ .admin-modal-backdrop { padding: 0; overflow: hidden; }
+.admin-modal-dialog { width: min(680px,100%); max-width: 100%; max-height: calc(100dvh - 40px); overflow-y: auto; box-sizing: border-box; }
 .admin-form-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
 @media (max-width: 600px) {
  .admin-page-actions, .admin-card-header { flex-wrap: wrap; }
  .admin-search { width: 100%; max-width: 100%; }
- .admin-modal-backdrop { padding: 8px; }
+ .admin-modal-backdrop { padding: 0; }
+ .admin-modal { padding: 8px; }
  .admin-modal-dialog { max-height: calc(100dvh - 16px); }
  .admin-form-grid { grid-template-columns: minmax(0,1fr); }
  .admin-form-field-full { grid-column: auto; }
