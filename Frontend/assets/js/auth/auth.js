@@ -73,7 +73,7 @@ async function initializeGoogleSignIn() {
                     window.FoodDeliveryAuthApi.saveSession(session, true);
                     if (session.newGoogleAccount === true) sessionStorage.setItem("foodDeliveryGooglePasswordSetupPending", "true");
                     setLoginMessage("Google sign-in successful. Redirecting…", "success");
-                    window.setTimeout(() => { window.location.href = destinationForRole(session.user.role); }, 400);
+                    window.setTimeout(() => { window.location.href = session.user.must_change_password ? "change-first-password.html" : destinationForRole(session.user.role); }, 400);
                 } catch (error) { setLoginMessage(error.message || "Google sign-in failed. Please try again.", "error"); }
             }
         });

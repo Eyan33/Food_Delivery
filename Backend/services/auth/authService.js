@@ -204,6 +204,7 @@ async function loginUser({
             password_hash,
             role,
             is_active,
+            must_change_password,
             created_at,
             updated_at
         FROM users
@@ -550,7 +551,7 @@ async function loginWithGoogleCredential(credential) {
         !(claims.email_verified === true || claims.email_verified === "true") || !claims.email) throw new Error("Google returned an invalid or unverified identity");
     const email = normalizeEmail(claims.email);
     if (!isValidEmail(email)) throw new Error("Google did not provide a valid email address");
-    const selectByEmail = () => pool.query(`SELECT id, first_name, last_name, email, phone, role, is_active, google_password_setup_pending, created_at, updated_at FROM users WHERE email = $1 LIMIT 1`, [email]);
+    const selectByEmail = () => pool.query(`SELECT id, first_name, last_name, email, phone, role, is_active, must_change_password, google_password_setup_pending, created_at, updated_at FROM users WHERE email = $1 LIMIT 1`, [email]);
     const existing = await selectByEmail();
     let user;
     let newGoogleAccount = false;
@@ -567,7 +568,7 @@ async function loginWithGoogleCredential(credential) {
         try {
             const created = await pool.query(`INSERT INTO users (first_name, last_name, email, phone, password_hash, role, google_password_setup_pending)
                 VALUES ($1, $2, $3, NULL, $4, 'customer', TRUE)
-                RETURNING id, first_name, last_name, email, phone, role, is_active, created_at, updated_at`, [firstName, lastName, email, unusablePasswordHash]);
+                RETURNING id, first_name, last_name, email, phone, role, is_active, must_change_password, created_at, updated_at`, [firstName, lastName, email, unusablePasswordHash]);
             user = created.rows[0];
             newGoogleAccount = true;
         } catch (error) {

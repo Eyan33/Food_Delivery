@@ -430,6 +430,8 @@ async function updateAdmin(id, input) {
             "password_hash",
             passwordHash
         );
+        addAssignment("must_change_password", true);
+        addAssignment("password_changed_at", null);
     }
 
     if (assignments.length === 0) {
@@ -445,7 +447,7 @@ async function updateAdmin(id, input) {
         UPDATE users
         SET ${assignments.join(", ")}
         WHERE id = $${values.length}
-          AND role = 'admin'
+          AND role IN ('admin', 'super_admin')
         RETURNING ${ADMIN_COLUMNS}
         `,
         values
