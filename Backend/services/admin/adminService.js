@@ -430,6 +430,8 @@ async function updateAdmin(id, input) {
             "password_hash",
             passwordHash
         );
+        addAssignment("must_change_password", true);
+        addAssignment("password_changed_at", null);
     }
 
     if (assignments.length === 0) {
