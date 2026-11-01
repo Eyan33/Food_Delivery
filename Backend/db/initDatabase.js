@@ -465,7 +465,18 @@ async function ensureSuperAdminRoleSchema() {
         .map((role) => "'" + role.replace(/'/g, "''") + "'")
         .join(", ");
 
+    const superAdminCount = await pool.query(
+        "SELECT COUNT(*)::int AS count FROM public.users WHERE role = 'super_admin'",
+    );
+    if (superAdminCount.rows[0].count > 1) {
+        throw new Error("Only one super_admin account is supported. Remove duplicate super-admin rows before startup.");
+    }
+
     await pool.query(`
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_users_single_super_admin
+            ON public.users (role)
+            WHERE role = 'super_admin';
+
         ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_role_check;
         ALTER TABLE public.users
             ADD CONSTRAINT users_role_check
