@@ -11,12 +11,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const request = (path, options = {}) =>
         API.request(path, { ...options, authenticated: true });
 
-    // Regular administrators may use operational tools, but account
-    // administration, fee changes and audit history are super-admin only.
-    // The API remains the security boundary; this keeps the UI consistent.
+    // Regular admins can manage platform fees. Administrator account management
+    // and audit history remain super-admin-only in both UI and API.
     const signedInUser = API.getCurrentUser?.();
     if (signedInUser?.role !== "super_admin") {
-        ["platform-fees", "admins", "audit"].forEach((panelName) => {
+        ["admins", "audit"].forEach((panelName) => {
             const tab = document.querySelector(`.operations-tabs [data-panel="${panelName}"]`);
             const panel = byId(`panel-${panelName}`);
             if (tab) tab.hidden = true;
