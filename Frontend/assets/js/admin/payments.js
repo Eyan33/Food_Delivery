@@ -710,7 +710,7 @@
             return false;
         }
         const user = API.getCurrentUser();
-        if (!API.getToken() || !user || user.role !== "admin") {
+        if (!API.getToken() || !user || !["admin", "super_admin"].includes(user.role)) {
             redirectToLogin();
             return false;
         }
