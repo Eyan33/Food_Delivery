@@ -15,11 +15,6 @@
         return;
       }
       document.documentElement.style.visibility = "visible";
-      ["admin-header.js", "admin-notifications.js", "dashboard.js"].forEach(file => {
-        const script = document.createElement("script");
-        script.src = "../../assets/js/admin/" + file;
-        document.body.appendChild(script);
-      });
     } catch (_) {
       window.location.replace("../../pages/auth/login.html");
     }
