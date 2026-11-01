@@ -23,13 +23,13 @@ function isValidPassword(password) {
 /*
  * Privileged accounts need stronger passwords than customers. The super
  * admin is a single break-glass account, so it matches the 16 characters
- * required when it is seeded; admins match the 12 required for ADMIN_PASSWORD.
+ * required when it is seeded; admins match the 8-character minimum required for ADMIN_PASSWORD.
  */
 const PRIVILEGED_ROLES = ["admin", "super_admin"];
 
 const MIN_PASSWORD_LENGTH_BY_ROLE = {
     super_admin: 16,
-    admin: 12
+    admin: 8
 };
 
 function isPrivilegedRole(role) {
