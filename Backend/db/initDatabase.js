@@ -136,8 +136,8 @@ async function seedAdmin() {
         throw new Error("ADMIN_EMAIL is not a valid email address");
     }
 
-    if (password.length < 12) {
-        throw new Error("ADMIN_PASSWORD must be at least 12 characters");
+    if (password.length < 8) {
+        throw new Error("ADMIN_PASSWORD must be at least 8 characters");
     }
 
     const existing = await pool.query(

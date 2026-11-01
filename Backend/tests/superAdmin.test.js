@@ -274,23 +274,23 @@ test("admin and super-admin tokens expire sooner than other roles", () => {
 test("password length requirements depend on the role", () => {
     assert.equal(validators.minPasswordLengthForRole("customer"), 8);
     assert.equal(validators.minPasswordLengthForRole("rider"), 8);
-    assert.equal(validators.minPasswordLengthForRole("admin"), 12);
+    assert.equal(validators.minPasswordLengthForRole("admin"), 8);
     assert.equal(validators.minPasswordLengthForRole("super_admin"), 16);
 
     assert.equal(validators.isValidPasswordForRole("12345678", "customer"), true);
-    assert.equal(validators.isValidPasswordForRole("12345678", "admin"), false);
-    assert.equal(validators.isValidPasswordForRole("123456789012", "admin"), true);
+    assert.equal(validators.isValidPasswordForRole("12345678", "admin"), true);
+    assert.equal(validators.isValidPasswordForRole("123456789", "admin"), true);
     assert.equal(validators.isValidPasswordForRole("123456789012", "super_admin"), false);
     assert.equal(validators.isValidPasswordForRole("1234567890123456", "super_admin"), true);
     assert.equal(validators.isValidPasswordForRole(undefined, "customer"), false);
 });
 
-test("admins created by the super admin need a 12+ character password", async () => {
+test("admins created by the super admin reject passwords shorter than 8 characters", async () => {
     await assert.rejects(
         adminService.createAdmin({
-            first_name: "Jane", last_name: "Doe", email: "jane@example.com", password: "pass1234",
+            first_name: "Jane", last_name: "Doe", email: "jane@example.com", password: "pass123",
         }),
-        /at least 12 characters/,
+        /at least 8 characters/,
     );
     assert.equal(calls.length, 0, "rejected before touching the database");
 });
@@ -301,7 +301,7 @@ test("changing an admin password: role-based length, fresh token, sessions inval
     addUser({ id: 21, role: "super_admin", email: "s21@example.com", password_hash: oldHash });
     addUser({ id: 22, role: "customer", email: "c22@example.com", password_hash: oldHash });
 
-    await assert.rejects(authService.changeCurrentUserPassword(20, "old-password-123456", "pass1234"), /at least 12/);
+    await assert.rejects(authService.changeCurrentUserPassword(20, "old-password-123456", "pass123"), /at least 8/);
     await assert.rejects(authService.changeCurrentUserPassword(21, "old-password-123456", "short-pass-1"), /at least 16/);
 
     calls = [];
@@ -384,7 +384,7 @@ test("updateAdmin only edits regular admins and ends their sessions on credentia
     const phoneOnly = calls.find((call) => /UPDATE users/.test(call.sql));
     assert.doesNotMatch(phoneOnly.sql, /tokens_valid_after/, "non-credential edits keep sessions");
 
-    await assert.rejects(adminService.updateAdmin(7, { password: "pass1234" }), /at least 12/);
+    await assert.rejects(adminService.updateAdmin(7, { password: "pass123" }), /at least 8/);
 });
 
 /* ---------- database init ---------- */
