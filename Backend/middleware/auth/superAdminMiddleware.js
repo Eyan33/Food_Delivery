@@ -11,7 +11,7 @@ module.exports = function requireSuperAdmin(req, res, next) {
     if (req.user.role !== "super_admin") {
         return res.status(403).json({
             success: false,
-            message: "Only the super admin can manage administrator accounts."
+            message: "This action is restricted to the super admin."
         });
     }
 
