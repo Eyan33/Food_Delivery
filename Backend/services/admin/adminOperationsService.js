@@ -55,8 +55,15 @@ async function updateSettings(input, adminId) {
             if (BOOLEAN_SETTINGS.has(key) && typeof value !== "boolean") {
                 throw apiError(`${key} must be a boolean`);
             }
-            if (NUMBER_SETTINGS.has(key) && (!Number.isFinite(Number(value)) || Number(value) < 0)) {
-                throw apiError(`${key} must be a non-negative number`);
+            if (NUMBER_SETTINGS.has(key)) {
+                const numericValue = Number(value);
+                if (value === null || value === "" || typeof value === "boolean" ||
+                    !Number.isFinite(numericValue) || numericValue < 0) {
+                    throw apiError(`${key} must be a non-negative number`);
+                }
+                if (key === "transactionFee" && numericValue > 100) {
+                    throw apiError("transactionFee must be between 0 and 100 percent");
+                }
             }
             if (typeof value === "string" && value.length > 2000) {
                 throw apiError(`${key} is too long`);
