@@ -484,5 +484,5 @@ test("admin audit write completes before the HTTP response ends", async () => {
     );
     assert.ok(auditInsert, "audit insert should be awaited before response completion");
     assert.equal(auditInsert.params[1], "super_admin");
-    assert.match(JSON.stringify(auditInsert.params[4]), /redacted/);
+    assert.match(JSON.stringify(auditInsert.params[5]), /redacted/);
 });
