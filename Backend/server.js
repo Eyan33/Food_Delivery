@@ -280,6 +280,23 @@ app.use("/api/customers", customerRoutes);
 app.use("/api/admins", adminRoutes);
 app.use("/api/riders/notifications", riderNotificationRoutes);
 app.use("/api/riders", riderRoutes);
+app.get("/api/public/settings", async (req, res) => {
+    try {
+        const result = await pool.query(
+            "SELECT settings #>> '{general,platformName}' AS \"platformName\" FROM admin_settings WHERE id = 1 LIMIT 1",
+        );
+        const platformName = String(result.rows[0]?.platformName || "").trim();
+        res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+        return res.status(200).json({
+            success: true,
+            data: { platformName: platformName || "Food Delivery" },
+        });
+    } catch (error) {
+        console.error("Could not load public platform name:", error.message);
+        return res.status(500).json({ success: false, message: "Platform settings are temporarily unavailable." });
+    }
+});
+
 app.get("/api/public/support", async (req, res) => {
     try {
         const result = await pool.query(
