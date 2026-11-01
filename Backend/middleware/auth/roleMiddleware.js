@@ -23,7 +23,7 @@ function authorizeRoles(...allowedRoles) {
         }
 
         if (req.user.role === "admin" || req.user.role === "super_admin") {
-            auditAdminAction(req, res, () => {});
+            return auditAdminAction(req, res, next);
         }
 
         return next();
