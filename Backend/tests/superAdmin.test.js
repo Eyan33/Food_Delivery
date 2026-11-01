@@ -285,10 +285,10 @@ test("password length requirements depend on the role", () => {
     assert.equal(validators.isValidPasswordForRole(undefined, "customer"), false);
 });
 
-test("admins created by the super admin accept an 8-character password", async () => {
+test("admins created by the super admin reject passwords shorter than 8 characters", async () => {
     await assert.rejects(
         adminService.createAdmin({
-            first_name: "Jane", last_name: "Doe", email: "jane@example.com", password: "pass1234",
+            first_name: "Jane", last_name: "Doe", email: "jane@example.com", password: "pass123",
         }),
         /at least 8 characters/,
     );
