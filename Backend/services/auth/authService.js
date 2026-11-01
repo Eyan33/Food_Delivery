@@ -440,6 +440,12 @@ async function changeCurrentUserPassword(userId, currentPassword, newPassword) {
          WHERE id = $2`,
         [passwordHash, userId]
     );
+    await pool.query(
+        `INSERT INTO admin_audit_logs (admin_id, admin_role, action, resource, status_code)
+         SELECT id, role, 'PASSWORD', '/auth/me/password', 200
+         FROM users WHERE id = $1 AND role IN ('admin', 'super_admin')`,
+        [userId]
+    );
 
     return true;
 }
@@ -516,6 +522,12 @@ async function resetPasswordWithToken(token, newPassword) {
                  must_change_password = FALSE, updated_at = CURRENT_TIMESTAMP
              WHERE id = $2`,
             [passwordHash, userId]
+        );
+        await client.query(
+            `INSERT INTO admin_audit_logs (admin_id, admin_role, action, resource, status_code)
+             SELECT id, role, 'RESET', '/auth/password-reset', 200
+             FROM users WHERE id = $1 AND role IN ('admin', 'super_admin')`,
+            [userId]
         );
         await client.query("DELETE FROM password_reset_tokens WHERE user_id = $1", [userId]);
         await client.query("COMMIT");
