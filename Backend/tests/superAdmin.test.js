@@ -84,11 +84,13 @@ require.cache[databasePath] = {
 const authenticateToken = require("../middleware/auth/authMiddleware");
 const requireSuperAdmin = require("../middleware/auth/superAdminMiddleware");
 const authorizeRoles = require("../middleware/auth/roleMiddleware");
-const { redact } = require("../middleware/adminAuditMiddleware");
+const auditAdminAction = require("../middleware/adminAuditMiddleware");
+const { redact } = auditAdminAction;
 const generateToken = require("../utils/auth/generateToken");
 const validators = require("../utils/auth/validators");
 const authService = require("../services/auth/authService");
 const adminService = require("../services/admin/adminService");
+const adminOperationsService = require("../services/admin/adminOperationsService");
 const { ensureSuperAdminRoleSchema, seedSuperAdmin } = require("../db/initDatabase");
 const { buildContentSecurityPolicy } = require("../middleware/security/securityHeaders");
 
@@ -433,4 +435,54 @@ test("CSP only allows the Leaflet path on unpkg.com, not the whole host", () => 
     const policy = buildContentSecurityPolicy(true);
     assert.match(policy, /https:\/\/unpkg\.com\/leaflet@1\.9\.4\//);
     assert.doesNotMatch(policy, /https:\/\/unpkg\.com(?=[\s;])/);
+});
+
+
+/* ---------- admin operations validation and audit durability ---------- */
+
+test("platform transaction fee cannot exceed 100 percent", async () => {
+    await assert.rejects(
+        adminOperationsService.updateSettings({ payments: { transactionFee: 100.01 } }, 1),
+        /between 0 and 100 percent/,
+    );
+});
+
+test("numeric platform settings reject null and empty values", async () => {
+    await assert.rejects(
+        adminOperationsService.updateSettings({ platformFees: { deliveryFeePerKm: null } }, 1),
+        /non-negative number/,
+    );
+    await assert.rejects(
+        adminOperationsService.updateSettings({ payments: { transactionFee: "" } }, 1),
+        /non-negative number/,
+    );
+});
+
+test("admin audit write completes before the HTTP response ends", async () => {
+    let responseEnded = false;
+    const req = {
+        method: "PATCH",
+        originalUrl: "/api/admins/settings?source=test",
+        user: { id: 44, role: "super_admin" },
+        body: { payments: { transactionFee: 4.5 }, password: "must-not-be-stored" },
+    };
+    const res = {
+        statusCode: 200,
+        end() {
+            responseEnded = true;
+            return this;
+        },
+    };
+
+    auditAdminAction(req, res, () => {});
+    res.end();
+    await new Promise((resolve) => setImmediate(resolve));
+
+    assert.equal(responseEnded, true);
+    const auditInsert = calls.find((call) =>
+        /INSERT INTO admin_audit_logs/.test(call.sql),
+    );
+    assert.ok(auditInsert, "audit insert should be awaited before response completion");
+    assert.equal(auditInsert.params[1], "super_admin");
+    assert.match(JSON.stringify(auditInsert.params[4]), /redacted/);
 });
