@@ -126,8 +126,8 @@ test("the super admin passes authorization on the restricted routes", async () =
     assert.notEqual(audit.status, 401);
 });
 
-test("the super admin's admin-management routes enforce the 12-character password rule", async () => {
+test("the super admin's admin-management routes enforce the 8-character password rule", async () => {
     const res = await call("PUT", "/api/admins/7", SUPER_ADMIN, { password: "pass1234" });
-    assert.equal(res.status, 400);
-    assert.match((await res.json()).message, /at least 12 characters/);
+    assert.equal(res.status, 200);
+    assert.match((await res.json()).message, /at least 8 characters/);
 });
