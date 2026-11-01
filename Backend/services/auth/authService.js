@@ -513,7 +513,7 @@ async function resetPasswordWithToken(token, newPassword) {
         await client.query(
             `UPDATE users
              SET password_hash = $1, password_changed_at = CURRENT_TIMESTAMP,
-                 updated_at = CURRENT_TIMESTAMP
+                 must_change_password = FALSE, updated_at = CURRENT_TIMESTAMP
              WHERE id = $2`,
             [passwordHash, userId]
         );
