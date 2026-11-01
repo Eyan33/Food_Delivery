@@ -1,6 +1,6 @@
 "use strict";
 
-const { recordAuditLog } = require("../services/admin/adminOperationsService");
+const { recordAuditLog, updateAuditLogStatus } = require("../services/admin/adminOperationsService");
 
 const SENSITIVE_KEY = /pass(word)?|token|secret|authorization|credential/i;
 const MAX_DETAILS_LENGTH = 4000;
