@@ -451,10 +451,22 @@ async function ensureDeletedAccountsSchema() {
 }
 
 async function ensureSuperAdminRoleSchema() {
-    // Only the canonical roles are allowed, plus any legacy role value that
-    // already exists in the database so older deployments can still start.
-    // Existing rows are not rewritten. Legacy values are logged so they can
-    // be cleaned up; nothing else is whitelisted in advance.
+    // Older production data may contain the historical typo "super_admin1".
+    // Normalize that one known alias before role validation so login, route
+    // authorization, audit checks, and the single-super-admin index all use
+    // the canonical role. Refuse to merge two privileged accounts.
+    const privilegedCount = await pool.query(
+        "SELECT COUNT(*)::int AS count FROM public.users WHERE role IN ('super_admin', 'super_admin1')",
+    );
+    if (privilegedCount.rows[0].count > 1) {
+        throw new Error("Multiple super-admin accounts were found across canonical and legacy roles. Resolve duplicates before startup.");
+    }
+    await pool.query(
+        "UPDATE public.users SET role = 'super_admin' WHERE role = 'super_admin1'",
+    );
+
+    // Only canonical roles plus unrelated legacy values already in the
+    // database are retained in the role constraint.
     const canonicalRoles = ["customer", "restaurant", "rider", "admin", "super_admin"];
     const existingRoles = await pool.query(
         "SELECT DISTINCT role FROM public.users WHERE role IS NOT NULL",
