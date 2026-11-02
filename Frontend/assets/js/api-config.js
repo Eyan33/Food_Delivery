@@ -20,15 +20,13 @@
     const applyPlatformName = (value) => {
         const name = String(value || "").trim();
         if (!name) return;
-        document.querySelectorAll(".logo, .admin-logo").forEach((element) => {
+        document.querySelectorAll(".logo, .admin-logo, .customer-logo").forEach((element) => {
             element.textContent = name;
             element.setAttribute("aria-label", name);
         });
         if (document.title) {
-            const parts = document.title.split("|");
-            document.title = parts.length > 1
-                ? `${parts[0].trim()} | ${name}`
-                : name;
+            // Replace only the existing brand text so page-specific titles remain intact.
+            document.title = document.title.replace(/Food\s*Delivery/gi, name);
         }
         document.querySelectorAll(".footer p, footer p").forEach((element) => {
             element.textContent = element.textContent.replace(/Food\s*Delivery/gi, name);
