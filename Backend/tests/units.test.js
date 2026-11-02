@@ -163,7 +163,7 @@ test("validateEnvironment enforces production secrets", () => {
         assert.ok(reload().validateEnvironment().errors.some((m) => /Database/.test(m)));
 
         process.env.DATABASE_URL = "postgresql://u:p@h:5432/d";
-        process.env.ADMIN_PASSWORD = "tooshort";
+        process.env.ADMIN_PASSWORD = "short";
         assert.ok(reload().validateEnvironment().errors.some((m) => /ADMIN_PASSWORD/.test(m)));
     } finally {
         for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key];
