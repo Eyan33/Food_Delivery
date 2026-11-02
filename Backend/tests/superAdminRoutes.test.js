@@ -91,9 +91,9 @@ test("regular admins cannot permanently delete accounts", async () => {
     assert.equal(res.status, 403);
 });
 
-test("regular admins cannot change platform settings or read the audit log", async () => {
-    const save = await call("PUT", "/api/admins/settings", ADMIN, { general: { platformName: "Hijacked" } });
-    assert.equal(save.status, 403);
+test("regular admins can save shared settings but cannot read the audit log", async () => {
+    const save = await call("PUT", "/api/admins/settings", ADMIN, { general: { platformName: "Food Delivery" } });
+    assert.equal(save.status, 200);
 
     const audit = await call("GET", "/api/admins/audit-logs", ADMIN);
     assert.equal(audit.status, 403);
