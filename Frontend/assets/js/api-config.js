@@ -26,7 +26,7 @@
         });
         if (document.title) {
             // Replace only the existing brand text so page-specific titles remain intact.
-            document.title = document.title.replace(/Food\\s*Delivery/gi, name);
+            document.title = document.title.replace(/Food\s*Delivery/gi, name);
         }
         document.querySelectorAll(".footer p, footer p").forEach((element) => {
             element.textContent = element.textContent.replace(/Food\s*Delivery/gi, name);
