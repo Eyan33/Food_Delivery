@@ -5,6 +5,20 @@ const rememberMeInput = document.getElementById("rememberMe");
 const loginMessage = document.getElementById("loginMessage");
 const loginButton = document.getElementById("loginButton");
 
+// Keep password visibility behavior in the external auth script so it also
+// works when the page applies a Content Security Policy to inline scripts.
+const passwordVisibilityToggle = document.getElementById("passwordVisibilityToggle");
+if (passwordInput && passwordVisibilityToggle) {
+    passwordVisibilityToggle.addEventListener("click", () => {
+        const willShow = passwordInput.type === "password";
+        passwordInput.type = willShow ? "text" : "password";
+        passwordVisibilityToggle.setAttribute("aria-pressed", String(willShow));
+        passwordVisibilityToggle.setAttribute("aria-label", `${willShow ? "Hide" : "Show"} password`);
+        passwordVisibilityToggle.setAttribute("title", `${willShow ? "Hide" : "Show"} password`);
+    });
+}
+
+
 function setLoginMessage(message, type) {
     loginMessage.textContent = message;
     loginMessage.classList.toggle("success", type === "success");
