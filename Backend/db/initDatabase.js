@@ -451,19 +451,28 @@ async function ensureDeletedAccountsSchema() {
 }
 
 async function ensureSuperAdminRoleSchema() {
-    // Older production data may contain the historical typo "super_admin1".
-    // Normalize that one known alias before role validation so login, route
-    // authorization, audit checks, and the single-super-admin index all use
-    // the canonical role. Refuse to merge two privileged accounts.
-    const privilegedCount = await pool.query(
-        "SELECT COUNT(*)::int AS count FROM public.users WHERE role IN ('super_admin', 'super_admin1', 'super_admin2')",
-    );
-    if (privilegedCount.rows[0].count > 1) {
-        throw new Error("Multiple super-admin accounts were found across canonical and legacy roles. Resolve duplicates before startup.");
+    // Migrate one legacy super-admin only when no canonical super-admin
+    // exists. Older shared databases can contain one Food Delivery
+    // super_admin and a separate project's super_admin2; never merge those
+    // identities or create a duplicate canonical super-admin.
+    const privilegedCounts = await pool.query(`
+        SELECT
+            COUNT(*) FILTER (WHERE role = 'super_admin')::int AS canonical_count,
+            COUNT(*) FILTER (WHERE role IN ('super_admin1', 'super_admin2'))::int AS legacy_count
+        FROM public.users
+    `);
+    const canonicalCount = Number(privilegedCounts.rows[0].canonical_count || 0);
+    const legacyCount = Number(privilegedCounts.rows[0].legacy_count || 0);
+    if (canonicalCount > 1 || (canonicalCount === 0 && legacyCount > 1)) {
+        throw new Error("Multiple super-admin accounts were found. Resolve duplicate identities before startup.");
     }
-    await pool.query(
-        "UPDATE public.users SET role = 'super_admin' WHERE role IN ('super_admin1', 'super_admin2')",
-    );
+    if (canonicalCount === 0 && legacyCount === 1) {
+        await pool.query(
+            "UPDATE public.users SET role = 'super_admin' WHERE role IN ('super_admin1', 'super_admin2')",
+        );
+    } else if (canonicalCount === 1 && legacyCount > 0) {
+        log("a canonical super_admin already exists; legacy super-admin accounts were not promoted to avoid merging identities");
+    }
 
     // Only canonical roles plus unrelated legacy values already in the
     // database are retained in the role constraint.
