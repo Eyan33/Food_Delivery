@@ -15,7 +15,7 @@
    This file does not falsely report those settings as saved.
 ========================================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
+function initializeAdminSettings() {
     "use strict";
 
     const API = window.FoodDeliveryAuthApi;
@@ -902,4 +902,11 @@ function restoreSectionValues(section) {
 
     loadAdminProfile();
     loadPlatformSettings();
-});
+}
+
+// Support both normal page loads and scripts injected after DOMContentLoaded.
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeAdminSettings, { once: true });
+} else {
+    initializeAdminSettings();
+}
