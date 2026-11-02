@@ -56,7 +56,7 @@ const fakePool = {
         if (/SELECT DISTINCT role FROM public\.users/.test(text)) {
             return { rows: roleRows, rowCount: roleRows.length };
         }
-        if (/COUNT\(\*\)::int AS count FROM public\.users WHERE role IN \('super_admin', 'super_admin1'\)/.test(text)) {
+        if (/COUNT\(\*\)::int AS count FROM public\.users WHERE role IN \('super_admin', 'super_admin1', 'super_admin2'\)/.test(text)) {
             return { rows: [{ count: superAdminCount }], rowCount: 1 };
         }
         if (/COUNT\(\*\)::int AS count FROM public\.users WHERE role = 'super_admin'/.test(text)) {
@@ -275,13 +275,13 @@ test("password length requirements depend on the role", () => {
     assert.equal(validators.minPasswordLengthForRole("customer"), 8);
     assert.equal(validators.minPasswordLengthForRole("rider"), 8);
     assert.equal(validators.minPasswordLengthForRole("admin"), 8);
-    assert.equal(validators.minPasswordLengthForRole("super_admin"), 16);
+    assert.equal(validators.minPasswordLengthForRole("super_admin"), 8);
 
     assert.equal(validators.isValidPasswordForRole("12345678", "customer"), true);
     assert.equal(validators.isValidPasswordForRole("12345678", "admin"), true);
     assert.equal(validators.isValidPasswordForRole("123456789", "admin"), true);
-    assert.equal(validators.isValidPasswordForRole("123456789012", "super_admin"), false);
-    assert.equal(validators.isValidPasswordForRole("1234567890123456", "super_admin"), true);
+    assert.equal(validators.isValidPasswordForRole("1234567", "super_admin"), false);
+    assert.equal(validators.isValidPasswordForRole("12345678", "super_admin"), true);
     assert.equal(validators.isValidPasswordForRole(undefined, "customer"), false);
 });
 
@@ -302,7 +302,7 @@ test("changing an admin password: role-based length, fresh token, sessions inval
     addUser({ id: 22, role: "customer", email: "c22@example.com", password_hash: oldHash });
 
     await assert.rejects(authService.changeCurrentUserPassword(20, "old-password-123456", "pass123"), /at least 8/);
-    await assert.rejects(authService.changeCurrentUserPassword(21, "old-password-123456", "short-pass-1"), /at least 16/);
+    await assert.rejects(authService.changeCurrentUserPassword(21, "old-password-123456", "1234567"), /at least 8/);
 
     calls = [];
     const adminResult = await authService.changeCurrentUserPassword(20, "old-password-123456", "short-pass-1");
@@ -408,13 +408,13 @@ test("startup does not crash when the super admin's email no longer matches the 
     );
 });
 
-test("startup migrates the known super_admin1 typo to the canonical single super_admin role", async () => {
+test("startup migrates both legacy super-admin aliases to the canonical single super_admin role", async () => {
     await quietly(() => ensureSuperAdminRoleSchema());
 
-    const count = calls.find((call) => /role IN \('super_admin', 'super_admin1'\)/.test(call.sql));
-    assert.ok(count, "both canonical and legacy super-admin rows are counted before migration");
-    const migration = calls.find((call) => /UPDATE public\.users SET role = 'super_admin' WHERE role = 'super_admin1'/.test(call.sql));
-    assert.ok(migration, "the known legacy role is normalized in the database");
+    const count = calls.find((call) => /role IN \('super_admin', 'super_admin1', 'super_admin2'\)/.test(call.sql));
+    assert.ok(count, "canonical and both legacy super-admin roles are counted before migration");
+    const migration = calls.find((call) => /UPDATE public\.users SET role = 'super_admin' WHERE role IN \\('super_admin1', 'super_admin2'\\)/.test(call.sql));
+    assert.ok(migration, "both known legacy roles are normalized in the database");
     assert.ok(calls.indexOf(count) < calls.indexOf(migration), "duplicate check happens before role migration");
 });
 
