@@ -413,7 +413,7 @@ test("startup migrates both legacy super-admin aliases to the canonical single s
 
     const count = calls.find((call) => /role IN \('super_admin', 'super_admin1', 'super_admin2'\)/.test(call.sql));
     assert.ok(count, "canonical and both legacy super-admin roles are counted before migration");
-    const migration = calls.find((call) => /UPDATE public\.users SET role = 'super_admin' WHERE role IN \\('super_admin1', 'super_admin2'\\)/.test(call.sql));
+    const migration = calls.find((call) => /UPDATE public\.users SET role = 'super_admin' WHERE role IN \('super_admin1', 'super_admin2'\)/.test(call.sql));
     assert.ok(migration, "both known legacy roles are normalized in the database");
     assert.ok(calls.indexOf(count) < calls.indexOf(migration), "duplicate check happens before role migration");
 });
