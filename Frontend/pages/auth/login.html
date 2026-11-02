@@ -135,18 +135,6 @@
     <script src="../../assets/js/api-config.js"></script>
     <script src="../../assets/js/auth/auth-api.js"></script>
     <script src="../../assets/js/auth/auth.js"></script>
-    <script>
-        const passwordInput = document.getElementById("password");
-        const passwordToggle = document.getElementById("passwordVisibilityToggle");
-
-        passwordToggle.addEventListener("click", () => {
-            const willShow = passwordInput.type === "password";
-            passwordInput.type = willShow ? "text" : "password";
-            passwordToggle.setAttribute("aria-pressed", String(willShow));
-            passwordToggle.setAttribute("aria-label", `${willShow ? "Hide" : "Show"} password`);
-            passwordToggle.setAttribute("title", `${willShow ? "Hide" : "Show"} password`);
-        });
-    </script>
 </body>
 
 </html>
