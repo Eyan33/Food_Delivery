@@ -241,6 +241,7 @@ test("requireSuperAdmin: 401 without a user, 403 for admins, passes for the supe
     assert.equal(run(undefined).res.statusCode, 401);
     assert.equal(run({ role: "admin" }).res.statusCode, 403);
     assert.equal(run({ role: "customer" }).res.statusCode, 403);
+    assert.equal(run({ role: "super_admin2" }).res.statusCode, 403, "legacy aliases cannot use super-admin routes");
     assert.equal(run({ role: "super_admin" }).nextCalled, true);
 });
 
@@ -254,6 +255,7 @@ test("authorizeRoles: super admin inherits admin routes only", () => {
 
     assert.equal(run(["admin"], "super_admin").nextCalled, true);
     assert.equal(run(["customer"], "super_admin").res.statusCode, 403);
+    assert.equal(run(["admin"], "super_admin2").res.statusCode, 403, "legacy aliases do not inherit admin access");
     assert.equal(run(["restaurant"], "super_admin").res.statusCode, 403);
     assert.equal(run(["admin"], "customer").res.statusCode, 403);
     assert.equal(run(["admin"], "admin").nextCalled, true);
