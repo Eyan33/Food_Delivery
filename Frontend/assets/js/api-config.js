@@ -20,7 +20,7 @@
     const applyPlatformName = (value) => {
         const name = String(value || "").trim();
         if (!name) return;
-        document.querySelectorAll(".logo, .admin-logo, .customer-logo").forEach((element) => {
+        document.querySelectorAll(".logo, .admin-logo, .customer-logo, .restaurant-logo, .rider-logo").forEach((element) => {
             element.textContent = name;
             element.setAttribute("aria-label", name);
         });
