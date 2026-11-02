@@ -416,7 +416,7 @@ test("startup migrates one legacy super-admin when no canonical account exists",
 
     const count = calls.find((call) => /canonical_count/.test(call.sql) && /legacy_count/.test(call.sql));
     assert.ok(count, "canonical and legacy super-admin counts are checked");
-    const migration = calls.find((call) => /UPDATE public\\.users SET role = 'super_admin' WHERE role IN \\('super_admin1', 'super_admin2'\\)/.test(call.sql));
+    const migration = calls.find((call) => call.sql.includes("UPDATE public.users SET role = 'super_admin' WHERE role IN ('super_admin1', 'super_admin2')"));
     assert.ok(migration, "a single legacy account is normalized when the canonical slot is empty");
     assert.ok(calls.indexOf(count) < calls.indexOf(migration), "duplicate check happens before role migration");
 });
@@ -428,7 +428,7 @@ test("startup never promotes a legacy account when a canonical super-admin alrea
     await quietly(() => ensureSuperAdminRoleSchema());
 
     assert.equal(
-        calls.some((call) => /UPDATE public\\.users SET role = 'super_admin'/.test(call.sql)),
+        calls.some((call) => call.sql.includes("UPDATE public.users SET role = 'super_admin'")),
         false,
         "the legacy account is not merged into the existing canonical super-admin",
     );
