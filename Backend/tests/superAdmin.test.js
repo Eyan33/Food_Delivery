@@ -26,6 +26,7 @@ const usersByEmail = new Map();
 let calls = [];
 let roleRows = [];
 let superAdminCount = 0;
+let legacySuperAdminCount = 0;
 let superAdminRows = [];
 
 function addUser(user) {
@@ -56,8 +57,8 @@ const fakePool = {
         if (/SELECT DISTINCT role FROM public\.users/.test(text)) {
             return { rows: roleRows, rowCount: roleRows.length };
         }
-        if (/COUNT\(\*\)::int AS count FROM public\.users WHERE role IN \('super_admin', 'super_admin1', 'super_admin2'\)/.test(text)) {
-            return { rows: [{ count: superAdminCount }], rowCount: 1 };
+        if (/canonical_count/.test(text) && /legacy_count/.test(text)) {
+            return { rows: [{ canonical_count: superAdminCount, legacy_count: legacySuperAdminCount }], rowCount: 1 };
         }
         if (/COUNT\(\*\)::int AS count FROM public\.users WHERE role = 'super_admin'/.test(text)) {
             return { rows: [{ count: superAdminCount }], rowCount: 1 };
@@ -107,6 +108,7 @@ test.beforeEach(() => {
     calls = [];
     roleRows = [];
     superAdminCount = 0;
+    legacySuperAdminCount = 0;
     superAdminRows = [];
 });
 
@@ -408,14 +410,29 @@ test("startup does not crash when the super admin's email no longer matches the 
     );
 });
 
-test("startup migrates both legacy super-admin aliases to the canonical single super_admin role", async () => {
+test("startup migrates one legacy super-admin when no canonical account exists", async () => {
+    legacySuperAdminCount = 1;
     await quietly(() => ensureSuperAdminRoleSchema());
 
-    const count = calls.find((call) => /role IN \('super_admin', 'super_admin1', 'super_admin2'\)/.test(call.sql));
-    assert.ok(count, "canonical and both legacy super-admin roles are counted before migration");
-    const migration = calls.find((call) => /UPDATE public\.users SET role = 'super_admin' WHERE role IN \('super_admin1', 'super_admin2'\)/.test(call.sql));
-    assert.ok(migration, "both known legacy roles are normalized in the database");
+    const count = calls.find((call) => /canonical_count/.test(call.sql) && /legacy_count/.test(call.sql));
+    assert.ok(count, "canonical and legacy super-admin counts are checked");
+    const migration = calls.find((call) => /UPDATE public\\.users SET role = 'super_admin' WHERE role IN \\('super_admin1', 'super_admin2'\\)/.test(call.sql));
+    assert.ok(migration, "a single legacy account is normalized when the canonical slot is empty");
     assert.ok(calls.indexOf(count) < calls.indexOf(migration), "duplicate check happens before role migration");
+});
+
+test("startup never promotes a legacy account when a canonical super-admin already exists", async () => {
+    superAdminCount = 1;
+    legacySuperAdminCount = 1;
+    roleRows = [{ role: "super_admin2" }];
+    await quietly(() => ensureSuperAdminRoleSchema());
+
+    assert.equal(
+        calls.some((call) => /UPDATE public\\.users SET role = 'super_admin'/.test(call.sql)),
+        false,
+        "the legacy account is not merged into the existing canonical super-admin",
+    );
+    assert.ok(calls.some((call) => /CREATE UNIQUE INDEX IF NOT EXISTS idx_users_single_super_admin/.test(call.sql)));
 });
 
 test("role constraint allows canonical roles and existing legacy roles, nothing speculative", async () => {
