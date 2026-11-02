@@ -456,13 +456,13 @@ async function ensureSuperAdminRoleSchema() {
     // authorization, audit checks, and the single-super-admin index all use
     // the canonical role. Refuse to merge two privileged accounts.
     const privilegedCount = await pool.query(
-        "SELECT COUNT(*)::int AS count FROM public.users WHERE role IN ('super_admin', 'super_admin1')",
+        "SELECT COUNT(*)::int AS count FROM public.users WHERE role IN ('super_admin', 'super_admin1', 'super_admin2')",
     );
     if (privilegedCount.rows[0].count > 1) {
         throw new Error("Multiple super-admin accounts were found across canonical and legacy roles. Resolve duplicates before startup.");
     }
     await pool.query(
-        "UPDATE public.users SET role = 'super_admin' WHERE role = 'super_admin1'",
+        "UPDATE public.users SET role = 'super_admin' WHERE role IN ('super_admin1', 'super_admin2')",
     );
 
     // Only canonical roles plus unrelated legacy values already in the
@@ -507,7 +507,7 @@ async function seedSuperAdmin() {
     if (!email && !password) return;
     if (!email || !password) throw new Error("SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD must both be set to create the super admin.");
     if (!isValidEmail(email)) throw new Error("SUPER_ADMIN_EMAIL is not a valid email address.");
-    if (password.length < 16) throw new Error("SUPER_ADMIN_PASSWORD must be at least 16 characters.");
+    if (password.length < 8) throw new Error("SUPER_ADMIN_PASSWORD must be at least 8 characters.");
     const forcePasswordReset = String(process.env.SUPER_ADMIN_FORCE_PASSWORD_RESET || "").toLowerCase() === "true";
 
     // If the super admin changed their email after the first start, the
